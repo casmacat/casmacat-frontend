@@ -4,6 +4,7 @@ UI = {
     render: function(firstLoad) {
         this.isWebkit = $.browser.webkit;
         this.isFirefox = $.browser.mozilla;
+        this.isSafari = $.browser.safari;
         this.body = $('body');
         this.dmp = new diff_match_patch();
         this.firstLoad = firstLoad;
@@ -201,6 +202,14 @@ UI = {
 
         $('html').click(function() {
             $(".menucolor").hide();
+        }).on('click','.alert .close',function(e) {          
+            e.preventDefault();
+            $('.alert').remove();
+        }).on('click','.downloadtr-button',function(e) {          
+//            e.preventDefault();
+            setTimeout(function(){
+            	UI.downloadNotifier();
+            },3000);
         });
 
         $("article").on('click','a.percentuage',function(e) {          
@@ -214,9 +223,10 @@ UI = {
                 if(operation == 'moving') {
 					if((UI.lastOperation == 'moving')&&(UI.recentMoving)) {
 						UI.segmentToOpen = segment;
+						console.log('UI.blockOpenSegment: '+UI.blockOpenSegment);
 						UI.blockOpenSegment = true;
 						
-//						console.log('ctrl+down troppo vicini');
+						console.log('ctrl+down troppo vicini');
 //						console.log(UI.segmentToOpen);
 					} else {
 						UI.blockOpenSegment = false;
@@ -232,14 +242,27 @@ UI = {
 					UI.blockOpenSegment = false;
 				}
 				UI.lastOperation = operation;
+
                 UI.openSegment(this);
-//                if(!UI.blockOpenSegment) UI.openSegment(this);
+/*
+                if(UI.blockOpenSegment) {
+					UI.cacheObjects(this);
+					clearTimeout(UI.openSegmentAfterMoving);
+					UI.openSegmentAfterMoving = setTimeout(function(){
+						UI.openSegment(UI.currentSegment);
+					},500);
+                } else {
+                	UI.openSegment(this);
+                }
+*/
+
                 if(operation != 'moving') UI.scrollSegment($('#segment-'+$(this).data('sid')));
             }
 //            console.log('UI.lastOperation = ' + UI.lastOperation);    
             if(UI.debug) console.log('Total onclick Editarea: ' + ( (new Date()) - this.onclickEditarea));
         }).on('click','a.translated',function(e) {
             e.preventDefault();
+            UI.checkHeaviness();
             if(UI.blockButtons) {
                 if(UI.segmentIsLoaded(UI.nextSegmentId) || UI.nextSegmentId=='' ) {
                 } else {
@@ -294,21 +317,24 @@ UI = {
             UI.copySource();
         }).on('click','.tagmenu, .warning, .viewer, .notification-box li a',function(e) {          
             return false;
-        }).on('click','.alert .close',function(e) {          
-            e.preventDefault();
-            $('section .alert').remove();
         }).on('paste','.editarea',function(e) {          
+
             if(!UI.isWebkit) {
                 $('#temptextarea').remove();
                 //				alert('Paste in this area is temporarily enabled only for Chrome browser');
-                UI.editarea.after('<div class="alert"><a href="#" class="close"></a><strong style="font-size:160%">Sorry!</strong><br /><p>This functionality is not supported on your browser yet.</p></div>');
+                UI.body.append('<div class="alert"><a href="#" class="close"></a><strong style="font-size:160%">Sorry!</strong><br /><p>This functionality is not supported on your browser yet. We are working to enable it on every browser. </p></div>');
+//                UI.editarea.after('<div class="alert"><a href="#" class="close"></a><strong style="font-size:160%">Sorry!</strong><br /><p>This functionality is not supported on your browser yet.</p></div>');
                 UI.editarea.after('<textarea style="display: none" id="temptextarea"></textarea>');
                 $('#temptextarea').focus();
                 return false;
             }
+//            console.log($('#placeHolder'));
+//            console.log($('#outer'));
+
             $('#placeHolder').remove();
             var node = document.createElement("div");
             node.setAttribute('id','placeHolder');
+            removeSelectedText($(this));
             insertNodeAtCursor(node);
             handlepaste(this, event);
 
@@ -362,8 +388,7 @@ UI = {
 
 
         //			},100);
-        }).on('keyup paste','.editarea',function(e) {          
-            }).on('click','a.close',function(e) {          
+        }).on('click','a.close',function(e) {          
             e.preventDefault();
             UI.closeSegment(UI.currentSegment,1);
         });
@@ -393,6 +418,22 @@ UI = {
         if(this.debug) console.log('Init time: ' + this.initTime);
 
     },
+
+	doRequest: function(req) {
+        var setup = {
+                url:      config.basepath + '?action=' + req.data.action + this.appendTime(),
+                data:     req.data,
+                type:     'POST',
+                dataType: 'json'
+        };
+
+        // Callbacks
+        if (typeof req.success === 'function') setup.success = req.success;
+        if (typeof req.complete === 'function') setup.complete = req.complete;
+        if (typeof req.context != 'undefined') setup.context = req.context;
+
+        $.ajax(setup);
+	},
 
     activateSegment: function() {
         this.createFooter(this.currentSegment);
@@ -452,11 +493,27 @@ UI = {
 */
     },
 
+    cacheObjects: function(editarea) {
+        this.editarea = $(editarea);
+        // current and last opened object reference caching
+        this.lastOpenedSegment = this.currentSegment;
+        this.lastOpenedEditarea = $('.editarea',this.currentSegment);
+        this.currentSegmentId = this.lastOpenedSegmentId = this.editarea.data('sid');
+        this.currentSegment = segment = $('#segment-'+this.currentSegmentId);
+        this.currentArticle = segment.parent();
+    },
+
     changeStatus: function(ob,status,byStatus) {
         var segment = (byStatus)? $(ob).parents("section") : $('#'+$(ob).data('segmentid'));
         $('.percentuage',segment).removeClass('visible');
         this.setContribution(segment,status,byStatus);
         this.setTranslation(segment,status);
+    },
+
+    checkHeaviness: function() {
+    	if($('section').length > 500) {
+    		UI.reloadToSegment(UI.nextSegmentId);
+    	}
     },
 
     checkIfFinished: function(closing) {
@@ -583,6 +640,14 @@ UI = {
         this.startSegmentId = (hash)? hash : config.last_opened_segment;
     },
 
+    downloadNotifier: function() {
+//    	if(!UI.isWebkit) return;
+    	if((!UI.isWebkit)||(UI.isSafari)) return;
+    	console.log('downloaded');
+    	console.log($.browser);
+		$('#outer').append('<div id="downloadNotifier"></div>');
+    },
+    
     getContribution: function(segment,next) {
 // prova per anticipare l'indent
 /*
@@ -622,34 +687,30 @@ UI = {
         if(!next) {
             $(".loader",n).addClass('loader_on')
         }
-     
-        $.ajax({
-            url: config.basepath + '?action=getContribution'+this.appendTime(),
-            data: {
-                action: 'getContribution',
-                id_segment: id_segment,
-                text: txt,
-                id_job: config.job_id,
-                num_results: this.numMatchesResults,
-                id_translator : config.id_translator
-            },
-            type: 'POST',            
-            dataType: 'json',
-            context: $('#'+id),
-            complete: function (d){
-                $(".loader",n).removeClass('loader_on');
-            },
-            success: function(d){
-                UI.renderContributions(d,this);
-                UI.blockButtons = false;
 
-                if (d.data.matches==0){
-                    $(".sbm > .matches", this).hide();
-                } else {
-                    $('.submenu li.matches a span', this).text('('+d.data.matches.length+')');
-                }
-            }
-        });
+		this.doRequest({
+			data: {
+				action:         'getContribution',
+				id_segment:     id_segment,
+				text:           txt,
+				id_job:         config.job_id,
+				num_results:    this.numMatchesResults,
+				id_translator:  config.id_translator
+			},
+			context: $('#'+id),
+			success: function(d){
+				UI.renderContributions(d,this);
+				UI.blockButtons = false;
+        		if (d.data.matches.length > 0) {
+        			$('.submenu li.matches a span', this).text('('+d.data.matches.length+')');
+				} else {
+        			$(".sbm > .matches", this).hide();
+				}
+			},
+			complete: function(d){
+			    $(".loader", n).removeClass('loader_on');
+			}
+		});
     },
 
     getMoreSegments: function(where) {
@@ -677,19 +738,16 @@ UI = {
             $('#outer').addClass('loading');
         }
 
-        $.ajax({
-            url: config.basepath + '?action=getSegments'+this.appendTime(),
-            data: {
-                action: 'getSegments',
+		this.doRequest({
+			data: {
+				action: 'getSegments',
                 jid: config.job_id,
                 password: config.password,
                 step : 50,
                 segment: segId,
                 where: where
-            },
-            type: 'POST',            
-            dataType: 'json',
-            success: function(d){
+			},
+			success: function(d){
                 where = d.data['where'];
                 if(typeof d.data['files'] != 'undefined') {
                     var numsegToAdd = 0;
@@ -721,9 +779,8 @@ UI = {
                 $('#outer').removeClass('loading loadingBefore');
                 UI.loadingMore = false;
 				UI.setWaypoints();
-
-            }
-        });
+			}
+		});
     },
 
     getNextSegment: function(segment,status) {
@@ -770,31 +827,29 @@ UI = {
         where = (this.startSegmentId)? 'center' : 'after';
         var step = this.initSegNum;
         $('#outer').addClass('loading');
-   		
-        $.ajax({
-            url: config.basepath + '?action=getSegments'+this.appendTime(),
-            data: {
+
+		this.doRequest({
+			data: {
                 action: 'getSegments',
                 jid: config.job_id,
                 password: config.password,
                 step : step,
                 segment: this.startSegmentId,
                 where: where
-            },
-            type: 'POST',            
-            dataType: 'json',
-            success: function(d){
+			},
+			success: function(d){
                 where = d.data['where'];
                 $.each(d.data['files'], function() {
                     startSegmentId = this['segments'][0]['sid'];
                 })
                 if(typeof this.startSegmentId == 'undefined') this.startSegmentId = startSegmentId;
+                UI.body.addClass('loaded');
                 if(typeof d.data['files'] != 'undefined') UI.renderSegments(d.data['files'],where,true);
                 $('#outer').removeClass('loading loadingBefore');
                 UI.loadingMore = false;
                 UI.setWaypoints();
-            }
-        });
+			}
+		});
     },
 
     detectAdjacentSegment: function(segment,direction,times) { // currently unused
@@ -881,16 +936,7 @@ UI = {
             if(this.justSelecting()) return;
         }
         this.byButton = false;
-        this.editarea = $(editarea);
-
-        // current and last opened object reference caching
-        this.lastOpenedSegment = this.currentSegment;
-        this.lastOpenedEditarea = $('.editarea',this.currentSegment);
-
-        this.currentSegmentId = this.lastOpenedSegmentId = this.editarea.data('sid');
-		
-        this.currentSegment = segment = $('#segment-'+this.currentSegmentId);
-        this.currentArticle = segment.parent();
+        this.cacheObjects(editarea);
         this.activateSegment();
 		
         this.getNextSegment(this.currentSegment,'untranslated');
@@ -903,7 +949,7 @@ UI = {
         this.currentIsLoaded = false;
         this.nextIsLoaded = false;
         this.getContribution(segment,0);
-        this.opening = true;
+        this.opening = true; 
         if(!(this.currentSegment.is(this.lastOpenedSegment))) this.closeSegment(this.lastOpenedSegment,0);
         this.opening = false;
         this.body.addClass('editing');
@@ -1169,7 +1215,6 @@ UI = {
     },
 
     scrollSegment: function(segment) {
-//        console.log('scrollSegment');
         var spread = 23;
         var current = this.currentSegment;
         var previousSegment = $(segment).prev('section');
@@ -1200,6 +1245,7 @@ UI = {
             destinationTop = destinationTop - spread;
         }	
 
+        $("html,body").stop();
         $("html,body").animate({
             scrollTop: destinationTop-20
         }, 500 );
@@ -1233,9 +1279,9 @@ UI = {
         var private_translator = config.private_translator;
         var id_customer = config.id_customer;
         var private_customer = config.private_customer;
-        $.ajax({
-            url: config.basepath + '?action=setContribution'+this.appendTime(),
-            data: {
+
+		this.doRequest({
+			data: {
                 action: 'setContribution',
                 source: source,
                 target: target,
@@ -1245,12 +1291,8 @@ UI = {
                 private_translator: private_translator,
                 id_customer: id_customer,
                 private_customer: private_customer
-            },
-            type: 'POST',
-            dataType: 'json',
-            success: function(d){
-            }
-        });
+			}
+		});
     },
 
     setCurrentSegment: function(segment,closed) {
@@ -1265,17 +1307,14 @@ UI = {
             },300);
         }
         var file = this.currentArticle;
-        $.ajax({
-            url: config.basepath + '?action=setCurrentSegment'+this.appendTime(),
-            data: {
+
+		this.doRequest({
+			data: {
                 action: 'setCurrentSegment',
                 id_segment: id_segment,
                 id_job: config.job_id
-            },
-            type: 'POST',
-            success: function(d){
-            }
-        });
+			}
+		});
     },
 
     setDeleteSuggestion: function(segment) {
@@ -1288,21 +1327,17 @@ UI = {
             target = $('.translation',ul).text();
             target=view2rawxliff(target);
             ul.remove();
-            $.ajax({
-                url: config.basepath+'?'+UI.appendTime(),
-                data: {
+
+			UI.doRequest({
+				data: {
                     action: 'deleteContribution',
                     source_lang: config.source_lang,
                     target_lang: config.target_lang,
                     seg: source,
                     tra: target,
                     id_translator : config.id_translator
-                },
-                type: 'POST',
-                dataType: 'json',
-                complete: function (d){
-                },
-                success: function(d){
+				},
+				success: function(d){
                     if(UI.debug) console.log('match deleted');
 
                     $(".editor .matches .graysmall").each(function(index){
@@ -1310,9 +1345,8 @@ UI = {
                         $(this).attr('data-item',index+1);
                         UI.reinitMMShortcuts();
                     })
-
-                }
-            });
+				}
+			});
         });
     },
 
@@ -1345,6 +1379,16 @@ UI = {
     	
         var wph 		= s.WORDS_PER_HOUR;
         var completion  = s.ESTIMATED_COMPLETION;
+		if(typeof wph == 'undefined') {
+			$('#stat-wph').hide();
+		} else {
+			$('#stat-wph').show();
+		}
+		if(typeof completion == 'undefined') {
+			$('#stat-completion').hide();
+		} else {
+			$('#stat-completion').show();
+		}
         UI.progress_perc = Math.floor(s.APPROVED_PERC + s.TRANSLATED_PERC);
         this.checkIfFinished();
 
@@ -1406,9 +1450,9 @@ UI = {
         if(translation == '') return false;
         var time_to_edit = UI.editTime;
         var id_translator = config.id_translator;
-        $.ajax({
-            url: config.basepath + '?action=setTranslation'+this.appendTime(),
-            data: {
+
+		this.doRequest({
+			data: {
                 action: 'setTranslation',
                 id_segment: id_segment,
                 id_job: config.job_id,
@@ -1417,17 +1461,15 @@ UI = {
                 translation: translation,
                 time_to_edit: time_to_edit,
                 id_translator: id_translator
-            },
-            type: 'POST',
-            dataType: 'json',
-            success: function(d){
+			},
+			success: function(d){
                 if(d.data == 'OK') {
                     UI.setStatus(segment,status);
                     UI.setDownloadStatus(d.stats);
                     UI.setProgress(d.stats);
                 };
-            }
-        });
+			}
+		});
     },
 
     setWaypoints: function() {
@@ -1576,11 +1618,26 @@ function handlepaste (elem, e) {
 
 
     if (e && e.clipboardData && e.clipboardData.getData) {// Webkit - get data from clipboard, put into editdiv, cleanup, then cancel event
+//        console.log(e.clipboardData.getData('text/plain'));
+//        console.log(htmlEncode(e.clipboardData.getData('text/plain')));
+
+
+//$(elem).text('incollato');
+
+//            elem.innerHTML = 'incollato';
+
+//var someDiv = document.getElementById($(elem).attr('id'));
+//var children = someDiv.childNodes;
+// for(var i = 0; i < children.length; i++) someDiv.removeChild(children[i]);
+
+
+/*
+*/
         if (/text\/html/.test(e.clipboardData.types)) {
-            elem.innerHTML = e.clipboardData.getData('text/plain');
+            elem.innerHTML = htmlEncode(e.clipboardData.getData('text/plain'));
         }
         else if (/text\/plain/.test(e.clipboardData.types)) {
-            elem.innerHTML = e.clipboardData.getData('text/plain');
+            elem.innerHTML = htmlEncode(e.clipboardData.getData('text/plain'));
         }
         else {
             elem.innerHTML = "";
@@ -1593,6 +1650,8 @@ function handlepaste (elem, e) {
         return false;
     }
     else {// Everything else - empty editdiv and allow browser to paste content into it, then cleanup
+/*
+ */
         elem.innerHTML = "";
         waitforpastedata(elem, savedcontent);
         return true;
@@ -1617,6 +1676,8 @@ function waitforpastedata (elem, savedcontent) {
 
 function processpaste (elem, savedcontent) {
     pasteddata = elem.innerHTML;
+//    console.log('pasteddata: ' + pasteddata);
+//    console.log('encoded pasteddata: ' + htmlEncode(pasteddata));
     //^^Alternatively loop through dom (elem.childNodes or elem.getElementsByTagName) here
     //	console.log(elem.id);
     elem.innerHTML = savedcontent;
@@ -1726,6 +1787,22 @@ function insertNodeAtCursor(node) {
         range.pasteHTML(html);
     }
 }
+
+function removeSelectedText (editarea) {
+    if (window.getSelection || document.getSelection) {
+        var oSelection = (window.getSelection ? window : document).getSelection();
+		oSelection.deleteFromDocument();
+/*
+        $(editarea).text(
+            $(editarea).text().substr(0, oSelection.anchorOffset)
+            + $(editarea).text().substr(oSelection.focusOffset)
+        );
+*/
+    } else {
+        document.selection.clear();
+    }
+}
+
 
 $(document).ready(function(){
     fit_text_to_container($("#pname"));

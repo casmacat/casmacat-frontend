@@ -10,8 +10,9 @@ Loader = {
 	),
 
 	forkComponents: new Array (
-		'cat-fork'
+		'cat2'
 	),
+// cat-fork
 		
 	libraries: new Array (
 		'jquery',
