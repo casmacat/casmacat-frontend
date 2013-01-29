@@ -1,5 +1,5 @@
 <?
-error_reporting (E_ALL);
+include_once realpath(dirname(__FILE__) . '/../../../') . '/inc/config.inc.php';
 include_once "engine.class.php";
 include_once ("utils/cat.class.php");
 

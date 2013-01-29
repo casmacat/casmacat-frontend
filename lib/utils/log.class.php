@@ -1,14 +1,12 @@
 <?php
-error_reporting(E_ALL);
-
-define('DEBUG', 1);
+include_once realpath(dirname(__FILE__) . '/../../') . '/inc/config.inc.php';
 
 if (!defined('LOG_REPOSITORY')) {
     define('LOG_REPOSITORY', INIT::$LOG_REPOSITORY);
 }
 
 if (!defined('LOG_FILENAME')) {
-    define('LOG_FILENAME', 'log.txt');
+    define('LOG_FILENAME', INIT::$LOG_FILENAME);
 }
 
 class Log {
@@ -26,8 +24,8 @@ class Log {
             mkdir(LOG_REPOSITORY);
         }
 
-        if (empty(Log::$filename)) {
-            Log::$filename = LOG_REPOSITORY . "/" . LOG_FILENAME;
+        if (empty(self::$filename)) {
+            self::$filename = LOG_REPOSITORY . "/" . LOG_FILENAME;
             $fh=@fopen(self::$filename, a);
             if (!$fh){
                 unlink(self::$filename);      
@@ -49,7 +47,7 @@ class Log {
         
         $string=rtrim($string, " -");//elimina l'ultimo -
         
-        $fh = @fopen(self::$filename, 'a') or die("can't open file");
+        $fh = @fopen(self::$filename, 'a') or die("can't open file ".self::$filename);
         $now = date('Y-m-d H:i:s');
         //$ip = gethostname(); // only for PHP 5.3
         $ip=php_uname('n');
