@@ -45,7 +45,7 @@ $(".more").click(function(e){
 		            		$('.uploadbtn').attr('value','Start Translating').removeAttr('disabled');
 						} else {
 //							$.cookie('upload_session', null);
-							location.href = '/translate/' + d.project_name + '/' + d.source_language.substring(0,2) + '-' + d.target_language.substring(0,2) + '/' + d.id_job + '-' + d.password;
+							location.href = window.location.href + 'translate/' + d.project_name + '/' + d.source_language.substring(0,2) + '-' + d.target_language.substring(0,2) + '/' + d.id_job + '-' + d.password;
 						}
 		            }
 		        });
