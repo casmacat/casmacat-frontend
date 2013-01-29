@@ -2,6 +2,7 @@ body{min-width:980px;position:relative;background:#fff;text-align:center;margin:
 input, textarea{font-family:calibri, Arial, Helvetica, sans-serif;font-size:16px;}
 /*header*/
 header{background:#6d6e71;top:0;left:0;width:100%;position:fixed;z-index:999999999;border-bottom:1px solid #333;padding:0px 0 2px 0;}
+header * { vertical-align:middle; }
 
 
 
@@ -26,7 +27,7 @@ margin-left:2px
 	}
 
 
-.logo{float:left;border:0;background:url(../img/logo.png) 0px 2px no-repeat;width:145px;height:31px; background-size: 130px 26px;}
+.logo{float:left;border:0;background:url(../img/logo.png) 0px 2px no-repeat;width:145px;height:51px; background-size: 130px 46px;}
 
 
 
@@ -1020,7 +1021,7 @@ filter: �alpha(opacity=50)�; /*per Internet Explorer 8*/
 .iepopup ul li{float:left;width:33.3%;}
 .iepopup ul a{width:100%;float:left;padding:0px 0 0 0;display:block;color:#39699A}
 .iepopup a:hover{text-decoration:none}
-.logoblack{border:0;background:url(../img/logoblack.png) 0px 2px no-repeat;display:block;width:145px;height:31px; background-size: 130px 28px;clear:both;margin:0 auto 10px auto}
+.logoblack{border:0;background:url(../img/logoblack.png) 0px 2px no-repeat;display:block;width:145px;height:51px; background-size: 130px 46px;clear:both;margin:0 auto 10px auto}
 .nobrowser #outer, .nobrowser header, .nobrowser footer, .nobrowser .wrapper{display:none !important}
 .iepopup p{line-height:27px}
 
