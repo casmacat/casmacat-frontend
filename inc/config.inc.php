@@ -33,23 +33,24 @@ class INIT {
     }
 
      private function __construct() {
-        //$root = isset ($_SERVER['DOCUMENT_ROOT'])?$_SERVER['DOCUMENT_ROOT']:getcwd();	
         $root = realpath(dirname(__FILE__).'/../');
         self::$ROOT = $root;  // Accesible by Apache/PHP
-        self::$BASEURL = "/"; // Accesible by the browser
+
+        $ini = parse_ini_file(dirname(__FILE__).'/config.ini', true);
+
+        self::$BASEURL = $ini['ui']['baseurl']; // Accesible by the browser
         
 	set_include_path(get_include_path() . PATH_SEPARATOR . $root);
 
-        self::$TIME_TO_EDIT_ENABLED = false;
-
+        self::$TIME_TO_EDIT_ENABLED = $ini['ui']['timetoedit'];
         
-        self::$DEFAULT_NUM_RESULTS_FROM_TM=3;
-	self::$THRESHOLD_MATCH_TM_NOT_TO_SHOW=50;
+        self::$DEFAULT_NUM_RESULTS_FROM_TM=$ini['mymemory']['numresults'];
+	self::$THRESHOLD_MATCH_TM_NOT_TO_SHOW=$ini['mymemory']['matchthreshold'];
 
-        self::$DB_SERVER = "10.30.1.241"; //database server
-               self::$DB_DATABASE = "matecat_sandbox"; //database name
-                self::$DB_USER = "matecat"; //database login 
-                self::$DB_PASS = "matecat01"; //databasepassword
+        self::$DB_SERVER = $ini['db']['hostname'];
+               self::$DB_DATABASE = $ini['db']['database'];
+                self::$DB_USER = $ini['db']['username'];
+                self::$DB_PASS = $ini['db']['password'];
  
 
         self::$LOG_REPOSITORY = self::$ROOT . "/storage/log_archive";
@@ -62,8 +63,8 @@ class INIT {
 	self::$BUILD_NUMBER='0.3.0';
 
         // Custom translation/HTR servers (TODO: see how can integrate $_GET params with rewritten URLs)
-        self::$CATSERVER = isset($_GET['catserver']) ? $_GET['catserver'] : "my.cat.server:8080";
-        self::$HTRSERVER = isset($_GET['htrserver']) ? $_GET['htrserver'] : "my.htr.server:8080";
+        self::$CATSERVER = isset($_GET['catserver']) ? $_GET['catserver'] : $ini['casmacat']['catserver'];
+        self::$HTRSERVER = isset($_GET['htrserver']) ? $_GET['htrserver'] : $ini['casmacat']['htrserver'];
     }
 
 }
