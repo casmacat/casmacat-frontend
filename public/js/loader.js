@@ -6,7 +6,8 @@
 Loader = {
 	
 	components: new Array (
-		'cat'
+		'cat',
+    'casmacat/itp'
 	),
 
 	forkComponents: new Array (
