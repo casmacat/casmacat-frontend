@@ -21,6 +21,9 @@ class INIT {
     public static $ENABLED_BROWSERS;
     public static $BUILD_NUMBER;
 
+    public static $CATSERVER;
+    public static $HTRSERVER;
+
 
     public static function obtain() {        
         if (!self::$instance) {
