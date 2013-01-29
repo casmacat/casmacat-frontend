@@ -57,6 +57,10 @@ class INIT {
 
 	self::$ENABLED_BROWSERS=array('chrome','firefox','safari');
 	self::$BUILD_NUMBER='0.3.0';
+
+        // Custom translation/HTR servers (TODO: see how can integrate $_GET params with rewritten URLs)
+        self::$CATSERVER = isset($_GET['catserver']) ? $_GET['catserver'] : "my.cat.server:8080";
+        self::$HTRSERVER = isset($_GET['htrserver']) ? $_GET['htrserver'] : "my.htr.server:8080";
     }
 
 }
