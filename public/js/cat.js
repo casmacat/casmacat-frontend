@@ -1,4 +1,4 @@
-UI = null;
+UI = null; // ?
 
 UI = {
     render: function(firstLoad) {
@@ -53,60 +53,15 @@ UI = {
 	
         // SET EVENTS
         
-        $("body").bind('keydown','Ctrl+return', function(e){
-            e.preventDefault();
-            $('.editor .translated').click();
-        }).bind('keydown','Meta+return', function(e){ 
-            e.preventDefault();
-            $('.editor .translated').click();
-        }).bind('keydown','Ctrl+pageup', function(e){ 
-            e.preventDefault();
-            alert('pageup');;
-        }).bind('keydown','Ctrl+down', function(e){ 
-            e.preventDefault();
-            e.stopPropagation();
-            UI.gotoNextSegment();
-        }).bind('keydown','Meta+down', function(e){ 
-            e.preventDefault();
-            e.stopPropagation();
-            UI.gotoNextSegment();
-        }).bind('keydown','Ctrl+up', function(e){ 
-            e.preventDefault();
-            e.stopPropagation();
-            UI.gotoPreviousSegment();
-        }).bind('keydown','Meta+up', function(e){ 
-            e.preventDefault();
-            e.stopPropagation();
-            UI.gotoPreviousSegment();
-        }).bind('keydown','Ctrl+left', function(e){ 
-            e.preventDefault();
-            if(UI.segmentIdToRestore) {
-                UI.reloadToSegment(UI.segmentIdToRestore);
-            } else {
-                UI.gotoOpenSegment();
-            }
-        }).bind('keydown','Meta+left', function(e){ 
-            e.preventDefault();
-            if(UI.segmentIdToRestore) {
-                UI.reloadToSegment(UI.segmentIdToRestore);
-            } else {
-                UI.gotoOpenSegment();
-            }
-        }).bind('keydown','Ctrl+right', function(e){ 
-            e.preventDefault();
-            UI.copySource();
-        }).bind('keydown','Meta+right', function(e){ 
-            e.preventDefault();
-            UI.copySource();
-        })
+        this.setKeyboardShortcuts();
 
         $("header .filter").click(function(e){ 
-            e.preventDefault();
+            //XXX: Why is this needed? e.preventDefault();
             UI.body.toggleClass('filtering');
         })      
 
         $(".replace").click(function(e){ 
-            e.preventDefault();
+            //XXX: Why is this needed? e.preventDefault();
             UI.body.toggleClass('replace-box');
         }) 
 
@@ -128,7 +83,7 @@ UI = {
         });	
   
         $(".search-icon, .search-on").click(function(e) {          
-            e.preventDefault();
+            //XXX: Why is this needed? e.preventDefault();
             $("#search").toggle();
         });
         	  
@@ -141,7 +96,7 @@ UI = {
         // for future comments implementation
         /*
  		$("article").on('click','div.comments span.corner',function(e) {          
-            e.preventDefault();
+            //XXX: Why is this needed? e.preventDefault();
             $(".comment-area").hide();
             $(".h-notification").show();
 
@@ -156,7 +111,7 @@ UI = {
             $(".text-c").focus();
             $(".c-close", segment).hide();
          }).on('click','a.x-com',function(e) {  
-			e.preventDefault();
+			//XXX: Why is this needed? e.preventDefault();
  			var segment = $(this).parents("section");
 			var commentArea =  $(".comment-area", segment);
 
@@ -170,12 +125,12 @@ UI = {
         })
 */        
         $("article").on('click','a.number',function(e) {  
-            e.preventDefault();
-            e.stopPropagation();
+            //XXX: Why is this needed? e.preventDefault();
+            //XXX: Why is this needed? e.stopPropagation();
             return false;
         }).on('click','a.status',function(e) {
-            e.preventDefault();
-            e.stopPropagation();
+            //XXX: Why is this needed? e.preventDefault();
+            //XXX: Why is this needed? e.stopPropagation();
             var segment = $(this).parents("section");
             var statusMenu = $("ul.statusmenu", segment);
 
@@ -189,32 +144,32 @@ UI = {
         });
         
         $(".joblink").click(function(e) {          
-            e.preventDefault();
+            //XXX: Why is this needed? e.preventDefault();
             $(".joblist").toggle();
             return false;
         });
 
         $(".statslink").click(function(e) {    
-            e.preventDefault();
-            e.stopPropagation();
+            //XXX: Why is this needed? e.preventDefault();
+            //XXX: Why is this needed? e.stopPropagation();
             $(".stats").toggle();
         });
 
         $('html').click(function() {
             $(".menucolor").hide();
         }).on('click','.alert .close',function(e) {          
-            e.preventDefault();
+            //XXX: Why is this needed? e.preventDefault();
             $('.alert').remove();
         }).on('click','.downloadtr-button',function(e) {          
-//            e.preventDefault();
+//            //XXX: Why is this needed? e.preventDefault();
             setTimeout(function(){
             	UI.downloadNotifier();
             },3000);
         });
 
         $("article").on('click','a.percentuage',function(e) {          
-            e.preventDefault();
-            e.stopPropagation();
+            //XXX: Why is this needed? e.preventDefault();
+            //XXX: Why is this needed? e.stopPropagation();
         }).on('click','.editarea',function(e,operation) {
         	if(typeof operation == 'undefined') operation = 'clicking';
             this.onclickEditarea = new Date();
@@ -261,7 +216,7 @@ UI = {
 //            console.log('UI.lastOperation = ' + UI.lastOperation);    
             if(UI.debug) console.log('Total onclick Editarea: ' + ( (new Date()) - this.onclickEditarea));
         }).on('click','a.translated',function(e) {
-            e.preventDefault();
+            //XXX: Why is this needed? e.preventDefault();
             UI.checkHeaviness();
             if(UI.blockButtons) {
                 if(UI.segmentIsLoaded(UI.nextSegmentId) || UI.nextSegmentId=='' ) {
@@ -313,7 +268,7 @@ UI = {
         }).on('click','a.f',function(e) {          
             UI.changeStatus(this,'draft',1);
         }).on('click','a.copysource',function(e) {   
-            e.preventDefault();
+            //XXX: Why is this needed? e.preventDefault();
             UI.copySource();
         }).on('click','.tagmenu, .warning, .viewer, .notification-box li a',function(e) {          
             return false;
@@ -349,7 +304,7 @@ UI = {
 				console.log($('#temptextarea').val());
 			},100);
 */
-        //            e.preventDefault();
+        //            //XXX: Why is this needed? e.preventDefault();
         //            console.log($(this).html());
         //            console.log($(this).text());
         //        	UI.currentEditareaContent = $(this).html();
@@ -389,7 +344,7 @@ UI = {
 
         //			},100);
         }).on('click','a.close',function(e) {          
-            e.preventDefault();
+            //XXX: Why is this needed? e.preventDefault();
             UI.closeSegment(UI.currentSegment,1);
         });
 
@@ -397,19 +352,19 @@ UI = {
         UI.gotoSegment(this.startSegmentId);
 
         $(".end-message-box a.close").on('click',function(e) {          
-            e.preventDefault();
+            //XXX: Why is this needed? e.preventDefault();
             UI.body.removeClass('justdone');
         })
 
         this.checkIfFinishedFirst();
 
         $("section .close").bind('keydown','Shift+tab', function(e){ 
-            e.preventDefault();
+            //XXX: Why is this needed? e.preventDefault();
             $(this).parents('section').find('a.translated').focus();
         })      
 
         $("a.translated").bind('keydown','tab', function(e){ 
-            e.preventDefault();
+            //XXX: Why is this needed? e.preventDefault();
             $(this).parents('section').find('.close').focus();
         })      
         //		UI.arrangeFilename(this.currentArticle);
@@ -418,7 +373,7 @@ UI = {
         if(this.debug) console.log('Init time: ' + this.initTime);
 
     },
-
+  
 	doRequest: function(req) {
         var setup = {
                 url:      config.basepath + '?action=' + req.data.action + this.appendTime(),
@@ -430,7 +385,6 @@ UI = {
         // Callbacks
         if (typeof req.success === 'function') setup.success = req.success;
         if (typeof req.complete === 'function') setup.complete = req.complete;
-        if (typeof req.context != 'undefined') setup.context = req.context;
 
         $.ajax(setup);
 	},
@@ -687,24 +641,23 @@ UI = {
         if(!next) {
             $(".loader",n).addClass('loader_on')
         }
-
+    var ctx = $('#'+id);
 		this.doRequest({
 			data: {
 				action:         'getContribution',
 				id_segment:     id_segment,
 				text:           txt,
 				id_job:         config.job_id,
-				num_results:    this.numMatchesResults,
+				num_results:    ctx.numMatchesResults,
 				id_translator:  config.id_translator
 			},
-			context: $('#'+id),
 			success: function(d){
-				UI.renderContributions(d,this);
+				UI.renderContributions(d, ctx);
 				UI.blockButtons = false;
         		if (d.data.matches.length > 0) {
-        			$('.submenu li.matches a span', this).text('('+d.data.matches.length+')');
+        			$('.submenu li.matches a span', ctx).text('('+d.data.matches.length+')');
 				} else {
-        			$(".sbm > .matches", this).hide();
+        			$(".sbm > .matches", ctx).hide();
 				}
 			},
 			complete: function(d){
@@ -958,7 +911,7 @@ UI = {
         this.editarea.attr('contenteditable','true');
         this.editStart = new Date();
         $(editarea).removeClass("indent");
-        this.getContribution(segment,1);
+        //this.getContribution(segment,1);
         if(this.debug) console.log('close/open time: ' + ( (new Date()) - this.openSegmentStart));
     },
 
@@ -980,30 +933,79 @@ UI = {
 	    }
 	},
 
+  setKeyboardShortcuts: function() {
+      $("body").bind('keydown','Ctrl+return', function(e){
+          //XXX: Why is this needed? e.preventDefault();
+          $('.editor .translated').click();
+      }).bind('keydown','Meta+return', function(e){ 
+          //XXX: Why is this needed? e.preventDefault();
+          $('.editor .translated').click();
+      }).bind('keydown','Ctrl+pageup', function(e){ 
+          //XXX: Why is this needed? e.preventDefault();
+          alert('pageup');;
+      }).bind('keydown','Ctrl+down', function(e){ 
+          //XXX: Why is this needed? e.preventDefault();
+          //XXX: Why is this needed? e.stopPropagation();
+          UI.gotoNextSegment();
+      }).bind('keydown','Meta+down', function(e){ 
+          //XXX: Why is this needed? e.preventDefault();
+          //XXX: Why is this needed? e.stopPropagation();
+          UI.gotoNextSegment();
+      }).bind('keydown','Ctrl+up', function(e){ 
+          //XXX: Why is this needed? e.preventDefault();
+          //XXX: Why is this needed? e.stopPropagation();
+          UI.gotoPreviousSegment();
+      }).bind('keydown','Meta+up', function(e){ 
+          //XXX: Why is this needed? e.preventDefault();
+          //XXX: Why is this needed? e.stopPropagation();
+          UI.gotoPreviousSegment();
+      }).bind('keydown','Ctrl+left', function(e){ 
+          //XXX: Why is this needed? e.preventDefault();
+          if(UI.segmentIdToRestore) {
+              UI.reloadToSegment(UI.segmentIdToRestore);
+          } else {
+              UI.gotoOpenSegment();
+          }
+      }).bind('keydown','Meta+left', function(e){ 
+          //XXX: Why is this needed? e.preventDefault();
+          if(UI.segmentIdToRestore) {
+              UI.reloadToSegment(UI.segmentIdToRestore);
+          } else {
+              UI.gotoOpenSegment();
+          }
+      }).bind('keydown','Ctrl+right', function(e){ 
+          //XXX: Why is this needed? e.preventDefault();
+          UI.copySource();
+      }).bind('keydown','Meta+right', function(e){ 
+          //XXX: Why is this needed? e.preventDefault();
+          UI.copySource();
+      });
+  },
+  
     reinitMMShortcuts: function(a) {
 		$('body').unbind('keydown.alt1').unbind('keydown.alt2').unbind('keydown.alt3').unbind('keydown.alt4').unbind('keydown.alt5');
         $("body, .editarea").bind('keydown.alt1','Alt+1', function(e){ 
-            e.preventDefault();
+            //XXX: Why is this needed? e.preventDefault();
             if(e.which != 97) {
                 UI.chooseSuggestion('1');
             }
         }).bind('keydown.alt2','Alt+2', function(e){ 
-            e.preventDefault();
+            //XXX: Why is this needed? e.preventDefault();
             if(e.which != 98) {
                 UI.chooseSuggestion('2');
             }
         }).bind('keydown.alt3','Alt+3', function(e){ 
-            e.preventDefault();
+            //XXX: Why is this needed? e.preventDefault();
             if(e.which != 99) {
                 UI.chooseSuggestion('3');
             }            
         }).bind('keydown.alt4','Alt+4', function(e){ 
-            e.preventDefault();
+            //XXX: Why is this needed? e.preventDefault();
             if(e.which != 100) {
                 UI.chooseSuggestion('4');
             }            
         }).bind('keydown.alt5','Alt+5', function(e){ 
-            e.preventDefault();
+            //XXX: Why is this needed? e.preventDefault();
             if(e.which != 101) {
                 UI.chooseSuggestion('5');
             }            
@@ -1047,6 +1049,7 @@ UI = {
     },
 
     renderContributions: function(d,segment) {
+        console.log("renderContributions:", d, segment)
         var isActiveSegment = $(segment).hasClass('editor');
         var editarea = $('.editarea', segment);
         if(d.data.matches.length) {
@@ -1066,12 +1069,13 @@ UI = {
             if (editareaLength==0){
                 UI.copySuggestionInEditarea(segment,translation,editarea,match,true);
             }
-            var segment_id = segment.attr('id');            
+            var parsedId = /[0-9]+/.exec(segment.attr('id'));
+            var segment_id = parsedId[0];
             $(segment).removeClass('loaded').addClass('loaded');
             $('.sub-editor .overflow',segment).empty();
             
             $.each(d.data.matches, function(index) {
-                var disabled = (this.id=='0')? true : false;                 
+                var disabled = (segment_id=='0')? true : false;                 
                 cb= this['created_by'];                    
                 cl_suggestion=UI.getPercentuageClass(this['match']);
             
@@ -1080,7 +1084,7 @@ UI = {
                 }
                 // Attention Bug: We are mixing the view mode and the raw data mode.
                 // before doing a enanched view you will need to add a data-original tag
-                $('.sub-editor .overflow',segment).append('<ul class="graysmall" data-item="'+(index+1)+'" data-id="'+this.id+'"><li >'+((disabled)?'':' <a id="'+segment_id+'-tm-'+this.id+'-delete" href="#" class="trash" title="delete this row"></a>')+'<span id="'+segment_id+'-tm-'+this.id+'-source" class="suggestion_source">'+this.segment+'</span></li><li class="b"><span class="graysmall-message">ALT+'+(index+1)+'</span><span id="'+segment_id+'-tm-'+this.id+'-translation" class="translation">'+this.translation+'</span></li><ul class="graysmall-details"><li class="percent ' + cl_suggestion + '">'+(this.match)+'</li><li>'+this['last_update_date']+'</li><li class="graydesc">Source: <span class="bold">'+cb+'</span></li></ul></ul>');
+                $('.sub-editor .overflow',segment).append('<ul class="graysmall" data-item="'+(index+1)+'" data-id="'+segment_id+'"><li >'+((disabled)?'':' <a id="'+segment_id+'-tm-'+segment_id+'-delete" href="#" class="trash" title="delete this row"></a>')+'<span id="'+segment_id+'-tm-'+segment_id+'-source" class="suggestion_source">'+this.source+'</span></li><li class="b"><span class="graysmall-message">ALT+'+(index+1)+'</span><span id="'+segment_id+'-tm-'+segment_id+'-translation" class="translation">'+this.translation+'</span></li><ul class="graysmall-details"><li class="percent ' + cl_suggestion + '">'+(this.match)+'</li><li>'+this['last_update_date']+'</li><li class="graydesc">Source: <span class="bold">'+cb+'</span></li></ul></ul>');
             });
             UI.setDeleteSuggestion(segment);	    
 
@@ -1319,7 +1323,7 @@ UI = {
 
     setDeleteSuggestion: function(segment) {
         $('.sub-editor .overflow a.trash',segment).click(function(e) {
-            e.preventDefault();
+            //XXX: Why is this needed? e.preventDefault();
             var ul = $(this).parents('.graysmall');
 
             source = $('.suggestion_source',ul).text();
@@ -1644,8 +1648,8 @@ function handlepaste (elem, e) {
         }
         waitforpastedata(elem, savedcontent);
         if (e.preventDefault) {
-            e.stopPropagation();
-            e.preventDefault();
+            //XXX: Why is this needed? e.stopPropagation();
+            //XXX: Why is this needed? e.preventDefault();
         }
         return false;
     }

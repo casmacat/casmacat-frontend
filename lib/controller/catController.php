@@ -223,6 +223,8 @@ class catController extends viewcontroller {
     }
 
     public function setTemplateVars() {
+        $this->template->catserver = INIT::$CATSERVER;
+        $this->template->htrserver = INIT::$HTRSERVER;
         $this->template->jid = $this->jid;
         $this->template->password=$this->password;
         $this->template->cid = $this->cid;

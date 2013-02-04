@@ -16,6 +16,7 @@ Loader = {
 // cat-fork
 		
 	libraries: new Array (
+  	'../casmacat/require.node',
 		'jquery',
 		'jquery-ui-1.8.20.custom.min',
 		'jquery.tabify',
