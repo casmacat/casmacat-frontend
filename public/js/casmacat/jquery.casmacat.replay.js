@@ -51,7 +51,8 @@
             //fetchNextChunk: 500,    // how many events must be left in replayList before starting fetching of next chunk
                                     // in background, not implemented
             blockingInputZIndex: 10000,  // the CSS z-index of the div that blocks user input
-            tickInterval: 200       // specifies the interval to use for ticking (used to refresh time in UI)
+            tickInterval: 200,       // specifies the interval to use for ticking (used to refresh time in UI)
+            itpEnabled: true,
         },
         settings = {},  // holds the merge of the defaults and the options provided, actually the instance's settings
 
@@ -312,6 +313,7 @@
             vsDocument = $("#virtualScreen")[0].contentDocument;
             vsWindow = $("#virtualScreen")[0].contentWindow;
             vsContents = $("#virtualScreen").contents();
+            settings.itpEnabled = new Boolean(vsWindow.config.enable_itp);
 
             vsReady = true;
             if (firstChunkLoaded) {
@@ -595,6 +597,7 @@
         $("#blockInput").height($(document).height());
     };
 
+    var itpCall = false;
     var lw, lh; // width and height from last resize
     var replayEvent = function(event) {
 //        debug(pluginName + ": Replayed event dump:");
@@ -616,12 +619,17 @@
 
             case logEventFactory.TEXT:
 
+                if (itpCall) {
+                  itpCall = false;
+                  break;
+                }
+              
                 var textNow = null;
                 if (element.is("input:text") || element.is("textarea")) {
                     textNow = element.val();
                 }
                 else {
-                    textNow = element.html();
+                    textNow = element.text();
                 }
 
                 var textNew = null;
@@ -635,12 +643,19 @@
                     throw "Deleted text doesn't match stored value: textNow: '" + textNow + "', event.deleted: '" + event.deleted + "'";
                 }
 
+                if (settings.itpEnabled) {
+                  console.log("setTargetText", textNew);
+                  vsWindow.$("#" + event.elementId).editableItp('setTargetText', textNew);                  
+                  break;
+                }
+                
                 if (element.is("input:text") || element.is("textarea")) {
                     element.val(textNew);
                 }
                 else {
-                    element.html(textNew);
+                    element.text(textNew);
                 }
+                
 
                 break;
             case logEventFactory.SELECTION:
@@ -762,6 +777,42 @@
                     vsWindow.UI.chooseSuggestion(event.which);    // should be already handled be text changed
                 }
                 break;
+
+            case logEventFactory.DECODE:
+                var evData = JSON.parse(event.data);
+                vsWindow.$("#" + event.elementId).editableItp('trigger', "decodeResult", {errors: [], data: evData});
+                itpCall = true;
+                break;                
+                
+            case logEventFactory.ALIGNMENTS:
+                var evData = JSON.parse(event.data);
+                vsWindow.$("#" + event.elementId).editableItp('trigger', "getAlignmentsResult", {errors: [], data: evData});
+                break;                
+                
+            case logEventFactory.SUFFIX_CHANGE:
+                var evData = JSON.parse(event.data);
+                vsWindow.$("#" + event.elementId).editableItp('trigger', "setPrefixResult", {errors: [], data: evData});
+                itpCall = true;
+                break;                
+                
+            case logEventFactory.CONFIDENCES:
+                var evData = JSON.parse(event.data);
+                vsWindow.$("#" + event.elementId).editableItp('trigger', "getConfidencesResult", {errors: [], data: evData});
+                break;                
+                
+            case logEventFactory.TOKENS:
+                var evData = JSON.parse(event.data);
+                vsWindow.$("#" + event.elementId).editableItp('trigger', "getTokensResult", {errors: [], data: evData});
+                break;                
+
+            case logEventFactory.SHOW_ALIGNMENT:
+                vsWindow.$("#" + event.elementId).trigger('mouseenter');
+                break;                
+                
+            case logEventFactory.HIDE_ALIGNMENT:
+                vsWindow.$("#" + event.elementId).trigger('mouseleave');
+                break;                
+                
 
             default:
                 alert("Unknown event type");

@@ -13,6 +13,7 @@
         <script type="text/javascript">
             var config = {
                 basepath: '${basepath | string:/}',
+                enable_itp: '${php: catserver? true : false}',
                 catserver: '${catserver}',
                 htrserver: '${htrserver}',
                 id_translator: '${tid | nothing}',

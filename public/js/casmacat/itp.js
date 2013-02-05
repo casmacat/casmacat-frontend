@@ -100,6 +100,7 @@ $(function(){
       itpServerUrl:   config.catserver,
       replay:         config.replay
     });
+    console.log('editableItp', $target);
   };
   
   UI.closeSegment = function(editarea) {
@@ -112,6 +113,7 @@ $(function(){
       $source.find('*').andSelf().off('.matecat');
       console.log('close', $target);
       $target.editableItp('destroy');
+      console.log('bye editableItp', $target.attr('id'));
     }
     original_closeSegment.call(UI, editarea);
   };

@@ -110,8 +110,20 @@
     },
 
     validate: function() { 
+      var data = $(this).data(namespace);
       data.itpServer.decode({source: data.$source.editable('getText'), target: data.$target.editable('getText')});
     },
+
+    trigger: function(name, evData) { 
+      var data = $(this).data(namespace);
+      data.itpServer.trigger(name, evData);
+    },
+
+    setTargetText: function(str) { 
+      var data = $(this).data(namespace);
+      data.$target.editable('setText', str);
+    },
+
   };
 
 

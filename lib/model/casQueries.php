@@ -117,8 +117,8 @@ function fetchLogChunk($jobId, $fileId, $startOffset, $endOffset) {
                 $eventRow = fetchEventRow($logEvent->id, "itp_event");
                 $logEvent->itpData($eventRow);
                 break;                
-            case LogEvent::SHOW_ALIGNMENTS:
-            case LogEvent::HIDE_ALIGNMENTS:
+            case LogEvent::SHOW_ALIGNMENT:
+            case LogEvent::HIDE_ALIGNMENT:
               break;
 
 
