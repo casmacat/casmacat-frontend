@@ -34,7 +34,7 @@ $(function(){
     for (var d, i = 0; i < data.nbest.length; ++i) {
       d = data.nbest[i];
       matches.push({
-                  source: data.source,
+                 segment: data.source,
              translation: d.target,
               created_by: d.author,
                    match: d.quality,

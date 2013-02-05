@@ -26,15 +26,18 @@
                 source_lang: '${source}',
                 target_lang: '${target}',
                 time_to_edit_enabled: ${time_to_edit_enabled} ,
-                build_number: '${build_number}'
+                build_number: '${build_number}',
 
+                // CASMACAT extension start
+                file_id: '${fid}',
+                enable_logging: ${enableLogging},
+                replay: ${casIsReplaying},
+                // CASMACAT extension end
             }
             //			console.log('Server time: ' + Math.round(config.server_load_time)); 
             var renderStart = new Date();
         </script>
         <script src="${basepath}public/js/loader.js?build=${build_number}"></script>
-
-
     </head>
     <body tal:condition="not:supportedBrowser">
         <div  metal:use-macro="unsupported_browser.html/unsupported"/>

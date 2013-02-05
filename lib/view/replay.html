@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en-GB">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Replay - <span tal:replace="pname">Project_Name</span> - <span tal:replace="jobId">Job_ID</span> </title>
+        <link rel="shortcut icon" href="${basepath}public/img/favicon.ico" />
+        <link href="${basepath}public/css/style.css" rel="stylesheet" type="text/css" />
+        <link rel='stylesheet' media='screen and (min-width: 1181px) and (max-width: 1680px)' href='${basepath}public/css/1300more.css' />
+
+        <!--[if IE ]>
+        	<link href="/public/css/ieall.css" rel="stylesheet" type="text/css" />
+        <![endif]-->
+
+        <!--[if lt IE 8]>
+       		<link href="/public/css/ie.css" rel="stylesheet" type="text/css" />
+        <![endif]-->
+
+        <script type="text/javascript" src="${basepath}public/js/lib/jquery.js"></script>
+        <script type="text/javascript" src="${basepath}public/js/lib/jquery-ui-1.8.20.custom.min.js"></script>
+        <script type="text/javascript" src="${basepath}public/js/lib/jquery.tabify.js"></script>
+        <script type="text/javascript" src="${basepath}public/js/lib/jquery.hotkeys.js"></script>
+        <script type="text/javascript" src="${basepath}public/js/lib/jquery.atooltip.js"></script>
+        <script type="text/javascript" src="${basepath}public/js/lib/jquery-fieldselection.min.js"></script>
+        <script type="text/javascript" src="${basepath}public/js/lib/jquery.cookie.js"></script>
+
+        <script type="text/javascript" src="${basepath}public/js/casmacat/debug.js"></script>
+        <script type="text/javascript" src="${basepath}public/js/casmacat/casmacat.logevent.js"></script>
+        <script type="text/javascript" src="${basepath}public/js/casmacat/jquery.casmacat.tools.js"></script>
+        <script type="text/javascript" src="${basepath}public/js/casmacat/jquery.casmacat.replay.js"></script>
+        <script type="text/javascript" src="${basepath}public/js/casmacat/replay.js"></script>
+
+        <script type="text/javascript">
+            var config = {
+                basepath: '${basepath | string:/}',
+                id_translator: "<span tal:replace='tid | nothing'/>",
+                private_translator: "<span tal:replace='private_translator | string:0'/>",
+                id_customer: "<span tal:replace='id_customer | string:unknown_customer'/>",
+                private_customer: "<span tal:replace='private_customer | string:0'/>",
+                jobId: '${jobId}',
+                source_lang: '${source_lang}',
+                target_lang: '${target_lang}',
+
+                fileId: "${fileId}",
+                startTime: "${startTime}",
+                endTime: "${endTime}"
+            }
+        </script>
+
+    </head>
+    <body>
+        <header>
+            <div class="wrapper">
+                <a href="/" class="logo"></a>
+            </div>   <!-- .wrapper -->
+
+            <div id="control">
+                <span class="toolbarTop">
+                    <button id="start">Start</button>
+                    <button id="reset" disabled="disabled">Reset</button>
+                    <button id="pauseResume" disabled="disabled">Pause/Resume</button>
+                    |
+                    <button id="previousSegment" disabled="disabled">&lt; Seg</button>
+                    <button id="nextSegment" disabled="disabled">Seg &gt;</button>
+                    <button id="previousEvent" disabled="disabled">&lt; Evt</button>
+                    <button id="nextEvent" disabled="disabled">Evt &gt;</button>
+                    |
+                    <button id="toggleInput" disabled="disabled">Toggle input</button>
+
+                    <label for="selectSpeed">Speed</label>
+                    <input id="selectSpeed" list="builtinSpeed" type="text" value="1.00" size="5"></input>
+                    <datalist id="builtinSpeed">
+                        <option value="0.01"></option>
+                        <option value="0.10"></option>
+                        <option value="0.25"></option>
+                        <option value="0.50"></option>
+                        <option value="0.75"></option>
+                        <option value="1.00"></option>
+                        <option value="1.50"></option>
+                        <option value="2.00"></option>
+                        <option value="3.00"></option>
+                        <option value="5.00"></option>
+                        <option value="10.00"></option>
+                        <option value="100.00"></option>
+                    </datalist>
+                </span>
+                <span class="toolbarBottom">
+                    <label for="startTime">Start</label>
+                    <input id="startTime" tal:attributes="value startTime;" readonly="readonly" size="15"></input>
+                    <input id="timeSlider" type="range" step="200" tal:attributes="min startTime; max endTime; value startTime" disabled="disabled"></input>
+                    <label for="endTime">End</label>
+                    <input id="endTime" tal:attributes="value endTime;" readonly="readonly" size="15"></input>
+                    <label for="currentTime">Current</label>
+                    <input id="currentTime" type="text" tal:attributes="value startTime;" size="15" disabled="disabled"></input>
+                    <label for="timeOffset">Offset</label>
+                    <input id="timeOffset" type="text" value="0" size="10" readonly="readonly"></input>
+                    <!-- special correction stuff -->
+                </span>
+            </div>
+        </header>
+
+        <article>
+            <iframe id="virtualScreen" name="virtualScreen" tal:attributes="src vsSrc; width vsWidth; height vsHeight"></iframe>
+        </article>
+
+        <footer>
+            <div class="wrapper">
+                <label for="replayLog">Status</label>
+                <input id="replayLog" type="text" size="50" readonly="readonly" value="Loading..."></input>
+            </div>
+        </footer>
+
+        <div id="blockInput"></div>
+    </body>
+</html>

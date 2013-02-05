@@ -31,6 +31,10 @@ class catController extends viewcontroller {
 //    private $seg = '';
 
 	private $job_not_found=false;
+    // CASMACAT extension start
+    private $casIsReplaying = false;
+  private $fid = "";
+    // CASMACAT extension end
 
     public function __construct() {
 		$this->start_time=microtime(1)*1000;    	
@@ -55,6 +59,19 @@ class catController extends viewcontroller {
 		if (is_null($this->start_from)) {
             $this->start_from = ($this->page-1)*$this->step;
         }
+
+        // CASMACAT extension start
+        if (INIT::$LOGGING) {
+            log::doLog("CASMACAT: Enabled.");
+            include_once INIT::$MODEL_ROOT . "/casQueries.php";
+//error_log(print_r($_REQUEST, true));
+            // will be set to 'true' be the replay page that loads this page in an iframe
+            if ($this->get_from_get_post("replay") == "true") {  // replay mode
+                log::doLog("CASMACAT: Running in replay mode.");
+                $this->casIsReplaying = true;
+            }
+        }
+        // CASMACAT extension end
 
 	$this->downloadFileName="";
 
@@ -107,7 +124,15 @@ class catController extends viewcontroller {
     	$files_found=array();
         $lang_handler=languages::getInstance("en");       
 
-	$data = getSegmentsInfo($this->jid, $this->password);
+         // CASMACAT extension start
+        if ($this->casIsReplaying) {
+            $data = getSegmentsInfoWithoutTranslation($this->jid, $this->password, $this->start_from, $this->step);
+        }
+        else {
+            $data = getSegmentsInfo($this->jid, $this->password);
+        }
+        // CASMACAT extension end
+
 	if (empty($data) or $data<0){
 		$this->job_not_found=true;
 	}
@@ -115,7 +140,8 @@ class catController extends viewcontroller {
       //  echo "<pre>";
       //  print_r ($data);
       //  exit;
-        
+
+      
         $first_not_translated_found = false;
 
         foreach ($data as $i => $seg) {
@@ -166,6 +192,7 @@ class catController extends viewcontroller {
 	        }
 
             $id_file = $seg['id_file'];
+          $this->fid = $id_file;
 	    
 			
             if (!isset($this->data["$id_file"])) {
@@ -242,6 +269,25 @@ class catController extends viewcontroller {
 		$this->template->source_code=$this->source_code;
 		$this->template->target_code=$this->target_code;
 		
+        // CASMACAT extension start
+        $this->template->enableLogging = INIT::$LOGGING;
+        $this->template->casIsReplaying = $this->casIsReplaying;
+        if (INIT::$LOGGING) {
+            log::doLog("CASMACAT: Setting additional template variables...");
+            $this->template->is_casmacat = INIT::$LOGGING;
+
+            log::doLog("CASMACAT: Correcting 'last_opened_segment'...");
+            if ($this->casIsReplaying) {
+                    $this->last_opened_segment = 0;
+            }
+            else if (!isset($this->last_opened_segment)) {
+                    $this->last_opened_segment = "";
+            }
+        }
+        // CASMACAT extension end
+  $this->template->fid = $this->fid;
+
+
 		$this->template->last_opened_segment=$this->last_opened_segment;
 		$this->template->data = $this->data;
 	

@@ -30,6 +30,7 @@ class INIT {
     public static $ENABLED_BROWSERS;
     public static $BUILD_NUMBER;
 
+    public static $LOGGING;
     public static $CATSERVER;
     public static $HTRSERVER;
 
@@ -62,6 +63,7 @@ class INIT {
                 self::$DB_USER = $_INI_FILE['db']['username'];
                 self::$DB_PASS = $_INI_FILE['db']['password'];
  
+        self::$LOGGING = $_INI_FILE['ui']['logging']; 
 
         self::$LOG_REPOSITORY = self::$ROOT . "/". $_INI_FILE['log']['directory'];
         self::$LOG_FILENAME = $_INI_FILE['log']['filename'];

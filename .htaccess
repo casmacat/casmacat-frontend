@@ -2,7 +2,7 @@
 RewriteEngine On
 RewriteRule ^$ index.php?action=newProject [QSA,L]
 RewriteRule ^(translate)[/]?$ index.php?action=cat [L]
-RewriteRule ^(translate)/([^/]*)/([^/]*)/([^/]*)-([^/]*)[/]*([^/]*)[/]*$ index.php?action=cat&jid=$4&password=$5&page=$6 [L]
+RewriteRule ^(translate)/([^/]*)/([^/]*)/([^/]*)-([^/]*)[/]*([^/]*)[/]*$ index.php?action=cat&jid=$4&password=$5&page=$6&replay=$7 [L]
 RewriteRule ^(translatenew)[/]?$ index.php?action=catnew [L]
 RewriteRule ^(translatenew)/([^/]*)/([^/]*)/([^/]*)-([^/]*)[/]*([^/]*)[/]*$ index.php?action=catnew&jid=$4&password=$5&step=$6 [L]
 RewriteRule ^(analyze)/([^/]*)/([^/]*)-([^/]*)$ index.php?action=analyze&pid=$3&password=$4 [L]
@@ -10,6 +10,8 @@ RewriteRule ^(statistics)[/]?$ index.php?action=projectStatistics [L]
 
 RewriteRule ^(manage)/([^/]*)/([^/]*)-([^/]*)$ index.php?action=manage&pid=$3&password=$4&start=$6 [L]
 RewriteRule ^(editlog)/([^/]*)-([^/]*)/?$ index.php?action=editlog&jid=$2&password=$3 [L]
+
+RewriteRule ^(replay)/([^/]*)/([^/]*)/([^/]*)-([^/]*)[/]*([^/]*)[/]*$ index.php?action=replay&jid=$4&password=$5 [L]
 </IfModule>
 
 #<IfModule mod_expires.c>

@@ -655,6 +655,9 @@ textarea,.editarea{position:relative;z-index:99;}
   	-moz-hyphens: auto;
 	transition: all  50ms ease-in;
 	-webkit-transition: all  50ms ease-in;
+        /* CASMACAT extension start */
+        white-space: pre-wrap;
+        /* CASMACAT extension end */
   	}
 
 
@@ -1082,7 +1085,50 @@ filter: �alpha(opacity=50)�; /*per Internet Explorer 8*/
 }
 
 
+/* CASMACAT extension start */
 
+.casLogo {
+    float: left;
+    border: 0;
+    background-image: url(../img/casLogo.png);
+    background-repeat: no-repeat;
+    width: 145px;
+    height: 31px;
+}
+
+.progressIndicatorLogo {
+    float: left;
+    border: 0;
+    background-image: url(../img/casProgress-indicator.gif);
+    background-repeat: no-repeat;
+    width: 145px;
+    height: 31px;
+}
+
+#blockInput {
+    position: absolute;
+    z-index: 10000;
+    background-color: rgba(127, 127, 127, 0.5);
+    left: 0px;
+    right: 0px;
+    background-image: url(../img/casBlockInput.png);
+    background-repeat: repeat;
+}
+
+.toolbarTop, .toolbarBottom {
+    display: block;
+    text-align: left;
+}
+
+input[readonly] {
+    background-color: lightgrey;
+}
+
+#replayLog {
+    border: solid #000 1px;
+    /*width: 400px;*/
+}
+/* CASMACAT extension end */
 
 /*RTL language*/
 /*.editarea, .search-editarea, .source, .graysmall li {direction: rtl !important; text-align: right !important;}

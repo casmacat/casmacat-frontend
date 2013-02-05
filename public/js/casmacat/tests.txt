@@ -1,0 +1,88 @@
+
+MISSING:
+- COPY+PASTE?
+- KEY
+- MOUSE
+- THE DELETE ROW FOR SUGGESTIONS
+
+startSession
+- start a new session
+
+stopSession
+- close window while running
+
+segmentOpened
+- initial loading
+- change segment by:
+- ctrl+down
+- ctrl+up
+- mouse another segment
+- like 'drafted' and 'translated'
+
+segmentClosed
+- click on X
+- like 'segmentChanged'
+
+loadingSuggestions
+- initial loading
+- loading by segmentChanged
+
+suggestionsLoaded
+- use loadingSuggestions
+
+suggestionChosen
+- initial loading
+- click suggestion
+- use hotkey
+
+scroll
+- scroll window up and down
+
+resize
+- resize window several times
+
+text
+- type text
+- delete text
+- paste text
+- ...
+
+selection
+- try with mouse, keyboard and both combined:
+- select source text
+- select target text
+- select suggestion text
+- select entire page
+
+gaze
+- gaze-to-char-mapping
+- gaze-to-segment-mapping
+- gaze-to-element-mapping
+
+fix
+- gaze-to-char-mapping
+- gaze-to-segment-mapping
+- gaze-to-element-mapping
+
+drafted
+- click and change
+- click and hotkey of drafted button
+
+translated
+- click and change
+- click and hotkey of translated button
+
+approved
+- click and change
+
+rejected
+- click and change
+
+viewportToSegment
+- use hotkey:
+- when already focussed
+- when somewhere else
+
+sourceCopied
+- use hotkey of source copy
+- click source copy button
