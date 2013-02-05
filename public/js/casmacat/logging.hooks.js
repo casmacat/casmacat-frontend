@@ -16,24 +16,24 @@ $(function(){
   
   // Overwrite UI methods ------------------------------------------------------
   
-  UI.original_setContribution = UI.setContribution; 
+  var original_setContribution = UI.setContribution; 
   UI.setContribution = function(segment,status,byStatus) {
     if (config.replay == 1) {
       return;
     }
-    UI.original_setContribution(segment,status,byStatus);
+    original_setContribution(segment,status,byStatus);
   }
 
-  UI.original_setTranslation = UI.setTranslation; 
+  var original_setTranslation = UI.setTranslation; 
   UI.setTranslation = function(segment,status) {
     if (config.replay == 1) {
       return;
     }
-    UI.original_setTranslation(segment,status);
+    original_setTranslation(segment,status);
   }
 
   
-  UI.original_changeStatus = UI.changeStatus; 
+  var original_changeStatus = UI.changeStatus; 
   UI.changeStatus = function(ob,status,byStatus) {
     if (config.replay != 1) {
       var name = "";
@@ -47,10 +47,10 @@ $(function(){
       event.segment = ob;
       $(window).trigger(name, event);
     }
-    UI.original_changeStatus(ob,status,byStatus);
+    original_changeStatus(ob,status,byStatus);
   }
 
-  UI.original_copySuggestionInEditarea = UI.copySuggestionInEditarea; 
+  var original_copySuggestionInEditarea = UI.copySuggestionInEditarea; 
   UI.copySuggestionInEditarea = function(segment,translation,editarea,match,decode) {
     // text events will handle setting the editfield value on replay
     if (config.replay == 1) {
@@ -61,12 +61,12 @@ $(function(){
       }
       return; // do not allow translation to be set
     }
-    UI.original_copySuggestionInEditarea(segment,translation,editarea,match,decode);
+    original_copySuggestionInEditarea(segment,translation,editarea,match,decode);
   }
 
-  UI.original_openSegment = UI.openSegment; 
+  var original_openSegment = UI.openSegment; 
   UI.openSegment = function(editarea) {
-    UI.original_openSegment(editarea);
+    original_openSegment(editarea);
     
     if (config.replay != 1) {
       var event = $.Event("segmentOpened");
@@ -75,9 +75,9 @@ $(function(){
     }
   }
 
-  UI.original_closeSegment = UI.closeSegment; 
+  var original_closeSegment = UI.closeSegment; 
   UI.closeSegment = function(segment,byButton) {
-    UI.original_closeSegment(segment,byButton);
+    original_closeSegment(segment,byButton);
     
     if (segment && config.replay != 1) {
       // when using the url:
@@ -96,9 +96,9 @@ $(function(){
   }
 
   
-  UI.original_gotoOpenSegment = UI.gotoOpenSegment; 
+  var original_gotoOpenSegment = UI.gotoOpenSegment; 
   UI.gotoOpenSegment = function() {
-    UI.original_gotoOpenSegment();
+    original_gotoOpenSegment();
     
     var event = $.Event("viewportToSegment");
     event.segment = this.currentSegment[0];
@@ -107,18 +107,18 @@ $(function(){
 
   
     
-  UI.original_setCurrentSegment = UI.setCurrentSegment; 
+  var original_setCurrentSegment = UI.setCurrentSegment; 
   UI.setCurrentSegment = function(segment,closed) {
     if (config.replay == 1) {
       debug("cat.js: Skipping setting current segment in setCurrentSegment()...");
       return;
     }
-    UI.original_setCurrentSegment(segment,closed);
+    original_setCurrentSegment(segment,closed);
   }
 
-  UI.original_chooseSuggestion = UI.chooseSuggestion; 
+  var original_chooseSuggestion = UI.chooseSuggestion; 
   UI.chooseSuggestion = function(w) {
-    UI.original_chooseSuggestion(w);
+    original_chooseSuggestion(w);
     if (config.replay != 1) {
       UI.triggerSuggestionChosen(this.currentSegment, w,
       $('.editor ul[data-item='+w+'] li.b .translation').text());
@@ -126,31 +126,31 @@ $(function(){
   }
 
 
-  UI.original_topReached = UI.topReached; 
+  var original_topReached = UI.topReached; 
   UI.topReached = function() {
     if (config.replay == 1) {
       debug("cat.js: Skipping scrolling in topReached()...");
       return;
     }
-    UI.original_topReached();
+    original_topReached();
   }
 
-  UI.original_copySource = UI.copySource; 
+  var original_copySource = UI.copySource; 
   UI.copySource = function() {
-    UI.original_copySource();
+    original_copySource();
     var event = $.Event("sourceCopied");
     event.segment = this.currentSegment[0];
     $(window).trigger("sourceCopied", event);
   }
 
-  UI.original_scrollSegment = UI.scrollSegment; 
+  var original_scrollSegment = UI.scrollSegment; 
   UI.scrollSegment = function(segment) {
     if (segment.length === 0) return;
     if (config.replay == 1) {
       debug("cat.js: Skipping scrolling in scrollSegment()...");
       return;
     }
-    UI.original_scrollSegment(segment);
+    original_scrollSegment(segment);
   }
 
   

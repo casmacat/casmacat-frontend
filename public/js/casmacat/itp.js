@@ -49,13 +49,13 @@ $(function(){
   UI.callbacks = {};
 
   UI.setKeyboardShortcuts = function(){}; // FTW
-  UI.original_openSegment = UI.openSegment;
-  UI.original_closeSegment = UI.closeSegment;
-  UI.original_doRequest = UI.doRequest;
-  UI.original_copySuggestionInEditarea = UI.copySuggestionInEditarea;
+  var original_openSegment = UI.openSegment;
+  var original_closeSegment = UI.closeSegment;
+  var original_doRequest = UI.doRequest;
+  var original_copySuggestionInEditarea = UI.copySuggestionInEditarea;
 
   UI.openSegment = function(editarea) {
-    UI.original_openSegment(editarea);
+    original_openSegment(editarea);
     var $target = $(editarea), sid = $target.data('sid');
     console.log('open', $target);
     $target.on('ready', function() {
@@ -78,12 +78,12 @@ $(function(){
       console.log('close', $target);
       $target.editableItp('destroy');
     }
-    UI.original_closeSegment(editarea);
+    original_closeSegment(editarea);
   };
 
   /*UI.copySuggestionInEditarea = function(editarea) {
     $('.editarea').editable({ ... });
-    UI.original_copySuggestionInEditarea(editarea);
+    original_copySuggestionInEditarea(editarea);
   };*/
 
   UI.doRequest = function(req) {
@@ -108,7 +108,7 @@ $(function(){
         break;        
       default:
         console.log("Forwarding request 'as is':", a);
-        UI.original_doRequest(req);
+        original_doRequest(req);
         break;
     }
   };

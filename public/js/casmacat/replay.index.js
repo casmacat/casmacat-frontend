@@ -10,7 +10,7 @@ $(function() {
           "fileId": config.file_id,
           "jobId": config.job_id,
 
-          "doSanitize": true,
+          "doSanitize": false,
           "logRootElement": "html > body > div#outer",
           "maxChunkSize": 10
       });
