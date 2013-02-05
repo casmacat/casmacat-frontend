@@ -95,6 +95,19 @@ class saveLogChunkController extends ajaxcontroller {
                     insertSuggestionsLoadedEvent($logEvent);
                     break;
 
+                case LogEvent::DECODE:
+                case LogEvent::ALIGNMENTS:
+                case LogEvent::SUFFIX_CHANGE:
+                case LogEvent::CONFIDENCES:
+                case LogEvent::TOKENS:
+                    $logEvent->itpData($value);
+                    insertItpEvent($logEvent);
+                    break;
+                case LogEvent::SHOW_ALIGNMENT:
+                case LogEvent::HIDE_ALIGNMENT:
+                    insertLogEventHeader($logEvent);
+                    break;
+
                 case LogEvent::SUGGESTION_CHOSEN:
                     $logEvent->suggestionChosenData($value);
                     insertSuggestionChosenEvent($logEvent);

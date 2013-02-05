@@ -12,11 +12,12 @@
   * so if a connection  was already created, it will be reused
   * @param url {String} Server URL to connect to
   */
-  function getItpServer(url) {
+  function getItpServer(config) {
+    var url = config.itpServerUrl;
     var doTriggerConnect = false;
     if (!(url in itpServerCache)) {
       // Connect to a server; casmacat will receive async server responses
-      var server = new PredictiveCatClient(true);
+      var server = new PredictiveCatClient(true, config.replay);
       server.connect(url);
       itpServerCache[url] = server;
     } 
@@ -39,13 +40,14 @@
         sourceSelector: undefined, // selector for the HTML element that provides the source to translate
         sourceDisabled: true, // if true, the source cannot be edited by the user 
         itpServerUrl: undefined, 
+        replay: false, 
       }, _options);
 
 
       return this.each(function() {
         var $this = $(this)
           , $source = $(options.sourceSelector)
-          , itpRes = getItpServer(options.itpServerUrl)
+          , itpRes = getItpServer(options)
           , itpServer = itpRes.itpServer
           , data = {
               $source: $source,

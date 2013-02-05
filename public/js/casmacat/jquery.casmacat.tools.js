@@ -36,7 +36,8 @@
         var str = $(this).html();
         str = str.replace(/&nbsp;/g, ' ');
         $(this).html(str);
-        $(this).recursiveSanitizeHTML();
+        $(this).text($(this).text());
+        //$(this).recursiveSanitizeHTML();
         //$(this).setCursorPositionContenteditable(pos2);
     }
     $.fn.recursiveSanitizeHTML = function() {

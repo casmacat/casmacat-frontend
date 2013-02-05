@@ -125,7 +125,6 @@
       }
     }
 
-
     // add alignment events so that aligned words are highlighted
     self.addAlignmentEvents = function($node, spans, aligids) {
       // add mouseenter mouseleave events to token spans
@@ -133,11 +132,12 @@
         var $span = $(spans[i]);
         var data = $span.data('alignments');
         if (!data) {
-          $span.mouseenter(function (e) {
+          $span.off('.alignments');
+          $span.on('mouseenter.alignments', function (e) {
             var aligs = $(e.target).data('alignments').alignedIds;
             self.showAlignments(aligs, 'mouse-align');
           });
-          $span.mouseleave(function (e) {
+          $span.on('mouseleave.alignments', function (e) {
             var aligs = $(e.target).data('alignments').alignedIds;
             self.hideAlignments(aligs, 'mouse-align');
           });

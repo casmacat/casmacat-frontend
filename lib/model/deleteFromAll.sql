@@ -17,3 +17,4 @@ DELETE FROM `suggestion_chosen_event` WHERE 1;
 DELETE FROM `suggestions_loaded_event` WHERE 1;
 DELETE FROM `text_event` WHERE 1;
 DELETE FROM `translators` WHERE 1;
+DELETE FROM `itp_event` WHERE 1;

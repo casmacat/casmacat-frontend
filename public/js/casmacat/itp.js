@@ -55,17 +55,50 @@ $(function(){
   var original_copySuggestionInEditarea = UI.copySuggestionInEditarea;
 
   UI.openSegment = function(editarea) {
-    original_openSegment(editarea);
-    var $target = $(editarea), sid = $target.data('sid');
+    original_openSegment.call(UI, editarea);
+    var $target = $(editarea), sid = $target.data('sid'), $source = $("#segment-" + sid + "-source");
     console.log('open', $target);
     $target.on('ready', function() {
       console.log('onready', $target.text());
       if ($target.text().length === 0) $target.editableItp('decode'); 
       $target.editableItp('startSession'); 
     })
+    .on('decode.matecat', function (ev, data, err) { 
+        $(window).trigger('translationchange', {element: $target[0], type: "decode", data: data});       
+    })
+    .on('suffixchange.matecat', function (ev, data, err) { 
+        $(window).trigger('translationchange', {element: $target[0], type: "suffixchange", data: data});       
+    })    
+    .on('confidences.matecat', function (ev, data, err) { 
+        $(window).trigger('translationchange', {element: $target[0], type: "confidences", data: data});
+    })    
+    .on('tokens.matecat', function (ev, data, err) { 
+        $(window).trigger('translationchange', {element: $target[0], type: "tokens", data: data});
+    })    
+    .on('alignments.matecat', function (ev, data, err) { 
+        $(window).trigger('translationchange', {element: $target[0], type: "alignments", data: data});
+
+        $target.find('span.editable-token').off('.matecat')
+        .on('mouseenter.matecat', function (ev, data, err) { 
+          $(window).trigger('showalignment', ev.target);
+        })
+        .on('mouseleave.matecat', function (ev, data, err) { 
+          $(window).trigger('hidealignment', ev.target);
+        })
+
+        $source.find('span.editable-token').off('.matecat')
+        .on('mouseenter.matecat', function (ev, data, err) { 
+          $(window).trigger('showalignment', ev.target);
+        })
+        .on('mouseleave.matecat', function (ev, data, err) { 
+          $(window).trigger('hidealignment', ev.target);
+        })
+
+    })    
     .editableItp({
       sourceSelector: "#segment-" + sid + "-source",
-      itpServerUrl:   config.catserver
+      itpServerUrl:   config.catserver,
+      replay:         config.replay
     });
   };
   
@@ -74,16 +107,18 @@ $(function(){
     console.log('close*', editarea);
     if (editarea) {
       var sid = $(editarea).attr('id');
-      var $target = $('#'+sid+'-editarea');
+      var $target = $('#'+sid+'-editarea'),  $source = $('#'+sid+'-editarea');
+      $target.find('*').andSelf().off('.matecat');
+      $source.find('*').andSelf().off('.matecat');
       console.log('close', $target);
       $target.editableItp('destroy');
     }
-    original_closeSegment(editarea);
+    original_closeSegment.call(UI, editarea);
   };
 
   /*UI.copySuggestionInEditarea = function(editarea) {
     $('.editarea').editable({ ... });
-    original_copySuggestionInEditarea(editarea);
+    original_copySuggestionInEditarea.call(UI, editarea);
   };*/
 
   UI.doRequest = function(req) {
@@ -108,7 +143,7 @@ $(function(){
         break;        
       default:
         console.log("Forwarding request 'as is':", a);
-        original_doRequest(req);
+        original_doRequest.call(UI, req);
         break;
     }
   };

@@ -69,6 +69,7 @@
             logRootElement: document,   // event listeners will be bound to this and apropriate children (e.g. paste
                                         // events are bound to input/contenteditable), jQuery selectors maybe used
             logShortcuts: true,
+            logItp: true,
             doSanitize: true,   // TODO check how this could be done generally (which events fires first, when multiple
                                 // listeners are attached to the same event source??)
             maxChunkSize: 5000  // maximum size of the log list before the automatic upload is triggered
@@ -283,17 +284,17 @@
         // attach to cut
         $(settings.logRootElement).find("input:text").on("cut." + pluginName, beforeCut);
         $(settings.logRootElement).find("textarea").on("cut." + pluginName, beforeCut);
-        $(settings.logRootElement).find("*[contenteditable=true]").on("cut." + pluginName, beforeCut);
+        $(settings.logRootElement).find(".editarea").on("cut." + pluginName, beforeCut);
 
         // attach to copy
         $(settings.logRootElement).find("input:text").on("copy." + pluginName, beforeCopy);
         $(settings.logRootElement).find("textarea").on("copy." + pluginName, beforeCopy);
-        $(settings.logRootElement).find("*[contenteditable=true]." + pluginName).on("copy", beforeCopy);
+        $(settings.logRootElement).find(".editarea").on("copy", beforeCopy);
 
         // attach to paste
         $(settings.logRootElement).find("input:text").on("paste." + pluginName, beforePaste);
         $(settings.logRootElement).find("textarea").on("paste." + pluginName, beforePaste);
-        $(settings.logRootElement).find("*[contenteditable=true]." + pluginName).on("paste", beforePaste);
+        $(settings.logRootElement).find(".editarea").on("paste", beforePaste);
 
         // attach to input (happens after the content changed)
         $(settings.logRootElement).find("input:text").each(function(index, value) {
@@ -324,7 +325,7 @@
                     + "behavior!");
             }
 
-            setFieldContents(this, $(this).html());
+            setFieldContents(this, $(this).text());
             if ($.browser.msie) {   // Special treatment for IE needed, because DOMSubtreeModified fires on user AND on
                                     // programmatic changes, see textChanged()
                 $(this).on("DOMSubtreeModified." + pluginName, textChanged);
@@ -410,6 +411,18 @@
 //            debugAttachedTo("suggestionChosen", window);
         }
 
+        if (settings.logItp) {
+          
+          $(window).on("translationchange." + pluginName, itp);
+//            debugAttachedTo("translationchange", window);
+          
+          $(window).on("showalignment." + pluginName, alignmentShown);
+//            debugAttachedTo("showalignment", window);
+          
+          $(window).on("hidealignment." + pluginName, alignmentHidden);
+//            debugAttachedTo("hidealignment", window);          
+        }
+        
         debug(pluginName + ": Bound to events.");
     };
 
@@ -467,12 +480,14 @@
         debug(pluginName + ": 'logList' content dump:");
         debug(logList);
 
+        //try {
         var data = {
             action: "saveLogChunk",
             fileId: settings.fileId,
             jobId: settings.jobId,
             logList: JSON.stringify(logList)
         };
+        //}catch(e){console.log('savelog', logList)}
 
         $.ajax({
             async: async,
@@ -641,7 +656,7 @@
         debug(pluginName + ": Cut.");
 
         if (e.target.hasAttribute("contenteditable")) {
-            contentBeforeCut = $(e.target).html();
+            contentBeforeCut = $(e.target).text();
         }
         else {
             contentBeforeCut = $(e.target).val();
@@ -658,7 +673,7 @@
         debug(pluginName + ": Paste.");
 
         if (e.target.hasAttribute("contenteditable")) {
-            contentBeforePaste = $(e.target).html();
+            contentBeforePaste = $(e.target).text();
         }
         else {
             contentBeforePaste = $(e.target).val();
@@ -679,26 +694,28 @@
         // calculate diff and update field content to the new value
         if (e.target.hasAttribute("contenteditable")) {
 
-            var pos = $(this).getCaretPos();
+           // var pos = $(this).getCaretPos();
           
             // sanitize if needed 
             if (settings.doSanitize) {
                 $(e.target).sanitizeHTML();
             }
 //             else {
-//                 $(e.target).text($('<div/>').html($(e.target).text()).text());
+//                 $(e.target).text($('<div/>').text($(e.target).text()).text());
 //             }
 
-            changes = $.fn.getChanges( getFieldContents(e.target), $(e.target).html() );
-           debug(pluginName + ": Text changed: "
-               + "\n\told text: '" + getFieldContents(e.target) + "', "
-               + "\n\tnew text: '" + $(e.target).html() + "', "
-               + "\n\tdiff: (cursorPosition: '" + changes.cursorPosition + "', deleted: '" + changes.deleted
-                   + "', inserted: '" + changes.inserted + "').");
-            setFieldContents(e.target, $(e.target).html());
-            
-            if (pos > -1) {
-              $(this).setCursorPositionContenteditable(pos + changes.inserted.length);
+            if (getFieldContents(e.target) != $(e.target).text()) {
+              changes = $.fn.getChanges( getFieldContents(e.target), $(e.target).text() );
+              console.log('changes', changes, getFieldContents(e.target) === $(e.target).text() );
+            debug(pluginName + ": Text changed: "
+                + "\n\told text: '" + getFieldContents(e.target) + "', "
+                + "\n\tnew text: '" + $(e.target).text() + "', "
+                + "\n\tdiff: (cursorPosition: '" + changes.cursorPosition + "', deleted: '" + changes.deleted
+                    + "', inserted: '" + changes.inserted + "').");
+              setFieldContents(e.target, $(e.target).text());
+              /*if (pos > -1) {
+                $(this).setCursorPositionContenteditable(pos + changes.inserted.length);
+              }*/
             }
         }
         else {
@@ -822,14 +839,56 @@
 //        var inputField = $(data.element, ".editarea")[0];
 //        if (getFieldContents(inputField) == "") {
 //            if ($(inputField).prop("contenteditable") == "true") {
-//                setFieldContents(inputField, $(inputField).html());
+//                setFieldContents(inputField, $(inputField).text());
 //            }
 //            else {
 //                setFieldContents(inputField, $(inputField).val());
 //            }
 //        }
     };
+    
+    var itp = function(e, data) {
+      var t;
+      switch (data.type) {
+        case "decode":
+          t = logEventFactory.DECODE;
+          break;
+        case "alignments":
+          t = logEventFactory.ALIGNMENTS;
+          break;
+        case "suffixchange":
+          t = logEventFactory.SUFFIX_CHANGE;
+          break;
+        case "confidences":
+            t = logEventFactory.CONFIDENCES;
+          break;
+        case "tokens":
+          t = logEventFactory.TOKENS;
+          break;
+        /*default:
+          alert("Unknown event");*/
+      }
+      
+      debug(pluginName + ": ITP event: '" + t + "'.");
+      
+      storeLogEvent(logEventFactory.newLogEvent(t, data.element,
+        data.data));
+      
+      textChanged({
+          target: data.element
+      });     
+    };
+    
+    var alignmentShown = function(e, data) {
+      debug(pluginName + ": Alignment shown.");
+      storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SHOW_ALIGNMENT, data));
+    };
 
+    var alignmentHidden = function(e, data) {
+      debug(pluginName + ": Alignment hidden.");
+      storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HIDE_ALIGNMENT, data));
+    };    
+    
     // Just to now that everything has been parsed...
     debug(pluginName + ": Plugin codebase loaded.");
 

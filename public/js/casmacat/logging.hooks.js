@@ -21,7 +21,7 @@ $(function(){
     if (config.replay == 1) {
       return;
     }
-    original_setContribution(segment,status,byStatus);
+    original_setContribution.call(UI, segment,status,byStatus);
   }
 
   var original_setTranslation = UI.setTranslation; 
@@ -29,7 +29,7 @@ $(function(){
     if (config.replay == 1) {
       return;
     }
-    original_setTranslation(segment,status);
+    original_setTranslation.call(UI, segment,status);
   }
 
   
@@ -47,7 +47,7 @@ $(function(){
       event.segment = ob;
       $(window).trigger(name, event);
     }
-    original_changeStatus(ob,status,byStatus);
+    original_changeStatus.call(UI, ob,status,byStatus);
   }
 
   var original_copySuggestionInEditarea = UI.copySuggestionInEditarea; 
@@ -61,12 +61,12 @@ $(function(){
       }
       return; // do not allow translation to be set
     }
-    original_copySuggestionInEditarea(segment,translation,editarea,match,decode);
+    original_copySuggestionInEditarea.call(UI, segment,translation,editarea,match,decode);
   }
 
   var original_openSegment = UI.openSegment; 
   UI.openSegment = function(editarea) {
-    original_openSegment(editarea);
+    original_openSegment.call(UI, editarea);
     
     if (config.replay != 1) {
       var event = $.Event("segmentOpened");
@@ -77,7 +77,7 @@ $(function(){
 
   var original_closeSegment = UI.closeSegment; 
   UI.closeSegment = function(segment,byButton) {
-    original_closeSegment(segment,byButton);
+    original_closeSegment.call(UI, segment,byButton);
     
     if (segment && config.replay != 1) {
       // when using the url:
@@ -98,7 +98,7 @@ $(function(){
   
   var original_gotoOpenSegment = UI.gotoOpenSegment; 
   UI.gotoOpenSegment = function() {
-    original_gotoOpenSegment();
+    original_gotoOpenSegment.call(UI);
     
     var event = $.Event("viewportToSegment");
     event.segment = this.currentSegment[0];
@@ -113,12 +113,12 @@ $(function(){
       debug("cat.js: Skipping setting current segment in setCurrentSegment()...");
       return;
     }
-    original_setCurrentSegment(segment,closed);
+    original_setCurrentSegment.call(UI, segment,closed);
   }
 
   var original_chooseSuggestion = UI.chooseSuggestion; 
   UI.chooseSuggestion = function(w) {
-    original_chooseSuggestion(w);
+    original_chooseSuggestion.call(UI, w);
     if (config.replay != 1) {
       UI.triggerSuggestionChosen(this.currentSegment, w,
       $('.editor ul[data-item='+w+'] li.b .translation').text());
@@ -132,12 +132,12 @@ $(function(){
       debug("cat.js: Skipping scrolling in topReached()...");
       return;
     }
-    original_topReached();
+    original_topReached.call(UI);
   }
 
   var original_copySource = UI.copySource; 
   UI.copySource = function() {
-    original_copySource();
+    original_copySource.call(UI);
     var event = $.Event("sourceCopied");
     event.segment = this.currentSegment[0];
     $(window).trigger("sourceCopied", event);
@@ -150,7 +150,7 @@ $(function(){
       debug("cat.js: Skipping scrolling in scrollSegment()...");
       return;
     }
-    original_scrollSegment(segment);
+    original_scrollSegment.call(UI, segment);
   }
 
   

@@ -109,6 +109,19 @@ function fetchLogChunk($jobId, $fileId, $startOffset, $endOffset) {
                 $logEvent->suggestionChosenData($eventRow);
                 break;
 
+            case LogEvent::DECODE:
+            case LogEvent::ALIGNMENTS:
+            case LogEvent::SUFFIX_CHANGE:
+            case LogEvent::CONFIDENCES:
+            case LogEvent::TOKENS:
+                $eventRow = fetchEventRow($logEvent->id, "itp_event");
+                $logEvent->itpData($eventRow);
+                break;                
+            case LogEvent::SHOW_ALIGNMENTS:
+            case LogEvent::HIDE_ALIGNMENTS:
+              break;
+
+
             default:
                 log::doLog("CASMACAT: fetchLogChunk(): Unknown log event type: '$logEvent->type', header id: '$logEvent->id'");
                 return -1;
@@ -161,6 +174,29 @@ function snakeToCamel($row) {
 
     return (object)$row;
 //    log::doLog("CASMACAT: snakeTCoCamel(): camel case row: " . print_r($row, true));
+}
+
+/**
+ * Inserts an entry into the itp_event and log_event_header table.
+ *
+ */
+function insertItpEvent($event) {
+    $headerId = insertLogEventHeader($event);
+
+    $data = array();
+    $data["id"] = "NULL";
+    $data["header_id"] = $headerId;
+    $data["data"] = json_encode($event->data);
+
+    $db = Database::obtain();
+    $db->insert("itp_event", $data);
+
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: insertItpEvent(): " . print_r($err, true));
+        return $errno * -1;
+    }
 }
 
 /**

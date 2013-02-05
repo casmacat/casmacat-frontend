@@ -76,3 +76,12 @@ CREATE TABLE `suggestions_loaded_event` (
   `matches` text NOT NULL COMMENT 'Stores all the matches found',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores suggestion changes.'$$
+
+delimiter $$
+
+CREATE TABLE IF NOT EXISTS `itp_event` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary key',
+  `header_id` int(11) NOT NULL COMMENT 'Reference to log_event_header table',
+  `data` text NOT NULL COMMENT 'Stores all the data found',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='Stores ITP events.'$$

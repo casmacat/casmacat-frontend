@@ -21,6 +21,15 @@ class LogEvent {
     const SUGGESTIONS_LOADED = "suggestionsLoaded";
     const SUGGESTION_CHOSEN = "suggestionChosen";
 
+    const DECODE = "decode";
+    const ALIGNMENTS = "alignments";
+    const SUFFIX_CHANGE = "suffixChange";
+    const CONFIDENCES = "confidences";
+    const TOKENS = "tokens";
+
+    const SHOW_ALIGNMENT = "showAlignment";    
+    const HIDE_ALIGNMENT = "hideAlignment";   
+
     public $id;
     public $jobId;
     public $fileId;
@@ -100,6 +109,10 @@ class LogEvent {
     public function suggestionChosenData($object) {
         $this->which = $object->which;
         $this->translation = $object->translation;
+    }
+
+    public function itpData($object) {
+        $this->data = $object->data;
     }
 
     public function toString() {

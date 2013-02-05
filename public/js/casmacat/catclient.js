@@ -2,14 +2,14 @@
 
   include('socket.io');
 
-  var CatClient = function(debug) {
+  var CatClient = function(debug, replay) {
     if (typeof debug === 'undefined') {
       debug = false;
     }
-
     var self = this;
 
     self.debug  = debug;
+    self.replay = replay;
     self.server = null;
     
     /**
@@ -18,6 +18,9 @@
     */
     self.connect = function(url) {
       self.server = new io.connect(url);
+      if (self.replay) {
+        self.server.emit = function() {};
+      }
       if (self.debug) {
         var emit = self.server.emit;
         self.server.emit = function() {

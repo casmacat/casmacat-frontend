@@ -41,6 +41,14 @@ var LogEventFactory = function(elementIdMode) {
     this.LOADING_SUGGESTIONS = "loadingSuggestions";
     this.SUGGESTIONS_LOADED = "suggestionsLoaded";
     this.SUGGESTION_CHOSEN = "suggestionChosen";
+    
+    this.DECODE = "decode";
+    this.ALIGNMENTS = "alignments";
+    this.SUFFIX_CHANGE = "suffixChange";
+    this.CONFIDENCES = "confidences";
+    this.TOKENS = "tokens";
+    this.SHOW_ALIGNMENT = "showAlignment";    
+    this.HIDE_ALIGNMENT = "hideAlignment";    
 };
 
 /**
@@ -154,6 +162,17 @@ LogEventFactory.prototype.newLogEvent = function(type, element) {
             logEvent.translation = arguments[3];
             break;
 
+        case this.DECODE:    // data
+        case this.ALIGNMENTS:    // data
+        case this.SUFFIX_CHANGE:    // data
+        case this.CONFIDENCES:    // data
+        case this.TOKENS:    // data
+            logEvent.data = arguments[2];
+            break;            
+        case this.SHOW_ALIGNMENT:
+        case this.HIDE_ALIGNMENT:
+            break;  
+            
         default:
             alert("Unknown event type: '" + $(element).getAbsoluteXPath() + "'!");
             $.error("Unknown event type: '" + $(element).getAbsoluteXPath() + "'");
