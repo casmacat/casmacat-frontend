@@ -47,11 +47,7 @@
           if (conf.config.useConfidences) {
             conf.itpServer.getConfidences(query);
           }
-          console.log('check "%s" === "%s"', targetPrefix, matchPrefix, targetPrefix === matchPrefix, match.target);
           break;
-        }
-        else {
-          console.log('check "%s" !== "%s"', targetPrefix, matchPrefix, targetPrefix !== matchPrefix);
         }
       }
     }
@@ -124,6 +120,7 @@
         $(aligs[j]).toggleClass(classname, false);
       }
     }
+
 
     // add alignment events so that aligned words are highlighted
     self.addAlignmentEvents = function($node, spans, aligids) {

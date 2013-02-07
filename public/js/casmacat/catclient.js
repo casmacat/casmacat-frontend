@@ -6,6 +6,7 @@
     if (typeof debug === 'undefined') {
       debug = false;
     }
+
     var self = this;
 
     self.debug  = debug;

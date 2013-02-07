@@ -288,7 +288,6 @@
           data = $this.data('editable');
 
       //XXX: can we assume this?
-      //console.log('tokens', data['str'] === str, '"' + data['str'] + '" === "' + str + '"');
       if (data['str'] === str) return;
       data['str'] = str;
 

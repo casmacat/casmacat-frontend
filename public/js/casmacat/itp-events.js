@@ -134,7 +134,6 @@ var Memento = require("module.memento");
       
       // Handle translation responses
       itp.on('decodeResult', function(data, err) {
-        console.log('Hello there!!');
         var bestResult = data.nbest[0];
         // make sure new data still applies to current source
         if (data.source !== $source().editable('getText')) return;
