@@ -10,6 +10,8 @@
  * http://www.opensource.org/licenses/MIT
  */
 
+include_once realpath(dirname(__FILE__) . '/../../../') . '/inc/config.inc.php';
+
 class UploadHandler
 {
     protected $options;
@@ -17,7 +19,7 @@ class UploadHandler
     function __construct($options=null) {
         $this->options = array(
             'script_url' => $this->getFullUrl().'/',
-            'upload_dir' => $_SERVER["DOCUMENT_ROOT"].'/storage/upload/'.$_COOKIE['upload_session'].'/',
+            'upload_dir' => INIT::$UPLOAD_ROOT.'/'.$_COOKIE['upload_session'].'/',
             'upload_url' => $this->getFullUrl().'/files/',
             'param_name' => 'files',
             // Set the following option to 'POST', if your server does not support

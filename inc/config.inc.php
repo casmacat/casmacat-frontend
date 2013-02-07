@@ -23,6 +23,7 @@ class INIT {
     public static $MODEL_ROOT;
     public static $CONTROLLER_ROOT;
     public static $UTILS_ROOT;
+    public static $UPLOAD_ROOT;
     
     public static $DEFAULT_NUM_RESULTS_FROM_TM;
     public static $THRESHOLD_MATCH_TM_NOT_TO_SHOW;
@@ -71,6 +72,7 @@ class INIT {
         self::$MODEL_ROOT = self::$ROOT . '/lib/model';
         self::$CONTROLLER_ROOT = self::$ROOT . '/lib/controller';
         self::$UTILS_ROOT = self::$ROOT . '/lib/utils';
+        self::$UPLOAD_ROOT = self::$ROOT . "/" . $_INI_FILE['ui']['uploads'];
 
 	self::$ENABLED_BROWSERS=array('chrome','firefox','safari');
 	self::$BUILD_NUMBER='0.3.0';
@@ -81,4 +83,7 @@ class INIT {
     }
 
 }
+
+INIT::obtain(); // initializes static variables in any case
+
 ?>

@@ -23,7 +23,7 @@ class newProjectController extends viewcontroller {
 			$this->guid = $_COOKIE['upload_session'];
 		}
 	
-	$intDir=$_SERVER['DOCUMENT_ROOT'].'/storage/upload/'.$this->guid.'/';
+	$intDir=INIT::$UPLOAD_ROOT.'/'.$this->guid.'/';
 	if (!is_dir($intDir)) {
 		mkdir($intDir, 0775, true);
 	}

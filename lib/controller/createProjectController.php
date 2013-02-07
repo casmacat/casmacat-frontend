@@ -35,7 +35,19 @@ class createProjectController extends ajaxcontroller {
 	if (count($arFiles)>1){
 		$default_project_name="MATECAT_PROJ-".date("Ymdhi");
 	}
+		$intDir=INIT::$UPLOAD_ROOT.'/'.$_COOKIE['upload_session'];
 
+        if (count($arFiles)>0) {
+          $xliff = simplexml_load_file($intDir.'/'.$arFiles[0]);
+          $src_lang = (string)$xliff->file['source-language'];
+	        if (!empty($src_lang) && empty($this->source_language)) {
+            $this->source_language = $src_lang;
+          }
+          $tgt_lang = (string)$xliff->file['target-language'];
+	        if (!empty($tgt_lang) && empty($this->target_language)) {
+            $this->target_language = $tgt_lang;
+          }
+        }
 
         if (empty($this->project_name)) {
             $this->project_name = $default_project_name;//'NO_NAME'.$this->create_project_name();
@@ -78,7 +90,6 @@ class createProjectController extends ajaxcontroller {
 		$password = $this->create_password();
         $jid = insertJob($password, $pid, '', $this->source_language, $this->target_language, $this->mt_engine,$this->tms_engine);
 		
-		$intDir=$_SERVER['DOCUMENT_ROOT'].'/storage/upload/'.$_COOKIE['upload_session'];
 	    foreach ($arFiles as $file) {
 			$filename = $intDir.'/'.$file;
 			
