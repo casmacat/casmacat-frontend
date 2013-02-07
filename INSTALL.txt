@@ -6,6 +6,7 @@ Server side requirements
 - Apache htaccess enabled
 - PHP magic_quotes off
 - PHP cURL lib
+- enable DELETE requests in userdir.conf
 
 
 Client side requirements
