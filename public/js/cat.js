@@ -1876,7 +1876,7 @@ function removeSelectedText (editarea) {
 }
 
 
-$(document).ready(function(){
+$(window).load(function(){
     fit_text_to_container($("#pname"));
     UI.render(true);
 });
