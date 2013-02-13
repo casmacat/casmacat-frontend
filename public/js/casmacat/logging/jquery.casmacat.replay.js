@@ -271,8 +271,9 @@
                 speed = newSpeed;
                 nextTick = nextTick / speed;
                 if (speed != DEFAULT_SPEED) {
-                    $.cookie("speed", speed, { path: "/replay", expires: new Date(new Date().getTime + 604800000) });   // one week
+                    $.cookie("speed", speed, { expires: new Date(new Date().getTime + 604800000) });   // one week
                 }
+
                 debug(pluginName + ": Speed changed: '" + speed + "'.");
                 updateUIStatus("Speed changed.");
             }
@@ -620,10 +621,11 @@
             case logEventFactory.TEXT:
 
                 if (itpCall) {
-                  itpCall = false;
-                  break;
+                    debug(pluginName + ": Skipping text changed event because of itpCall...");
+                    itpCall = false;
+                    break;
                 }
-              
+
                 var textNow = null;
                 if (element.is("input:text") || element.is("textarea")) {
                     textNow = element.val();
@@ -644,18 +646,17 @@
                 }
 
                 if (settings.itpEnabled) {
-                  console.log("setTargetText", textNew);
-                  vsWindow.$("#" + event.elementId).editableItp('setTargetText', textNew);                  
+                  vsWindow.$("#" + event.elementId).editableItp('setTargetText', textNew);
                   break;
                 }
-                
+
                 if (element.is("input:text") || element.is("textarea")) {
                     element.val(textNew);
                 }
                 else {
                     element.text(textNew);
                 }
-                
+
 
                 break;
             case logEventFactory.SELECTION:
@@ -756,6 +757,9 @@
             case logEventFactory.SEGMENT_OPENED:
                 var editarea = element.find(".editarea")[0];
                 vsWindow.UI.openSegment(editarea);
+
+                debug(pluginName + ": Setting editable read-only...");
+                $(editarea).prop("contenteditable", false);
                 break;
             case logEventFactory.SEGMENT_CLOSED:
                 vsWindow.UI.closeSegment(element, true);
@@ -779,40 +783,34 @@
                 break;
 
             case logEventFactory.DECODE:
-                var evData = JSON.parse(event.data);
-                vsWindow.$("#" + event.elementId).editableItp('trigger', "decodeResult", {errors: [], data: evData});
+                vsWindow.$("#" + event.elementId).editableItp('trigger', "decodeResult", {errors: [], data: JSON.parse(event.data)});
                 itpCall = true;
-                break;                
-                
+                break;
             case logEventFactory.ALIGNMENTS:
-                var evData = JSON.parse(event.data);
-                vsWindow.$("#" + event.elementId).editableItp('trigger', "getAlignmentsResult", {errors: [], data: evData});
-                break;                
-                
+                vsWindow.$("#" + event.elementId).editableItp('trigger', "getAlignmentsResult", {errors: [], data: JSON.parse(event.data)});
+                break;
             case logEventFactory.SUFFIX_CHANGE:
-                var evData = JSON.parse(event.data);
-                vsWindow.$("#" + event.elementId).editableItp('trigger', "setPrefixResult", {errors: [], data: evData});
+                vsWindow.$("#" + event.elementId).editableItp('trigger', "setPrefixResult", {errors: [], data: JSON.parse(event.data)});
                 itpCall = true;
-                break;                
-                
+                break;
             case logEventFactory.CONFIDENCES:
-                var evData = JSON.parse(event.data);
-                vsWindow.$("#" + event.elementId).editableItp('trigger', "getConfidencesResult", {errors: [], data: evData});
-                break;                
-                
+                vsWindow.$("#" + event.elementId).editableItp('trigger', "getConfidencesResult", {errors: [], data: JSON.parse(event.data)});
+                break;
             case logEventFactory.TOKENS:
-                var evData = JSON.parse(event.data);
-                vsWindow.$("#" + event.elementId).editableItp('trigger', "getTokensResult", {errors: [], data: evData});
-                break;                
-
-            case logEventFactory.SHOW_ALIGNMENT:
+                vsWindow.$("#" + event.elementId).editableItp('trigger', "getTokensResult", {errors: [], data: JSON.parse(event.data)});
+                break;
+            case logEventFactory.SHOW_ALIGNMENT_BY_MOUSE:
                 vsWindow.$("#" + event.elementId).trigger('mouseenter');
-                break;                
-                
-            case logEventFactory.HIDE_ALIGNMENT:
+                break;
+            case logEventFactory.HIDE_ALIGNMENT_BY_MOUSE:
                 vsWindow.$("#" + event.elementId).trigger('mouseleave');
-                break;                
-                
+                break;
+            case logEventFactory.SHOW_ALIGNMENT_BY_KEY:
+//                vsWindow.$("#" + event.elementId).trigger('mouseenter');
+                break;
+            case logEventFactory.HIDE_ALIGNMENT_BY_KEY:
+//                vsWindow.$("#" + event.elementId).trigger('mouseleave');
+                break;
 
             default:
                 alert("Unknown event type");

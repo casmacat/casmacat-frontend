@@ -412,17 +412,23 @@
         }
 
         if (settings.logItp) {
-          
-          $(window).on("translationchange." + pluginName, itp);
+
+          $(window).on("translationChange." + pluginName, itp);
 //            debugAttachedTo("translationchange", window);
-          
-          $(window).on("showalignment." + pluginName, alignmentShown);
+
+          $(window).on("showAlignmentByMouse." + pluginName, alignmentShownByMouse);
 //            debugAttachedTo("showalignment", window);
-          
-          $(window).on("hidealignment." + pluginName, alignmentHidden);
-//            debugAttachedTo("hidealignment", window);          
+
+          $(window).on("hideAlignmentByMouse." + pluginName, alignmentHiddenByMouse);
+//            debugAttachedTo("hidealignment", window);
+
+          $(window).on("showAlignmentByKey." + pluginName, alignmentShownByKey);
+//            debugAttachedTo("showalignment", window);
+
+          $(window).on("hideAlignmentByKey." + pluginName, alignmentHiddenByKey);
+//            debugAttachedTo("hidealignment", window);
         }
-        
+
         debug(pluginName + ": Bound to events.");
     };
 
@@ -695,8 +701,8 @@
         if (e.target.hasAttribute("contenteditable")) {
 
            // var pos = $(this).getCaretPos();
-          
-            // sanitize if needed 
+
+            // sanitize if needed
             if (settings.doSanitize) {
                 $(e.target).sanitizeHTML();
             }
@@ -728,7 +734,7 @@
 //                    + "', inserted: '" + changes.inserted + "').");
             setFieldContents(e.target, $(e.target).val());
         }
-        
+
         // write log event if changes detected
         if (changes) {
             debug(pluginName + ": Text changed.");
@@ -846,7 +852,8 @@
 //            }
 //        }
     };
-    
+
+    // store translationChange event
     var itp = function(e, data) {
       var t;
       switch (data.type) {
@@ -865,30 +872,38 @@
         case "tokens":
           t = logEventFactory.TOKENS;
           break;
-        /*default:
-          alert("Unknown event");*/
       }
-      
+
       debug(pluginName + ": ITP event: '" + t + "'.");
-      
+
       storeLogEvent(logEventFactory.newLogEvent(t, data.element,
         data.data));
-      
+
       textChanged({
           target: data.element
-      });     
-    };
-    
-    var alignmentShown = function(e, data) {
-      debug(pluginName + ": Alignment shown.");
-      storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SHOW_ALIGNMENT, data));
+      });
     };
 
-    var alignmentHidden = function(e, data) {
-      debug(pluginName + ": Alignment hidden.");
-      storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HIDE_ALIGNMENT, data));
-    };    
-    
+    var alignmentShownByMouse = function(e, data) {
+      debug(pluginName + ": Alignment shown by mouse.");
+      storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SHOW_ALIGNMENT_BY_MOUSE, data));
+    };
+
+    var alignmentHiddenByMouse = function(e, data) {
+      debug(pluginName + ": Alignment hidden by mouse.");
+      storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HIDE_ALIGNMENT_BY_MOUSE, data));
+    };
+
+    var alignmentShownByKey = function(e, data) {
+      debug(pluginName + ": Alignment shown by key.");
+      storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SHOW_ALIGNMENT_BY_KEY, data));
+    };
+
+    var alignmentHiddenByKey = function(e, data) {
+      debug(pluginName + ": Alignment hidden by key.");
+      storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HIDE_ALIGNMENT_BY_KEY, data));
+    };
+
     // Just to now that everything has been parsed...
     debug(pluginName + ": Plugin codebase loaded.");
 

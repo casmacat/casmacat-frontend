@@ -1,7 +1,7 @@
 $(function(){
 
   //if (typeof UI === 'undefined') throw "Missing cat.js file";
-  
+
   function insertScript(url, nodeName) {
     var script = document.createElement('script');
     script.type = 'text/javascript';
@@ -10,7 +10,7 @@ $(function(){
     parentNode.appendChild(script);
     console.log("casmacat inserts script:", url);
   };
-  
+
   function insertStyle(url) {
     var css = document.createElement('link');
     css.type = 'text/css';
@@ -20,7 +20,7 @@ $(function(){
     parentNode.appendChild(css);
     console.log("casmacat inserts style:", url);
   };
-    
+
   insertStyle(config.basepath  + 'public/css/itp.css');
   require('jquery.editable.itp');
 
@@ -28,7 +28,7 @@ $(function(){
     //return $(UI.currentSegment).find('.editarea');
     return UI.editarea || $('.editarea', UI.currentSegment);
   };
-  
+
   function formatItpMatches(data) {
     var matches = [];
     for (var d, i = 0; i < data.nbest.length; ++i) {
@@ -43,7 +43,7 @@ $(function(){
     }
     return { matches: matches };
   };
-  
+
   // Overwrite UI methods ------------------------------------------------------
 
   UI.callbacks = {};
@@ -60,41 +60,41 @@ $(function(){
     console.log('open', $target);
     $target.on('ready', function() {
       console.log('onready', $target.text());
-      if ($target.text().length === 0) $target.editableItp('decode'); 
-      $target.editableItp('startSession'); 
+      if ($target.text().length === 0) $target.editableItp('decode');
+      $target.editableItp('startSession');
     })
-    .on('decode.matecat', function (ev, data, err) { 
-        $(window).trigger('translationchange', {element: $target[0], type: "decode", data: data});       
+    .on('decode.matecat', function (ev, data, err) {
+        $(window).trigger('translationChange', {element: $target[0], type: "decode", data: data});
     })
-    .on('suffixchange.matecat', function (ev, data, err) { 
-        $(window).trigger('translationchange', {element: $target[0], type: "suffixchange", data: data});       
-    })    
-    .on('confidences.matecat', function (ev, data, err) { 
-        $(window).trigger('translationchange', {element: $target[0], type: "confidences", data: data});
-    })    
-    .on('tokens.matecat', function (ev, data, err) { 
-        $(window).trigger('translationchange', {element: $target[0], type: "tokens", data: data});
-    })    
-    .on('alignments.matecat', function (ev, data, err) { 
-        $(window).trigger('translationchange', {element: $target[0], type: "alignments", data: data});
+    .on('suffixchange.matecat', function (ev, data, err) {
+        $(window).trigger('translationChange', {element: $target[0], type: "suffixchange", data: data});
+    })
+    .on('confidences.matecat', function (ev, data, err) {
+        $(window).trigger('translationChange', {element: $target[0], type: "confidences", data: data});
+    })
+    .on('tokens.matecat', function (ev, data, err) {
+        $(window).trigger('translationChange', {element: $target[0], type: "tokens", data: data});
+    })
+    .on('alignments.matecat', function (ev, data, err) {
+        $(window).trigger('translationChange', {element: $target[0], type: "alignments", data: data});
 
         $target.find('span.editable-token').off('.matecat')
-        .on('mouseenter.matecat', function (ev, data, err) { 
-          $(window).trigger('showalignment', ev.target);
+        .on('mouseenter.matecat', function (ev, data, err) {
+          $(window).trigger('showAlignmentByMouse', ev.target);
         })
-        .on('mouseleave.matecat', function (ev, data, err) { 
-          $(window).trigger('hidealignment', ev.target);
+        .on('mouseleave.matecat', function (ev, data, err) {
+          $(window).trigger('hideAlignmentByMouse', ev.target);
         })
 
         $source.find('span.editable-token').off('.matecat')
-        .on('mouseenter.matecat', function (ev, data, err) { 
-          $(window).trigger('showalignment', ev.target);
+        .on('mouseenter.matecat', function (ev, data, err) {
+          $(window).trigger('showAlignmentByMouse', ev.target);
         })
-        .on('mouseleave.matecat', function (ev, data, err) { 
-          $(window).trigger('hidealignment', ev.target);
+        .on('mouseleave.matecat', function (ev, data, err) {
+          $(window).trigger('hideAlignmentByMouse', ev.target);
         })
 
-    })    
+    })
     .editableItp({
       sourceSelector: "#segment-" + sid + "-source",
       itpServerUrl:   config.catserver,
@@ -102,7 +102,7 @@ $(function(){
     });
     console.log('editableItp', $target);
   };
-  
+
   UI.closeSegment = function(editarea) {
     // WTF? editarea semantics is not the same as in openSegment
     console.log('close*', editarea);
@@ -142,7 +142,7 @@ $(function(){
           });
         });
 
-        break;        
+        break;
       default:
         console.log("Forwarding request 'as is':", a);
         original_doRequest.call(UI, req);
@@ -151,7 +151,7 @@ $(function(){
   };
 
   UI.saveCallback = function(action, req) {
-    if ((req.success  && typeof req.success  === 'function') || 
+    if ((req.success  && typeof req.success  === 'function') ||
         (req.complete && typeof req.complete === 'function')) {
       // Merge callbacks, as we don't have an Ajax transport in ITP
       if (!UI.callbacks.hasOwnProperty(action)) UI.callbacks[action] = [];
@@ -171,5 +171,5 @@ $(function(){
     }
     //return req.data;
   };
-    
+
 });

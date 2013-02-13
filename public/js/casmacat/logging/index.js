@@ -1,10 +1,10 @@
 $(function() {
-  console.log("replay index", window.location);
+
   $.fn.showProgressIndicator();
 
   $(window).on("articleloaded", function () {
     var article = $('div#outer article');
-    console.log("Article loaded");
+//debug("Article loaded");
     if (!config.replay) {
       $(window).logging({
           "fileId": config.file_id,
@@ -20,19 +20,21 @@ $(function() {
     }
     else {
       debug("virtualScreen: Setting editables read-only...");
+
+      // this is now done in replay on 'openSegment':
       // disable editables so they don't get the focus anymore
-      var logRootElement = "html > body > div#outer > article";
+      /*var logRootElement = "div#outer article";
       $(logRootElement).find("input:text").each(function(index, value) {
           $(this).prop("disabled", "disabled");
       });
       $(logRootElement).find("textarea").each(function(index, value) {
           $(this).prop("disabled", "disabled");
       });
-      $(logRootElement).find("*[contenteditable=true]").each(function(index, value) {
+      $(logRootElement).find(".editarea").each(function(index, value) {
           $(this).prop("contenteditable", "false");
       });
       debug("virtualScreen: 'vsEditorReady'");
-      window.parent.$(window.parent).trigger("vsEditorReady", null);
+      window.parent.$(window.parent).trigger("vsEditorReady", null);*/
 
        $.fn.hideProgressIndicator();
     }

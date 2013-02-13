@@ -13,7 +13,7 @@
         <script type="text/javascript">
             var config = {
                 basepath: '${basepath | string:/}',
-                enable_itp: '${php: catserver? true : false}',
+                enable_itp: '${php: catserver ? true : false}',
                 catserver: '${catserver}',
                 htrserver: '${htrserver}',
                 id_translator: '${tid | nothing}',
@@ -35,7 +35,7 @@
                 replay: ${casIsReplaying},
                 // CASMACAT extension end
             }
-            //			console.log('Server time: ' + Math.round(config.server_load_time)); 
+            //			console.log('Server time: ' + Math.round(config.server_load_time));
             var renderStart = new Date();
         </script>
         <script src="${basepath}public/js/loader.js?build=${build_number}"></script>
@@ -52,7 +52,7 @@
     <body tal:condition="supportedBrowser">
 
         <header>
-            <div class="wrapper">   
+            <div class="wrapper">
 
                 <form id="fileDownload" action="${basepath}" method="post">
                     <input type="hidden" name="action" value="downloadFile" />
@@ -67,11 +67,11 @@
 
 
                 <!-- viewer icons
-                
+
                     <a href="#" class="notification m-notification" title="click to view notifications">2</a>
                     <span class="text">+ you
                     <span id="id_translator" class="hide">antonio</span>
-                    </span> 
+                    </span>
                     <a href="#" class="viewer not-online">
                      <span class="v-name">
                             <span class="v-arrow"></span>
@@ -79,7 +79,7 @@
                             (offline)<br />
                             last edit: 12/06/12 at 06.30 AM
                         </span>
-                    </a> 
+                    </a>
                     <a href="#" class="viewer not-online">
                         <span class="v-name">
                             <span class="v-arrow"></span>
@@ -87,7 +87,7 @@
                             (offline)<br />
                             last edit: 12/06/12 at 06.30 AM
                         </span>
-                    </a> 
+                    </a>
                     <a href="#" class="viewer">
                         <span class="v-name">
                             <span class="v-arrow"></span>
@@ -95,7 +95,7 @@
                             last edit: 12/06/12 at 06.30 AM
                         </span>
                     </a>
-                    
+
                 -->
 
 
@@ -106,14 +106,14 @@
                     <ul>
                         <li>
                             <a href="#">
-                                <b>Luca</b> 
+                                <b>Luca</b>
                                 <br/>
                                 "parts" va tradotto con "componenti" e non con "pezzi"
                             </a>
                         </li>
                         <li>
                             <b>Lucia</b>
-                            <br/>      
+                            <br/>
                             questa frase è lunga e risulta illeggibile
                         </li>
                         <li>
@@ -128,29 +128,29 @@
 
 
 
-                <a href="${basepath}" class="logo">                 
+                <a href="${basepath}" class="logo">
                 </a>
-                <div class="breadcrumbs">    
+                <div class="breadcrumbs">
                     <div class="joblist">
                         <a href="#" class="arrow-notification"></a>
                         <ul>
                             <li>
                                 <a href="">
-                                    <b>Job1</b> 
+                                    <b>Job1</b>
                                 </a>
                             </li>
                             <li>
                                 <a href="">
-                                    <b>Another job</b> 
+                                    <b>Another job</b>
                                 </a>
                             </li>
                             <li>
                                 <a href="">
-                                    <b>Eaaasy job</b> 
+                                    <b>Eaaasy job</b>
                                 </a>
                             </li>
                         </ul>
-                    </div>  
+                    </div>
                     <!-- <a href="#" class="joblink">Jobs List</a> &gt; -->
                     <span style="float: left"><a href="#">Jobs List</a> &gt;</span>
                     <div id="pname" tal:content="pname">Project</div><span style="float: left">&nbsp;(<span tal:replace="jid">---</span>) &gt; <b><span tal:replace="source_code">---</span> </b> &gt; <b><span tal:replace="target_code">---</span></b></span>
@@ -161,100 +161,100 @@
 
         </header>
         <!--
-                <div class="search">    
+                <div class="search">
                <div class="col1-search">
                <ul>
                <li style="float:right">
                  <input name="" type="button" class="btn" value="FILTER" />
                </li>
                <li>
-               <input type="text" style="width:40px !important" value="SEG" onFocus="if (this.value == 'SEG') {this.value = '';}" onBlur="if (this.value == '') {this.value = 'SEG';}" class="search-input"/>  			   
+               <input type="text" style="width:40px !important" value="SEG" onFocus="if (this.value == 'SEG') {this.value = '';}" onBlur="if (this.value == '') {this.value = 'SEG';}" class="search-input"/>
                </li>
                <li>
                         <select class="search-select" >
                  <option value="prova">FILENAME</option>
-               </select>  	
+               </select>
                 </li>
               <li>
         <div class="search-editarea " contenteditable="true" onClick="if ($(this).text()=='SOURCE') $(this).text('')" onBlur="if ($(this).text()=='') $(this).text('SOURCE')">SOURCE</div>
-                  </li>      
-                        
-                        
+                  </li>
+
+
                         <li>
                                                          <div class="search-editarea" contenteditable="true" onClick="if ($(this).text()=='TRANSLATION') $(this).text('')" onBlur="if ($(this).text()=='') $(this).text('TRANSLATION')">TRANSLATION</div>
-                                         
-                                         
+
+
                                          </li>
-        
+
         <li>
-        
-        
+
+
                   <span class="custom-checkbox replace">
           <input type="checkbox" />
           <span class="box normal-check" title="show/hide draft segments"><span class="tick "></span></span>
-        </span> 
-        
+        </span>
+
         <p> REPLACE </p>
-        
+
         </li>
-        
+
          </ul>
-            
-            
-        
-                 
+
+
+
+
               <ul class="r-replace-box">
           <li style="float:right">
              <input name="" type="button" class="btn" value="REPLACE" />
-          
+
           </li>
           <li style="margin-left:202px">
               <div class="search-editarea" contenteditable="true" onClick="if ($(this).text()=='REPLACE SOURCE WITH') $(this).text('')" onBlur="if ($(this).text()=='') $(this).text('REPLACE SOURCE WITH')">REPLACE SOURCE WITH</div>
             </li>
-            <li>     
+            <li>
         <div class="search-editarea" contenteditable="true" onClick="if ($(this).text()=='REPLACE TRANSLATION WITH') $(this).text('')" onBlur="if ($(this).text()=='') $(this).text('REPLACE TRANSLATION WITH')">REPLACE TRANSLATION WITH</div>
         </li>
         </ul>
-          
+
              </div>
-             
-          
-          
-          
-          
+
+
+
+
+
           <div class="checkbox-box">
-          
+
           <ul>
-          
+
           <li>
-          
-          
-          
-        
-        
-          
-          
-          
+
+
+
+
+
+
+
+
          <span class="custom-checkbox" style="margin-left:8px">
           <input type="checkbox" />
-          <span class="box normal-check" title="show/hide draft segments"><span class="tick"></span></span>       </span>     
+          <span class="box normal-check" title="show/hide draft segments"><span class="tick"></span></span>       </span>
                <p > MATCH WHOLE WORDS</p>
                <span class="custom-checkbox">
           <input type="checkbox"/>
-          <span class="box normal-check" title="show/hide draft segments"><span class="tick"></span></span>       </span> 
+          <span class="box normal-check" title="show/hide draft segments"><span class="tick"></span></span>       </span>
                <p> CASE SENSITIVE</p>
                </li>
-         
+
         <li>
-        
+
         <span class="custom-checkbox" style="margin-left:10px;">
           <input type="checkbox" checked="checked"/>
           <span class="box tr-check" title="show/hide translated segments"><span class="tick"></span></span>
         </span>
-         
+
         <p style="margin-right:5px;">Translated</p>
         </li>
-        
+
         <li>
         <span class="custom-checkbox">
           <input type="checkbox" checked="checked"/>
@@ -275,18 +275,18 @@
         </span>
         <p style="margin-right:10px;">Approved</p>
         </li>
-        
-          
-          
+
+
+
           </ul>
-          
+
           </div>
-          
-               
-              
-            </div>   
+
+
+
+            </div>
         -->
-        <!--  END header serach  div (hidden by default) -->    
+        <!--  END header serach  div (hidden by default) -->
 
 
         <div id="outer">
@@ -301,13 +301,13 @@
                 <!-- <a tal:attributes="href string:/editlog/23/" class="statslink">Project Statistics</a> -->
 
 
-                <!--               
+                <!--
                                <ul class="pagination">
                                     <li><a href="#"> < </a></li>
                                     <li style="padding:5px 10px !important"> Seg 1 to 200 </li>
                                     <li><a href="#"> > </a></li>
                                 </ul>
-                -->               
+                -->
                 <a tal:attributes="href string:${basepath}editlog/${jid}-${password}">Editing Log</a>
 
                 <p >Progress:</p>
@@ -387,13 +387,13 @@
                 <div class="end-message-box">
                 <div class="end-message-col1">
                 <h3>Faxová úloha<span>*</span>!</h3>
-               <img src="${basepath}public/img/end-message.jpg" /> 
+               <img src="${basepath}public/img/end-message.jpg" />
                <p><span>*</span>Now you know how to say “<strong>Good Job</strong>” in Czech.</p>
                </div>
                 <div class="end-message-col2">
         <h4>It took you only <strong>30 minutes</strong> <br />
           to finish the translation!</h4>
-        
+
                                         <form id="fileDownload" action="${basepath}" method="post">
                                                 <input type="hidden" name="action" value="downloadFile" />
                                                 <input type="hidden" name="id_job" value="" tal:attributes="value jid | nothing" />
@@ -401,10 +401,10 @@
                                                 <input type="hidden" name="filename" tal:attributes ="value string:${pname}.xliff" />
                                                 <input id="downloadProject" name="submit" type="submit" value="DOWNLOAD PROJECT" tal:attributes="class string:downloadtr-button  ${job_stats/DOWNLOAD_STATUS}" />
                                         </form>
-                
+
                        <a href="#" class="downloadtr-button" style="background:#f5f5f5;color:#333">START NEW PROJECT</a>
-        
-          
+
+
                         <a href="#" class="downloadtr-button" style="background:#f5f5f5;color:#333"><strong>NOTIFY YOUR PM</strong> <br />
         <span>that you are available for new work</span></a>
         <input name="" type="text" value="http://23-P124#completed" onClick="select()"/>

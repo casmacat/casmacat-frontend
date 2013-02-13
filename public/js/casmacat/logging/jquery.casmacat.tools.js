@@ -32,7 +32,7 @@
         var pos2 = $(this).getCaretPos();
         debug(pos);
         debug(pos2);*/
-        
+
         var str = $(this).html();
         str = str.replace(/&nbsp;/g, ' ');
         $(this).html(str);
@@ -384,7 +384,7 @@ catch (e) {
 //        }
     }
 
-       $.fn.getCaretPos = function() { 
+       $.fn.getCaretPos = function() {
       var $this = $(this),
           data = $this.data('editable'),
           node = $this.get(0);
@@ -410,7 +410,7 @@ catch (e) {
       }
       return caretOffset;
     }
-    
+
     /**
      * Set the cursor position within a content editable while only counting text nodes. See also:
      * "http://stackoverflow.com/questions/2871081/jquery-setting-cursor-position-in-contenteditable-div"
@@ -578,8 +578,6 @@ catch (e) {
 
         return $(this);
     }
-
-      console.log("replay tools", window.location);
 
 })(jQuery);
 

@@ -27,8 +27,10 @@ class LogEvent {
     const CONFIDENCES = "confidences";
     const TOKENS = "tokens";
 
-    const SHOW_ALIGNMENT = "showAlignment";    
-    const HIDE_ALIGNMENT = "hideAlignment";   
+    const SHOW_ALIGNMENT_BY_MOUSE = "showAlignmentByMouse";
+    const HIDE_ALIGNMENT_BY_MOUSE = "hideAlignmentByMouse";
+    const SHOW_ALIGNMENT_BY_KEY = "showAlignmentByKey";
+    const HIDE_ALIGNMENT_BY_KEY = "hideAlignmentByKey";
 
     public $id;
     public $jobId;
