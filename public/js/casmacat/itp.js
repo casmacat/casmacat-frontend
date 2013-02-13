@@ -44,6 +44,7 @@ $(function(){
 
   // Overwrite UI methods ------------------------------------------------------
 
+  console.log("Wrapping UI methods for ITP");
   UI.callbacks = {};
 
   UI.setKeyboardShortcuts = function(){}; // FTW
@@ -76,15 +77,22 @@ $(function(){
     .on('alignments.matecat', function (ev, data, err) {
         $(window).trigger('translationChange', {element: $target[0], type: "alignments", data: data});
 
-        $target.find('span.editable-token').off('.matecat')
+        $target.find('span.editable-token')
+        .off('mouseenter.matecat mouseleave.matecat caretenter.matecat caretleave.matecat')
         .on('mouseenter.matecat', function (ev, data, err) {
           $(window).trigger('showAlignmentByMouse', ev.target);
         })
         .on('mouseleave.matecat', function (ev, data, err) {
           $(window).trigger('hideAlignmentByMouse', ev.target);
         })
+        .on('caretenter.matecat', function (ev, data, err) {
+          $(window).trigger('showAlignmentByKey', ev.target);
+        })
+        .on('caretleave.matecat', function (ev, data, err) {
+          $(window).trigger('hideAlignmentByKey', ev.target);
+        })
 
-        $source.find('span.editable-token').off('.matecat')
+        $source.find('span.editable-token').off('mouseenter.matecat mouseleave.matecat')
         .on('mouseenter.matecat', function (ev, data, err) {
           $(window).trigger('showAlignmentByMouse', ev.target);
         })
