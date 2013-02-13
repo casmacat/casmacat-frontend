@@ -1,7 +1,5 @@
 $(function(){
 
-  //if (typeof UI === 'undefined') throw "Missing cat.js file";
-
   function insertScript(url, nodeName) {
     var script = document.createElement('script');
     script.type = 'text/javascript';

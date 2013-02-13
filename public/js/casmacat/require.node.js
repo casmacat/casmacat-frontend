@@ -76,11 +76,13 @@
         var str;
         if (!refusePadding) {
           var source = this.responseText.match(/^\s*(?:(['"]use strict['"])(?:;\r?\n?|\r?\n))?\s*((?:.*\r?\n?)*)/);
-          str = '(function(){'+source[1]+';var undefined,exports,module={exports:exports};\n\n'+source[2]+'\n\nreturn module.exports;})();\n//@ sourceURL='+url+'\n';
+          str = '/* Require (with padding) */(function(){'+source[1]+';var undefined,exports,module={exports:exports};\n\n'+source[2]+'\n\nreturn module.exports;})();';
         }
         else {
-          str = "var exports;" + this.responseText + "\n\ntrue;";
+          str = "/* Require (without padding) */var exports;" + this.responseText + "\n\ntrue;";
         }
+        // acknowledge firebug and chrome what is the name of the file
+        str += "\n\n//@ sourceURL=" + url;
 
         try {
           var errmsg = 'Module ' + module + ' with url "' + url + '" could not be included.';

@@ -1,5 +1,5 @@
 (function(module, global){
-  NLP = require('nlp-utils');
+  var NLP = require('nlp-utils');
 
   /*******************************************************************************/
   /*           update the HTML display and attach events                         */
