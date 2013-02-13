@@ -16,6 +16,7 @@ $(function(){
   
   // Overwrite UI methods ------------------------------------------------------
   
+  console.log("Wrapping UI methods for logging/replay");
   var original_setContribution = UI.setContribution; 
   UI.setContribution = function(segment,status,byStatus) {
     if (config.replay == 1) {

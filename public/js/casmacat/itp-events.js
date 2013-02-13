@@ -68,7 +68,34 @@ var Memento = require("module.memento");
     });
 
     self.memento = new Memento();
-    self.memento.init($target);
+    self.memento.init($target, {
+      start: function() {
+        $target.bind('input, editabletextchange', function(e, data, err){
+          var tgtText  = $(e.target).editable('getText'),
+              caretPos = $(e.target).editable('getCaretPos'),
+              currState = self.memento.getState();
+          if (!currState || tgtText != currState.text) {
+            self.memento.addElement({ text:tgtText, caret:caretPos });
+          }
+//        }).bind('editabledomchange', function(e, data, err){
+//          var clonedNode = $(e.target).clone(true);
+//          if (stack.length < 1) {
+//            self.memento.addElement(clonedNode);
+//          } else {
+//            self.memento.replaceElement(pos, clonedNode);
+//          }
+        });
+      },
+      change: function(data) {
+        $target.editable('setText', data.text);
+        var itpCfg = cfg();
+        itpCfg.itpServer.getTokens({
+          source: itpCfg.$source.editable('getText'),
+          target: $target.editable('getText'),
+        });
+        $target.editable('setCaretPos', data.caret);        
+      }
+    });
  
     self.removeEvents = function() {
       $target.unbind(nsClass);
@@ -150,7 +177,8 @@ var Memento = require("module.memento");
         self.mousewheel.addElement(data);
 
         //XXX: $('#btn-translate').val("Translate").attr("disabled", false);
-        $target.trigger('decode', data, err);
+        $target.trigger('decode', [data, err]);
+        $target.trigger('editabletextchange', [data, err]);
       });
     
       itp.on('startSessionResult', function(data, err) {
@@ -172,13 +200,15 @@ var Memento = require("module.memento");
 
         // resizes the alignment matrix in a smoothed manner but it does not fill missing alignments 
         // (makes a diff between previous and current tokens and inserts/replaces/deletes columns and rows)
-        $target.trigger('tokens', data, err);
+        $target.trigger('tokens', [data, err]);
+        $target.trigger('editabledomchange', [data, err]);
       });
     
       // Handle alignment changes (updates highlighting and alignment matrix) 
       itp.on('getAlignmentsResult', function(data, err) {
         self.v.updateAlignmentDisplay(data);
-        $target.trigger('alignments', data, err);
+        $target.trigger('alignments', [data, err]);
+        $target.trigger('editabledomchange', [data, err]);
       });
     
       // Handle confidence changes (updates highlighting) 
@@ -186,7 +216,8 @@ var Memento = require("module.memento");
         //var start_time = new Date().getTime();
         self.v.updateWordConfidencesDisplay(data);
         //console.log("update_word_confidences_display:", new Date().getTime() - start_time, obj.data.elapsed_time);
-        $target.trigger('confidences', data, err);
+        $target.trigger('confidences', [data, err]);
+        $target.trigger('editabledomchange', [data, err]);
       });
     
       // Handle confidence changes (updates highlighting) 
@@ -194,29 +225,30 @@ var Memento = require("module.memento");
         self.v.updateSuggestions(data);
         
         self.mousewheel.addElement(data);
-        $target.trigger('suffixchange', data, err);
+        $target.trigger('suffixchange', [data, err]);
+        $target.trigger('editabletextchange', [data, err]);
       });
     
       // Measure network latency
       itp.on('pingResult', function(data, err) {
         console.log("Received ping:", new Date().getTime() - data.ms);
-        $target.trigger('ping', data, err);
+        $target.trigger('ping', [data, err]);
       });
     
     
       // Receive server configuration 
       itp.on('getServerConfigResult', function(data, err) {
-        $target.trigger('serverconfig', data, err);
+        $target.trigger('serverconfig', [data, err]);
       });
     
       // Handle updates changes (show a list of updated sentences) 
       itp.on('getValidatedContributionsResult', function(data, err) {
-        $target.trigger('validatedcontributions', data, err);
+        $target.trigger('validatedcontributions', [data, err]);
       });
     
       // Handle models changes (after OL) 
       itp.on('validateResult', function(data, err) {
-        $target.trigger('validate', data, err);
+        $target.trigger('validate', [data, err]);
       });
     }
 
@@ -251,40 +283,56 @@ var Memento = require("module.memento");
         if (e.which === 13) {
           e.stopPropagation();
           e.preventDefault();
-        } 
+        }
+      }).bind('keydown' + nsClass, 'tab', function(e){
         // prevent tabs that move to the next word or to the next priority word
-        else if (e.which === 9) {
-          e.stopPropagation();
-          e.preventDefault();
-          var ui = userCfg();
-          if (ui.prioritizer != 'none') {
-            var $token = $('.editable-token', $target).filter(function(e){ return $(this).css('opacity') < 1.0}).first();
+        e.stopPropagation();
+        e.preventDefault();
+        tabKeyHandler(e, 'fwd');
+      }).bind('keydown' + nsClass, 'shift+tab', function(e){
+        e.stopPropagation();
+        e.preventDefault();
+        tabKeyHandler(e, 'bck');
+      });
+
+      function tabKeyHandler(e, mode) {
+        //if (mode == 'fwd') {}
+        var ui = userCfg(), $token;
+        
+        if (ui.prioritizer != 'none') {
+          if (mode == 'fwd') {
+            $token = $('.editable-token', $target).filter(function(e){ return $(this).css('opacity') < 1.0}).first();
+          } else {
+            var tok = $target.editable('getTokenAtCaret');
+            if (tok.elem) {
+              $token = $(tok.elem).parent().prev('.editable-token');
+            }
+          }
+          if ($token) {
+            $target.editable('setCaretAtToken', $token.get(0));
+          } else {
+            $target.editable('setCaretPos', $target.text().length);
+          }
+        } else {
+          if (self.currentCaretPos && self.currentCaretPos.token) {
+            $token = $(self.currentCaretPos.token.elem);
+            if ($token.parent().is('.editable-token')) {
+              $token = $token.parent();
+            }
+            if (mode == 'fwd') {
+              $token = $token.next('.editable-token');
+            } else {
+              $token = $token.prev('.editable-token');
+            }
             if ($token) {
               $target.editable('setCaretAtToken', $token.get(0));
-            }
-            else {
+            } else {
               $target.editable('setCaretPos', $target.text().length);
             }
           }
-          else {
-            if (self.currentCaretPos && self.currentCaretPos.token) {
-              var $token = $(self.currentCaretPos.token.elem);
-              if ($token.parent().is('.editable-token')) {
-                $token = $token.parent();
-              }
-              $token = $token.next('.editable-token');
-  
-              if ($token) {
-                $target.editable('setCaretAtToken', $token.get(0));
-              }
-              else {
-                $target.editable('setCaretPos', $target.text().length);
-              }
-            }
-          }
-        }
-      });
-  
+        }      
+      };
+      
       // #source events
       // on key up throttle a new translation
       $source.bind('keyup' + nsClass, function(e) {
