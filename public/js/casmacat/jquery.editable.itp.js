@@ -78,7 +78,6 @@
     },
 
     destroy: function() {
-      var n = 0;
       return this.each(function() {
         var $this = $(this);
         if ($this.data(namespace)) {
