@@ -1,7 +1,169 @@
 <?php
+include_once INIT::$MODEL_ROOT . "/LogEvent.class.php";
+
 /**
  * Contains all CASMACAT related database queries.
  */
+
+function deleteHeaderRow($id) {
+
+    $db = Database::obtain();
+    $db->query("DELETE FROM log_event_header WHERE id = '$id'");
+
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: deleteHeaderRow(): " . print_r($err, true));
+        return $errno * -1;
+    }
+
+    return true;
+}
+
+function deleteEventRow($headerId, $table) {
+
+    $db = Database::obtain();
+    $db->query("DELETE FROM $table WHERE header_id = '$headerId'");
+
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: deleteEventRow(): " . print_r($err, true));
+        return $errno * -1;
+    }
+
+    return true;
+}
+
+/**
+ * Loads a log chunk from the database.
+ *
+ */
+function resetDocument($jobId, $fileId) {
+
+    $db = Database::obtain();
+    $queryId = $db->query("SELECT * FROM log_event_header h WHERE h.job_id = '$jobId' AND h.file_id = '$fileId'"
+            . " ORDER BY h.time ASC");
+
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: resetDocument(): " . print_r($err, true));
+        return $errno * -1;
+    }
+
+    log::doLog("CASMACAT: resetDocument(): Event headers found: '$db->affected_rows'");
+
+    $headerRow = null;
+    while ( ($headerRow = $db->fetch($queryId)) != false ) {
+
+        $headerRowAsObject = snakeToCamel($headerRow);
+
+        log::doLog("CASMACAT: resetDocument(): Next headerRow: " . print_r($headerRowAsObject, true));
+
+        $logEvent = new LogEvent($jobId, $fileId, $headerRowAsObject);
+        log::doLog("CASMACAT: resetDocument(): Processing header id: '$logEvent->id'");
+
+        switch ($logEvent->type) {
+            case LogEvent::START_SESSION:
+                break;
+            case LogEvent::STOP_SESSION:
+                break;
+
+            case LogEvent::RESIZE:
+                deleteEventRow($logEvent->id, "resize_event");
+                break;
+            case LogEvent::TEXT:
+                deleteEventRow($logEvent->id, "text_event");
+                break;
+            case LogEvent::SELECTION:
+                deleteEventRow($logEvent->id, "selection_event");
+                break;
+            case LogEvent::SCROLL:
+                deleteEventRow($logEvent->id, "scroll_event");
+                break;
+            case LogEvent::GAZE:
+                // TODO
+                break;
+            case LogEvent::FIX:
+                // TODO
+                break;
+
+            case LogEvent::DRAFTED:
+            case LogEvent::TRANSLATED:
+            case LogEvent::APPROVED:
+            case LogEvent::REJECTED:
+                break;
+
+            case LogEvent::VIEWPORT_TO_SEGMENT:
+                break;
+            case LogEvent::SOURCE_COPIED:
+                break;
+            case LogEvent::SEGMENT_OPENED:
+                break;
+            case LogEvent::SEGMENT_CLOSED:
+                break;
+
+            case LogEvent::LOADING_SUGGESTIONS:
+                break;
+            case LogEvent::SUGGESTIONS_LOADED:
+                deleteEventRow($logEvent->id, "suggestions_loaded_event");
+                break;
+            case LogEvent::SUGGESTION_CHOSEN:
+                deleteEventRow($logEvent->id, "suggestion_chosen_event");
+                break;
+
+            case LogEvent::DECODE:
+            case LogEvent::ALIGNMENTS:
+            case LogEvent::SUFFIX_CHANGE:
+            case LogEvent::CONFIDENCES:
+            case LogEvent::TOKENS:
+                deleteEventRow($logEvent->id, "itp_event");
+                break;
+            case LogEvent::SHOW_ALIGNMENT_BY_MOUSE:
+            case LogEvent::HIDE_ALIGNMENT_BY_MOUSE:
+            case LogEvent::SHOW_ALIGNMENT_BY_KEY:
+            case LogEvent::HIDE_ALIGNMENT_BY_KEY:
+              break;
+
+
+            default:
+                log::doLog("CASMACAT: resetDocument(): Unknown log event type: '$logEvent->type', header id: '$logEvent->id'");
+                return -1;
+        }
+        deleteHeaderRow($logEvent->id);
+
+        log::doLog("CASMACAT: resetDocument(): Deleted: '" . $logEvent->toString() . "'");
+    }
+
+    // reset last_opened_segment
+//    $queryId = $db->query("SELECT id FROM segments WHERE id_file = '$fileId' ORDER BY id ASC LIMIT 0, 1");
+//
+//    $err = $db->get_error();
+//    $errno = $err["error_code"];
+//    if ($errno != 0) {
+//        log::doLog("CASMACAT: resetDocument(): " . print_r($err, true));
+//        return $errno * -1;
+//    }
+
+    $db->query("UPDATE jobs SET last_opened_segment = '' WHERE id = '$jobId'");
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: resetDocument(): " . print_r($err, true));
+        return $errno * -1;
+    }
+
+    $db->query("DELETE FROM segment_translations WHERE id_job = '$jobId'");
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: resetDocument(): " . print_r($err, true));
+        return $errno * -1;
+    }
+
+    return true;
+}
 
 function fetchEndTime($jobId, $fileId) {
 
@@ -28,7 +190,7 @@ function fetchEndTime($jobId, $fileId) {
  */
 function fetchLogChunk($jobId, $fileId, $startOffset, $endOffset) {
 
-    include_once INIT::$MODEL_ROOT . "/LogEvent.class.php";
+//    include_once INIT::$MODEL_ROOT . "/LogEvent.class.php";
 
     $db = Database::obtain();
     $queryId = $db->query("SELECT * FROM log_event_header h WHERE h.job_id = '$jobId' AND h.file_id = '$fileId'"

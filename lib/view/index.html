@@ -33,6 +33,7 @@
                 file_id: '${fid}',
                 enable_logging: ${enableLogging},
                 replay: ${casIsReplaying},
+                debug: ${debug}
                 // CASMACAT extension end
             }
             //			console.log('Server time: ' + Math.round(config.server_load_time));
@@ -308,7 +309,14 @@
                                     <li><a href="#"> > </a></li>
                                 </ul>
                 -->
-                <a tal:attributes="href string:${basepath}editlog/${jid}-${password}">Editing Log</a>
+                <!-- CASMACAT extension start -->
+                <!-- TODO support this in the near future -->
+                <!--<a tal:attributes="href string:${basepath}editlog/${jid}-${password}">Editing Log</a>-->
+
+                <span tal:condition="php: debug == 'true'">
+                    <a id="resetDocument" href=".">Reset Document</a>
+                </span>
+                <!-- CASMACAT extension end -->
 
                 <p >Progress:</p>
                 <div class="meter">

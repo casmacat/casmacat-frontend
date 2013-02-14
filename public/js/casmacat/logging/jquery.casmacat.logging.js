@@ -190,6 +190,13 @@
             else {
 //                $.fn.showProgressIndicator();
 
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.STOP_SESSION, window));
+
+                if (logList.length >= 0) {
+                    debug(pluginName + ": Upload remaining 'logList'...");
+                    uploadLogChunk(false);
+                }
+
                 // TODO check for completeness/correctness, also see: "http://docs.jquery.com/Plugins/Authoring"
                 if (chunksUploading > 0) {
                     // TODO wait for uploads to complete
@@ -448,8 +455,10 @@
         // scroll
         $(settings.logRootElement).find(":scrollable(vertical)").off("." + pluginName);
 
-        // (window) close + scroll + resize + segment
+        // (window) scroll + resize + segment
         $(window).off("." + pluginName);
+
+        window.onbeforeunload = null;
 
         fieldContents = [];   // clear field contents cache
         debug(pluginName + ": Unbound from events.");

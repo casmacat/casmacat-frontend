@@ -16,6 +16,7 @@ database = "matecat_sandbox"
 [debug]
 displayerrors  = 0
 errorreporting = "E_ALL"
+debug = "true"
 
 [log]
 directory = "logs"    ; relative to root path
