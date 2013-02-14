@@ -169,12 +169,12 @@ LogEventFactory.prototype.newLogEvent = function(type, element) {
         case this.SUFFIX_CHANGE:    // data
         case this.CONFIDENCES:    // data
         case this.TOKENS:    // data
+        case this.SHOW_ALIGNMENT_BY_KEY:
+        case this.HIDE_ALIGNMENT_BY_KEY:
             logEvent.data = arguments[2];
             break;
         case this.SHOW_ALIGNMENT_BY_MOUSE:
         case this.HIDE_ALIGNMENT_BY_MOUSE:
-        case this.SHOW_ALIGNMENT_BY_KEY:
-        case this.HIDE_ALIGNMENT_BY_KEY:
             break;
 
         default:

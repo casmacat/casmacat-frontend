@@ -896,12 +896,12 @@
 
     var alignmentShownByKey = function(e, data) {
       debug(pluginName + ": Alignment shown by key.");
-      storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SHOW_ALIGNMENT_BY_KEY, data));
+      storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SHOW_ALIGNMENT_BY_KEY, data.element, data.data));
     };
 
     var alignmentHiddenByKey = function(e, data) {
       debug(pluginName + ": Alignment hidden by key.");
-      storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HIDE_ALIGNMENT_BY_KEY, data));
+      storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HIDE_ALIGNMENT_BY_KEY, data.element, data.data));
     };
 
     // Just to now that everything has been parsed...

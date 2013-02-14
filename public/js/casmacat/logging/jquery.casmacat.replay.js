@@ -806,10 +806,10 @@
                 vsWindow.$("#" + event.elementId).trigger('mouseleave');
                 break;
             case logEventFactory.SHOW_ALIGNMENT_BY_KEY:
-                vsWindow.$("#" + event.elementId).trigger('caretenter', event.elementId);
+                vsWindow.$("#" + event.elementId).trigger('caretenter', JSON.parse(event.data));
                 break;
             case logEventFactory.HIDE_ALIGNMENT_BY_KEY:
-                vsWindow.$("#" + event.elementId).trigger('caretleave', event.elementId);
+                vsWindow.$("#" + event.elementId).trigger('caretleave', JSON.parse(event.data));
                 break;
 
             default:
