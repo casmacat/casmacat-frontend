@@ -100,13 +100,13 @@ class saveLogChunkController extends ajaxcontroller {
                 case LogEvent::SUFFIX_CHANGE:
                 case LogEvent::CONFIDENCES:
                 case LogEvent::TOKENS:
+                case LogEvent::SHOW_ALIGNMENT_BY_KEY:
+                case LogEvent::HIDE_ALIGNMENT_BY_KEY:
                     $logEvent->itpData($value);
                     insertItpEvent($logEvent);
                     break;
                 case LogEvent::SHOW_ALIGNMENT_BY_MOUSE:
                 case LogEvent::HIDE_ALIGNMENT_BY_MOUSE:
-                case LogEvent::SHOW_ALIGNMENT_BY_KEY:
-                case LogEvent::HIDE_ALIGNMENT_BY_KEY:
                     insertLogEventHeader($logEvent);
                     break;
 
