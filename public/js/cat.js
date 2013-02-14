@@ -943,7 +943,13 @@ UI = {
         this.nextIsLoaded = false;
         this.getContribution(segment,0);
         this.opening = true;
-        if(!(this.currentSegment.is(this.lastOpenedSegment))) this.closeSegment(this.lastOpenedSegment,0);
+
+        // CASMACAT extension start
+        if (config.replay != 1) {
+            if(!(this.currentSegment.is(this.lastOpenedSegment))) this.closeSegment(this.lastOpenedSegment,0);
+        }
+        // CASMACAT extension end
+
         this.opening = false;
         this.body.addClass('editing');
 

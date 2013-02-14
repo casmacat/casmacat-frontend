@@ -762,7 +762,7 @@
                 $(editarea).prop("contenteditable", false);
                 break;
             case logEventFactory.SEGMENT_CLOSED:
-                vsWindow.UI.closeSegment(element, true);
+                vsWindow.UI.closeSegment(element, false);
                 break;
 
             case logEventFactory.LOADING_SUGGESTIONS:
@@ -806,10 +806,10 @@
                 vsWindow.$("#" + event.elementId).trigger('mouseleave');
                 break;
             case logEventFactory.SHOW_ALIGNMENT_BY_KEY:
-//                vsWindow.$("#" + event.elementId).trigger('mouseenter');
+                vsWindow.$("#" + event.elementId).trigger('caretenter', event.elementId);
                 break;
             case logEventFactory.HIDE_ALIGNMENT_BY_KEY:
-//                vsWindow.$("#" + event.elementId).trigger('mouseleave');
+                vsWindow.$("#" + event.elementId).trigger('caretleave', event.elementId);
                 break;
 
             default:
