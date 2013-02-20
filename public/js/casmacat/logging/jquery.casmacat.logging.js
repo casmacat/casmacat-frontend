@@ -652,8 +652,18 @@
             shiftKey = e.shiftKey;
         }
 
-        var pos = $(e.target).getCursorPositionContenteditable();
-        debug(pluginName + ": Key down, cursor position: pos: '" + pos + "'.");
+        if (settings.logKeys) {
+            var pos = $(e.target).getCursorPositionContenteditable();
+            debug(pluginName + ": Key down, cursor position: pos: '" + pos + "'.");
+
+            var altKey = false;
+            if (e.altKey) {
+                altKey = e.altKey;
+            }
+
+            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.KEY_DOWN, e.target,
+                pos, e.which, $.fn.keyCodeToKey(e.which), shiftKey, ctrlKey, altKey));
+        }
     };
 
 //    var keyPressed = function(e) {
@@ -674,8 +684,18 @@
             shiftKey = false;
         }
 
-        var pos = $(e.target).getCursorPositionContenteditable();
-        debug(pluginName + ": Key up, cursor position: pos: '" + pos + "'.");
+        if (settings.logKeys) {
+            var pos = $(e.target).getCursorPositionContenteditable();
+            debug(pluginName + ": Key up, cursor position: pos: '" + pos + "'.");
+
+            var altKey = false;
+            if (e.altKey) {
+                altKey = e.altKey;
+            }
+
+            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.KEY_UP, e.target,
+                pos, e.which, $.fn.keyCodeToKey(e.which), shiftKey, ctrlKey, altKey));
+        }
     };
 
     var contentBeforeCut = null;

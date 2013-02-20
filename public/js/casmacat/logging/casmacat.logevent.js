@@ -51,6 +51,9 @@ var LogEventFactory = function(elementIdMode) {
     this.HIDE_ALIGNMENT_BY_MOUSE = "hideAlignmentByMouse";
     this.SHOW_ALIGNMENT_BY_KEY = "showAlignmentByKey";
     this.HIDE_ALIGNMENT_BY_KEY = "hideAlignmentByKey";
+
+    this.KEY_DOWN = "keyDown";
+    this.KEY_UP = "keyUp";
 };
 
 /**
@@ -175,6 +178,16 @@ LogEventFactory.prototype.newLogEvent = function(type, element) {
             break;
         case this.SHOW_ALIGNMENT_BY_MOUSE:
         case this.HIDE_ALIGNMENT_BY_MOUSE:
+            break;
+
+        case this.KEY_DOWN:
+        case this.KEY_UP:
+            logEvent.cursorPosition = arguments[2];
+            logEvent.which = arguments[3];
+            logEvent.character = arguments[4];
+            logEvent.shift = arguments[5];
+            logEvent.ctrl = arguments[6];
+            logEvent.alt = arguments[7];
             break;
 
         default:

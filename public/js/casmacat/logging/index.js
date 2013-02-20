@@ -54,7 +54,7 @@ $(function() {
             "jobId": config.job_id,
 
             "doSanitize": true,    // when IMT enabled, set this to false, set to true otherwise
-            "logItp": true,    // when IMT enabled, set this to false, set to true otherwise
+            "logItp": false,    // when IMT enabled, set this to false, set to true otherwise
             "logRootElement": "html > body > div#outer",
             "maxChunkSize": 10
         });

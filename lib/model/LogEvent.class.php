@@ -32,6 +32,9 @@ class LogEvent {
     const SHOW_ALIGNMENT_BY_KEY = "showAlignmentByKey";
     const HIDE_ALIGNMENT_BY_KEY = "hideAlignmentByKey";
 
+    const KEY_DOWN = "keyDown";
+    const KEY_UP = "keyUp";
+
     public $id;
     public $jobId;
     public $fileId;
@@ -115,6 +118,15 @@ class LogEvent {
 
     public function itpData($object) {
         $this->data = $object->data;
+    }
+
+    public function keyData($object) {
+        $this->cursorPosition = $object->cursorPosition;
+        $this->which = $object->which;
+        $this->character = $object->character;
+        $this->shift = $object->shift;
+        $this->ctrl = $object->ctrl;
+        $this->alt = $object->alt;
     }
 
     public function toString() {

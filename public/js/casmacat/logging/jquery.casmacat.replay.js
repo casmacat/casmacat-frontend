@@ -824,6 +824,19 @@
                 vsWindow.$("#" + event.elementId).trigger('caretleave', JSON.parse(event.data));
                 break;
 
+            case logEventFactory.KEY_DOWN:
+            case logEventFactory.KEY_UP:
+                if (element.hasClass("editarea")) {
+                    if (event.which == 35 || event.which == 36  // end/home
+                            || event.which == 37 || event.which == 38   // left/up
+                            || event.which == 39 || event.which == 40) {  // right/down
+//                        debug(pluginName + ": Replaying cursor move...");
+                        element.focus();
+                        element.setCursorPositionContenteditable(event.cursorPosition);
+                    }
+                }
+                break;
+
             default:
                 alert("Unknown event type");
                 debug(pluginName + ": Unknown event type: '" + event.type + "'.");

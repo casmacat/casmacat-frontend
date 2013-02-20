@@ -115,6 +115,12 @@ class saveLogChunkController extends ajaxcontroller {
                     insertSuggestionChosenEvent($logEvent);
                     break;
 
+                case LogEvent::KEY_DOWN:
+                case LogEvent::KEY_UP:
+                    $logEvent->keyData($value);
+                    insertKeyEvent($logEvent);
+                    break;
+
                 default:
                     $this->result["code"] = -1;
                     $this->result["errors"][] = array("code" => -1, "message" => "Unknown log event type: '$logEvent->type' at index: '$key'");

@@ -126,6 +126,10 @@ function resetDocument($jobId, $fileId) {
             case LogEvent::HIDE_ALIGNMENT_BY_KEY:
               break;
 
+            case LogEvent::KEY_DOWN:
+            case LogEvent::KEY_UP:
+                deleteEventRow($logEvent->id, "key_event");
+                break;
 
             default:
                 log::doLog("CASMACAT: resetDocument(): Unknown log event type: '$logEvent->type', header id: '$logEvent->id'");
@@ -285,6 +289,11 @@ function fetchLogChunk($jobId, $fileId, $startOffset, $endOffset) {
             case LogEvent::HIDE_ALIGNMENT_BY_MOUSE:
               break;
 
+            case LogEvent::KEY_DOWN:
+            case LogEvent::KEY_UP:
+                $eventRow = fetchEventRow($logEvent->id, "key_event");
+                $logEvent->keyData($eventRow);
+                break;
 
             default:
                 log::doLog("CASMACAT: fetchLogChunk(): Unknown log event type: '$logEvent->type', header id: '$logEvent->id'");
@@ -338,6 +347,34 @@ function snakeToCamel($row) {
 
     return (object)$row;
 //    log::doLog("CASMACAT: snakeTCoCamel(): camel case row: " . print_r($row, true));
+}
+
+/**
+ * Inserts an entry into the key_event and log_event_header table.
+ *
+ */
+function insertKeyEvent($event) {
+    $headerId = insertLogEventHeader($event);
+
+    $data = array();
+    $data["id"] = "NULL";
+    $data["header_id"] = $headerId;
+    $data["cursor_position"] = $event->cursorPosition;
+    $data["which"] = $event->which;
+    $data["character"] = $event->character;
+    $data["shift"] = $event->shift;
+    $data["ctrl"] = $event->ctrl;
+    $data["alt"] = $event->alt;
+
+    $db = Database::obtain();
+    $db->insert("key_event", $data);
+
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: insertKeyEvent(): " . print_r($err, true));
+        return $errno * -1;
+    }
 }
 
 /**
