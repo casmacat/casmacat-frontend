@@ -65,17 +65,17 @@ Loader = {
                       this.include('jquery.casmacat.tools.js', 'casmacat/logging/', this.basePath);
                       this.include('casmacat.logevent.js', 'casmacat/logging/', this.basePath);
                       this.include('jquery.casmacat.logging.js', 'casmacat/logging/', this.basePath);
-                      this.include('logging.hooks.js', 'casmacat/logging/', this.basePath);
+                      this.include('ui.hooks.js', 'casmacat/logging/', this.basePath);
                       this.include('index.js', 'casmacat/logging/', this.basePath);
       }
       else if(this.detect('replay') == "true") {
                       this.include('debug.js', 'casmacat/logging/', this.basePath);
                       this.include('jquery.casmacat.tools.js', 'casmacat/logging/', this.basePath);
-                      this.include('logging.hooks.js', 'casmacat/logging/', this.basePath);
+                      this.include('ui.hooks.js', 'casmacat/logging/', this.basePath);
                       this.include('index.js', 'casmacat/logging/', this.basePath);
       }
     }
-                // CASMACAT extension end
+    // CASMACAT extension end
   }
 }
 

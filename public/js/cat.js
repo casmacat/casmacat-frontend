@@ -738,7 +738,10 @@ UI = {
                 password: config.password,
                 step : 50,
                 segment: segId,
-                where: where
+                where: where,
+                // CASMACAT extension start
+                replay: config.replay ? "true" : "false"
+                // CASMACAT extension end
 			},
 			success: function(d){
                 where = d.data['where'];
@@ -828,7 +831,10 @@ UI = {
                 password: config.password,
                 step : step,
                 segment: this.startSegmentId,
-                where: where
+                where: where,
+                // CASMACAT extension start
+                replay: config.replay ? "true" : "false"
+                // CASMACAT extension end
 			},
 			success: function(d){
                 where = d.data['where'];
@@ -943,11 +949,14 @@ UI = {
         this.nextIsLoaded = false;
         this.getContribution(segment,0);
         this.opening = true;
-
+//----------------------------------------Here gehts weiter
         // CASMACAT extension start
-        if (config.replay != 1) {
+//        if (config.replay != 1) { // TODO check this!!! two buttons may be added when
+//        click tranlsate segment x, close segment x+1, open x+1
+//        AND sanitize problem
+//if (config.enable_itp)
             if(!(this.currentSegment.is(this.lastOpenedSegment))) this.closeSegment(this.lastOpenedSegment,0);
-        }
+//        }
         // CASMACAT extension end
 
         this.opening = false;
@@ -1107,7 +1116,7 @@ UI = {
     },
 
     renderContributions: function(d,segment) {
-        console.log("renderContributions:", d, segment)
+//        console.log("renderContributions:", d, segment)
         var isActiveSegment = $(segment).hasClass('editor');
         var editarea = $('.editarea', segment);
 

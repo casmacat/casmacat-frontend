@@ -52,7 +52,7 @@ class replayController extends viewcontroller {
         $segment = getSegmentsInfo($this->jobId, $this->password, 0, 1);
         $this->fileId = $segment[0]["id_file"];
 
-        log::doLog("CASMACAT: replayController->doAction(): Loading meta data...");
+//        log::doLog("CASMACAT: replayController->doAction(): Loading meta data...");
 
         $logListChunk = fetchLogChunk($this->jobId, $this->fileId, 0, 2);
         $this->vsWidth = $logListChunk[1]->width;

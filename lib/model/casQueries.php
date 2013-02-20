@@ -52,17 +52,17 @@ function resetDocument($jobId, $fileId) {
         return $errno * -1;
     }
 
-    log::doLog("CASMACAT: resetDocument(): Event headers found: '$db->affected_rows'");
+//    log::doLog("CASMACAT: resetDocument(): Event headers found: '$db->affected_rows'");
 
     $headerRow = null;
     while ( ($headerRow = $db->fetch($queryId)) != false ) {
 
         $headerRowAsObject = snakeToCamel($headerRow);
 
-        log::doLog("CASMACAT: resetDocument(): Next headerRow: " . print_r($headerRowAsObject, true));
+//        log::doLog("CASMACAT: resetDocument(): Next headerRow: " . print_r($headerRowAsObject, true));
 
         $logEvent = new LogEvent($jobId, $fileId, $headerRowAsObject);
-        log::doLog("CASMACAT: resetDocument(): Processing header id: '$logEvent->id'");
+//        log::doLog("CASMACAT: resetDocument(): Processing header id: '$logEvent->id'");
 
         switch ($logEvent->type) {
             case LogEvent::START_SESSION:
@@ -133,7 +133,7 @@ function resetDocument($jobId, $fileId) {
         }
         deleteHeaderRow($logEvent->id);
 
-        log::doLog("CASMACAT: resetDocument(): Deleted: '" . $logEvent->toString() . "'");
+//        log::doLog("CASMACAT: resetDocument(): Deleted: '" . $logEvent->toString() . "'");
     }
 
     // reset last_opened_segment
@@ -178,7 +178,7 @@ function fetchEndTime($jobId, $fileId) {
         return $errno * -1;
     }
 
-    log::doLog("CASMACAT: fetchEndTime(): Event headers found: '$db->affected_rows' ");
+//    log::doLog("CASMACAT: fetchEndTime(): Event headers found: '$db->affected_rows' ");
 
     $row = $db->fetch($queryId);
     return $row["time"];
@@ -203,7 +203,7 @@ function fetchLogChunk($jobId, $fileId, $startOffset, $endOffset) {
         return $errno * -1;
     }
 
-    log::doLog("CASMACAT: fetchLogChunk(): Event headers found: '$db->affected_rows'");
+//    log::doLog("CASMACAT: fetchLogChunk(): Event headers found: '$db->affected_rows'");
 
     $logListChunk = array();
     $headerRow = null;
@@ -211,10 +211,10 @@ function fetchLogChunk($jobId, $fileId, $startOffset, $endOffset) {
 
         $headerRowAsObject = snakeToCamel($headerRow);
 
-        log::doLog("CASMACAT: fetchLogChunk(): Next headerRow: " . print_r($headerRowAsObject, true));
+//        log::doLog("CASMACAT: fetchLogChunk(): Next headerRow: " . print_r($headerRowAsObject, true));
 
         $logEvent = new LogEvent($jobId, $fileId, $headerRowAsObject);
-        log::doLog("CASMACAT: fetchLogChunk(): Processing header id: '$logEvent->id'");
+//        log::doLog("CASMACAT: fetchLogChunk(): Processing header id: '$logEvent->id'");
 
         switch ($logEvent->type) {
             case LogEvent::START_SESSION:
@@ -292,7 +292,7 @@ function fetchLogChunk($jobId, $fileId, $startOffset, $endOffset) {
         }
 
         $logListChunk[] = $logEvent;
-        log::doLog("CASMACAT: fetchLogChunk(): Loaded: '" . $logEvent->toString() . "'");
+//        log::doLog("CASMACAT: fetchLogChunk(): Loaded: '" . $logEvent->toString() . "'");
     }
 
     return $logListChunk;
@@ -535,32 +535,39 @@ function insertLogEventHeader($eventHeader) {
         return $errno * -1;
     }
 
-    log::doLog("CASMACAT: insertLogEventHeader(): lastInsertId: '$lastInsertId'");
+//    log::doLog("CASMACAT: insertLogEventHeader(): lastInsertId: '$lastInsertId'");
     return $lastInsertId;
 }
 
 // just copy+paste and a bit editing
-function getSegmentsInfoWithoutTranslation($jid,$password, $start = 0, $step = 200) {
-    if ($start < 0){
-        $start = 0;
+function getMoreSegmentsWithoutTranslation($jid, $password, $step = 50, $ref_segment, $where = 'after') {
+    switch ($where) {
+        case 'after':
+            $ref_point = $ref_segment;
+            break;
+        case 'before':
+            $ref_point = $ref_segment - ($step + 1);
+            break;
+        case 'center':
+            $ref_point = ((float) $ref_segment) - 100;
+            break;
     }
 
-    if (empty($step)) {
-        $step = 200;
-    }
+    $query = "select j.id as jid, j.id_project as pid,j.source,j.target, j.last_opened_segment, j.id_translator as tid,
+                p.id_customer as cid, j.id_translator as tid,
+                p.name as pname, p.create_date , fj.id_file, fj.id_segment_start, fj.id_segment_end,
+                f.filename, f.mime_type, s.id as sid, s.segment, s.raw_word_count, s.internal_id,
+                'NEW' as status, IF(st.time_to_edit is NULL,0,st.time_to_edit) as time_to_edit, s.xliff_ext_prec_tags,s.xliff_ext_succ_tags
 
-    $query = "select j.id as jid, j.id_project as pid, j.source, j.target, j.last_opened_segment, j.id_translator as tid,
-        p.id_customer as cid, j.id_translator as tid, p.name as pname, p.create_date, fj.id_file, fj.id_segment_start,
-        fj.id_segment_end, f.filename, f.mime_type, s.id as sid, s.segment, s.raw_word_count, s.internal_id,
-        s.xliff_mrk_id as mrk_id, s.xliff_ext_prec_tags as prev_tags, 'NEW' as status, st.time_to_edit
-        from jobs j
-        inner join projects p on p.id = j.id_project
-        inner join files_job fj on fj.id_job = j.id
-        inner join files f on f.id = fj.id_file
-        inner join segments s on s.id_file = f.id
-        left join segment_translations st on st.id_segment = s.id and st.id_job = j.id
-        where j.id = '$jid' and j.password = '$password'
-        limit $start, $step";
+                from jobs j
+                inner join projects p on p.id=j.id_project
+                inner join files_job fj on fj.id_job=j.id
+                inner join files f on f.id=fj.id_file
+                inner join segments s on s.id_file=f.id
+                left join segment_translations st on st.id_segment=s.id and st.id_job=j.id
+                where j.id=$jid and j.password='$password' and s.id > $ref_point and s.show_in_cattool=1
+                limit 0,$step
+             ";
 
     $db = Database::obtain();
     $results = $db->fetch_array($query);

@@ -53,10 +53,10 @@ class LogEvent {
         $this->time = $object->time;
         $this->type = $object->type;
 
-        log::doLog("CASMACAT: LogEvent->__construct(): Initialized new LogEvent: "
-            . "jobId: '$jobId', fileId: '$fileId'"
-            . "id: '$this->id', elementId: '$this->elementId', xPath: '$this->xPath', "
-            . "time: '$this->time', type: '$this->type'");
+//        log::doLog("CASMACAT: LogEvent->__construct(): Initialized new LogEvent: "
+//            . "jobId: '$jobId', fileId: '$fileId'"
+//            . "id: '$this->id', elementId: '$this->elementId', xPath: '$this->xPath', "
+//            . "time: '$this->time', type: '$this->type'");
     }
 
     public function resizeData($object) {

@@ -22,40 +22,78 @@
  */
 
 (function($) {
+    var replaceEntities = function(s) {
+        // TODO add more?
+//        s = s.replace(/&nbsp;/gmi, " ");
+        s = s.replace(new RegExp(String.fromCharCode(160), "gmi"), " ");
+
+//        s = s.replace(/&lt;/gmi, "<");
+        s = s.replace(new RegExp(String.fromCharCode(60), "gmi"), "");
+
+//        s = s.replace(/&gt;/gmi, ">");
+        s = s.replace(new RegExp(String.fromCharCode(62), "gmi"), "");
+
+//        s = s.replace(/&quot;/gmi, "\"");
+//        s = s.replace(/&amp;/gmi, "&");
+
+        return s;
+    };
+
     /**
      * Sanitizes (removes) unwanted HTML markup. See also: "http://zadasnotes.blogspot.dk/2011/06/
      * jquery-tip-sanitize-input-fields.html". But maybe the jquery-clean plugin is a better choice? See:
      * "http://code.google.com/p/jquery-clean/"
+     *
+     * List with entities: "http://www.theukwebdesigncompany.com/articles/entity-escape-characters.php"
      */
-    $.fn.sanitizeHTML = function() {
-        /*var pos = $(this).getCursorPositionContenteditable();
-        var pos2 = $(this).getCaretPos();
-        debug(pos);
-        debug(pos2);*/
+    $.fn.sanitizeHTML = function(fullSanitize, next) {
 
-        var str = $(this).html();
-        str = str.replace(/&nbsp;/g, ' ');
-        $(this).html(str);
-        $(this).text($(this).text());
-        //$(this).recursiveSanitizeHTML();
-        //$(this).setCursorPositionContenteditable(pos2);
-    }
-    $.fn.recursiveSanitizeHTML = function() {
-        var children = $(this).children();
-        children.each(function() {
-            debug("$.fn.sanitizeHTML(): Working...");
-            $(this).removeAttributes(); // remove all attributes, especially styles
-            // TODO make this configurable and check for errors as it seems not to work properly
-            // (copy&pasting an input[type=button] works)
-            if ($(this).not("b").not("em").not("i").not("strong").not("u").length > 0) {
-                $(this).replaceWith($(this).text());
-            }
-            else {
-                $(this).recursiveSanitizeHTML();
-            }
-        });
+        var $this = $(this);
 
-        return $(this);
+        if (!fullSanitize) {
+            if (!next) {
+                debug("$.fn.sanitizeHTML(): Only removing entities...");
+            }
+            $this.children().each(function() {
+                var s = this.textContent.toString();
+//console.log(s.charAt(0) + "->" + s.charCodeAt(0));
+//                debug("$.fn.sanitizeHTML(): nodeValue before entity replace: '" + s + ".'");
+                var sNew = replaceEntities(s);
+//                debug("$.fn.sanitizeHTML(): nodeValue after entity replace: '" + s + ".'");
+                if (sNew != s) {
+                    this.textContent = s;
+                }
+                $(this).sanitizeHTML(fullSanitize, true);
+            });
+        }
+        else {
+            var sanitized = "";
+
+            debug("$.fn.sanitizeHTML(): Performing full sanitize...");
+            var treeWalker = document.createTreeWalker($this[0],
+                NodeFilter.SHOW_TEXT, function (node) {
+                    return NodeFilter.FILTER_ACCEPT;
+                }, false);
+
+            while (treeWalker.nextNode()) {
+                var s = treeWalker.currentNode.nodeValue.toString();
+    //console.log(s.charAt(0) + "->" + s.charCodeAt(0));
+//                debug("$.fn.sanitizeHTML(): nodeValue before entity replace: '" + s + ".'");
+
+                s = replaceEntities(s);
+
+//                debug("$.fn.sanitizeHTML(): nodeValue after entity replace: '" + s + ".'");
+
+
+                sanitized = sanitized + s;
+            }
+
+            $this.html(sanitized);
+        }
+
+//        debug("$.fn.sanitizeHTML(): innerHTML after sanitize: '" + $this.html() + ".'");
+
+        return $this;
     }
 
     /**

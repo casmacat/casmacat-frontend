@@ -18,8 +18,8 @@ class saveLogChunkController extends ajaxcontroller {
         $this->fileId = $this->get_from_get_post("fileId");
         $this->logList = json_decode($this->get_from_get_post("logList"));
 
-        log::doLog("CASMACAT: saveLogChunkController->__construct(): Initialized: jobId: '$this->jobId', fileId: '$this->fileId', logList: '"
-            . print_r($this->logList, true) . "'");
+//        log::doLog("CASMACAT: saveLogChunkController->__construct(): Initialized: jobId: '$this->jobId', fileId: '$this->fileId', logList: '"
+//            . print_r($this->logList, true) . "'");
     }
 
     public function doAction() {

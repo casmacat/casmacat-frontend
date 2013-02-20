@@ -15,7 +15,7 @@ class resetDocumentController extends ajaxcontroller {
         $this->jobId = $this->get_from_get_post("jobId");
         $this->fileId = $this->get_from_get_post("fileId");
 
-        log::doLog("CASMACAT: resetDocumentController->__construct(): Initialized: jobId: '$this->jobId', fileId: '$this->fileId'");
+//        log::doLog("CASMACAT: resetDocumentController->__construct(): Initialized: jobId: '$this->jobId', fileId: '$this->fileId'");
     }
 
     public function doAction() {

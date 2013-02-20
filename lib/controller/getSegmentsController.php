@@ -22,6 +22,10 @@ class getSegmentsController extends ajaxcontroller {
     private $start_from = 0;
     private $page = 0;
 
+    // CASMACAT extension start
+    private $casIsReplaying = false;
+    // CASMACAT extension end
+
     public function __construct() {
         parent::__construct();
 
@@ -33,6 +37,14 @@ class getSegmentsController extends ajaxcontroller {
 
 //		    	log::doLog('LAST LOADED ID - MODIFIED: '.$this->last_loaded_id);
 //		if($this->central_segment) log::doLog('CENTRAL SEGMENT: '.$this->central_segment);
+
+        // CASMACAT extension start
+        if ($this->get_from_get_post("replay") == "true") {  // replay mode
+            log::doLog("CASMACAT: Running in replay mode.");
+            $this->casIsReplaying = true;
+            include_once INIT::$MODEL_ROOT . "/casQueries.php";
+        }
+        // CASMACAT extension end
     }
 
     private function stripTagsFromSource($text) {
@@ -57,37 +69,44 @@ class getSegmentsController extends ajaxcontroller {
         if ($ms <= 0) {
             return array("00", "00", "00", "00");
         }
-		
+
 		$usec = $ms % 1000;
 		$ms = floor($ms/ 1000);
 
 		$seconds = str_pad($ms % 60,2,"0",STR_PAD_LEFT);
 		$ms = floor($ms / 60);
-		
+
 		$minutes = str_pad($ms % 60,2 ,"0", STR_PAD_LEFT);
-		$ms = floor($ms / 60); 
-		
+		$ms = floor($ms / 60);
+
 	        $hours = str_pad($ms % 60,2,"0",STR_PAD_LEFT);
-                $ms = floor($ms / 60); 
-		
+                $ms = floor($ms / 60);
+
 		return array($hours,$minutes,$seconds,$usec);
-	
+
 	}
 
     public function doAction() {
-        $lang_handler=languages::getInstance("en");       
-//		log::doLog('REF SEGMENT: '.$this->ref_segment);    	
+        $lang_handler=languages::getInstance("en");
+//		log::doLog('REF SEGMENT: '.$this->ref_segment);
 
 
 		    if ($this->ref_segment == '') {
 				$this->ref_segment = 0;
 	        }
 
+        // CASMACAT extension start
+        if ($this->casIsReplaying) {
+            $data = getMoreSegmentsWithoutTranslation($this->jid, $this->password, $this->step, $this->ref_segment, $this->where);
+        }
+        else {
+            $data = getMoreSegments($this->jid, $this->password, $this->step, $this->ref_segment, $this->where);
+        }
+        // CASMACAT extension end
 
-        $data = getMoreSegments($this->jid, $this->password, $this->step, $this->ref_segment, $this->where);
 
         $first_not_translated_found = false;
-		//log::doLog('REF SEGMENT: '.$this->ref_segment);    	
+		//log::doLog('REF SEGMENT: '.$this->ref_segment);
 //		print_r($data); exit;
         foreach ($data as $i => $seg) {
 
@@ -98,7 +117,7 @@ class getSegmentsController extends ajaxcontroller {
 	  		// remove this when tag management enabled
 //        	$seg['segment'] = $this->stripTagsFromSource($seg['segment']);
 
-			
+
             if (empty($this->pname)) {
                 $this->pname = $seg['pname'];
             }
@@ -106,7 +125,7 @@ class getSegmentsController extends ajaxcontroller {
             if (empty($this->last_opened_segment)) {
                 $this->last_opened_segment = $seg['last_opened_segment'];
             }
-			
+
             if (empty($this->cid)) {
                 $this->cid = $seg['cid'];
             }
@@ -145,19 +164,19 @@ class getSegmentsController extends ajaxcontroller {
 
             $id_file = $seg['id_file'];
 			$file_stats =CatUtils::getStatsForFile($id_file);
-            
-			
-            if (!isset($this->data["$id_file"])) {                
-                $this->data["$id_file"]['jid'] = $seg['jid'];		
+
+
+            if (!isset($this->data["$id_file"])) {
+                $this->data["$id_file"]['jid'] = $seg['jid'];
                 $this->data["$id_file"]["filename"] = $seg['filename'];
                 $this->data["$id_file"]["mime_type"] = $seg['mime_type'];
                 $this->data["$id_file"]['id_segment_start'] = $seg['id_segment_start'];
-                $this->data["$id_file"]['id_segment_end'] = $seg['id_segment_end'];                
+                $this->data["$id_file"]['id_segment_end'] = $seg['id_segment_end'];
                 $this->data["$id_file"]['source']=$lang_handler->iso2Language($seg['source']);
                 $this->data["$id_file"]['target']=$lang_handler->iso2Language($seg['target']);
                 $this->data["$id_file"]['source_code']=$seg['source'];
                 $this->data["$id_file"]['target_code']=$seg['target'];
-                $this->data["$id_file"]['file_stats'] = $file_stats;		
+                $this->data["$id_file"]['file_stats'] = $file_stats;
 				$this->data["$id_file"]['segments'] = array();
             }
             //if (count($this->data["$id_file"]['segments'])>100){continue;}
@@ -188,24 +207,24 @@ class getSegmentsController extends ajaxcontroller {
 	   // $seg['segment'] = $seg['xliff_ext_prec_tags'] . $seg['segment'].$seg['xliff_ext_succ_tags'] ;
 	$seg['segment']=CatUtils::rawxliff2view($seg['segment']);
 	$seg['translation']=CatUtils::rawxliff2view($seg['translation']);
-		
-            $seg['parsed_time_to_edit']=  $this->parse_time_to_edit($seg['time_to_edit']); 
-		
+
+            $seg['parsed_time_to_edit']=  $this->parse_time_to_edit($seg['time_to_edit']);
+
             $this->data["$id_file"]['segments'][] = $seg;
-	
+
         }
 
 //log::doLog ($this->data);
-		
-		
+
+
         $this->result['data']['files'] = $this->data;
-		
+
         $this->result['data']['where']=$this->where;
-		
+
     }
 
 
-    
+
 }
 
 ?>

@@ -52,7 +52,7 @@
                                     // in background, not implemented
             blockingInputZIndex: 10000,  // the CSS z-index of the div that blocks user input
             tickInterval: 200,       // specifies the interval to use for ticking (used to refresh time in UI)
-            itpEnabled: true,
+            itpEnabled: true
         },
         settings = {},  // holds the merge of the defaults and the options provided, actually the instance's settings
 
@@ -80,7 +80,7 @@
         vsWindow = null,        // the native window object of the virtual screen
         vsContents = null,      // jQuery's 'contents()' of the virtual screen
 
-        isLive = true          // experimental
+        isLive = false          // experimental
     ; // var
 
     /*################################################################################################################*/
@@ -242,7 +242,7 @@
                 vsContents.find("textarea").each(function(index, value) {
                     $(this).prop("disabled", "");
                 });
-                vsContents.find("*[contenteditable=false]").each(function(index, value) {
+                vsContents.find(".editarea").each(function(index, value) {
                     $(this).prop("contenteditable", "true");
                 });
                 updateUIStatus("Input enabled.");
@@ -255,7 +255,7 @@
                 vsContents.find("textarea").each(function(index, value) {
                     $(this).prop("disabled", "disabled");
                 });
-                vsContents.find("*[contenteditable=true]").each(function(index, value) {
+                vsContents.find(".editarea").each(function(index, value) {
                     $(this).prop("contenteditable", "false");
                 });
                 updateUIStatus("Input disabled.");
@@ -314,7 +314,7 @@
             vsDocument = $("#virtualScreen")[0].contentDocument;
             vsWindow = $("#virtualScreen")[0].contentWindow;
             vsContents = $("#virtualScreen").contents();
-            settings.itpEnabled = new Boolean(vsWindow.config.enable_itp);
+//            settings.itpEnabled = new Boolean(vsWindow.config.enable_itp);
 
             vsReady = true;
             if (firstChunkLoaded) {
@@ -548,12 +548,13 @@
             vsContents.find("textarea").each(function(index, value) {
                 $(this).prop("disabled", "disabled");
             });
-            vsContents.find("*[contenteditable=true]").each(function(index, value) {
+            vsContents.find(".editarea").each(function(index, value) {
                 $(this).prop("contenteditable", "false");
             });
         }
         $("#toggleInput").prop("disabled", "disabled");
 
+        // TODO reset UI fields, scrollbar, etc. when 'reload' is false'
         if (reload) {
             speed = DEFAULT_SPEED;
             $("#selectSpeed").val(speed);
@@ -599,7 +600,7 @@
     };
 
     var itpCall = false;
-    var lw, lh; // width and height from last resize
+    var lw, lh; // TODO width and height from last resize, this must become an array
     var replayEvent = function(event) {
 //        debug(pluginName + ": Replayed event dump:");
 //        debug(event);
@@ -622,6 +623,8 @@
 
                 if (itpCall) {
                     debug(pluginName + ": Skipping text changed event because of itpCall...");
+                    element.focus();
+                    element.setCursorPositionContenteditable(event.cursorPosition);
                     itpCall = false;
                     break;
                 }
@@ -645,9 +648,14 @@
                     throw "Deleted text doesn't match stored value: textNow: '" + textNow + "', event.deleted: '" + event.deleted + "'";
                 }
 
+                element.focus();
+                element.setCursorPositionContenteditable(event.cursorPosition);
+
                 if (settings.itpEnabled) {
-                  vsWindow.$("#" + event.elementId).editableItp('setTargetText', textNew);
-                  break;
+                    vsWindow.$("#" + event.elementId).editableItp('setTargetText', textNew);
+                    element.focus();
+                    element.setCursorPositionContenteditable(event.cursorPosition);
+                    break;
                 }
 
                 if (element.is("input:text") || element.is("textarea")) {
@@ -656,7 +664,6 @@
                 else {
                     element.text(textNew);
                 }
-
 
                 break;
             case logEventFactory.SELECTION:
@@ -759,7 +766,12 @@
                 vsWindow.UI.openSegment(editarea);
 
                 debug(pluginName + ": Setting editable read-only...");
-                $(editarea).prop("contenteditable", false);
+                if ($("#blockInput").css("z-index") >= 0) {
+                    $(editarea).prop("contenteditable", false);
+                }
+                else {
+                    element.focus();
+                }
                 break;
             case logEventFactory.SEGMENT_CLOSED:
                 vsWindow.UI.closeSegment(element, false);

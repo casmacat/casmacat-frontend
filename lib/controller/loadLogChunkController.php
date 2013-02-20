@@ -20,8 +20,8 @@ class loadLogChunkController extends ajaxcontroller {
         $this->startOffset = $this->get_from_get_post("startOffset");
         $this->endOffset = $this->get_from_get_post("endOffset");
 
-        log::doLog("CASMACAT: loadLogChunkController->__construct(): Initialized: jobId: '$this->jobId', fileId: '$this->fileId', "
-            . "startOffset: '$this->startOffset', endOffset: '$this->endOffset'");
+//        log::doLog("CASMACAT: loadLogChunkController->__construct(): Initialized: jobId: '$this->jobId', fileId: '$this->fileId', "
+//            . "startOffset: '$this->startOffset', endOffset: '$this->endOffset'");
     }
 
     public function doAction() {
@@ -44,7 +44,7 @@ class loadLogChunkController extends ajaxcontroller {
             $this->result["data"]["logListChunk"] = $logListChunk;
         }
 
-        log::doLog("CASMACAT: loadLogChunkController->doAction(): Processing of logListChunk finished.");
+        log::doLog("CASMACAT: loadLogChunkController->doAction(): Loading of logListChunk finished.");
     }
 }
 
