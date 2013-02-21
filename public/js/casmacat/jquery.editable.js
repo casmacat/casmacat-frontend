@@ -286,7 +286,7 @@
     setText: function(str, segs) {
       var $this = $(this),
           data = $this.data('editable');
-      
+
       //XXX: can we assume this?
       //if (data['str'] === str) return;
       data['str'] = str;
