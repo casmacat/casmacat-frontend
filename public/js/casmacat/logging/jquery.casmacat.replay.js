@@ -656,8 +656,7 @@ debug(event);
 
                 if (settings.itpEnabled) {
                     vsWindow.$("#" + event.elementId).editableItp("setTargetText", textNew);
-                    element.focus();
-                    element.setCursorPositionContenteditable(parseInt(event.cursorPosition) + parseInt(event.inserted.length));
+                    setCursorPos(event.elementId, parseInt(event.cursorPosition) + parseInt(event.inserted.length));
                     break;
                 }
 
@@ -667,8 +666,7 @@ debug(event);
                 }
                 else {
                     element.text(textNew);
-                    element.focus();
-                    element.setCursorPositionContenteditable(parseInt(event.cursorPosition) + parseInt(event.inserted.length));
+                    setCursorPos(event.elementId, parseInt(event.cursorPosition) + parseInt(event.inserted.length));
                 }
 
                 break;
@@ -855,6 +853,7 @@ debug(event);
                 break;
 
             case logEventFactory.KEY_DOWN:
+                break;
             case logEventFactory.KEY_UP:
                 if (element.hasClass("editarea")) {
                     if (event.which == 35 || event.which == 36  // end/home
@@ -862,8 +861,7 @@ debug(event);
                             || event.which == 39 || event.which == 40) {  // right/down
 //                        debug(pluginName + ": Replaying cursor move...");
 //                        if (!settings.itpEnabled) {
-                            element.focus();
-                            element.setCursorPositionContenteditable(event.cursorPosition);
+                            setCursorPos(event.elementId, event.cursorPosition);
 //                        }
                     }
                 }
@@ -886,6 +884,13 @@ $.error("Erroneous event");
         debug(pluginName + ": Reverted event dump:");
         debug(event);
         // TODO revert events
+    };
+
+    var setCursorPos = function(elementId, pos) {
+//                    element.focus();
+//                    element.setCursorPositionContenteditable(parseInt(event.cursorPosition) + parseInt(event.inserted.length));
+        vsWindow.$("#" + elementId).focus();
+        vsWindow.$("#" + elementId).setCursorPositionContenteditable(pos);
     };
 
     /**

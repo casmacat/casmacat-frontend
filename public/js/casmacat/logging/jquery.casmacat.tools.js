@@ -60,7 +60,7 @@
 //                debug("$.fn.sanitizeHTML(): nodeValue before entity replace: '" + s + ".'");
                 var sNew = replaceEntities(s);
 //                debug("$.fn.sanitizeHTML(): nodeValue after entity replace: '" + s + ".'");
-                if (sNew != s) {
+                if (sNew !== s) {
                     this.textContent = s;
                 }
                 $(this).sanitizeHTML(fullSanitize, true);
@@ -94,7 +94,7 @@
 //        debug("$.fn.sanitizeHTML(): innerHTML after sanitize: '" + $this.html() + ".'");
 
         return $this;
-    }
+    };
 
     /**
      * Removes all attributes from a given element, see also: "http://stackoverflow.com/questions/1870441/
@@ -111,7 +111,7 @@
                 e.removeAttr(item);
             });
         });
-    }
+    };
 
     /**
      * Returns the element belonging to the (composed) elementId: (parent) id + (relative) xPath.
@@ -122,10 +122,10 @@
 //        debug("$.fn.resolveFromElementId(): Resolving element with: id: '" + id + "', '" + xPath + "'.");
 
         var element = null;
-        if (id == "window") {
+        if (id === "window") {
             element = $("window", this)[0];
         }
-        else if (id == "") {   // TODO check this case if and when it may happen. that is probably in pure xPath mode only
+        else if (id === "") {   // TODO check this case if and when it may happen. that is probably in pure xPath mode only
             element = $("html", this)[0];
         }
         else {
@@ -134,7 +134,7 @@
 //        debug("$.fn.resolveFromElementId(): element dump after id:");
 //        debug(element);
 
-        if (xPath != null && xPath != "") { // if hybrid or xPath only mode
+        if (xPath !== null && xPath !== "") { // if hybrid or xPath only mode
 
 //            debug("$.fn.resolveFromElementId(): Using xPath: '" + xPath + "'.");
 
@@ -149,7 +149,7 @@
 
         // breaking the chain ;-)
         return element;
-    }
+    };
 
     /**
      * Returns the (composed) id of this element: (parent) id + (relative) xPath
@@ -170,14 +170,14 @@
             var xPath = "";
             var index = 0;
 
-            if (element.nodeType == Node.TEXT_NODE) {
+            if (element.nodeType === Node.TEXT_NODE) {
 //                debug("$.fn.getElementId(): Element is a text node.");
 
                 var nodeList = element.parentNode.childNodes;
                 for (var i = 0; i < nodeList.length; i++) {
-                    if (nodeList[i].nodeType == Node.TEXT_NODE) {
+                    if (nodeList[i].nodeType === Node.TEXT_NODE) {
                         index++;
-                        if (nodeList[i] == element.parentNode) {
+                        if (nodeList[i] === element.parentNode) {
                             break;
                         }
                     }
@@ -190,14 +190,14 @@
             }
 
 //            debug("$.fn.getElementId(): Element has no id...");
-            for (; element && element.nodeType == Node.ELEMENT_NODE && !element.id; element = element.parentNode) {
+            for (; element && element.nodeType === Node.ELEMENT_NODE && !element.id; element = element.parentNode) {
 //                debug("$.fn.getElementId(): Processing element: '" + element.tagName + "'...");
                 index = $(element.parentNode).children(element.tagName).index(element) + 1;
                 index = index > 1 ? ("[" + index + "]") : "";
                 xPath = "/" + element.tagName.toLowerCase() + index + xPath;
             }
 
-            if (!element.tagName || element.tagName.toLowerCase() == "html") {
+            if (!element.tagName || element.tagName.toLowerCase() === "html") {
                 elementId.xPath = xPath;
 //                debug("$.fn.getElementId(): No parent has an id.");
             }
@@ -213,7 +213,7 @@
 
         // breaking the chain ;-)
         return elementId;
-    }
+    };
 
     /**
      * Gets an absolute the 'xPath' to this element. See also:
@@ -223,7 +223,7 @@
 
         var element = $(this).get(0);
         var xPath = "";
-        for (; element && element.nodeType == Node.ELEMENT_NODE /*&& element != $(this).get(0)*/; element = element.parentNode) {
+        for (; element && element.nodeType === Node.ELEMENT_NODE /*&& element != $(this).get(0)*/; element = element.parentNode) {
 
             var idx = $(element.parentNode).children(element.tagName).index(element) + 1;
             idx = idx > 1 ? ("[" + idx + "]") : "";
@@ -237,7 +237,7 @@
 //            + xPath + "'.");
         // breaking the chain ;-)
         return xPath;
-    }
+    };
 
     /**
      * This one assumes that we cannot change multiple places at once, so everything between diffs has also been
@@ -265,7 +265,7 @@
 try {
         // if first entry is an EQUAL, we use its length for cursorPosition otherwise we are not interested in equal
         // start and end
-        if (diff[0][0] == 0) {
+        if (diff[0][0] === 0) {
             cursorPosition = diff[0][1].length;
             start++;
         }
@@ -278,7 +278,7 @@ catch (e) {
     alert("$.fn.getChanges(): Fatal error!");
     $.error("$.fn.getChanges(): Fatal error!");
 }
-        if (diff[diff.length - 1][0] == 0) {
+        if (diff[diff.length - 1][0] === 0) {
             end = diff.length - 1;
         }
         else {
@@ -316,7 +316,7 @@ catch (e) {
 
         // breaking the chain ;-)
 //        return $(this);
-    }
+    };
 
     // TODO
     $.fn.getSelection = function() {
@@ -373,7 +373,7 @@ catch (e) {
 
         // breaking the chain ;-)
         return range;
-    }
+    };
 
     /**
      * Get the cursor position within a content editable while only counting text nodes. See also:
@@ -409,7 +409,7 @@ catch (e) {
                 pos += treeWalker.currentNode.length;
             }
 
-            if (range.startContainer.nodeType == Node.TEXT_NODE) {
+            if (range.startContainer.nodeType === Node.TEXT_NODE) {
                 pos += range.startOffset;
             }
 
@@ -424,7 +424,7 @@ catch (e) {
 //            debug("Info: Could not get cursor position.");
 //            return -1;
 //        }
-    }
+    };
 
        $.fn.getCaretPos = function() {
       var $this = $(this),
@@ -433,13 +433,13 @@ catch (e) {
 
       var caretOffset = 0;
       try {
-        if (typeof window.getSelection != "undefined") {
+        if (typeof window.getSelection !== "undefined") {
           var range = window.getSelection().getRangeAt(0);
           var preCaretRange = range.cloneRange();
           preCaretRange.selectNodeContents(node);
           preCaretRange.setEnd(range.endContainer, range.endOffset);
           caretOffset = preCaretRange.toString().length;
-        } else if (typeof document.selection != "undefined" && document.selection.type != "Control") {
+        } else if (typeof document.selection !== "undefined" && document.selection.type !== "Control") {
           var textRange = document.selection.createRange();
           var preCaretTextRange = document.body.createTextRange();
           preCaretTextRange.moveToElementText(node);
@@ -451,7 +451,7 @@ catch (e) {
         return -1;
       }
       return caretOffset;
-    }
+    };
 
     /**
      * Set the cursor position within a content editable while only counting text nodes. See also:
@@ -463,7 +463,7 @@ catch (e) {
 
         var node = $(this).get(0);
 
-        //debug("$.fn.setCursorPositionContenteditable: Running on node: '" + node.nodeName + "'...");
+        debug("$.fn.setCursorPositionContenteditable: Running on node: '" + node.nodeName + "' for position: '" + pos + "'...");
 
         var treeWalker = document.createTreeWalker(node,
             NodeFilter.SHOW_TEXT, function (node) {
@@ -482,7 +482,7 @@ catch (e) {
 //                debug("$.fn.setCursorPositionContenteditable: Substracting...");
                 pos -= currentNode.nodeValue.length;
             }
-            else {
+            else /*if ($.browser.webkit)*/ {
                 /*debug("$.fn.setCursorPositionContenteditable: Selecting: nodeName: '" + currentNode.nodeName + "', "
                     + "nodeValue: '" + currentNode.nodeValue + "', "
                     + "value length: '" + currentNode.nodeValue.length + "', remaining cursor position: '" + pos + "'");*/
@@ -503,7 +503,7 @@ catch (e) {
 //        $(this).focus();  // should be called in the last handler
 
         return $(this);
-    }
+    };
 
     /**
      * Extends the jQuery selector to have one that selects scrollable elements. See
@@ -594,7 +594,7 @@ catch (e) {
                 "top": "0px",
                 "left": "0px",
                 "width": $(document).width(),
-                "height": $(document).height(),
+                "height": $(document).height()
             });
 
             $("a.casLogo").addClass("progressIndicatorLogo").removeClass("casLogo");
@@ -603,7 +603,7 @@ catch (e) {
         }
 
         return $(this);
-    }
+    };
 
     $.fn.hideProgressIndicator = function() {
 
@@ -619,7 +619,7 @@ catch (e) {
         }
 
         return $(this);
-    }
+    };
 
     // see "http://www.kodyaz.com/content/HowToGetKeyCodesList.aspx" and "http://www.javascripter.net/faq/keycodes.htm"
     var keyCodeToKeyMap = {
@@ -721,7 +721,7 @@ catch (e) {
 //        219: "Open Bracket",
 //        220: "Back Slash",
 //        221: "Close Bracket",
-        222: "Quote",
+        222: "Quote"
     };
 
     // see "http://www.javascripter.net/faq/keycodes.htm"
@@ -731,7 +731,7 @@ catch (e) {
             character = "";
         }
         return character;
-    }
+    };
 
 
 })(jQuery);

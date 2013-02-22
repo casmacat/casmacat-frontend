@@ -597,7 +597,7 @@
     };
 
     var mouseDown = function(e) {
-        debug(pluginName + ": Mouse down.");
+//        debug(pluginName + ": Mouse down.");
 
         if (e.ctrlKey) {  // do not allow CTRL for selecting text, this prevents multiple selections in Firefox
                         // TODO is it possibly to disable that by another way, like document.execCommand()?
@@ -616,7 +616,7 @@
     };
 
     var mouseUp = function(e) {
-        debug(pluginName + ": Mouse up.");
+//        debug(pluginName + ": Mouse up.");
 
 //        if ($(onDownElementId).hasParentIn(settings.logRootElement)
 //            && $(e.target).hasParentIn(settings.logRootElement)) {
@@ -641,7 +641,7 @@
     var keyDown = function(e) {
         if (!keysDown[e.keyCode]) { // do not repeat the debug output
             keysDown[e.keyCode] = true;
-            debug(pluginName + ": Key down.");
+//            debug(pluginName + ": Key down.");
         }
 
         if (e.ctrlKey) {
@@ -672,7 +672,7 @@
 
     var keyUp = function(e) {
         keysDown[e.keyCode] = false;
-        debug(pluginName + ": Key up.");
+//        debug(pluginName + ": Key up.");
 
         if (ctrlKey && !e.ctrlKey) {
             ctrlKey = false;
@@ -700,7 +700,7 @@
 
     var contentBeforeCut = null;
     var beforeCut = function(e) {  // TODO how about CTRL+C or CTRL+V?
-        debug(pluginName + ": Cut.");
+//        debug(pluginName + ": Cut.");
 
         if (e.target.hasAttribute("contenteditable")) {
             contentBeforeCut = $(e.target).text();
@@ -711,13 +711,16 @@
     };
 
     var beforeCopy = function(e) {  // TODO how about CTRL+X or CTRL+V?
-        debug(pluginName + ": Copy.");
+//        debug(pluginName + ": Copy.");
         // TODO get selected/copied text
     };
 
+    var pasted = false;
     var contentBeforePaste = null;
     var beforePaste = function(e) {  // TODO how about CTRL+X or CTRL+C?
-        debug(pluginName + ": Paste.");
+//        debug(pluginName + ": Paste.");
+
+        pasted = true;
 
         if (e.target.hasAttribute("contenteditable")) {
             contentBeforePaste = $(e.target).text();
@@ -741,7 +744,7 @@
         if (e.target.hasAttribute("contenteditable")) {
 
             // sanitize if needed
-            if (settings.doSanitize) {
+            if (settings.doSanitize && pasted) {
                 if (settings.logItp) {
 //                    $(e.target).sanitizeHTML(false);
                 }
@@ -753,11 +756,11 @@
             if (getFieldContents(e.target) != $(e.target).text()) {
                 changes = $.fn.getChanges( getFieldContents(e.target), $(e.target).text() );
 
-//                debug(pluginName + ": Text changed: "
-//                    + "\n\told text: '" + getFieldContents(e.target) + "', "
-//                    + "\n\tnew text: '" + $(e.target).text() + "', "
-//                    + "\n\tdiff: (cursorPosition: '" + changes.cursorPosition + "', deleted: '" + changes.deleted
-//                        + "', inserted: '" + changes.inserted + "').");
+                debug(pluginName + ": Text changed: "
+                    + "\n\told text: '" + getFieldContents(e.target) + "', "
+                    + "\n\tnew text: '" + $(e.target).text() + "', "
+                    + "\n\tdiff: (cursorPosition: '" + changes.cursorPosition + "', deleted: '" + changes.deleted
+                        + "', inserted: '" + changes.inserted + "').");
 
                 setFieldContents(e.target, $(e.target).text());
             }
@@ -775,12 +778,13 @@
 
         // write log event if changes detected
         if (changes) {
-            debug(pluginName + ": Text changed.");
+//            debug(pluginName + ": Text changed.");
             storeLogEvent(logEventFactory.newLogEvent(logEventFactory.TEXT, e.target,
                 changes.cursorPosition, changes.deleted, changes.inserted));
 
             // (re-)set cursor position (because of sanitize)
-            if (settings.doSanitize) {
+            if (settings.doSanitize && pasted) {
+                pasted = false;
                 if (settings.logItp) {
 //                    var pos = changes.cursorPosition + changes.inserted.length;
 //                    debug(pluginName + ": Re-setting cursor position: '" + pos + "'.");
@@ -944,12 +948,12 @@
     };
 
     var alignmentShownByMouse = function(e, data) {
-      debug(pluginName + ": Alignment shown by mouse.");
+//      debug(pluginName + ": Alignment shown by mouse.");
       storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SHOW_ALIGNMENT_BY_MOUSE, data));
     };
 
     var alignmentHiddenByMouse = function(e, data) {
-      debug(pluginName + ": Alignment hidden by mouse.");
+//      debug(pluginName + ": Alignment hidden by mouse.");
       storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HIDE_ALIGNMENT_BY_MOUSE, data));
     };
 
