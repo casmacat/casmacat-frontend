@@ -115,7 +115,7 @@ $(function() {
         "jobId": config.jobId,
         "maxChunkSize": 20,
         "isLive": true, // experimental
-        "itpEnabled": false
+        "itpEnabled": config.itpEnabled
     });
 
 //                $(window).on("vsEditorReady", function(e) {

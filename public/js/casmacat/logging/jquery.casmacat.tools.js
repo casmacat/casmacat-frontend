@@ -251,6 +251,9 @@
 // !!!!!!!! TODO somewhere here maybe an error: it seems that the starting offset (pos) needs a -1 in some cases !!
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+// TODO there is also a problem here with strings like:
+// 'aaabc' and 'aaaabc'. the newly inserted 'a' could be any arbitray 'a' of the second text. diff_match_patch of course
+// returns the 4th 'a' as the difference
         var
             diff = dmp.diff_main(previousText, currentText),
             cursorPosition = 0,
@@ -258,6 +261,7 @@
             inserted = "",
             start = 0,
             end = 0;
+
 try {
         // if first entry is an EQUAL, we use its length for cursorPosition otherwise we are not interested in equal
         // start and end
@@ -383,8 +387,8 @@ catch (e) {
             var range = window.getSelection().getRangeAt(0);
             var node = $(this).get(0);
 
-            debug("$.fn.getCursorPositionContenteditable: Running on node: '" + node.tagName + "' and range: '"
-                + range.selectedText + "'...");
+//            debug("$.fn.getCursorPositionContenteditable: Running on node: '" + node.tagName + "' and range: '"
+//                + range.selectedText + "'...");
 
             var treeWalker = document.createTreeWalker(node,
                 NodeFilter.SHOW_TEXT, function (node) {
@@ -409,7 +413,7 @@ catch (e) {
                 pos += range.startOffset;
             }
 
-            debug("$.fn.getCursorPositionContenteditable: Cursor position: '" + pos + "'.");
+//            debug("$.fn.getCursorPositionContenteditable: Cursor position: '" + pos + "'.");
 
             // breaking the chain ;-)
 //            return $(this);

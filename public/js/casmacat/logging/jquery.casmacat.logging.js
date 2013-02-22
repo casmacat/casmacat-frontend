@@ -611,8 +611,8 @@
             debug(pluginName + ": Mouse down: Blocking selection movements...");
         }
 
-        var pos = $(e.target).getCursorPositionContenteditable();
-        debug(pluginName + ": Mouse down, cursor position: pos: '" + pos + "'.");
+//        var pos = $(e.target).getCursorPositionContenteditable();
+//        debug(pluginName + ": Mouse down, cursor position: pos: '" + pos + "'.");
     };
 
     var mouseUp = function(e) {
@@ -628,8 +628,8 @@
             logSelectionEvent(e.target);
         }
 
-        var pos = $(e.target).getCursorPositionContenteditable();
-        debug(pluginName + ": Mouse up, cursor position: pos: '" + pos + "'.");
+//        var pos = $(e.target).getCursorPositionContenteditable();
+//        debug(pluginName + ": Mouse up, cursor position: pos: '" + pos + "'.");
     };
 
     var mouseClick = function(e) {

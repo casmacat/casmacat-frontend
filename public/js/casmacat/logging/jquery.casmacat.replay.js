@@ -52,7 +52,8 @@
                                     // in background, not implemented
             blockingInputZIndex: 10000,  // the CSS z-index of the div that blocks user input
             tickInterval: 200,       // specifies the interval to use for ticking (used to refresh time in UI)
-            itpEnabled: true
+            itpEnabled: true,
+            isLive: false          // experimental
         },
         settings = {},  // holds the merge of the defaults and the options provided, actually the instance's settings
 
@@ -78,9 +79,7 @@
         vsReady = false,        // indicates the virtual screen (iframe) is ready for operation
         vsDocument = null,      // the native document object of the virtual screen
         vsWindow = null,        // the native window object of the virtual screen
-        vsContents = null,      // jQuery's 'contents()' of the virtual screen
-
-        isLive = false          // experimental
+        vsContents = null      // jQuery's 'contents()' of the virtual screen
     ; // var
 
     /*################################################################################################################*/
@@ -599,17 +598,20 @@
         $("#blockInput").height($(document).height());
     };
 
-    var itpCall = false;
+    var itpDecodeCall = false;
+    var itpSuffixChangeCall = false;
     var lw, lh; // TODO width and height from last resize, this must become an array
     var replayEvent = function(event) {
+try {
 //        debug(pluginName + ": Replayed event dump:");
 //        debug(event);
-        debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+//        debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
 
         // TODO currently only elementId mode is used here. support for hybrid mode should be added as soon as possible!
         // segment is a jQuery object
         var element = vsContents.find("#" + event.elementId);
 //        var segment = vsContents.find("#" + event.elementId);
+        var itpData = null;
 
         switch (event.type) {
             case logEventFactory.START_SESSION:
@@ -620,12 +622,16 @@
                 break;
 
             case logEventFactory.TEXT:
-
-                if (itpCall) {
-                    debug(pluginName + ": Skipping text changed event because of itpCall...");
-                    element.focus();
-                    element.setCursorPositionContenteditable(event.cursorPosition);
-                    itpCall = false;
+debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+debug(event);
+                if (itpDecodeCall) {
+                    debug(pluginName + ": Skipping text changed event because of itpDecodeCall...");
+                    itpDecodeCall = false;
+                    break;
+                }
+                else if (itpSuffixChangeCall) {
+                    debug(pluginName + ": Skipping text changed event because of itpSuffixChangeCall...");
+                    itpSuffixChangeCall = false;
                     break;
                 }
 
@@ -648,25 +654,28 @@
                     throw "Deleted text doesn't match stored value: textNow: '" + textNow + "', event.deleted: '" + event.deleted + "'";
                 }
 
-                element.focus();
-                element.setCursorPositionContenteditable(event.cursorPosition);
-
                 if (settings.itpEnabled) {
-                    vsWindow.$("#" + event.elementId).editableItp('setTargetText', textNew);
+                    vsWindow.$("#" + event.elementId).editableItp("setTargetText", textNew);
                     element.focus();
-                    element.setCursorPositionContenteditable(event.cursorPosition);
+                    element.setCursorPositionContenteditable(parseInt(event.cursorPosition) + parseInt(event.inserted.length));
                     break;
                 }
 
                 if (element.is("input:text") || element.is("textarea")) {
                     element.val(textNew);
+                    // TODO update cursor position?
                 }
                 else {
                     element.text(textNew);
+                    element.focus();
+                    element.setCursorPositionContenteditable(parseInt(event.cursorPosition) + parseInt(event.inserted.length));
                 }
 
                 break;
             case logEventFactory.SELECTION:
+debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+debug(event);
+
                 try {
 
                     var selection = vsWindow.getSelection();
@@ -762,6 +771,8 @@
                 break;
 
             case logEventFactory.SEGMENT_OPENED:
+debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+debug(event);
                 var editarea = element.find(".editarea")[0];
                 vsWindow.UI.openSegment(editarea);
 
@@ -774,6 +785,8 @@
                 }
                 break;
             case logEventFactory.SEGMENT_CLOSED:
+debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+debug(event);
                 vsWindow.UI.closeSegment(element, false);
                 break;
 
@@ -781,6 +794,8 @@
                 vsWindow.UI.getContribution(element);
                 break;
             case logEventFactory.SUGGESTIONS_LOADED:
+debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+debug(event);
                 var d =  {  // pseudo return value
                     data: {
                         matches: JSON.parse(event.matches)
@@ -789,27 +804,38 @@
                 vsWindow.UI.getContributionSuccess(d, element, element, 0, element);
                 break;
             case logEventFactory.SUGGESTION_CHOSEN:
+debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+debug(event);
                 if (event.which != 0) { // event.which == 0 should already been handled by getContributionSuccess()
                     vsWindow.UI.chooseSuggestion(event.which);    // should be already handled be text changed
                 }
                 break;
 
             case logEventFactory.DECODE:
-                vsWindow.$("#" + event.elementId).editableItp('trigger', "decodeResult", {errors: [], data: JSON.parse(event.data)});
-                itpCall = true;
+                itpData = JSON.parse(event.data);
+                vsWindow.$("#" + event.elementId).editableItp('trigger', "decodeResult", {errors: [], data: itpData});
+//                element.focus();
+//                element.setCursorPositionContenteditable(itpData.caretPos);
+                itpDecodeCall = true;
                 break;
             case logEventFactory.ALIGNMENTS:
-                vsWindow.$("#" + event.elementId).editableItp('trigger', "getAlignmentsResult", {errors: [], data: JSON.parse(event.data)});
+                itpData = JSON.parse(event.data);
+                vsWindow.$("#" + event.elementId).editableItp('trigger', "getAlignmentsResult", {errors: [], data: itpData});
                 break;
             case logEventFactory.SUFFIX_CHANGE:
-                vsWindow.$("#" + event.elementId).editableItp('trigger', "setPrefixResult", {errors: [], data: JSON.parse(event.data)});
-                itpCall = true;
+                itpData = JSON.parse(event.data);
+                vsWindow.$("#" + event.elementId).editableItp('trigger', "setPrefixResult", {errors: [], data: itpData});
+//                element.focus();
+//                element.setCursorPositionContenteditable(itpData.caretPos);
+                itpSuffixChangeCall = true;
                 break;
             case logEventFactory.CONFIDENCES:
-                vsWindow.$("#" + event.elementId).editableItp('trigger', "getConfidencesResult", {errors: [], data: JSON.parse(event.data)});
+                itpData = JSON.parse(event.data);
+                vsWindow.$("#" + event.elementId).editableItp('trigger', "getConfidencesResult", {errors: [], data: itpData});
                 break;
             case logEventFactory.TOKENS:
-                vsWindow.$("#" + event.elementId).editableItp('trigger', "getTokensResult", {errors: [], data: JSON.parse(event.data)});
+                itpData = JSON.parse(event.data);
+                vsWindow.$("#" + event.elementId).editableItp('trigger', "getTokensResult", {errors: [], data: itpData});
                 break;
             case logEventFactory.SHOW_ALIGNMENT_BY_MOUSE:
                 vsWindow.$("#" + event.elementId).trigger('mouseenter');
@@ -818,10 +844,14 @@
                 vsWindow.$("#" + event.elementId).trigger('mouseleave');
                 break;
             case logEventFactory.SHOW_ALIGNMENT_BY_KEY:
-                vsWindow.$("#" + event.elementId).trigger('caretenter', JSON.parse(event.data));
+//debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+//debug(event);
+//                itpData = JSON.parse(event.data);
+//                vsWindow.$("#" + event.elementId).trigger('caretenter', itpData);
                 break;
             case logEventFactory.HIDE_ALIGNMENT_BY_KEY:
-                vsWindow.$("#" + event.elementId).trigger('caretleave', JSON.parse(event.data));
+//                itpData = JSON.parse(event.data);
+//                vsWindow.$("#" + event.elementId).trigger('caretleave', itpData);
                 break;
 
             case logEventFactory.KEY_DOWN:
@@ -831,8 +861,10 @@
                             || event.which == 37 || event.which == 38   // left/up
                             || event.which == 39 || event.which == 40) {  // right/down
 //                        debug(pluginName + ": Replaying cursor move...");
-                        element.focus();
-                        element.setCursorPositionContenteditable(event.cursorPosition);
+//                        if (!settings.itpEnabled) {
+                            element.focus();
+                            element.setCursorPositionContenteditable(event.cursorPosition);
+//                        }
                     }
                 }
                 break;
@@ -842,6 +874,12 @@
                 debug(pluginName + ": Unknown event type: '" + event.type + "'.");
                 $.error("Unknown event type");
         }
+}
+catch (e) {
+debug(pluginName + ": " + e);
+debug(event);
+$.error("Erroneous event");
+}
     };
 
     var revertEvent = function(event) {
@@ -859,7 +897,8 @@
             jobId: settings.jobId,
             fileId: settings.fileId,
             startOffset: startOffset,
-            endOffset: startOffset + settings.maxChunkSize
+            //endOffset: startOffset + settings.maxChunkSize
+            endOffset: settings.maxChunkSize
         };
 
         debug(pluginName + ": Loading 'logListChunk' with: jobId: '" + data.jobId + "', "
@@ -903,7 +942,7 @@
                         dumpReplayList();
                     }
 
-                    if (isLive) {
+                    if (settings.isLive) {
                         var answer = confirm("No more chunks found. Try again?");
                         if (answer) {
                             debug(pluginName + ": Trying again...");

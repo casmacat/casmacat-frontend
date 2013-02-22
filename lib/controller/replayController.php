@@ -80,6 +80,7 @@ class replayController extends viewcontroller {
         $this->template->startTime = $this->startTime;
         $this->template->endTime = $this->endTime;
         $this->template->basepath = INIT::$BASEURL;
+        $this->template->itpEnabled = INIT::$ITPENABLED;
     }
 }
 ?>

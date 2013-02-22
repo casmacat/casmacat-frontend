@@ -23,12 +23,6 @@
         <script type="text/javascript" src="${basepath}public/js/lib/jquery-fieldselection.min.js"></script>
         <script type="text/javascript" src="${basepath}public/js/lib/jquery.cookie.js"></script>
 
-        <script type="text/javascript" src="${basepath}public/js/casmacat/logging/debug.js"></script>
-        <script type="text/javascript" src="${basepath}public/js/casmacat/logging/casmacat.logevent.js"></script>
-        <script type="text/javascript" src="${basepath}public/js/casmacat/logging/jquery.casmacat.tools.js"></script>
-        <script type="text/javascript" src="${basepath}public/js/casmacat/logging/jquery.casmacat.replay.js"></script>
-        <script type="text/javascript" src="${basepath}public/js/casmacat/logging/replay.js"></script>
-
         <script type="text/javascript">
             var config = {
                 basepath: '${basepath | string:/}',
@@ -42,9 +36,17 @@
 
                 fileId: "${fileId}",
                 startTime: "${startTime}",
-                endTime: "${endTime}"
+                endTime: "${endTime}",
+
+                itpEnabled: ${itpEnabled}
             }
         </script>
+
+        <script type="text/javascript" src="${basepath}public/js/casmacat/logging/debug.js"></script>
+        <script type="text/javascript" src="${basepath}public/js/casmacat/logging/casmacat.logevent.js"></script>
+        <script type="text/javascript" src="${basepath}public/js/casmacat/logging/jquery.casmacat.tools.js"></script>
+        <script type="text/javascript" src="${basepath}public/js/casmacat/logging/jquery.casmacat.replay.js"></script>
+        <script type="text/javascript" src="${basepath}public/js/casmacat/logging/replay.js"></script>
 
     </head>
     <body>

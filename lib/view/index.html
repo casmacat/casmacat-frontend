@@ -13,7 +13,6 @@
         <script type="text/javascript">
             var config = {
                 basepath: '${basepath | string:/}',
-                enable_itp: '${php: catserver ? true : false}',
                 catserver: '${catserver}',
                 htrserver: '${htrserver}',
                 id_translator: '${tid | nothing}',
@@ -33,7 +32,9 @@
                 file_id: '${fid}',
                 enable_logging: ${enableLogging},
                 replay: ${casIsReplaying},
-                debug: ${debug}
+                debug: ${debug},
+
+                itpEnabled: ${itpEnabled}
                 // CASMACAT extension end
             }
             //			console.log('Server time: ' + Math.round(config.server_load_time));

@@ -53,10 +53,11 @@ $(function() {
             "fileId": config.file_id,
             "jobId": config.job_id,
 
-            "doSanitize": true,    // when IMT enabled, set this to false, set to true otherwise
-            "logItp": false,    // when IMT enabled, set this to false, set to true otherwise
+            "doSanitize": true,    // TODO check this! not working with IMT currently
+            "logItp": true,    // when IMT enabled, set this to false, set to true otherwise
             "logRootElement": "html > body > div#outer",
-            "maxChunkSize": 10
+            "maxChunkSize": 10,
+            "logItp": config.itpEnabled    // when IMT enabled, set this to false, set to true otherwise
         });
         $(window).logging("start");
 

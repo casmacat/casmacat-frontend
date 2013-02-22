@@ -34,6 +34,7 @@ class INIT {
     public static $LOGGING;
     public static $CATSERVER;
     public static $HTRSERVER;
+    public static $ITPENABLED;
 
 
     public static function obtain() {
@@ -80,6 +81,7 @@ class INIT {
         // Custom translation/HTR servers (TODO: see how can integrate $_GET params with rewritten URLs)
         self::$CATSERVER = isset($_GET['catserver']) ? $_GET['catserver'] : $_INI_FILE['casmacat']['catserver'];
         self::$HTRSERVER = isset($_GET['htrserver']) ? $_GET['htrserver'] : $_INI_FILE['casmacat']['htrserver'];
+        self::$ITPENABLED = isset($_GET['itpenabled']) ? $_GET['itpenabled'] : $_INI_FILE['casmacat']['itpenabled'];
 
         self::$DEBUG = isset($_GET['debug']) ? $_GET['debug'] : $_INI_FILE['debug']['debug'];
     }

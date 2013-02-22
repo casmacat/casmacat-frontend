@@ -276,7 +276,8 @@ class catController extends viewcontroller {
             log::doLog("CASMACAT: Setting additional template variables...");
             $this->template->is_casmacat = INIT::$LOGGING;
             $this->template->debug = INIT::$DEBUG;
-
+            $this->template->itpEnabled = INIT::$ITPENABLED;
+log::doLog(INIT::$ITPENABLED);
             log::doLog("CASMACAT: Correcting 'last_opened_segment'...");
             if ($this->casIsReplaying) {
                     $this->last_opened_segment = 0;
@@ -286,6 +287,7 @@ class catController extends viewcontroller {
             }
         }
         // CASMACAT extension end
+
   $this->template->fid = $this->fid;
 
 
