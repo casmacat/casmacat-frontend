@@ -51,7 +51,7 @@
   
     nodeCollision: function(node, points, delta) {
       var rect = getRect($(node), delta);
-      var bb = boundingBox(points);
+      var bb = this.boundingBox(points);
       if (rect.left > bb.right || rect.right < bb.left || rect.top > bb.bottom || rect.bottom < bb.top) return 0;
       else {
         var l = points.length;
@@ -69,13 +69,13 @@
     },
   
     nodeDistance: function(node, point, delta) {
-      var rect = getRect($(node), delta);
-      return rectDistance(rect, point);
+      var rect = this.getRect($(node), delta);
+      return this.rectDistance(rect, point);
     },
   
     nodeCenter: function(node) {
       //var r = node.getClientRects()[0];
-      var r = getRect($(node));
+      var r = this.getRect($(node));
       return { x: r.x + r.width/2, y: r.y + r.height/2 } 
     },
   

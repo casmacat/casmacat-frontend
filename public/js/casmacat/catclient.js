@@ -312,9 +312,10 @@
     };
 
     /** 
-    * Searches and replaces rules for the current segment.
+    * Adds a replacement rule.
     * @param {Object} 
     * @setup obj
+    *   [ruleId] {Number}
     *   sourceRule {String}
     *   targetRule {String}
     *   targetReplacement {String}
@@ -327,27 +328,56 @@
     *   data {Object}
     *   @setup data
     *     elapsedTime {Number} ms
+    *     ruleId {Number} ruleId of the rule 
     */    
     self.setReplacementRule = function(obj) {
       self.checkConnection();
       self.server.emit('setReplacementRule', {data: obj});
     };
 
-    /*
-    // Unused methods
-    self.uploadDocument = function(doc, mt_sys_id, gen_wg) {
+    /** 
+    * Returns the list of rules.
+    * @trigger getReplacementRulesResult
+    * @return {Object}
+    *   errors {Array} List of error messages
+    *   data {Object}
+    *   @setup data
+    *     elapsedTime {Number} ms
+    *     rules {Array} List of rules
+    *     @setup rules
+    *       ruleId {Number}
+    *       sourceRule {String}
+    *       targetRule {String}
+    *       targetReplacement {String}
+    *       matchCase {Boolean}
+    *       isRegExp {Boolean}
+    *       nFails {Number} Number of times the regex provoked an exception
+    *       persistent {Boolean} TODO
+    */    
+    self.getReplacementRules = function(obj) {
       self.checkConnection();
-      self.server.emit('upload_document', {doc: doc, mt_sys_id: mt_sys_id, gen_wg: gen_wg});
+      self.server.emit('getReplacementRules', {data: obj});
     };
-    self.merge = function(doc_id) {
+
+    /** 
+    * Deletes replacement rule.
+    * @param {Object} 
+    * @setup obj
+    *   ruleId {Number}
+    * @trigger delReplacementRuleResult
+    * @return {Object}
+    *   errors {Array} List of error messages
+    *   data {Object}
+    *   @setup data
+    *     elapsedTime {Number} ms
+    */    
+    self.delReplacementRule = function(obj) {
       self.checkConnection();
-      self.server.emit('merge', {doc_id: doc_id});
+      self.server.emit('delReplacementRule', {data: obj});
     };
-    */
+
   };
 
-  // Expose
-  //exports.CatClient = global.CatClient = CatClient;
   module.exports = CatClient;
 
 })('object' === typeof module ? module : {}, this);

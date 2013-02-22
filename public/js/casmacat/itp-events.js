@@ -24,11 +24,14 @@ var Memento = require("module.memento");
     }
     return false;
   };
+
+  // This is needed for the MouseWheel to remember the state before committing a reject
+  var decodedResult;
   
   var ItpEvents = function($target, namespace, nsClass) {
     var self = this;
 
-    self.v = new ItpVisulization($target, namespace, nsClass);
+    self.vis = new ItpVisulization($target, namespace, nsClass);
 
     function cfg()     { return $target.data(namespace); }
     function userCfg() { return cfg().config; }
@@ -59,9 +62,10 @@ var Memento = require("module.memento");
         }
         if (data) {
           console.log("Loading previous data...", data);
-          self.v.updateSuggestions(data);
+          self.vis.updateSuggestions(data);
         } else {
           console.log("Rejecting...");
+          self.mousewheel.addElement(decodedResult);
           reject();
         }
       }
@@ -167,13 +171,18 @@ var Memento = require("module.memento");
     
         //console.log('contribution changed', data);
    
-        self.v.updateSuggestions(data);
+        self.vis.updateSuggestions(data);
         
         //var conf = userCfg();
         //if (conf.mode != 'PE') {
         //  itp.startSession({source: data.source});
         //}
-        
+
+        decodedResult = data;
+        // Clean previous states
+        self.mousewheel.invalidate();
+        self.memento.invalidate();
+        // First-time use of the mousewheel
         self.mousewheel.addElement(data);
 
         //XXX: $('#btn-translate').val("Translate").attr("disabled", false);
@@ -196,7 +205,7 @@ var Memento = require("module.memento");
         if (data.source !== $source().editable('getText')) return;
         if (data.target !== $target.editable('getText')) return;
     
-      	self.v.updateTranslationDisplay(data);
+      	self.vis.updateTranslationDisplay(data);
 
         // resizes the alignment matrix in a smoothed manner but it does not fill missing alignments 
         // (makes a diff between previous and current tokens and inserts/replaces/deletes columns and rows)
@@ -206,7 +215,7 @@ var Memento = require("module.memento");
     
       // Handle alignment changes (updates highlighting and alignment matrix) 
       itp.on('getAlignmentsResult', function(data, err) {
-        self.v.updateAlignmentDisplay(data);
+        self.vis.updateAlignmentDisplay(data);
         $target.trigger('alignments', [data, err]);
         $target.trigger('editabledomchange', [data, err]);
       });
@@ -214,7 +223,7 @@ var Memento = require("module.memento");
       // Handle confidence changes (updates highlighting) 
       itp.on('getConfidencesResult', function(data, err) {
         //var start_time = new Date().getTime();
-        self.v.updateWordConfidencesDisplay(data);
+        self.vis.updateWordConfidencesDisplay(data);
         //console.log("update_word_confidences_display:", new Date().getTime() - start_time, obj.data.elapsed_time);
         $target.trigger('confidences', [data, err]);
         $target.trigger('editabledomchange', [data, err]);
@@ -222,7 +231,7 @@ var Memento = require("module.memento");
     
       // Handle confidence changes (updates highlighting) 
       itp.on(['setPrefixResult', 'rejectSuffixResult'], function(data, err) {
-        self.v.updateSuggestions(data);
+        self.vis.updateSuggestions(data);
         
         self.mousewheel.addElement(data);
         $target.trigger('suffixchange', [data, err]);
@@ -262,12 +271,12 @@ var Memento = require("module.memento");
       // caretenter is a new event from jquery.editable that is triggered
       // whenever the caret enters in a new token span
       $target.bind('caretenter' + nsClass, function(e, d) {
-        self.v.updateWordPriorityDisplay($target, $(d.token));
+        self.vis.updateWordPriorityDisplay($target, $(d.token));
       });
       $([$source[0], $target[0]]).bind('caretenter' + nsClass, function(e, d) {
         var alignments = $(d.token).data('alignments');
         if (alignments && alignments.alignedIds) {
-          self.v.showAlignments(alignments.alignedIds, 'caret-align');
+          self.vis.showAlignments(alignments.alignedIds, 'caret-align');
         }
       })
       // caretleave is a new event from jquery.editable that is triggered
@@ -275,7 +284,7 @@ var Memento = require("module.memento");
       .bind('caretleave' + nsClass, function(e, d) {
         var alignments = $(d.token).data('alignments');
         if (alignments && alignments.alignedIds) {
-          self.v.hideAlignments(alignments.alignedIds, 'caret-align');
+          self.vis.hideAlignments(alignments.alignedIds, 'caret-align');
         }
       })
       .bind('keydown' + nsClass, function(e) {
@@ -356,22 +365,34 @@ var Memento = require("module.memento");
         itp.startSession({source: $source.editable('getText')});
       });
 
+    
       self.typedWords = {};
-      self.currentCaretPos;
+      self.currentCaretPos; // { pos, token }
+
+      function forgetState(caretPos) {
+        // IF "implicit reject on click" AND "cursor pos has chaged": invalidate previous states
+        if (typeof self.currentCaretPos != 'undefined' && caretPos !== self.currentCaretPos.pos) {
+          self.mousewheel.invalidate();
+          //self.memento.invalidate();
+        }
+      };
+            
       // caretmove is a new event from jquery.editable that is triggered
       // whenever the caret has changed position
       $target.bind('caretmove' + nsClass, function(e, d) {
         //var text = $(this).text();
         //$('#caret').html('<span class="prefix">' + text.substr(0, d.pos) + '</span>' + '<span class="suffix">' + text.substr(d.pos) + "</span>");
-        // If cursor pos has chaged, invalidate previous states
-        if (typeof self.currentCaretPos != 'undefined' && d.pos !== self.currentCaretPos.pos) {
-          self.mousewheel.invalidate();
-        }
+        forgetState(d.pos);
         self.currentCaretPos = d;
       })
-      // on click reject suffix 
+      // on ctrl+click reject suffix 
       .bind('click' + nsClass, function(e) {
-        reject();
+        var cpos = $target.editable('getCaretPos');
+        forgetState(cpos);
+        // Update only the caret position
+        self.currentCaretPos.pos = cpos;
+        // Issue a reject only if CTRL is pressed
+        //if (e.ctrlKey) reject(); // UPDATE: This is error prone and may require interaction with other modules
       })
       // on keyup throttle a new translation
       .bind('keyup' + nsClass, function(e) {
@@ -399,6 +420,7 @@ var Memento = require("module.memento");
                   caretPos: pos,
                   numResults: 1
                 }
+                var itpCfg = cfg(), itp = itpCfg.itpServer;
                 itp.setPrefix(query);
               }
             }, throttle_ms);

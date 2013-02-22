@@ -21,6 +21,7 @@ require("jquery.hotkeys");
         
     function onMoveUp(e) {
       pos++;
+      //dump("onMoveUp");
       self.change(stack[pos]);
       if (pos > stack.length - 1) {
         pos = stack.length - 1;
@@ -34,11 +35,13 @@ require("jquery.hotkeys");
         pos = 0;
         return;
       }
+      //dump("onMoveDown");
       self.change(stack[pos]);
     };
 
     function dump(fn) {
-      //console.log( "["+self.id+"]", fn, "| size:", stack.length, "pos:", pos );
+//      console.log( "["+self.id+"]", fn, "| size:", stack.length, "pos:", pos);
+//      for (var i=0; i<stack.length; ++i) console.log( stack[i].nbest[0].target );
     }
 
     var self = this;
