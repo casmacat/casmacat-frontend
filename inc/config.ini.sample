@@ -29,4 +29,5 @@ matchthreshold = 50
 [casmacat]
 catserver = "my.cat.server:8080"
 htrserver = "my.htr.server:8080"
+itpenabled = "true"
 
