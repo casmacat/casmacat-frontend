@@ -574,6 +574,13 @@
             vsReady = false;
             vsWindow.location.reload(true);
         }
+        else {
+            vsContents.scrollTop(0);
+            vsContents.find(".editarea").each(function(index, value) {
+                $(this).prop("contenteditable", "false");
+                $(this).html("");
+            });
+        }
     };
 
     var pause = function() {
@@ -635,15 +642,9 @@ debug(event);
                     break;
                 }
 
-                var textNow = null;
-                if (element.is("input:text") || element.is("textarea")) {
-                    textNow = element.val();
-                }
-                else {
-                    textNow = element.text();
-                }
-
+                var textNow = element.text();
                 var textNew = null;
+
                 if (textNow.substr(event.cursorPosition, event.deleted.length) == event.deleted) {
                     var prefix = textNow.substr(0, event.cursorPosition);
                     var postfixPos = parseInt(event.cursorPosition) + parseInt(event.deleted.length);
@@ -660,14 +661,8 @@ debug(event);
                     break;
                 }
 
-                if (element.is("input:text") || element.is("textarea")) {
-                    element.val(textNew);
-                    // TODO update cursor position?
-                }
-                else {
-                    element.text(textNew);
-                    setCursorPos(event.elementId, parseInt(event.cursorPosition) + parseInt(event.inserted.length));
-                }
+                element.text(textNew);
+                setCursorPos(event.elementId, parseInt(event.cursorPosition) + parseInt(event.inserted.length));
 
                 break;
             case logEventFactory.SELECTION:
@@ -675,36 +670,30 @@ debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + ev
 debug(event);
 
                 try {
-
                     var selection = vsWindow.getSelection();
                     selection.removeAllRanges();
 
                     var range = vsDocument.createRange();
                     var selectedNow = null;
 
-                    if (element.is("input:text") || element.is("textarea")) {
+                    var startNode = $(vsDocument).resolveFromElementId(event.startNodeId, event.startNodeXPath);
+                    var endNode = $(vsDocument).resolveFromElementId(event.endNodeId, event.endNodeXPath);
 
-                        element.prop("selectionStart", event.sCursorPosition);
-                        element.prop("selectionEnd", event.eCursorPosition);
+                    var startOffset = parseInt(event.sCursorPosition);
+                    var endOffset = parseInt(event.eCursorPosition);
 
-                        selectedNow = element.val().substring(event.sCursorPosition, event.eCursorPosition);
-                    }
-                    else {
-                        var startNode = $(vsDocument).resolveFromElementId(event.startNodeId, event.startNodeXPath);
-                        var endNode = $(vsDocument).resolveFromElementId(event.endNodeId, event.endNodeXPath);
+                    range.setStart(startNode, startOffset);
+                    range.setEnd(endNode, endOffset);
 
-                        var startOffset = parseInt(event.sCursorPosition);
-                        var endOffset = parseInt(event.eCursorPosition);
-
-                        range.setStart(startNode, startOffset);
-                        range.setEnd(endNode, endOffset);
-
-                        selection.addRange(range);
-                        selectedNow = range.toString();
-                    }
+                    selection.addRange(range);
+                    selectedNow = range.toString();
 
                     if (selectedNow != event.selectedText) {
-                        throw "Selected text doesn't match stored value: selectedNow: '" + selectedNow + "', event.selectedText: '" + event.selectedText + "'";
+                        throw {
+                            msg: "Selected text doesn't match stored value",
+                            now: selectedNow,
+                            stored: event.selectedText
+                        }
                     }
                 }
                 catch (e) {
@@ -712,7 +701,7 @@ debug(event);
                     debug(pluginName + ": Erroneous event dump:");
                     debug(event);
 
-                    var answer = confirm("Unexpected error: '" + e + "', stack trace: '" + e.stack + "'\n\n"
+                    var answer = confirm("Unexpected error: '" + e.msg + "'\nNow: '" + e.now + "'\nStored: '" + e.stored + "'\nStack trace: '" + e.stack + "'\n\n"
                         + "This is only a text range error and it is safe to continue. But it may indicate a text change error somewhere before.\n\n"
                         + "Continue replay?");
                     if (!answer) {
@@ -812,8 +801,6 @@ debug(event);
             case logEventFactory.DECODE:
                 itpData = JSON.parse(event.data);
                 vsWindow.$("#" + event.elementId).editableItp('trigger', "decodeResult", {errors: [], data: itpData});
-//                element.focus();
-//                element.setCursorPositionContenteditable(itpData.caretPos);
                 itpDecodeCall = true;
                 break;
             case logEventFactory.ALIGNMENTS:
@@ -823,8 +810,6 @@ debug(event);
             case logEventFactory.SUFFIX_CHANGE:
                 itpData = JSON.parse(event.data);
                 vsWindow.$("#" + event.elementId).editableItp('trigger', "setPrefixResult", {errors: [], data: itpData});
-//                element.focus();
-//                element.setCursorPositionContenteditable(itpData.caretPos);
                 itpSuffixChangeCall = true;
                 break;
             case logEventFactory.CONFIDENCES:
@@ -846,11 +831,11 @@ debug(event);
 //debug(event);
 //                itpData = JSON.parse(event.data);
 //                vsWindow.$("#" + event.elementId).trigger('caretenter', itpData);
-                break;
+//                break;
             case logEventFactory.HIDE_ALIGNMENT_BY_KEY:
 //                itpData = JSON.parse(event.data);
 //                vsWindow.$("#" + event.elementId).trigger('caretleave', itpData);
-                break;
+//                break;
 
             case logEventFactory.KEY_DOWN:
                 break;
@@ -860,9 +845,7 @@ debug(event);
                             || event.which == 37 || event.which == 38   // left/up
                             || event.which == 39 || event.which == 40) {  // right/down
 //                        debug(pluginName + ": Replaying cursor move...");
-//                        if (!settings.itpEnabled) {
-                            setCursorPos(event.elementId, event.cursorPosition);
-//                        }
+                        setCursorPos(event.elementId, event.cursorPosition);
                     }
                 }
                 break;
@@ -887,8 +870,9 @@ $.error("Erroneous event");
     };
 
     var setCursorPos = function(elementId, pos) {
-//                    element.focus();
-//                    element.setCursorPositionContenteditable(parseInt(event.cursorPosition) + parseInt(event.inserted.length));
+        if (settings.itpEnabled) {
+            return;
+        }
         vsWindow.$("#" + elementId).focus();
         vsWindow.$("#" + elementId).setCursorPositionContenteditable(pos);
     };
