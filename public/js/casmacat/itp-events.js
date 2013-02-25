@@ -392,7 +392,7 @@ var Memento = require("module.memento");
         // Update only the caret position
         self.currentCaretPos.pos = cpos;
         // Issue a reject only if CTRL is pressed
-        //if (e.ctrlKey) reject(); // UPDATE: This is error prone and may require interaction with other modules
+        if (e.ctrlKey) reject(); // UPDATE: This is error prone and may require interaction with other modules
       })
       // on keyup throttle a new translation
       .bind('keyup' + nsClass, function(e) {

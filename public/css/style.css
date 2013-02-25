@@ -37,7 +37,7 @@ body.editing .grayed,body.virtualEditing .grayed{display:block;}
 .toggle{display:none;}
 .editor .toggle{display:block;}
 
-footer{background:#6d6e71;height:27px;text-align:right;border-top:1px solid #333;color:#fff;position:fixed;bottom:0;left:0;width:100%;z-index:999999999999;}
+footer{background:#6d6e71;border-top:1px solid #333;color:#fff;position:fixed;bottom:0;left:0;width:100%;z-index:999999999999;}
 footer p, .projectbar p{margin:0 5px 0 0;padding:0;float:left;}
 footer ul, .projectbar  ul{margin:-5px 0 0 0;padding:0;float:left;border-right:1px solid #333;}
 
@@ -46,7 +46,7 @@ footer li, .projectbar li {margin:0 0px 0 0;padding:5px 10px;float:left;border-l
 footer a, .projectbar a{color:#fff;text-shadow:none;}
 footer a:hover{text-decoration:none}
 #rejected.hidden{display:none}
-footer .wrapper{text-align:right}
+footer .wrapper{text-align:right; clear:both;}
 .meter {
 	height: 15px;  /* Can be anything */
 	width:15%;
@@ -1133,3 +1133,11 @@ input[readonly] {
 /*RTL language*/
 /*.editarea, .search-editarea, .source, .graysmall li {direction: rtl !important; text-align: right !important;}
 */
+
+#sr-replace { font-size:90%; padding:0.5em; border-bottom:1px solid #000; background-color:#999; color:#000; clear:both; }
+  #sr-replace label { font-weight:bold; vertical-align:middle; }
+  #sr-replace input { border:1px solid #000; vertical-align:middle; }
+  #sr-replace span { margin-left:2em; }
+  #sr-replace ol { max-height:100px; overflow-y:scroll; overflow-x:none; }
+  #sr-replace ol li { float:none; border:none; display:block; }
+  a.sr-delrule { color:#FFF; font-weight:bold; margin-left:1em; }
