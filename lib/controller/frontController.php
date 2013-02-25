@@ -56,12 +56,12 @@ abstract class controller {
             exit;
         }
     }
-    
+
     protected function get_from_get_post($varname){
         $ret=null;
         $ret=isset($_GET[$varname])?$_GET[$varname]:(isset($_POST[$varname])?$_POST[$varname]:null);
 	/*if (!is_null($ret)){
-		$ret=urldecode($ret);	
+		$ret=urldecode($ret);
 	}*/
         return $ret;
     }
@@ -72,13 +72,13 @@ abstract class controller {
 abstract class downloadController extends controller {
     protected $content="";
     protected $filename="unknown";
-    
+
     //abstract function setContent();
 
     public function __construct() {
         parent::__construct();
     }
-   
+
 
     public function download() {
         try {
@@ -98,7 +98,7 @@ abstract class downloadController extends controller {
         } catch (Exception $e) {
             echo "<pre>";
             print_r($e);
-            echo "\n\n\n";          
+            echo "\n\n\n";
             echo "</pre>";
             exit;
         }
@@ -111,7 +111,7 @@ abstract class downloadController extends controller {
 abstract class viewcontroller extends controller {
     protected $template = null;
     protected $supportedBrowser=false;
-   
+
     //private $localizedUrlMapping;
     abstract function setTemplateVars();
 
@@ -119,7 +119,7 @@ abstract class viewcontroller extends controller {
         parent::__construct();
         require_once INIT::$ROOT.'/inc/PHPTAL/PHPTAL.php';
 	$this->supportedBrowser=$this->isSupportedWebBrowser();
-        
+
     }
 
     private function isSupportedWebBrowser(){
@@ -139,12 +139,12 @@ abstract class viewcontroller extends controller {
         return false;
 
 
-	//$browser_name=strtolower($browser_info['browser']);	
+	//$browser_name=strtolower($browser_info['browser']);
 	//if (!in_array($browser_name,INIT::$ENABLED_BROWSERS)){
 	//	return false;
 	//}
 	//return true;
-	
+
     }
 
    private function getBrowser() {
@@ -225,22 +225,22 @@ abstract class viewcontroller extends controller {
             $additionalPostData = array();
         }
         echo "
-		<html> 
-			<head> 
+		<html>
+			<head>
 				<script type='text/javascript' language='javascript'>
 					function submitForm(){
 						document.forms[0].submit();
 					}
 				</script>
-			</head> 
-			<body onload='submitForm()'> 
-				<form id='form' name='form' action='$url' method='post'> 
-					<noscript>  
-						<div align='center'> 
-							<h3>Clicca per continuare </h3> 
-							<input type='submit' value='Clicca qui'> 
-						</div> 
-					</noscript> 
+			</head>
+			<body onload='submitForm()'>
+				<form id='form' name='form' action='$url' method='post'>
+					<noscript>
+						<div align='center'>
+							<h3>Clicca per continuare </h3>
+							<input type='submit' value='Clicca qui'>
+						</div>
+					</noscript>
 					";
         foreach ($_POST as $k => $v) {
             if ($k != 'action') {
@@ -263,7 +263,7 @@ abstract class viewcontroller extends controller {
         }
         echo "<input type='hidden'name='action' value='$act'> ";
         echo "</form>
- 			</body> 
+ 			</body>
 		</html>
 		";
         exit;
@@ -276,7 +276,7 @@ abstract class viewcontroller extends controller {
 	    $this->template->supportedBrowser=$this->supportedBrowser;
             $this->template->setOutputMode(PHPTAL::HTML5);
 
-		
+
         } catch (Exception $e) {
             echo "<pre>";
             print_r($e);
@@ -286,8 +286,8 @@ abstract class viewcontroller extends controller {
             exit;
         }
     }
-    
-    
+
+
 
     public function executeTemplate() {
         $this->setTemplateVars();
@@ -296,7 +296,7 @@ abstract class viewcontroller extends controller {
             ob_clean();
             ob_start("ob_gzhandler");  // compress page before sending
             $this->nocache();
-            header('Content-Type: text/html; charset=utf-8');          		
+            header('Content-Type: text/html; charset=utf-8');
             echo $this->template->execute();
             //echo $buffer;
         } catch (Exception $e) {
@@ -329,9 +329,9 @@ abstract class ajaxcontroller extends controller {
         $toJson = json_encode($this->result);
         echo $toJson;
     }
-    
-    
-    
+
+
+
 
 }
 
