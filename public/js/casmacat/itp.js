@@ -103,7 +103,6 @@ $(function(){
         .on('mouseleave.matecat', function (ev) {
           $(window).trigger('hideAlignmentByMouse', ev.target);
         })
-
     })
     .editableItp({
       sourceSelector: "#segment-" + sid + "-source",
@@ -111,6 +110,7 @@ $(function(){
       replay:         config.replay
     });
     console.log('editableItp', $target);
+    addSearchReplaceEvents();
   };
 
   UI.closeSegment = function(editarea) {
@@ -134,19 +134,19 @@ $(function(){
   };*/
 
   UI.doRequest = function(req) {
-    var d = req.data, a = d.action, ea = getEditArea();
+    var d = req.data, a = d.action, $ea = getEditArea();
     UI.saveCallback(a, req);
     // Call action
     switch(a) {
       case "getContribution":
-        ea.unbind('decode').bind('decode', function(e, data, err){
+        $ea.unbind('decode').bind('decode', function(e, data, err){
           UI.executeCallback(a, {
             data: formatItpMatches(data)
           });
         });
         break;
       case "setContribution":
-        ea.unbind('validate').bind('validate', function(data, err){
+        $ea.unbind('validate').bind('validate', function(data, err){
           UI.executeCallback(a, {
             data: formatItpMatches(data)
           });
@@ -182,4 +182,73 @@ $(function(){
     //return req.data;
   };
 
+  // BEGIN S&R facilities ------------------------------------------------------  
+  $('#sr-rules').hide();
+  
+  function addSearchReplaceEvents() {
+    var $ea = getEditArea(), itpServer = $ea.editableItp('itpServer');
+    
+    itpServer.on('setReplacementRuleResult', function(data, err) {
+      itpServer.getReplacementRules();
+    });
+
+    itpServer.on('delReplacementRuleResult', function(data, err) {
+      itpServer.getReplacementRules();
+    });
+
+    itpServer.on('getReplacementRulesResult', function(data, err) {
+      $('#sr-rules').empty();
+      for (var i = 0; i < data.rules.length; ++i) { 
+        processRule(data.rules[i]);
+      }
+    });
+  };
+  
+  function delSearchReplaceEvents() {
+    var $ea = getEditArea(), itpServer = $ea.editableItp('itpServer');
+    itpServer.off('setReplacementRuleResult delReplacementRuleResult getReplacementRulesResult');
+  };  
+  
+  function processRule(rule) {
+    var $btn = $('<a class="sr-delrule" href="#">[remove]</a>');
+    $btn.click(function(e){
+      e.preventDefault();
+      var $ea = getEditArea(), itpServer = $ea.editableItp('itpServer');
+      itpServer.delReplacementRule({'ruleId': rule.ruleId});
+      //if ($('#sr-rules ol li').length === 0) $('#sr-rules').hide();
+    });
+    var $li = $('<li/>');
+    if (rule.fails > 0) $li.css('color', 'red');
+    $li.data('rule', JSON.stringify(rule));
+    var ruleText  = "source: " + rule.sourceRule;
+        ruleText += " | target: " + rule.targetRule;
+        ruleText += " | replacement: " + rule.targetReplacement;
+    if (rule.isRegExp)  ruleText += " | regexp";
+    if (rule.matchCase) ruleText += " | case sensitive";
+        ruleText += " ";
+    $li.text(ruleText).append($btn);
+    $('#sr-rules').append($li);
+  };
+  
+  $('#sr-viewreplaceBtn').click(function(e){
+    $('#sr-rules').toggle("fast");
+  });
+  
+  $('#sr-addreplaceBtn').click(function(e){
+    var rule = {};
+    $("#sr-replace :input").each(function(){
+      var $this = $(this); 
+      if (!$this.attr('name')) return;
+      if ($this.attr('type') === 'checkbox') {
+        rule[$this.attr('name')] = $this.prop('checked');  
+      }
+      else {
+        rule[$this.attr('name')] = $this.val();  
+      }
+    });
+    var $ea = getEditArea(), itpServer = $ea.editableItp('itpServer');
+    itpServer.setReplacementRule(rule);
+  });
+  // END S&R facilities --------------------------------------------------------
+  
 });

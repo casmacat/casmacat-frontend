@@ -6,8 +6,8 @@
 Loader = {
 
 	components: new Array (
-		'cat',
-    'casmacat/itp'
+		'cat'
+    /* add itp in the start function if config.itpEnabled is true */
 	),
 
 	forkComponents: new Array (
@@ -16,7 +16,6 @@ Loader = {
 // cat-fork
 
 	libraries: new Array (
-  	'../casmacat/require.node',
 		'jquery',
 		'jquery-ui-1.8.20.custom.min',
 		'jquery.tabify',
@@ -50,6 +49,11 @@ Loader = {
 	},
 
 	start: function() {
+    if (config.itpEnabled) {
+      this.components.push('casmacat/itp');
+  	  this.libraries.push('../casmacat/require.node');
+    }
+
 		var l = this.libraries;
 		var c = this.detect('fork')? this.forkComponents : this.components;
 		this.basePath = config.basepath+'public/js/';

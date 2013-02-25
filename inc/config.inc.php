@@ -81,7 +81,8 @@ class INIT {
         // Custom translation/HTR servers (TODO: see how can integrate $_GET params with rewritten URLs)
         self::$CATSERVER = isset($_GET['catserver']) ? $_GET['catserver'] : $_INI_FILE['casmacat']['catserver'];
         self::$HTRSERVER = isset($_GET['htrserver']) ? $_GET['htrserver'] : $_INI_FILE['casmacat']['htrserver'];
-        self::$ITPENABLED = isset($_GET['itpenabled']) ? $_GET['itpenabled'] : $_INI_FILE['casmacat']['itpenabled'];
+        self::$ITPENABLED = isset($_GET['itpenabled']) ? $_GET['itpenabled'] : 
+                            isset($_INI_FILE['casmacat']['itpenabled']) ? $_INI_FILE['casmacat']['itpenabled'] : "false";
 
         self::$DEBUG = isset($_GET['debug']) ? $_GET['debug'] : $_INI_FILE['debug']['debug'];
     }
