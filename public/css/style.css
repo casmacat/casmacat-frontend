@@ -650,7 +650,7 @@ textarea,.editarea{position:relative;z-index:99;}
 	border:1px solid transparent;
 	-moz-border-radius: 2px;
 	border-radius: 2px;
-	word-break: break-word;
+	/*word-break: break-word;*/
  	hyphens: auto;
   	-moz-hyphens: auto;
 	transition: all  50ms ease-in;
@@ -700,7 +700,7 @@ textarea,.editarea{position:relative;z-index:99;}
 textarea, input, .editarea, .search-editarea, select  {
 outline: none !important
 }
-.source{position:relative;z-index:9999; word-break: break-word;
+.source{position:relative;z-index:9999; /*word-break: break-word;*/
 }
 
 .wrap {
@@ -1067,7 +1067,7 @@ filter: �alpha(opacity=50)�; /*per Internet Explorer 8*/
 .number{left:-40px;	}
 .main{width:90.3%;margin-left:3%;}
 .number{left:-52px;}
-.editarea, .source{ word-break: break-all}
+/*.editarea, .source{ word-break: break-all}*/
 .projectbar ul {margin-left:5px}
 .Translated, .draft, .approved{padding:7px 6px;}
 .meter {	width:10%;}
