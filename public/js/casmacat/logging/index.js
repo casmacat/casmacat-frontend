@@ -49,12 +49,36 @@ $(function() {
             });
         }
 
+        // from: "http://stackoverflow.com/questions/1950038/jquery-fire-event-if-css-class-changed#1950052"
+//        (function(){
+//            // Your base, I'm in it!
+//            var originalAddClassMethod = jQuery.fn.addClass;
+//
+//            jQuery.fn.addClass = function(){
+//                // Execute the original method.
+//                var result = originalAddClassMethod.apply( this, arguments );
+//
+//                // trigger a custom event
+//                jQuery(this).trigger('cssClassChanged');
+//
+//                // return the original result
+//                return result;
+//            }
+//        })();
+
+//        $(".source").css("font-size", "20pt");
+//        $(".editarea").css("font-size", "20pt");
+//        $(".graysmall li").live("cssClassChanged", function(e) {
+//            $(".graysmall li span").css("font-size", "20pt");
+//        });
+
+        $('head').append("<link rel='stylesheet' href='" + config.basepath + "/public/css/et.css' type='text/css' />");
+
         $(window).logging({
             "fileId": config.file_id,
             "jobId": config.job_id,
 
             "doSanitize": true,    // TODO check this! not working with IMT currently
-            "logItp": true,    // when IMT enabled, set this to false, set to true otherwise
             "logRootElement": "html > body > div#outer",
             "maxChunkSize": 10,
             "logItp": config.itpEnabled    // when IMT enabled, set this to false, set to true otherwise

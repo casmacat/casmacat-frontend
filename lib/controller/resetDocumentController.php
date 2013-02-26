@@ -19,20 +19,26 @@ class resetDocumentController extends ajaxcontroller {
     }
 
     public function doAction() {
+        try {
+            log::doLog("CASMACAT: resetDocumentController->doAction(): Resetting document...");
 
-        log::doLog("CASMACAT: resetDocumentController->doAction(): Resetting document...");
+            if (!resetDocument($this->jobId, $this->fileId)) {
+                $this->result["code"] = -1;
+                $this->result["errors"][] = array("code" => -1, "message" => "Error resetting document");
+            }
+            else {
+                $this->result["code"] = 0;
+    //            $this->result["data"]["logListChunk"] = json_encode($logListChunk);
+                $this->result["data"] = "OK";
+            }
 
-        if (!resetDocument($this->jobId, $this->fileId)) {
+            log::doLog("CASMACAT: resetDocumentController->doAction(): Document reset.");
+        }
+        catch (Exception $e) {
             $this->result["code"] = -1;
-            $this->result["errors"][] = array("code" => -1, "message" => "Error resetting document");
+            $this->result["errors"][] = array("code" => -1, "message" => "Unexcpected error: '" . $e->GetMessage() . "'");
+            log::doLog("CASMACAT: resetDocumentController->doAction(): Unexcpected error: '" . $e->GetMessage() . "'");
         }
-        else {
-            $this->result["code"] = 0;
-//            $this->result["data"]["logListChunk"] = json_encode($logListChunk);
-            $this->result["data"] = "OK";
-        }
-
-        log::doLog("CASMACAT: resetDocumentController->doAction(): Document reset.");
     }
 }
 

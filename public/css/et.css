@@ -1,0 +1,11 @@
+/*
+    Description: Enlarge font for Eye Tracking.
+*/
+
+.source, .editarea {
+    font-size: 20pt !important;
+}
+
+.suggestion_source, .translation {
+    font-size: 20pt;
+}
