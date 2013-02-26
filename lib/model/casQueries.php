@@ -404,4 +404,11 @@ function getSegmentsInfoWithoutTranslation($jid,$password, $start = 0, $step = 2
     return $results;
 }
 
+function createAndAppendElement($doc, $parent, $name) {
+    $tmp = $doc->createElement($name);
+    $parent->appendChild($tmp);
+
+    return $tmp;
+}
+
 ?>
