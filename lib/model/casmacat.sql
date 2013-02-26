@@ -1,5 +1,6 @@
 use matecat_sandbox;
 
+
 delimiter $$
 
 CREATE TABLE `log_event_header` (
