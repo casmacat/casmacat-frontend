@@ -4,6 +4,19 @@ var MouseWheel = require("module.mousewheel");
 var Memento = require("module.memento");
 
 (function(module, global) {
+
+  // sleep function to simulate workloads
+  function sleep(milliseconds) {
+    var start = new Date().getTime();
+    for (var i = 0; i < 1e7; i++) {
+      if ((new Date().getTime() - start) > milliseconds){
+        break;
+      }
+    }
+  }
+
+
+
   // Helper function to limit the number of server requests;
   // at least throttle_ms have to pass for events to trigger 
   var throttle_ms = 50;
@@ -165,11 +178,14 @@ var Memento = require("module.memento");
       
       // Handle translation responses
       itp.on('decodeResult', function(data, err) {
-        var bestResult = data.nbest[0];
         // make sure new data still applies to current source
-        if (data.source !== $source().editable('getText')) return;
-    
+        if (data.source !== $source().editable('getText')) {
+          console.warn("Current source and received source do not match");
+          return;
+        }
+ 
         //console.log('contribution changed', data);
+        var bestResult = data.nbest[0];
    
         self.vis.updateSuggestions(data);
         
@@ -200,11 +216,23 @@ var Memento = require("module.memento");
       });
 
       // Handle post-editing (target has changed but not source)
+      itp.on('applyReplacementRulesResult', function(data, err) {
+        if (data.source !== $source().editable('getText')) return;
+        
+      	self.vis.updateTranslationDisplay(data);
+
+        // resizes the alignment matrix in a smoothed manner but it does not fill missing alignments 
+        // (makes a diff between previous and current tokens and inserts/replaces/deletes columns and rows)
+        $target.trigger('tokens', [data, err]);
+        $target.trigger('editabledomchange', [data, err]);
+      });
+    
+ 
+      // Handle post-editing (target has changed but not source)
       itp.on('getTokensResult', function(data, err) {
-        // make sure new data still applies to current source and target texts
         if (data.source !== $source().editable('getText')) return;
         if (data.target !== $target.editable('getText')) return;
-    
+        
       	self.vis.updateTranslationDisplay(data);
 
         // resizes the alignment matrix in a smoothed manner but it does not fill missing alignments 
@@ -231,6 +259,12 @@ var Memento = require("module.memento");
     
       // Handle confidence changes (updates highlighting) 
       itp.on(['setPrefixResult', 'rejectSuffixResult'], function(data, err) {
+        // make sure new data still applies to current source
+        if (data.source !== $source().editable('getText')) {
+          console.warn("Current source and received source do not match");
+          return;
+        }
+
         self.vis.updateSuggestions(data);
         
         self.mousewheel.addElement(data);

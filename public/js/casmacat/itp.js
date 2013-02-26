@@ -146,7 +146,7 @@ $(function(){
         });
         break;
       case "setContribution":
-        $ea.unbind('validate').bind('validate', function(data, err){
+        $ea.unbind('validate').bind('validate', function(e, data, err){
           UI.executeCallback(a, {
             data: formatItpMatches(data)
           });
@@ -171,6 +171,7 @@ $(function(){
 
   UI.executeCallback = function(action, data) {
     var req = UI.callbacks[action].shift();
+    if (typeof req === 'undefined') return;
     if (req.hasOwnProperty('success') && typeof req.success === 'function') {
       console.log("executing success callback:", action, data);
       req.success(data);
@@ -195,6 +196,9 @@ $(function(){
     itpServer.on('delReplacementRuleResult', function(data, err) {
       itpServer.getReplacementRules();
     });
+   
+    itpServer.on('applyReplacementRulesResult', function(data, err) {
+    });
 
     itpServer.on('getReplacementRulesResult', function(data, err) {
       $('#sr-rules').empty();
@@ -210,11 +214,19 @@ $(function(){
   };  
   
   function processRule(rule) {
+    var $ea = getEditArea(), itpServer = $ea.editableItp('itpServer');
+    // Apply rule for the first time
+    var sid = $ea.data('sid'), $source = $("#segment-" + sid + "-source");
+    itpServer.applyReplacementRules({
+      source: $source.text(),
+      target: $ea.editable('getText'),
+    });
+    // Then inform the user about the rule
     var $btn = $('<a class="sr-delrule" href="#">[remove]</a>');
     $btn.click(function(e){
       e.preventDefault();
       var $ea = getEditArea(), itpServer = $ea.editableItp('itpServer');
-      itpServer.delReplacementRule({'ruleId': rule.ruleId});
+      itpServer.delReplacementRule({ruleId: rule.ruleId});
       //if ($('#sr-rules ol li').length === 0) $('#sr-rules').hide();
     });
     var $li = $('<li/>');

@@ -345,12 +345,11 @@
     *     elapsedTime {Number} ms
     *     rules {Array} List of rules
     *     @setup rules
-    *       ruleId {Number}
     *       sourceRule {String}
     *       targetRule {String}
     *       targetReplacement {String}
-    *       matchCase {Boolean}
     *       isRegExp {Boolean}
+    *       matchCase {Boolean}
     *       nFails {Number} Number of times the regex provoked an exception
     *       persistent {Boolean} TODO
     */    
@@ -375,6 +374,24 @@
       self.checkConnection();
       self.server.emit('delReplacementRule', {data: obj});
     };
+
+    /** 
+    * Applies *all* replacement rules, so that the user does not need to type for an entered rule to become visible.
+    * @param {Object}
+    * @setup obj
+    *   source {String}
+    *   target {String}
+    * @trigger applyReplacementRulesResult
+    * @return {Object}
+    *   errors {Array} List of error messages
+    *   data {Object}
+    *   @setup data
+    *     elapsedTime {Number} ms
+    */    
+    self.applyReplacementRules = function(obj) {
+      self.checkConnection();
+      self.server.emit('applyReplacementRules', {data: obj});
+    };    
 
   };
 
