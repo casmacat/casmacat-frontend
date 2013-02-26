@@ -345,6 +345,7 @@
     *     elapsedTime {Number} ms
     *     rules {Array} List of rules
     *     @setup rules
+    *       ruleId {Number}
     *       sourceRule {String}
     *       targetRule {String}
     *       targetReplacement {String}

@@ -4,19 +4,6 @@ var MouseWheel = require("module.mousewheel");
 var Memento = require("module.memento");
 
 (function(module, global) {
-
-  // sleep function to simulate workloads
-  function sleep(milliseconds) {
-    var start = new Date().getTime();
-    for (var i = 0; i < 1e7; i++) {
-      if ((new Date().getTime() - start) > milliseconds){
-        break;
-      }
-    }
-  }
-
-
-
   // Helper function to limit the number of server requests;
   // at least throttle_ms have to pass for events to trigger 
   var throttle_ms = 50;
@@ -53,7 +40,7 @@ var Memento = require("module.memento");
       var conf = cfg();
       if (conf.config.mode != 'PE') {
         var target = $target.editable('getText'),
-            pos    = $target.editable('getCaretPos');
+            pos    = typeof self.currentCaretPos !== 'undefined' ? self.currentCaretPos.pos : $target.editable('getCaretPos');
     
         conf.itpServer.rejectSuffix({
           target: target,
@@ -230,9 +217,10 @@ var Memento = require("module.memento");
  
       // Handle post-editing (target has changed but not source)
       itp.on('getTokensResult', function(data, err) {
+        // make sure new data still applies to current source and target texts
         if (data.source !== $source().editable('getText')) return;
         if (data.target !== $target.editable('getText')) return;
-        
+    
       	self.vis.updateTranslationDisplay(data);
 
         // resizes the alignment matrix in a smoothed manner but it does not fill missing alignments 
