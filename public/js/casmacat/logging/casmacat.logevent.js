@@ -41,14 +41,19 @@ var LogEventFactory = function(elementIdMode) {
     this.LOADING_SUGGESTIONS = "loadingSuggestions";
     this.SUGGESTIONS_LOADED = "suggestionsLoaded";
     this.SUGGESTION_CHOSEN = "suggestionChosen";
-    
+
     this.DECODE = "decode";
     this.ALIGNMENTS = "alignments";
     this.SUFFIX_CHANGE = "suffixChange";
     this.CONFIDENCES = "confidences";
     this.TOKENS = "tokens";
-    this.SHOW_ALIGNMENT = "showAlignment";    
-    this.HIDE_ALIGNMENT = "hideAlignment";    
+    this.SHOW_ALIGNMENT_BY_MOUSE = "showAlignmentByMouse";
+    this.HIDE_ALIGNMENT_BY_MOUSE = "hideAlignmentByMouse";
+    this.SHOW_ALIGNMENT_BY_KEY = "showAlignmentByKey";
+    this.HIDE_ALIGNMENT_BY_KEY = "hideAlignmentByKey";
+
+    this.KEY_DOWN = "keyDown";
+    this.KEY_UP = "keyUp";
 };
 
 /**
@@ -167,12 +172,24 @@ LogEventFactory.prototype.newLogEvent = function(type, element) {
         case this.SUFFIX_CHANGE:    // data
         case this.CONFIDENCES:    // data
         case this.TOKENS:    // data
+        case this.SHOW_ALIGNMENT_BY_KEY:
+        case this.HIDE_ALIGNMENT_BY_KEY:
             logEvent.data = arguments[2];
-            break;            
-        case this.SHOW_ALIGNMENT:
-        case this.HIDE_ALIGNMENT:
-            break;  
-            
+            break;
+        case this.SHOW_ALIGNMENT_BY_MOUSE:
+        case this.HIDE_ALIGNMENT_BY_MOUSE:
+            break;
+
+        case this.KEY_DOWN:
+        case this.KEY_UP:
+            logEvent.cursorPosition = arguments[2];
+            logEvent.which = arguments[3];
+            logEvent.character = arguments[4];
+            logEvent.shift = arguments[5];
+            logEvent.ctrl = arguments[6];
+            logEvent.alt = arguments[7];
+            break;
+
         default:
             alert("Unknown event type: '" + $(element).getAbsoluteXPath() + "'!");
             $.error("Unknown event type: '" + $(element).getAbsoluteXPath() + "'");

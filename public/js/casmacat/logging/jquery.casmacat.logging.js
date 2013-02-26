@@ -190,6 +190,13 @@
             else {
 //                $.fn.showProgressIndicator();
 
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.STOP_SESSION, window));
+
+                if (logList.length >= 0) {
+                    debug(pluginName + ": Upload remaining 'logList'...");
+                    uploadLogChunk(false);
+                }
+
                 // TODO check for completeness/correctness, also see: "http://docs.jquery.com/Plugins/Authoring"
                 if (chunksUploading > 0) {
                     // TODO wait for uploads to complete
@@ -340,7 +347,7 @@
                 $(this).on("input." + pluginName, textChanged);
             }
 
-            debugAttachedTo("contenteditable=true", this);
+//            debugAttachedTo("contenteditable=true", this);
         });
 
         // attach to scroll events
@@ -412,17 +419,23 @@
         }
 
         if (settings.logItp) {
-          
-          $(window).on("translationchange." + pluginName, itp);
+
+          $(window).on("translationChange." + pluginName, itp);
 //            debugAttachedTo("translationchange", window);
-          
-          $(window).on("showalignment." + pluginName, alignmentShown);
+
+          $(window).on("showAlignmentByMouse." + pluginName, alignmentShownByMouse);
 //            debugAttachedTo("showalignment", window);
-          
-          $(window).on("hidealignment." + pluginName, alignmentHidden);
-//            debugAttachedTo("hidealignment", window);          
+
+          $(window).on("hideAlignmentByMouse." + pluginName, alignmentHiddenByMouse);
+//            debugAttachedTo("hidealignment", window);
+
+          $(window).on("showAlignmentByKey." + pluginName, alignmentShownByKey);
+//            debugAttachedTo("showalignment", window);
+
+          $(window).on("hideAlignmentByKey." + pluginName, alignmentHiddenByKey);
+//            debugAttachedTo("hidealignment", window);
         }
-        
+
         debug(pluginName + ": Bound to events.");
     };
 
@@ -442,8 +455,10 @@
         // scroll
         $(settings.logRootElement).find(":scrollable(vertical)").off("." + pluginName);
 
-        // (window) close + scroll + resize + segment
+        // (window) scroll + resize + segment
         $(window).off("." + pluginName);
+
+        window.onbeforeunload = null;
 
         fieldContents = [];   // clear field contents cache
         debug(pluginName + ": Unbound from events.");
@@ -582,7 +597,7 @@
     };
 
     var mouseDown = function(e) {
-        debug(pluginName + ": Mouse down.");
+//        debug(pluginName + ": Mouse down.");
 
         if (e.ctrlKey) {  // do not allow CTRL for selecting text, this prevents multiple selections in Firefox
                         // TODO is it possibly to disable that by another way, like document.execCommand()?
@@ -595,10 +610,13 @@
             e.preventDefault();
             debug(pluginName + ": Mouse down: Blocking selection movements...");
         }
+
+//        var pos = $(e.target).getCursorPositionContenteditable();
+//        debug(pluginName + ": Mouse down, cursor position: pos: '" + pos + "'.");
     };
 
     var mouseUp = function(e) {
-        debug(pluginName + ": Mouse up.");
+//        debug(pluginName + ": Mouse up.");
 
 //        if ($(onDownElementId).hasParentIn(settings.logRootElement)
 //            && $(e.target).hasParentIn(settings.logRootElement)) {
@@ -609,6 +627,9 @@
         if (!e.shiftKey) {
             logSelectionEvent(e.target);
         }
+
+//        var pos = $(e.target).getCursorPositionContenteditable();
+//        debug(pluginName + ": Mouse up, cursor position: pos: '" + pos + "'.");
     };
 
     var mouseClick = function(e) {
@@ -620,7 +641,7 @@
     var keyDown = function(e) {
         if (!keysDown[e.keyCode]) { // do not repeat the debug output
             keysDown[e.keyCode] = true;
-            debug(pluginName + ": Key down.");
+//            debug(pluginName + ": Key down.");
         }
 
         if (e.ctrlKey) {
@@ -629,6 +650,19 @@
 
         if (e.shiftKey) {
             shiftKey = e.shiftKey;
+        }
+
+        if (settings.logKeys) {
+            var pos = $(e.target).getCursorPositionContenteditable();
+            debug(pluginName + ": Key down, cursor position: pos: '" + pos + "'.");
+
+            var altKey = false;
+            if (e.altKey) {
+                altKey = e.altKey;
+            }
+
+            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.KEY_DOWN, e.target,
+                pos, e.which, $.fn.keyCodeToKey(e.which), shiftKey, ctrlKey, altKey));
         }
     };
 
@@ -649,11 +683,24 @@
             logSelectionEvent(e.target);
             shiftKey = false;
         }
+
+        if (settings.logKeys) {
+            var pos = $(e.target).getCursorPositionContenteditable();
+            debug(pluginName + ": Key up, cursor position: pos: '" + pos + "'.");
+
+            var altKey = false;
+            if (e.altKey) {
+                altKey = e.altKey;
+            }
+
+            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.KEY_UP, e.target,
+                pos, e.which, $.fn.keyCodeToKey(e.which), shiftKey, ctrlKey, altKey));
+        }
     };
 
     var contentBeforeCut = null;
     var beforeCut = function(e) {  // TODO how about CTRL+C or CTRL+V?
-        debug(pluginName + ": Cut.");
+//        debug(pluginName + ": Cut.");
 
         if (e.target.hasAttribute("contenteditable")) {
             contentBeforeCut = $(e.target).text();
@@ -664,13 +711,16 @@
     };
 
     var beforeCopy = function(e) {  // TODO how about CTRL+X or CTRL+V?
-        debug(pluginName + ": Copy.");
+//        debug(pluginName + ": Copy.");
         // TODO get selected/copied text
     };
 
+    var pasted = false;
     var contentBeforePaste = null;
     var beforePaste = function(e) {  // TODO how about CTRL+X or CTRL+C?
-        debug(pluginName + ": Paste.");
+//        debug(pluginName + ": Paste.");
+
+        pasted = true;
 
         if (e.target.hasAttribute("contenteditable")) {
             contentBeforePaste = $(e.target).text();
@@ -682,7 +732,6 @@
 
     // called on 'input'
     var textChanged = function(e) {
-      console.log("Text changed");
 
         if ($.browser.msie && e.originalEvent.srcElement) {
             debug(pluginName + ": Ignoring programmatic change (IE 'DOMSubtreeModified' workaround).");
@@ -694,28 +743,26 @@
         // calculate diff and update field content to the new value
         if (e.target.hasAttribute("contenteditable")) {
 
-           // var pos = $(this).getCaretPos();
-          
-            // sanitize if needed 
-            if (settings.doSanitize) {
-                $(e.target).sanitizeHTML();
+            // sanitize if needed
+            if (settings.doSanitize && pasted) {
+                if (settings.logItp) {
+//                    $(e.target).sanitizeHTML(false);
+                }
+                else {
+                    $(e.target).sanitizeHTML(true);
+                }
             }
-//             else {
-//                 $(e.target).text($('<div/>').text($(e.target).text()).text());
-//             }
 
             if (getFieldContents(e.target) != $(e.target).text()) {
-              changes = $.fn.getChanges( getFieldContents(e.target), $(e.target).text() );
-              console.log('changes', changes, getFieldContents(e.target) === $(e.target).text() );
-            debug(pluginName + ": Text changed: "
-                + "\n\told text: '" + getFieldContents(e.target) + "', "
-                + "\n\tnew text: '" + $(e.target).text() + "', "
-                + "\n\tdiff: (cursorPosition: '" + changes.cursorPosition + "', deleted: '" + changes.deleted
-                    + "', inserted: '" + changes.inserted + "').");
-              setFieldContents(e.target, $(e.target).text());
-              /*if (pos > -1) {
-                $(this).setCursorPositionContenteditable(pos + changes.inserted.length);
-              }*/
+                changes = $.fn.getChanges( getFieldContents(e.target), $(e.target).text() );
+
+                debug(pluginName + ": Text changed: "
+                    + "\n\told text: '" + getFieldContents(e.target) + "', "
+                    + "\n\tnew text: '" + $(e.target).text() + "', "
+                    + "\n\tdiff: (cursorPosition: '" + changes.cursorPosition + "', deleted: '" + changes.deleted
+                        + "', inserted: '" + changes.inserted + "').");
+
+                setFieldContents(e.target, $(e.target).text());
             }
         }
         else {
@@ -728,12 +775,27 @@
 //                    + "', inserted: '" + changes.inserted + "').");
             setFieldContents(e.target, $(e.target).val());
         }
-        
+
         // write log event if changes detected
         if (changes) {
-            debug(pluginName + ": Text changed.");
+//            debug(pluginName + ": Text changed.");
             storeLogEvent(logEventFactory.newLogEvent(logEventFactory.TEXT, e.target,
                 changes.cursorPosition, changes.deleted, changes.inserted));
+
+            // (re-)set cursor position (because of sanitize)
+            if (settings.doSanitize && pasted) {
+                pasted = false;
+                if (settings.logItp) {
+//                    var pos = changes.cursorPosition + changes.inserted.length;
+//                    debug(pluginName + ": Re-setting cursor position: '" + pos + "'.");
+//                    $(e.target).setCursorPositionContenteditable(pos);
+                }
+                else {
+                    var pos = changes.cursorPosition + changes.inserted.length;
+                    debug(pluginName + ": Re-setting cursor position: '" + pos + "'.");
+                    $(e.target).setCursorPositionContenteditable(pos);
+                }
+            }
         }
         else {
             debug(pluginName + ": Text changed: No changes detected.");
@@ -846,49 +908,65 @@
 //            }
 //        }
     };
-    
+
+    // store translationChange event
     var itp = function(e, data) {
-      var t;
-      switch (data.type) {
-        case "decode":
-          t = logEventFactory.DECODE;
-          break;
-        case "alignments":
-          t = logEventFactory.ALIGNMENTS;
-          break;
-        case "suffixchange":
-          t = logEventFactory.SUFFIX_CHANGE;
-          break;
-        case "confidences":
-            t = logEventFactory.CONFIDENCES;
-          break;
-        case "tokens":
-          t = logEventFactory.TOKENS;
-          break;
-        /*default:
-          alert("Unknown event");*/
-      }
-      
-      debug(pluginName + ": ITP event: '" + t + "'.");
-      
-      storeLogEvent(logEventFactory.newLogEvent(t, data.element,
-        data.data));
-      
-      textChanged({
-          target: data.element
-      });     
-    };
-    
-    var alignmentShown = function(e, data) {
-      debug(pluginName + ": Alignment shown.");
-      storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SHOW_ALIGNMENT, data));
+        var t;
+        switch (data.type) {
+            case "decode":
+                t = logEventFactory.DECODE;
+                storeLogEvent(logEventFactory.newLogEvent(t, data.element, data.data));
+
+                textChanged({
+                    target: data.element
+                });
+                break;
+            case "alignments":
+                t = logEventFactory.ALIGNMENTS;
+
+                storeLogEvent(logEventFactory.newLogEvent(t, data.element, data.data));
+                break;
+            case "suffixchange":
+                t = logEventFactory.SUFFIX_CHANGE;
+                storeLogEvent(logEventFactory.newLogEvent(t, data.element, data.data));
+
+                textChanged({
+                    target: data.element
+                });
+                break;
+            case "confidences":
+                t = logEventFactory.CONFIDENCES;
+                storeLogEvent(logEventFactory.newLogEvent(t, data.element, data.data));
+                break;
+            case "tokens":
+                t = logEventFactory.TOKENS;
+                storeLogEvent(logEventFactory.newLogEvent(t, data.element, data.data));
+                break;
+        }
+
+        debug(pluginName + ": ITP event: '" + t + "'.");
     };
 
-    var alignmentHidden = function(e, data) {
-      debug(pluginName + ": Alignment hidden.");
-      storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HIDE_ALIGNMENT, data));
-    };    
-    
+    var alignmentShownByMouse = function(e, data) {
+//      debug(pluginName + ": Alignment shown by mouse.");
+      storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SHOW_ALIGNMENT_BY_MOUSE, data));
+    };
+
+    var alignmentHiddenByMouse = function(e, data) {
+//      debug(pluginName + ": Alignment hidden by mouse.");
+      storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HIDE_ALIGNMENT_BY_MOUSE, data));
+    };
+
+    var alignmentShownByKey = function(e, data) {
+      debug(pluginName + ": Alignment shown by key.");
+      storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SHOW_ALIGNMENT_BY_KEY, data.element, data.data));
+    };
+
+    var alignmentHiddenByKey = function(e, data) {
+      debug(pluginName + ": Alignment hidden by key.");
+      storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HIDE_ALIGNMENT_BY_KEY, data.element, data.data));
+    };
+
     // Just to now that everything has been parsed...
     debug(pluginName + ": Plugin codebase loaded.");
 

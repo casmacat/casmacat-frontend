@@ -25,26 +25,32 @@ class loadLogChunkController extends ajaxcontroller {
     }
 
     public function doAction() {
+        try {
+            log::doLog("CASMACAT: loadLogChunkController->doAction(): Loading logListChunk...");
 
-        log::doLog("CASMACAT: loadLogChunkController->doAction(): Loading logListChunk...");
+            $logListChunk = fetchLogChunk($this->jobId, $this->fileId, $this->startOffset, $this->endOffset);
 
-        $logListChunk = fetchLogChunk($this->jobId, $this->fileId, $this->startOffset, $this->endOffset);
+            if ($logListChunk < 0) {
+                $this->result["code"] = -1;
+                $this->result["errors"][] = array("code" => -1, "message" => "Error loading logListChunk");
+            }
+            else if (count($logListChunk) == 0) {
+                $this->result["code"] = 1;
+                $this->result["data"] = "No more data";
+            }
+            else {
+                $this->result["code"] = 0;
+    //            $this->result["data"]["logListChunk"] = json_encode($logListChunk);
+                $this->result["data"]["logListChunk"] = $logListChunk;
+            }
 
-        if ($logListChunk < 0) {
+            log::doLog("CASMACAT: loadLogChunkController->doAction(): Loading of logListChunk finished, " . count($logListChunk) . " events loaded.");
+        }
+        catch (Exception $e) {
             $this->result["code"] = -1;
-            $this->result["errors"][] = array("code" => -1, "message" => "Error loading logListChunk");
+            $this->result["errors"][] = array("code" => -1, "message" => "Unexcpected error: '" . $e->GetMessage() . "'");
+            log::doLog("CASMACAT: loadLogChunkController->doAction(): Unexcpected error: '" . $e->GetMessage() . "'");
         }
-        else if (count($logListChunk) == 0) {
-            $this->result["code"] = 1;
-            $this->result["data"] = "No more data";
-        }
-        else {
-            $this->result["code"] = 0;
-//            $this->result["data"]["logListChunk"] = json_encode($logListChunk);
-            $this->result["data"]["logListChunk"] = $logListChunk;
-        }
-
-        log::doLog("CASMACAT: loadLogChunkController->doAction(): Processing of logListChunk finished.");
     }
 }
 

@@ -1,86 +1,85 @@
 // Dependencies: jquery.hotkeys
+require("jquery.hotkeys");
 
 (function(module, global){
 
   function Memento(elem, options) {
     
     // Private -----------------------------------------------------------------
-    var stack = [], pos = 0;
+    var stack = [], pos = -1;
     
     function saveState(obj) {
       stack.push(obj);
-      //pos = stack.length - 1;
+      pos++;
     };
     
     function resetState() {
       stack = [];
-      pos   = 0;
+      pos   = -1;
     };
         
-    function onMoveUp(e) {
+    function onRedo(e) {
+      if (!stack.length) return;
       pos++;
-      if (pos > stack.length) {
-        pos = stack.length;
+      if (pos > stack.length - 1) {
+        pos = stack.length - 1;
+        return;
       }
-      dump("up");
-      if (pos >= 0 && stack.length > 0) {
-        self.change(stack[pos]);
-      }
+      self.change(stack[pos]);
     };
     
-    function onMoveDown(e) {
+    function onUndo(e) {
+      if (!stack.length) return;
       pos--;
       if (pos < 0) {
         pos = 0;
-      }
-      dump("down");
-      if (pos >= 0 && stack.length > 0) {
-        self.change(stack[pos]);
-      }
+        return;
+      }            
+      self.change(stack[pos]);
     };
 
-    function dump(fn) {
-      //console.log( "["+self.id+"]", fn, "| size:", stack.length, "pos:", pos );
-    }
-
     var self = this;
-    
     
     // Public API --------------------------------------------------------------
     self.id = "Memento";
     self.version = "0.1";
     
     self.addElement = function(elem) {
+      stack.length = pos + 1;
       saveState(elem);
-      dump("add");
     };
-    
+
     self.invalidate = function() {
       resetState();
-      dump("invalidate");
     };
-            
+
+    self.getState = function() {
+      return stack[pos];
+    };
+    
     // Mandatory intialization method ------------------------------------------
     self.init = function(elem, options) {
-      // Wrap original so that we don't lose track of inner states
-      var wrapper = $(elem).wrap('<div class="_'+self.id+'"/>');
-      wrapper.bind('change', function(e){
-        if ($(this).data('memento')) {
-        }
-      }).bind('keydown', 'Ctrl+z', function(e){
-        self.undo(e);
+      $(elem).bind('keydown', 'Ctrl+z', function(e){
+        onUndo(e);
       }).bind('keydown', 'Ctrl+y', function(e){ 
-        self.redo(e);
+        onRedo(e);
       });
+      // Attach other listeners, if any
+      for (var opt in options) {
+        if (options.hasOwnProperty(opt) && typeof options[opt] !== 'undefined') {
+          self[opt] = options[opt];
+        }
+      }
       console.log("Loaded", self);
+      // First run, if any
+      self.start();
     };
     
     // Listeners ---------------------------------------------------------------
-    self.undo = function(data) {
-      return data;
+    self.start = function() {
     };
-
-    self.redo = function(data) {
+    
+    self.change = function(data) {
       return data;
     };
         

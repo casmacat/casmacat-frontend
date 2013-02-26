@@ -1,7 +1,179 @@
 <?php
+include_once INIT::$MODEL_ROOT . "/LogEvent.class.php";
+
 /**
  * Contains all CASMACAT related database queries.
  */
+
+function deleteHeaderRow($id) {
+
+    $db = Database::obtain();
+    $db->query("DELETE FROM log_event_header WHERE id = '$id'");
+
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: deleteHeaderRow(): " . print_r($err, true));
+        throw new Exception("CASMACAT: deleteHeaderRow(): " . print_r($err, true));
+//        return $errno * -1;
+    }
+
+    return true;
+}
+
+function deleteEventRow($headerId, $table) {
+
+    $db = Database::obtain();
+    $db->query("DELETE FROM $table WHERE header_id = '$headerId'");
+
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: deleteEventRow(): " . print_r($err, true));
+        throw new Exception("CASMACAT: deleteEventRow(): " . print_r($err, true));
+//        return $errno * -1;
+    }
+
+    return true;
+}
+
+/**
+ * Loads a log chunk from the database.
+ *
+ */
+function resetDocument($jobId, $fileId) {
+
+    $db = Database::obtain();
+    $queryId = $db->query("SELECT * FROM log_event_header h WHERE h.job_id = '$jobId' AND h.file_id = '$fileId'"
+            . " ORDER BY h.time ASC");
+
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: resetDocument(): " . print_r($err, true));
+        throw new Exception("CASMACAT: resetDocument(): " . print_r($err, true));
+//        return $errno * -1;
+    }
+
+//    log::doLog("CASMACAT: resetDocument(): Event headers found: '$db->affected_rows'");
+
+    $headerRow = null;
+    while ( ($headerRow = $db->fetch($queryId)) != false ) {
+
+        $headerRowAsObject = snakeToCamel($headerRow);
+
+//        log::doLog("CASMACAT: resetDocument(): Next headerRow: " . print_r($headerRowAsObject, true));
+
+        $logEvent = new LogEvent($jobId, $fileId, $headerRowAsObject);
+//        log::doLog("CASMACAT: resetDocument(): Processing header id: '$logEvent->id'");
+
+        switch ($logEvent->type) {
+            case LogEvent::START_SESSION:
+                break;
+            case LogEvent::STOP_SESSION:
+                break;
+
+            case LogEvent::RESIZE:
+                deleteEventRow($logEvent->id, "resize_event");
+                break;
+            case LogEvent::TEXT:
+                deleteEventRow($logEvent->id, "text_event");
+                break;
+            case LogEvent::SELECTION:
+                deleteEventRow($logEvent->id, "selection_event");
+                break;
+            case LogEvent::SCROLL:
+                deleteEventRow($logEvent->id, "scroll_event");
+                break;
+            case LogEvent::GAZE:
+                // TODO
+                break;
+            case LogEvent::FIX:
+                // TODO
+                break;
+
+            case LogEvent::DRAFTED:
+            case LogEvent::TRANSLATED:
+            case LogEvent::APPROVED:
+            case LogEvent::REJECTED:
+                break;
+
+            case LogEvent::VIEWPORT_TO_SEGMENT:
+                break;
+            case LogEvent::SOURCE_COPIED:
+                break;
+            case LogEvent::SEGMENT_OPENED:
+                break;
+            case LogEvent::SEGMENT_CLOSED:
+                break;
+
+            case LogEvent::LOADING_SUGGESTIONS:
+                break;
+            case LogEvent::SUGGESTIONS_LOADED:
+                deleteEventRow($logEvent->id, "suggestions_loaded_event");
+                break;
+            case LogEvent::SUGGESTION_CHOSEN:
+                deleteEventRow($logEvent->id, "suggestion_chosen_event");
+                break;
+
+            case LogEvent::DECODE:
+            case LogEvent::ALIGNMENTS:
+            case LogEvent::SUFFIX_CHANGE:
+            case LogEvent::CONFIDENCES:
+            case LogEvent::TOKENS:
+                deleteEventRow($logEvent->id, "itp_event");
+                break;
+            case LogEvent::SHOW_ALIGNMENT_BY_MOUSE:
+            case LogEvent::HIDE_ALIGNMENT_BY_MOUSE:
+            case LogEvent::SHOW_ALIGNMENT_BY_KEY:
+            case LogEvent::HIDE_ALIGNMENT_BY_KEY:
+              break;
+
+            case LogEvent::KEY_DOWN:
+            case LogEvent::KEY_UP:
+                deleteEventRow($logEvent->id, "key_event");
+                break;
+
+            default:
+                log::doLog("CASMACAT: resetDocument(): Unknown log event type: '$logEvent->type', header id: '$logEvent->id'");
+                throw new Exception("CASMACAT: resetDocument(): Unknown log event type: '$logEvent->type', header id: '$logEvent->id'");
+//                return -1;
+        }
+        deleteHeaderRow($logEvent->id);
+
+//        log::doLog("CASMACAT: resetDocument(): Deleted: '" . $logEvent->toString() . "'");
+    }
+
+    // reset last_opened_segment
+//    $queryId = $db->query("SELECT id FROM segments WHERE id_file = '$fileId' ORDER BY id ASC LIMIT 0, 1");
+//
+//    $err = $db->get_error();
+//    $errno = $err["error_code"];
+//    if ($errno != 0) {
+//        log::doLog("CASMACAT: resetDocument(): " . print_r($err, true));
+//        return $errno * -1;
+//    }
+
+    $db->query("UPDATE jobs SET last_opened_segment = '' WHERE id = '$jobId'");
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: resetDocument(): " . print_r($err, true));
+        throw new Exception("CASMACAT: resetDocument(): " . print_r($err, true));
+//        return $errno * -1;
+    }
+
+    $db->query("DELETE FROM segment_translations WHERE id_job = '$jobId'");
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: resetDocument(): " . print_r($err, true));
+        throw new Exception("CASMACAT: resetDocument(): " . print_r($err, true));
+//        return $errno * -1;
+    }
+
+    return true;
+}
 
 function fetchEndTime($jobId, $fileId) {
 
@@ -13,10 +185,11 @@ function fetchEndTime($jobId, $fileId) {
     $errno = $err["error_code"];
     if ($errno != 0) {
         log::doLog("CASMACAT: fetchEndTime(): " . print_r($err, true));
-        return $errno * -1;
+        throw new Exception("CASMACAT: fetchEndTime(): " . print_r($err, true));
+//        return $errno * -1;
     }
 
-    log::doLog("CASMACAT: fetchEndTime(): Event headers found: '$db->affected_rows' ");
+//    log::doLog("CASMACAT: fetchEndTime(): Event headers found: '$db->affected_rows' ");
 
     $row = $db->fetch($queryId);
     return $row["time"];
@@ -28,7 +201,7 @@ function fetchEndTime($jobId, $fileId) {
  */
 function fetchLogChunk($jobId, $fileId, $startOffset, $endOffset) {
 
-    include_once INIT::$MODEL_ROOT . "/LogEvent.class.php";
+//    include_once INIT::$MODEL_ROOT . "/LogEvent.class.php";
 
     $db = Database::obtain();
     $queryId = $db->query("SELECT * FROM log_event_header h WHERE h.job_id = '$jobId' AND h.file_id = '$fileId'"
@@ -37,11 +210,12 @@ function fetchLogChunk($jobId, $fileId, $startOffset, $endOffset) {
     $err = $db->get_error();
     $errno = $err["error_code"];
     if ($errno != 0) {
-        log::doLog("CASMACAT: loadLogChunk(): " . print_r($err, true));
-        return $errno * -1;
+        log::doLog("CASMACAT: fetchLogChunk(): " . print_r($err, true));
+        throw new Exception("CASMACAT: fetchLogChunk(): " . print_r($err, true));
+//        return $errno * -1;
     }
 
-    log::doLog("CASMACAT: fetchLogChunk(): Event headers found: '$db->affected_rows'");
+//    log::doLog("CASMACAT: fetchLogChunk(): Event headers found: '$db->affected_rows'");
 
     $logListChunk = array();
     $headerRow = null;
@@ -49,10 +223,10 @@ function fetchLogChunk($jobId, $fileId, $startOffset, $endOffset) {
 
         $headerRowAsObject = snakeToCamel($headerRow);
 
-        log::doLog("CASMACAT: fetchLogChunk(): Next headerRow: " . print_r($headerRowAsObject, true));
+//        log::doLog("CASMACAT: fetchLogChunk(): Next headerRow: " . print_r($headerRowAsObject, true));
 
         $logEvent = new LogEvent($jobId, $fileId, $headerRowAsObject);
-        log::doLog("CASMACAT: fetchLogChunk(): Processing header id: '$logEvent->id'");
+//        log::doLog("CASMACAT: fetchLogChunk(): Processing header id: '$logEvent->id'");
 
         switch ($logEvent->type) {
             case LogEvent::START_SESSION:
@@ -114,21 +288,29 @@ function fetchLogChunk($jobId, $fileId, $startOffset, $endOffset) {
             case LogEvent::SUFFIX_CHANGE:
             case LogEvent::CONFIDENCES:
             case LogEvent::TOKENS:
+            case LogEvent::SHOW_ALIGNMENT_BY_KEY:
+            case LogEvent::HIDE_ALIGNMENT_BY_KEY:
                 $eventRow = fetchEventRow($logEvent->id, "itp_event");
                 $logEvent->itpData($eventRow);
-                break;                
-            case LogEvent::SHOW_ALIGNMENT:
-            case LogEvent::HIDE_ALIGNMENT:
+                break;
+            case LogEvent::SHOW_ALIGNMENT_BY_MOUSE:
+            case LogEvent::HIDE_ALIGNMENT_BY_MOUSE:
               break;
 
+            case LogEvent::KEY_DOWN:
+            case LogEvent::KEY_UP:
+                $eventRow = fetchEventRow($logEvent->id, "key_event");
+                $logEvent->keyData($eventRow);
+                break;
 
             default:
                 log::doLog("CASMACAT: fetchLogChunk(): Unknown log event type: '$logEvent->type', header id: '$logEvent->id'");
-                return -1;
+                throw new Exception("CASMACAT: fetchLogChunk(): Unknown log event type: '$logEvent->type', header id: '$logEvent->id'");
+//                return -1;
         }
 
         $logListChunk[] = $logEvent;
-        log::doLog("CASMACAT: fetchLogChunk(): Loaded: '" . $logEvent->toString() . "'");
+//        log::doLog("CASMACAT: fetchLogChunk(): Loaded: '" . $logEvent->toString() . "'");
     }
 
     return $logListChunk;
@@ -147,7 +329,8 @@ function fetchEventRow($headerId, $table) {
     $errno = $err["error_code"];
     if ($errno != 0) {
         log::doLog("CASMACAT: fetchEventRow(): " . print_r($err, true));
-        return $errno * -1;
+        throw new Exception("CASMACAT: fetchEventRow(): " . print_r($err, true));
+//        return $errno * -1;
     }
 
     $row = $db->fetch($queryId);
@@ -177,6 +360,35 @@ function snakeToCamel($row) {
 }
 
 /**
+ * Inserts an entry into the key_event and log_event_header table.
+ *
+ */
+function insertKeyEvent($event) {
+    $headerId = insertLogEventHeader($event);
+
+    $data = array();
+    $data["id"] = "NULL";
+    $data["header_id"] = $headerId;
+    $data["cursor_position"] = $event->cursorPosition;
+    $data["which"] = $event->which;
+    $data["character"] = $event->character;
+    $data["shift"] = $event->shift;
+    $data["ctrl"] = $event->ctrl;
+    $data["alt"] = $event->alt;
+
+    $db = Database::obtain();
+    $db->insert("key_event", $data);
+
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: insertKeyEvent(): " . print_r($err, true));
+        throw new Exception("CASMACAT: insertKeyEvent(): " . print_r($err, true));
+//        return $errno * -1;
+    }
+}
+
+/**
  * Inserts an entry into the itp_event and log_event_header table.
  *
  */
@@ -195,7 +407,8 @@ function insertItpEvent($event) {
     $errno = $err["error_code"];
     if ($errno != 0) {
         log::doLog("CASMACAT: insertItpEvent(): " . print_r($err, true));
-        return $errno * -1;
+        throw new Exception("CASMACAT: insertItpEvent(): " . print_r($err, true));
+//        return $errno * -1;
     }
 }
 
@@ -218,7 +431,8 @@ function insertSuggestionsLoadedEvent($event) {
     $errno = $err["error_code"];
     if ($errno != 0) {
         log::doLog("CASMACAT: insertSuggestionsLoadedEvent(): " . print_r($err, true));
-        return $errno * -1;
+        throw new Exception("CASMACAT: insertSuggestionsLoadedEvent(): " . print_r($err, true));
+//        return $errno * -1;
     }
 }
 
@@ -242,7 +456,8 @@ function insertSuggestionChosenEvent($event) {
     $errno = $err["error_code"];
     if ($errno != 0) {
         log::doLog("CASMACAT: insertSuggestionChosenEvent(): " . print_r($err, true));
-        return $errno * -1;
+        throw new Exception("CASMACAT: insertSuggestionChosenEvent(): " . print_r($err, true));
+//        return $errno * -1;
     }
 }
 
@@ -266,7 +481,8 @@ function insertResizeEvent($event) {
     $errno = $err["error_code"];
     if ($errno != 0) {
         log::doLog("CASMACAT: insertResizeEvent(): " . print_r($err, true));
-        return $errno * -1;
+        throw new Exception("CASMACAT: insertResizeEvent(): " . print_r($err, true));
+//        return $errno * -1;
     }
 }
 
@@ -295,7 +511,8 @@ function insertSelectionEvent($event) {
     $errno = $err["error_code"];
     if ($errno != 0) {
         log::doLog("CASMACAT: insertSelectionEvent(): " . print_r($err, true));
-        return $errno * -1;
+        throw new Exception("CASMACAT: insertSelectionEvent(): " . print_r($err, true));
+//        return $errno * -1;
     }
 }
 
@@ -318,7 +535,8 @@ function insertScrollEvent($event) {
     $errno = $err["error_code"];
     if ($errno != 0) {
         log::doLog("CASMACAT: insertScrollEvent(): " . print_r($err, true));
-        return $errno * -1;
+        throw new Exception("CASMACAT: insertScrollEvent(): " . print_r($err, true));
+//        return $errno * -1;
     }
 }
 
@@ -343,7 +561,8 @@ function insertTextEvent($event) {
     $errno = $err["error_code"];
     if ($errno != 0) {
         log::doLog("CASMACAT: insertTextEvent(): " . print_r($err, true));
-        return $errno * -1;
+        throw new Exception("CASMACAT: insertTextEvent(): " . print_r($err, true));
+//        return $errno * -1;
     }
 }
 
@@ -368,35 +587,43 @@ function insertLogEventHeader($eventHeader) {
     $errno = $err["error_code"];
     if ($errno != 0) {
         log::doLog("CASMACAT: insertLogEventHeader(): " . print_r($err, true));
-        return $errno * -1;
+        throw new Exception("CASMACAT: insertLogEventHeader(): " . print_r($err, true));
+//        return $errno * -1;
     }
 
-    log::doLog("CASMACAT: insertLogEventHeader(): lastInsertId: '$lastInsertId'");
+//    log::doLog("CASMACAT: insertLogEventHeader(): lastInsertId: '$lastInsertId'");
     return $lastInsertId;
 }
 
-// just copy+paste and a bit editing
-function getSegmentsInfoWithoutTranslation($jid,$password, $start = 0, $step = 200) {
-    if ($start < 0){
-        $start = 0;
+// just copy+paste and a bit of editing
+function getMoreSegmentsWithoutTranslation($jid, $password, $step = 50, $ref_segment, $where = 'after') {
+    switch ($where) {
+        case 'after':
+            $ref_point = $ref_segment;
+            break;
+        case 'before':
+            $ref_point = $ref_segment - ($step + 1);
+            break;
+        case 'center':
+            $ref_point = ((float) $ref_segment) - 100;
+            break;
     }
 
-    if (empty($step)) {
-        $step = 200;
-    }
+    $query = "select j.id as jid, j.id_project as pid,j.source,j.target, j.last_opened_segment, j.id_translator as tid,
+                p.id_customer as cid, j.id_translator as tid,
+                p.name as pname, p.create_date , fj.id_file, fj.id_segment_start, fj.id_segment_end,
+                f.filename, f.mime_type, s.id as sid, s.segment, s.raw_word_count, s.internal_id,
+                'NEW' as status, IF(st.time_to_edit is NULL,0,st.time_to_edit) as time_to_edit, s.xliff_ext_prec_tags,s.xliff_ext_succ_tags
 
-    $query = "select j.id as jid, j.id_project as pid, j.source, j.target, j.last_opened_segment, j.id_translator as tid,
-        p.id_customer as cid, j.id_translator as tid, p.name as pname, p.create_date, fj.id_file, fj.id_segment_start,
-        fj.id_segment_end, f.filename, f.mime_type, s.id as sid, s.segment, s.raw_word_count, s.internal_id,
-        s.xliff_mrk_id as mrk_id, s.xliff_ext_prec_tags as prev_tags, 'NEW' as status, st.time_to_edit
-        from jobs j
-        inner join projects p on p.id = j.id_project
-        inner join files_job fj on fj.id_job = j.id
-        inner join files f on f.id = fj.id_file
-        inner join segments s on s.id_file = f.id
-        left join segment_translations st on st.id_segment = s.id and st.id_job = j.id
-        where j.id = '$jid' and j.password = '$password'
-        limit $start, $step";
+                from jobs j
+                inner join projects p on p.id=j.id_project
+                inner join files_job fj on fj.id_job=j.id
+                inner join files f on f.id=fj.id_file
+                inner join segments s on s.id_file=f.id
+                left join segment_translations st on st.id_segment=s.id and st.id_job=j.id
+                where j.id=$jid and j.password='$password' and s.id > $ref_point and s.show_in_cattool=1
+                limit 0,$step
+             ";
 
     $db = Database::obtain();
     $results = $db->fetch_array($query);

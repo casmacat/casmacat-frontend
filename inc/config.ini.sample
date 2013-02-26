@@ -16,6 +16,7 @@ database = "matecat_sandbox"
 [debug]
 displayerrors  = 0
 errorreporting = "E_ALL"
+debug = "true"
 
 [log]
 directory = "logs"    ; relative to root path
@@ -28,4 +29,5 @@ matchthreshold = 50
 [casmacat]
 catserver = "my.cat.server:8080"
 htrserver = "my.htr.server:8080"
+itpenabled = "true"
 

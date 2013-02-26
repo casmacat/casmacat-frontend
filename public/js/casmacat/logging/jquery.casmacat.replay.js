@@ -53,6 +53,7 @@
             blockingInputZIndex: 10000,  // the CSS z-index of the div that blocks user input
             tickInterval: 200,       // specifies the interval to use for ticking (used to refresh time in UI)
             itpEnabled: true,
+            isLive: false          // experimental
         },
         settings = {},  // holds the merge of the defaults and the options provided, actually the instance's settings
 
@@ -78,9 +79,7 @@
         vsReady = false,        // indicates the virtual screen (iframe) is ready for operation
         vsDocument = null,      // the native document object of the virtual screen
         vsWindow = null,        // the native window object of the virtual screen
-        vsContents = null,      // jQuery's 'contents()' of the virtual screen
-
-        isLive = true          // experimental
+        vsContents = null      // jQuery's 'contents()' of the virtual screen
     ; // var
 
     /*################################################################################################################*/
@@ -242,7 +241,7 @@
                 vsContents.find("textarea").each(function(index, value) {
                     $(this).prop("disabled", "");
                 });
-                vsContents.find("*[contenteditable=false]").each(function(index, value) {
+                vsContents.find(".editarea").each(function(index, value) {
                     $(this).prop("contenteditable", "true");
                 });
                 updateUIStatus("Input enabled.");
@@ -255,7 +254,7 @@
                 vsContents.find("textarea").each(function(index, value) {
                     $(this).prop("disabled", "disabled");
                 });
-                vsContents.find("*[contenteditable=true]").each(function(index, value) {
+                vsContents.find(".editarea").each(function(index, value) {
                     $(this).prop("contenteditable", "false");
                 });
                 updateUIStatus("Input disabled.");
@@ -271,8 +270,9 @@
                 speed = newSpeed;
                 nextTick = nextTick / speed;
                 if (speed != DEFAULT_SPEED) {
-                    $.cookie("speed", speed, { path: "/replay", expires: new Date(new Date().getTime + 604800000) });   // one week
+                    $.cookie("speed", speed, { expires: new Date(new Date().getTime + 604800000) });   // one week
                 }
+
                 debug(pluginName + ": Speed changed: '" + speed + "'.");
                 updateUIStatus("Speed changed.");
             }
@@ -313,7 +313,7 @@
             vsDocument = $("#virtualScreen")[0].contentDocument;
             vsWindow = $("#virtualScreen")[0].contentWindow;
             vsContents = $("#virtualScreen").contents();
-            settings.itpEnabled = new Boolean(vsWindow.config.enable_itp);
+//            settings.itpEnabled = new Boolean(vsWindow.config.enable_itp);
 
             vsReady = true;
             if (firstChunkLoaded) {
@@ -547,12 +547,13 @@
             vsContents.find("textarea").each(function(index, value) {
                 $(this).prop("disabled", "disabled");
             });
-            vsContents.find("*[contenteditable=true]").each(function(index, value) {
+            vsContents.find(".editarea").each(function(index, value) {
                 $(this).prop("contenteditable", "false");
             });
         }
         $("#toggleInput").prop("disabled", "disabled");
 
+        // TODO reset UI fields, scrollbar, etc. when 'reload' is false'
         if (reload) {
             speed = DEFAULT_SPEED;
             $("#selectSpeed").val(speed);
@@ -572,6 +573,13 @@
             debug(pluginName + ": Reloading 'virtualScreen'...");
             vsReady = false;
             vsWindow.location.reload(true);
+        }
+        else {
+            vsContents.scrollTop(0);
+            vsContents.find(".editarea").each(function(index, value) {
+                $(this).prop("contenteditable", "false");
+                $(this).html("");
+            });
         }
     };
 
@@ -597,17 +605,20 @@
         $("#blockInput").height($(document).height());
     };
 
-    var itpCall = false;
-    var lw, lh; // width and height from last resize
+    var itpDecodeCall = false;
+    var itpSuffixChangeCall = false;
+    var lw, lh; // TODO width and height from last resize, this must become an array
     var replayEvent = function(event) {
+try {
 //        debug(pluginName + ": Replayed event dump:");
 //        debug(event);
-        debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+//        debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
 
         // TODO currently only elementId mode is used here. support for hybrid mode should be added as soon as possible!
         // segment is a jQuery object
         var element = vsContents.find("#" + event.elementId);
 //        var segment = vsContents.find("#" + event.elementId);
+        var itpData = null;
 
         switch (event.type) {
             case logEventFactory.START_SESSION:
@@ -618,21 +629,22 @@
                 break;
 
             case logEventFactory.TEXT:
+debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+debug(event);
+                if (itpDecodeCall) {
+                    debug(pluginName + ": Skipping text changed event because of itpDecodeCall...");
+                    itpDecodeCall = false;
+                    break;
+                }
+                else if (itpSuffixChangeCall) {
+                    debug(pluginName + ": Skipping text changed event because of itpSuffixChangeCall...");
+                    itpSuffixChangeCall = false;
+                    break;
+                }
 
-                if (itpCall) {
-                  itpCall = false;
-                  break;
-                }
-              
-                var textNow = null;
-                if (element.is("input:text") || element.is("textarea")) {
-                    textNow = element.val();
-                }
-                else {
-                    textNow = element.text();
-                }
-
+                var textNow = element.text();
                 var textNew = null;
+
                 if (textNow.substr(event.cursorPosition, event.deleted.length) == event.deleted) {
                     var prefix = textNow.substr(0, event.cursorPosition);
                     var postfixPos = parseInt(event.cursorPosition) + parseInt(event.deleted.length);
@@ -644,52 +656,44 @@
                 }
 
                 if (settings.itpEnabled) {
-                  console.log("setTargetText", textNew);
-                  vsWindow.$("#" + event.elementId).editableItp('setTargetText', textNew);                  
-                  break;
+                    vsWindow.$("#" + event.elementId).editableItp("setTargetText", textNew);
+                    setCursorPos(event.elementId, parseInt(event.cursorPosition) + parseInt(event.inserted.length));
+                    break;
                 }
-                
-                if (element.is("input:text") || element.is("textarea")) {
-                    element.val(textNew);
-                }
-                else {
-                    element.text(textNew);
-                }
-                
+
+                element.text(textNew);
+                setCursorPos(event.elementId, parseInt(event.cursorPosition) + parseInt(event.inserted.length));
 
                 break;
             case logEventFactory.SELECTION:
-                try {
+debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+debug(event);
 
+                try {
                     var selection = vsWindow.getSelection();
                     selection.removeAllRanges();
 
                     var range = vsDocument.createRange();
                     var selectedNow = null;
 
-                    if (element.is("input:text") || element.is("textarea")) {
+                    var startNode = $(vsDocument).resolveFromElementId(event.startNodeId, event.startNodeXPath);
+                    var endNode = $(vsDocument).resolveFromElementId(event.endNodeId, event.endNodeXPath);
 
-                        element.prop("selectionStart", event.sCursorPosition);
-                        element.prop("selectionEnd", event.eCursorPosition);
+                    var startOffset = parseInt(event.sCursorPosition);
+                    var endOffset = parseInt(event.eCursorPosition);
 
-                        selectedNow = element.val().substring(event.sCursorPosition, event.eCursorPosition);
-                    }
-                    else {
-                        var startNode = $(vsDocument).resolveFromElementId(event.startNodeId, event.startNodeXPath);
-                        var endNode = $(vsDocument).resolveFromElementId(event.endNodeId, event.endNodeXPath);
+                    range.setStart(startNode, startOffset);
+                    range.setEnd(endNode, endOffset);
 
-                        var startOffset = parseInt(event.sCursorPosition);
-                        var endOffset = parseInt(event.eCursorPosition);
-
-                        range.setStart(startNode, startOffset);
-                        range.setEnd(endNode, endOffset);
-
-                        selection.addRange(range);
-                        selectedNow = range.toString();
-                    }
+                    selection.addRange(range);
+                    selectedNow = range.toString();
 
                     if (selectedNow != event.selectedText) {
-                        throw "Selected text doesn't match stored value: selectedNow: '" + selectedNow + "', event.selectedText: '" + event.selectedText + "'";
+                        throw {
+                            msg: "Selected text doesn't match stored value",
+                            now: selectedNow,
+                            stored: event.selectedText
+                        }
                     }
                 }
                 catch (e) {
@@ -697,7 +701,7 @@
                     debug(pluginName + ": Erroneous event dump:");
                     debug(event);
 
-                    var answer = confirm("Unexpected error: '" + e + "', stack trace: '" + e.stack + "'\n\n"
+                    var answer = confirm("Unexpected error: '" + e.msg + "'\nNow: '" + e.now + "'\nStored: '" + e.stored + "'\nStack trace: '" + e.stack + "'\n\n"
                         + "This is only a text range error and it is safe to continue. But it may indicate a text change error somewhere before.\n\n"
                         + "Continue replay?");
                     if (!answer) {
@@ -754,17 +758,31 @@
                 break;
 
             case logEventFactory.SEGMENT_OPENED:
+debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+debug(event);
                 var editarea = element.find(".editarea")[0];
                 vsWindow.UI.openSegment(editarea);
+
+                debug(pluginName + ": Setting editable read-only...");
+                if ($("#blockInput").css("z-index") >= 0) {
+                    $(editarea).prop("contenteditable", false);
+                }
+                else {
+                    element.focus();
+                }
                 break;
             case logEventFactory.SEGMENT_CLOSED:
-                vsWindow.UI.closeSegment(element, true);
+debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+debug(event);
+                vsWindow.UI.closeSegment(element, false);
                 break;
 
             case logEventFactory.LOADING_SUGGESTIONS:
                 vsWindow.UI.getContribution(element);
                 break;
             case logEventFactory.SUGGESTIONS_LOADED:
+debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+debug(event);
                 var d =  {  // pseudo return value
                     data: {
                         matches: JSON.parse(event.matches)
@@ -773,58 +791,90 @@
                 vsWindow.UI.getContributionSuccess(d, element, element, 0, element);
                 break;
             case logEventFactory.SUGGESTION_CHOSEN:
+debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+debug(event);
                 if (event.which != 0) { // event.which == 0 should already been handled by getContributionSuccess()
                     vsWindow.UI.chooseSuggestion(event.which);    // should be already handled be text changed
                 }
                 break;
 
             case logEventFactory.DECODE:
-                var evData = JSON.parse(event.data);
-                vsWindow.$("#" + event.elementId).editableItp('trigger', "decodeResult", {errors: [], data: evData});
-                itpCall = true;
-                break;                
-                
+                itpData = JSON.parse(event.data);
+                vsWindow.$("#" + event.elementId).editableItp('trigger', "decodeResult", {errors: [], data: itpData});
+                itpDecodeCall = true;
+                break;
             case logEventFactory.ALIGNMENTS:
-                var evData = JSON.parse(event.data);
-                vsWindow.$("#" + event.elementId).editableItp('trigger', "getAlignmentsResult", {errors: [], data: evData});
-                break;                
-                
+                itpData = JSON.parse(event.data);
+                vsWindow.$("#" + event.elementId).editableItp('trigger', "getAlignmentsResult", {errors: [], data: itpData});
+                break;
             case logEventFactory.SUFFIX_CHANGE:
-                var evData = JSON.parse(event.data);
-                vsWindow.$("#" + event.elementId).editableItp('trigger', "setPrefixResult", {errors: [], data: evData});
-                itpCall = true;
-                break;                
-                
+                itpData = JSON.parse(event.data);
+                vsWindow.$("#" + event.elementId).editableItp('trigger', "setPrefixResult", {errors: [], data: itpData});
+                itpSuffixChangeCall = true;
+                break;
             case logEventFactory.CONFIDENCES:
-                var evData = JSON.parse(event.data);
-                vsWindow.$("#" + event.elementId).editableItp('trigger', "getConfidencesResult", {errors: [], data: evData});
-                break;                
-                
+                itpData = JSON.parse(event.data);
+                vsWindow.$("#" + event.elementId).editableItp('trigger', "getConfidencesResult", {errors: [], data: itpData});
+                break;
             case logEventFactory.TOKENS:
-                var evData = JSON.parse(event.data);
-                vsWindow.$("#" + event.elementId).editableItp('trigger', "getTokensResult", {errors: [], data: evData});
-                break;                
-
-            case logEventFactory.SHOW_ALIGNMENT:
+                itpData = JSON.parse(event.data);
+                vsWindow.$("#" + event.elementId).editableItp('trigger', "getTokensResult", {errors: [], data: itpData});
+                break;
+            case logEventFactory.SHOW_ALIGNMENT_BY_MOUSE:
                 vsWindow.$("#" + event.elementId).trigger('mouseenter');
-                break;                
-                
-            case logEventFactory.HIDE_ALIGNMENT:
+                break;
+            case logEventFactory.HIDE_ALIGNMENT_BY_MOUSE:
                 vsWindow.$("#" + event.elementId).trigger('mouseleave');
-                break;                
-                
+                break;
+            case logEventFactory.SHOW_ALIGNMENT_BY_KEY:
+//debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+//debug(event);
+//                itpData = JSON.parse(event.data);
+//                vsWindow.$("#" + event.elementId).trigger('caretenter', itpData);
+//                break;
+            case logEventFactory.HIDE_ALIGNMENT_BY_KEY:
+//                itpData = JSON.parse(event.data);
+//                vsWindow.$("#" + event.elementId).trigger('caretleave', itpData);
+//                break;
+
+            case logEventFactory.KEY_DOWN:
+                break;
+            case logEventFactory.KEY_UP:
+                if (element.hasClass("editarea")) {
+                    if (event.which == 35 || event.which == 36  // end/home
+                            || event.which == 37 || event.which == 38   // left/up
+                            || event.which == 39 || event.which == 40) {  // right/down
+//                        debug(pluginName + ": Replaying cursor move...");
+                        setCursorPos(event.elementId, event.cursorPosition);
+                    }
+                }
+                break;
 
             default:
                 alert("Unknown event type");
                 debug(pluginName + ": Unknown event type: '" + event.type + "'.");
                 $.error("Unknown event type");
         }
+}
+catch (e) {
+debug(pluginName + ": " + e);
+debug(event);
+$.error("Erroneous event");
+}
     };
 
     var revertEvent = function(event) {
         debug(pluginName + ": Reverted event dump:");
         debug(event);
         // TODO revert events
+    };
+
+    var setCursorPos = function(elementId, pos) {
+        if (settings.itpEnabled) {
+            return;
+        }
+        vsWindow.$("#" + elementId).focus();
+        vsWindow.$("#" + elementId).setCursorPositionContenteditable(pos);
     };
 
     /**
@@ -836,7 +886,8 @@
             jobId: settings.jobId,
             fileId: settings.fileId,
             startOffset: startOffset,
-            endOffset: startOffset + settings.maxChunkSize
+            //endOffset: startOffset + settings.maxChunkSize
+            endOffset: settings.maxChunkSize
         };
 
         debug(pluginName + ": Loading 'logListChunk' with: jobId: '" + data.jobId + "', "
@@ -880,7 +931,7 @@
                         dumpReplayList();
                     }
 
-                    if (isLive) {
+                    if (settings.isLive) {
                         var answer = confirm("No more chunks found. Try again?");
                         if (answer) {
                             debug(pluginName + ": Trying again...");

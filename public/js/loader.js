@@ -4,19 +4,18 @@
 */
 
 Loader = {
-	
+
 	components: new Array (
-		'cat',
-    'casmacat/itp'
+		'cat'
+    /* add itp in the start function if config.itpEnabled is true */
 	),
 
 	forkComponents: new Array (
 		'cat2'
 	),
 // cat-fork
-		
+
 	libraries: new Array (
-  	'../casmacat/require.node',
 		'jquery',
 		'jquery-ui-1.8.20.custom.min',
 		'jquery.tabify',
@@ -26,7 +25,7 @@ Loader = {
         'diff_match_patch',
         'waypoints'
 	),
-	
+
 	include: function(f,p,b) {
 		document.write('<script type="text/javascript" src="' + b + p + f + '?build=' + config.build_number + '"></script>');
     },
@@ -44,12 +43,17 @@ Loader = {
 		}
 		for (var j=0; j<vals.length; j++) {
 			if (vals[j].name==a) {return vals[j].value;}
-		
+
 		}
 		return;
 	},
 
 	start: function() {
+    if (config.itpEnabled) {
+      this.components.push('casmacat/itp');
+  	  this.libraries.push('../casmacat/require.node');
+    }
+
 		var l = this.libraries;
 		var c = this.detect('fork')? this.forkComponents : this.components;
 		this.basePath = config.basepath+'public/js/';
@@ -59,23 +63,23 @@ Loader = {
     // CASMACAT extension start
     if (config.enable_logging) {
       if(this.detect('replay') != "true") {
-                      this.include('debug.js', 'casmacat/', this.basePath);
-                      this.include('diff_match_patch.js', 'casmacat/', this.basePath);
-                      this.include('sanitize.js', 'casmacat/', this.basePath);
-                      this.include('jquery.casmacat.tools.js', 'casmacat/', this.basePath);
-                      this.include('casmacat.logevent.js', 'casmacat/', this.basePath);
-                      this.include('jquery.casmacat.logging.js', 'casmacat/', this.basePath);
-                      this.include('logging.hooks.js', 'casmacat/', this.basePath);
-                      this.include('replay.index.js', 'casmacat/', this.basePath);
+                      this.include('debug.js', 'casmacat/logging/', this.basePath);
+                      this.include('diff_match_patch.js', 'casmacat/logging/', this.basePath);
+                      this.include('sanitize.js', 'casmacat/logging/', this.basePath);
+                      this.include('jquery.casmacat.tools.js', 'casmacat/logging/', this.basePath);
+                      this.include('casmacat.logevent.js', 'casmacat/logging/', this.basePath);
+                      this.include('jquery.casmacat.logging.js', 'casmacat/logging/', this.basePath);
+                      this.include('ui.hooks.js', 'casmacat/logging/', this.basePath);
+                      this.include('index.js', 'casmacat/logging/', this.basePath);
       }
       else if(this.detect('replay') == "true") {
-                      this.include('debug.js', 'casmacat/', this.basePath);
-                      this.include('jquery.casmacat.tools.js', 'casmacat/', this.basePath);
-                      this.include('logging.hooks.js', 'casmacat/', this.basePath);
-                      this.include('replay.index.js', 'casmacat/', this.basePath);
+                      this.include('debug.js', 'casmacat/logging/', this.basePath);
+                      this.include('jquery.casmacat.tools.js', 'casmacat/logging/', this.basePath);
+                      this.include('ui.hooks.js', 'casmacat/logging/', this.basePath);
+                      this.include('index.js', 'casmacat/logging/', this.basePath);
       }
     }
-                // CASMACAT extension end
+    // CASMACAT extension end
   }
 }
 

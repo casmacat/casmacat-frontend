@@ -7,42 +7,41 @@ require("jquery.hotkeys");
   function MouseWheel(elem, options) {
     
     // Private -----------------------------------------------------------------
-    var stack = [], pos = 0;
+    var stack = [], pos = -1;
     
     function saveState(obj) {
       stack.push(obj);
-      //pos = stack.length - 1;
+      pos++;
     };
     
     function resetState() {
       stack = [];
-      pos   = 0;
+      pos   = -1;
     };
         
     function onMoveUp(e) {
       pos++;
-      if (pos > stack.length) {
-        pos = stack.length;
-      }
-      dump("up");
-      if (pos >= 0 && stack.length > 0) {
-        self.change(stack[pos]);
-      }
+      //dump("onMoveUp");
+      self.change(stack[pos]);
+      if (pos > stack.length - 1) {
+        pos = stack.length - 1;
+      }      
     };
     
     function onMoveDown(e) {
+      if (!stack.length) return;
       pos--;
       if (pos < 0) {
         pos = 0;
+        return;
       }
-      dump("down");
-      if (pos >= 0 && stack.length > 0) {
-        self.change(stack[pos]);
-      }
+      //dump("onMoveDown");
+      self.change(stack[pos]);
     };
 
     function dump(fn) {
-      //console.log( "["+self.id+"]", fn, "| size:", stack.length, "pos:", pos );
+//      console.log( "["+self.id+"]", fn, "| size:", stack.length, "pos:", pos);
+//      for (var i=0; i<stack.length; ++i) console.log( stack[i].nbest[0].target );
     }
 
     var self = this;

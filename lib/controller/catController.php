@@ -13,7 +13,7 @@ include INIT::$UTILS_ROOT . "/langs/languages.inc.php";
  */
 class catController extends viewcontroller {
 
-    //put your code here    
+    //put your code here
     private $data = array();
     private $cid = "";
     private $jid = "";
@@ -37,7 +37,7 @@ class catController extends viewcontroller {
     // CASMACAT extension end
 
     public function __construct() {
-		$this->start_time=microtime(1)*1000;    	
+		$this->start_time=microtime(1)*1000;
 //    	log::doLog('provalog');
        // echo ".........\n";
         parent::__construct();
@@ -47,7 +47,7 @@ class catController extends viewcontroller {
         $this->start_from = $this->get_from_get_post("start");
         $this->page = $this->get_from_get_post("page");
 
-		if (isset($_GET['step'])) { 
+		if (isset($_GET['step'])) {
         	$this->step = $_GET['step'];
 		} else {
         	$this->step = 1000;
@@ -103,45 +103,45 @@ class catController extends viewcontroller {
         if ($ms <= 0) {
             return array("00", "00", "00", "00");
         }
-		
+
 		$usec = $ms % 1000;
 		$ms = floor($ms/ 1000);
 
 		$seconds = str_pad($ms % 60,2,"0",STR_PAD_LEFT);
 		$ms = floor($ms / 60);
-		
+
 		$minutes = str_pad($ms % 60,2 ,"0", STR_PAD_LEFT);
-		$ms = floor($ms / 60); 
-		
+		$ms = floor($ms / 60);
+
 	        $hours = str_pad($ms % 60,2,"0",STR_PAD_LEFT);
-                $ms = floor($ms / 60); 
-		
+                $ms = floor($ms / 60);
+
 		return array($hours,$minutes,$seconds,$usec);
-	
+
 	}
 
     public function doAction() {
     	$files_found=array();
-        $lang_handler=languages::getInstance("en");       
+        $lang_handler=languages::getInstance("en");
 
          // CASMACAT extension start
-        if ($this->casIsReplaying) {
-            $data = getSegmentsInfoWithoutTranslation($this->jid, $this->password, $this->start_from, $this->step);
-        }
-        else {
+//        if ($this->casIsReplaying) {
+//            $data = getSegmentsInfoWithoutTranslation($this->jid, $this->password, $this->start_from, $this->step);
+//        }
+//        else {
             $data = getSegmentsInfo($this->jid, $this->password);
-        }
+//        }
         // CASMACAT extension end
 
 	if (empty($data) or $data<0){
 		$this->job_not_found=true;
 	}
-		
+
       //  echo "<pre>";
       //  print_r ($data);
       //  exit;
 
-      
+
         $first_not_translated_found = false;
 
         foreach ($data as $i => $seg) {
@@ -154,7 +154,7 @@ class catController extends viewcontroller {
             if (empty($this->last_opened_segment)) {
                 $this->last_opened_segment = $seg['last_opened_segment'];
             }
-			
+
             if (empty($this->cid)) {
                 $this->cid = $seg['cid'];
             }
@@ -193,22 +193,22 @@ class catController extends viewcontroller {
 
             $id_file = $seg['id_file'];
           $this->fid = $id_file;
-	    
-			
+
+
             if (!isset($this->data["$id_file"])) {
             	$files_found[]=$seg['filename'];
-            	$file_stats =CatUtils::getStatsForFile($id_file);      
-                $this->data["$id_file"]['jid'] = $seg['jid'];		
+            	$file_stats =CatUtils::getStatsForFile($id_file);
+                $this->data["$id_file"]['jid'] = $seg['jid'];
                 $this->data["$id_file"]["filename"] = $seg['filename'];
                 $this->data["$id_file"]["mime_type"] = $seg['mime_type'];
                 $this->data["$id_file"]['id_segment_start'] = $seg['id_segment_start'];
-                $this->data["$id_file"]['id_segment_end'] = $seg['id_segment_end'];                
+                $this->data["$id_file"]['id_segment_end'] = $seg['id_segment_end'];
                 $this->data["$id_file"]['source']=$lang_handler->iso2Language($seg['source']);
                 $this->data["$id_file"]['target']=$lang_handler->iso2Language($seg['target']);
                 $this->data["$id_file"]['source_code']=$seg['source'];
                 $this->data["$id_file"]['target_code']=$seg['target'];
 		$this->data["$id_file"]['last_opened_segment'] = $seg['last_opened_segment'];
-                $this->data["$id_file"]['file_stats'] = $file_stats;		
+                $this->data["$id_file"]['file_stats'] = $file_stats;
 		//$this->data["$id_file"]['segments'] = array();
             }
             //if (count($this->data["$id_file"]['segments'])>100){continue;}
@@ -238,7 +238,7 @@ class catController extends viewcontroller {
             $this->last_opened_segment = getFirstSegmentId($this->jid, $this->password);
         	log::doLog($this->last_opened_segment);
         }
-	        
+
         $this->job_stats = CatUtils::getStatsForJob($this->jid);
 	if (count($files_found)==1){
 		$this->downloadFileName=$files_found[0];
@@ -262,20 +262,24 @@ class catController extends viewcontroller {
 		$this->template->source=$this->source;
 		$this->template->target=$this->target;
 		//$this->template->cucu=$this->open_segment;
-	
-	
+
+
 //		$this->template->stats=$stats[0]['TOTAL'];
-		
+
 		$this->template->source_code=$this->source_code;
 		$this->template->target_code=$this->target_code;
-		
+
         // CASMACAT extension start
         $this->template->enableLogging = INIT::$LOGGING;
         $this->template->casIsReplaying = $this->casIsReplaying;
+        // do this always, otherwise an error will be thrown in PHPTAL
+        // when accessing template variables
+        log::doLog("CASMACAT: Setting additional template variables...");
+        $this->template->is_casmacat = INIT::$LOGGING;
+        $this->template->debug = INIT::$DEBUG;
+        $this->template->itpEnabled = INIT::$ITPENABLED;
         if (INIT::$LOGGING) {
-            log::doLog("CASMACAT: Setting additional template variables...");
-            $this->template->is_casmacat = INIT::$LOGGING;
-
+            log::doLog(INIT::$ITPENABLED);
             log::doLog("CASMACAT: Correcting 'last_opened_segment'...");
             if ($this->casIsReplaying) {
                     $this->last_opened_segment = 0;
@@ -285,12 +289,13 @@ class catController extends viewcontroller {
             }
         }
         // CASMACAT extension end
+
   $this->template->fid = $this->fid;
 
 
 		$this->template->last_opened_segment=$this->last_opened_segment;
 		$this->template->data = $this->data;
-	
+
 		$this->template->job_stats=$this->job_stats;
 
 		$end_time=microtime(true)*1000;

@@ -27,13 +27,13 @@ UI = {
 
         this.taglockEnabled = (Loader.detect('taglock'))? Loader.detect('taglock') : 0;
         this.debug = Loader.detect('debug');
-	
+
         UI.detectStartSegment();
         UI.getSegments();
     },
 
     init: function() {
-       
+
         this.initStart = new Date();
         if(this.debug) console.log('Render time: ' + (this.initStart - renderStart));
         this.numMatchesResults = 2;
@@ -50,20 +50,20 @@ UI = {
 //        this.heavy = ($('section').length > 200)? true : false;
         this.detectFirstLast();
         this.reinitMMShortcuts();
-	
+
         // SET EVENTS
-        
+
         this.setKeyboardShortcuts();
 
-        $("header .filter").click(function(e){ 
+        $("header .filter").click(function(e){
             e.preventDefault();
             UI.body.toggleClass('filtering');
-        })      
+        })
 
-        $(".replace").click(function(e){ 
+        $(".replace").click(function(e){
             e.preventDefault();
             UI.body.toggleClass('replace-box');
-        }) 
+        })
 
         $('.sbm').tabify();
         $(".sbm a").click(function() {
@@ -80,22 +80,22 @@ UI = {
                 $(".m-notification").removeClass("menu-open");
                 $("fieldset#signin_menu").hide();
             }
-        });	
-  
-        $(".search-icon, .search-on").click(function(e) {          
+        });
+
+        $(".search-icon, .search-on").click(function(e) {
             e.preventDefault();
             $("#search").toggle();
         });
-        	  
+
         //overlay
 
-        $(".x-stats").click(function(e) {          
+        $(".x-stats").click(function(e) {
             $(".stats").toggle();
         });
 
         // for future comments implementation
         /*
- 		$("article").on('click','div.comments span.corner',function(e) {          
+ 		$("article").on('click','div.comments span.corner',function(e) {
             e.preventDefault();
             $(".comment-area").hide();
             $(".h-notification").show();
@@ -110,7 +110,7 @@ UI = {
             }, 400);;
             $(".text-c").focus();
             $(".c-close", segment).hide();
-         }).on('click','a.x-com',function(e) {  
+         }).on('click','a.x-com',function(e) {
 			e.preventDefault();
  			var segment = $(this).parents("section");
 			var commentArea =  $(".comment-area", segment);
@@ -123,8 +123,8 @@ UI = {
                 width: '90.5%'
             }).removeClass("maincomment");
         })
-*/        
-        $("article").on('click','a.number',function(e) {  
+*/
+        $("article").on('click','a.number',function(e) {
             e.preventDefault();
             e.stopPropagation();
             return false;
@@ -134,7 +134,7 @@ UI = {
             var segment = $(this).parents("section");
             var statusMenu = $("ul.statusmenu", segment);
 
-            UI.createStatusMenu(statusMenu);   
+            UI.createStatusMenu(statusMenu);
             statusMenu.show();
             var autoCloseStatusMenu = $('html').bind("click.vediamo", function(event) {
                 $("ul.statusmenu").hide();
@@ -142,14 +142,14 @@ UI = {
                 UI.removeStatusMenu(statusMenu);
             });
         });
-        
-        $(".joblink").click(function(e) {          
+
+        $(".joblink").click(function(e) {
             e.preventDefault();
             $(".joblist").toggle();
             return false;
         });
 
-        $(".statslink").click(function(e) {    
+        $(".statslink").click(function(e) {
             e.preventDefault();
             e.stopPropagation();
             $(".stats").toggle();
@@ -157,17 +157,17 @@ UI = {
 
         $('html').click(function() {
             $(".menucolor").hide();
-        }).on('click','.alert .close',function(e) {          
+        }).on('click','.alert .close',function(e) {
             e.preventDefault();
             $('.alert').remove();
-        }).on('click','.downloadtr-button',function(e) {          
+        }).on('click','.downloadtr-button',function(e) {
 //            e.preventDefault();
             setTimeout(function(){
             	UI.downloadNotifier();
             },3000);
         });
 
-        $("article").on('click','a.percentuage',function(e) {          
+        $("article").on('click','a.percentuage',function(e) {
             e.preventDefault();
             e.stopPropagation();
         }).on('click','.editarea',function(e,operation) {
@@ -180,7 +180,7 @@ UI = {
 						UI.segmentToOpen = segment;
 						console.log('UI.blockOpenSegment: '+UI.blockOpenSegment);
 						UI.blockOpenSegment = true;
-						
+
 						console.log('ctrl+down troppo vicini');
 //						console.log(UI.segmentToOpen);
 					} else {
@@ -213,7 +213,7 @@ UI = {
 
                 if(operation != 'moving') UI.scrollSegment($('#segment-'+$(this).data('sid')));
             }
-//            console.log('UI.lastOperation = ' + UI.lastOperation);    
+//            console.log('UI.lastOperation = ' + UI.lastOperation);
             if(UI.debug) console.log('Total onclick Editarea: ' + ( (new Date()) - this.onclickEditarea));
         }).on('click','a.translated',function(e) {
             e.preventDefault();
@@ -222,7 +222,7 @@ UI = {
                 if(UI.segmentIsLoaded(UI.nextSegmentId) || UI.nextSegmentId=='' ) {
                 } else {
                     if(!UI.noMoreSegmentsAfter) {
-                        UI.reloadWarning();					
+                        UI.reloadWarning();
                     }
                 }
                 return;
@@ -240,12 +240,12 @@ UI = {
                 if(!UI.noMoreSegmentsAfter) {
                     if(UI.debug) console.log('next segment is not loaded');
                     if(typeof UI.nextSegmentId == 'undefined') return false;
-                    UI.reloadWarning();	
+                    UI.reloadWarning();
                 } else {
                 	return false;
                 }
             }
-        }).on('click','a.approved',function(e) {          
+        }).on('click','a.approved',function(e) {
             UI.setStatusButtons(this);
             $(".editarea", UI.nextSegment).click();
             //	        if(!UI.blockButtons) $(".editarea", UI.nextSegment).click();
@@ -254,25 +254,25 @@ UI = {
             UI.changeStatusStop = new Date();
             UI.changeStatusOperations = UI.changeStatusStop - UI.buttonClickStop;
 
-        }).on('click','a.d, a.a, a.r, a.f',function(e) {          
+        }).on('click','a.d, a.a, a.r, a.f',function(e) {
             var segment = $(this).parents("section");
             $("a.status",segment).removeClass("col-approved col-rejected col-done col-draft");
             $("ul.statusmenu",segment).toggle();
             return false;
-        }).on('click','a.d',function(e) {          
+        }).on('click','a.d',function(e) {
             UI.changeStatus(this,'translated',1);
-        }).on('click','a.a',function(e) {          
+        }).on('click','a.a',function(e) {
             UI.changeStatus(this,'approved',1);
-        }).on('click','a.r',function(e) {          
+        }).on('click','a.r',function(e) {
             UI.changeStatus(this,'rejected',1);
-        }).on('click','a.f',function(e) {          
+        }).on('click','a.f',function(e) {
             UI.changeStatus(this,'draft',1);
-        }).on('click','a.copysource',function(e) {   
+        }).on('click','a.copysource',function(e) {
             e.preventDefault();
             UI.copySource();
-        }).on('click','.tagmenu, .warning, .viewer, .notification-box li a',function(e) {          
+        }).on('click','.tagmenu, .warning, .viewer, .notification-box li a',function(e) {
             return false;
-        }).on('pastexcvxfdf','.editarea',function(e) {          
+        }).on('pastexcvxfdf','.editarea',function(e) {
 
             if(!UI.isWebkit) {
                 $('#temptextarea').remove();
@@ -294,7 +294,7 @@ UI = {
             handlepaste(this, event);
 
         //			UI.editarea.after('<textarea style="display: none" id="temptextarea"></textarea>');
-			
+
 
 
 
@@ -338,12 +338,12 @@ UI = {
 //				var coso = text2.replace(result[1],'CENSURA');
 				UI.editarea.html(nuovo);
 				$('#temptextarea').remove();
-//document.getElementById('outputdiv').innerHTML = ds + '<BR>Time: ' + (ms_end - ms_start) / 1000 + 's'; 
+//document.getElementById('outputdiv').innerHTML = ds + '<BR>Time: ' + (ms_end - ms_start) / 1000 + 's';
 */
 
 
         //			},100);
-        }).on('click','a.close',function(e) {          
+        }).on('click','a.close',function(e) {
             e.preventDefault();
             UI.closeSegment(UI.currentSegment,1);
         });
@@ -351,29 +351,29 @@ UI = {
         UI.toSegment = true;
         UI.gotoSegment(this.startSegmentId);
 
-        $(".end-message-box a.close").on('click',function(e) {          
+        $(".end-message-box a.close").on('click',function(e) {
             e.preventDefault();
             UI.body.removeClass('justdone');
         })
 
         this.checkIfFinishedFirst();
 
-        $("section .close").bind('keydown','Shift+tab', function(e){ 
+        $("section .close").bind('keydown','Shift+tab', function(e){
             e.preventDefault();
             $(this).parents('section').find('a.translated').focus();
-        })      
+        })
 
-        $("a.translated").bind('keydown','tab', function(e){ 
+        $("a.translated").bind('keydown','tab', function(e){
             e.preventDefault();
             $(this).parents('section').find('.close').focus();
-        })      
+        })
         //		UI.arrangeFilename(this.currentArticle);
         this.initEnd = new Date();
         this.initTime = this.initEnd - this.initStart;
         if(this.debug) console.log('Init time: ' + this.initTime);
-        
+
     },
-  
+
 	doRequest: function(req) {
         var setup = {
                 url:      config.basepath + '?action=' + req.data.action + this.appendTime(),
@@ -406,12 +406,12 @@ UI = {
 		console.log(a);
 		console.log(article.hasClass('loading'));
 		console.log(a.text());
-		console.log(a.height());		
+		console.log(a.height());
 */
     /*
 		console.log(a);
 		console.log(a.text());
-		console.log(a.height());		
+		console.log(a.height());
 		if(a.height() > 25) {
 			var b = a[0];
 			if(!tit) {b.title = b.innerHTML};
@@ -475,7 +475,7 @@ UI = {
             this.body.addClass('justdone');
         } else {
             this.body.removeClass('justdone');
-        }    	
+        }
     },
 
     checkIfFinishedFirst: function() {
@@ -486,7 +486,7 @@ UI = {
 
     chooseSuggestion: function(w) {
         this.copySuggestionInEditarea(this.currentSegment,$('.editor ul[data-item='+w+'] li.b .translation').text(),$('.editor .editarea'),$('.editor ul[data-item='+w+'] ul.graysmall-details .percent').text());
-        this.editarea.focus().effect("highlight", {}, 1000);		
+        this.editarea.focus().effect("highlight", {}, 1000);
 		this.placeCaretAtEnd(document.getElementById($(this.editarea).attr('id')));
 
     },
@@ -511,14 +511,14 @@ UI = {
 
     copySource: function() {
         //var source_val = $.trim($(".source",this.currentSegment).data('original'));
-           
+
         var source_val = $.trim($(".source",this.currentSegment).text());
         // Test
         //source_val = source_val.replace(/&quot;/g,'"');
-        
+
         // Attention I use .text to obtain a entity conversion, by I ignore the quote conversion done before adding to the data-original
         // I hope it still works.
-    
+
         $(".editarea",this.currentSegment).text(source_val).keyup().focus();
         $(".editarea",this.currentSegment).effect("highlight", {}, 1000);
     },
@@ -530,7 +530,7 @@ UI = {
         percentageClass = this.getPercentuageClass(match);
 
         if($.trim(translation) != '') {
-           
+
             //ANTONIO 20121205    	editarea.text(translation).addClass('fromSuggestion');
 
             if (decode){
@@ -588,7 +588,7 @@ UI = {
         var segId = (seg.length)? seg.attr('id').split('-')[1] : 0;
         return segId;
     },
-    
+
     detectStartSegment: function() {
         var hash = window.location.hash.substr(1);
         this.startSegmentId = (hash)? hash : config.last_opened_segment;
@@ -601,7 +601,7 @@ UI = {
     	console.log($.browser);
 		$('#outer').append('<div id="downloadNotifier"></div>');
     },
-    
+
     getContribution: function(segment,next) {
       console.log("get contribution");
 // prova per anticipare l'indent
@@ -633,16 +633,16 @@ UI = {
         }
         var id = n.attr('id');
         var id_segment = id.split('-')[1];
-        
+
         var txt = $('.source',n).text();
         txt=view2rawxliff(txt);
         // Attention: As for copysource, what is the correct file format in attributes? I am assuming html encoded and "=>&quot;
         //txt = txt.replace(/&quot;/g,'"');
-        
+
         if(!next) {
             $(".loader",n).addClass('loader_on')
         }
-        
+
         // CASMACAT extension start
         if (config.replay == 1) {
             debug("cat.js: Skipping loading of suggestion in getContribution()...");
@@ -658,7 +658,7 @@ UI = {
         }
         $(window).trigger("loadingSuggestions", event);
         // CASMACAT extension end
-        
+
     var ctx = $('#'+id);
 		this.doRequest({
 			data: {
@@ -677,7 +677,7 @@ UI = {
 			}
 		});
     },
-    
+
     getContributionSuccess: function(d, ctx, segment, next, n){
         // CASMACAT extension start
         if (config.replay != 1) {
@@ -708,14 +708,14 @@ UI = {
 
     getMoreSegments: function(where) {
         if((where == 'after')&&(this.noMoreSegmentsAfter)) return;
-        if((where == 'before')&&(this.noMoreSegmentsBefore)) return;   		
+        if((where == 'before')&&(this.noMoreSegmentsBefore)) return;
         if(this.loadingMore) {
             return;
         }
         this.loadingMore = true;
-		
+
         var segId = this.detectRefSegId(where);
-        
+
         if(where == 'before') {
 	        $("section").each(function(){
 	            if($(this).offset().top > $(window).scrollTop()) {
@@ -724,7 +724,7 @@ UI = {
 	            }
 	        })
         }
-  	
+
         if(where == 'before') {
             $('#outer').addClass('loadingBefore');
         } else if(where == 'after') {
@@ -738,7 +738,10 @@ UI = {
                 password: config.password,
                 step : 50,
                 segment: segId,
-                where: where
+                where: where,
+                // CASMACAT extension start
+                replay: config.replay ? "true" : "false"
+                // CASMACAT extension end
 			},
 			success: function(d){
                 where = d.data['where'];
@@ -748,12 +751,12 @@ UI = {
                         numsegToAdd = numsegToAdd + this.segments.length;
                     });
                     UI.renderSegments(d.data['files'],where,false);
-                   
-                    // if getting segments before, UI points to the segment triggering the event 
+
+                    // if getting segments before, UI points to the segment triggering the event
                     if((where == 'before')&&(numsegToAdd)) {
                         UI.scrollSegment($('#segment-'+UI.segMoving));
                     }
-            		
+
                     // check if there is a segment to restore (to open) in the newly loaded segments
                     if(UI.segmentIdToRestore) {
                         if($('#segment-'+UI.segmentIdToRestore).length) {
@@ -796,7 +799,7 @@ UI = {
         if (!isNaN(m_parse)){
             match=m_parse;
         }
-        
+
         switch (true){
             case (match==100):
                 percentageClass="per-green";
@@ -828,7 +831,10 @@ UI = {
                 password: config.password,
                 step : step,
                 segment: this.startSegmentId,
-                where: where
+                where: where,
+                // CASMACAT extension start
+                replay: config.replay ? "true" : "false"
+                // CASMACAT extension end
 			},
 			success: function(d){
                 where = d.data['where'];
@@ -888,7 +894,7 @@ UI = {
 
     gotoOpenSegment: function() {
         this.scrollSegment(this.currentSegment);
-    },	
+    },
 
     gotoPreviousSegment: function() {
         var prev = $('.editor').prev();
@@ -915,7 +921,7 @@ UI = {
         var selContainer = $(window.getSelection().getRangeAt(0).startContainer.parentNode);
         return ((selContainer.hasClass('editarea'))&&(!selContainer.is(UI.editarea)));
     },
-	
+
     millisecondsToTime: function(milli) {
         var milliseconds = milli % 1000;
         var seconds = Math.round((milli / 1000) % 60);
@@ -931,7 +937,7 @@ UI = {
         this.byButton = false;
         this.cacheObjects(editarea);
         this.activateSegment();
-		
+
         this.getNextSegment(this.currentSegment,'untranslated');
         this.setCurrentSegment(segment);
 
@@ -942,8 +948,17 @@ UI = {
         this.currentIsLoaded = false;
         this.nextIsLoaded = false;
         this.getContribution(segment,0);
-        this.opening = true; 
-        if(!(this.currentSegment.is(this.lastOpenedSegment))) this.closeSegment(this.lastOpenedSegment,0);
+        this.opening = true;
+//----------------------------------------Here gehts weiter
+        // CASMACAT extension start
+//        if (config.replay != 1) { // TODO check this!!! two buttons may be added when
+//        click tranlsate segment x, close segment x+1, open x+1
+//        AND sanitize problem
+//if (config.enable_itp)
+            if(!(this.currentSegment.is(this.lastOpenedSegment))) this.closeSegment(this.lastOpenedSegment,0);
+//        }
+        // CASMACAT extension end
+
         this.opening = false;
         this.body.addClass('editing');
 
@@ -977,83 +992,83 @@ UI = {
       $("body").bind('keydown','Ctrl+return', function(e){
           e.preventDefault();
           $('.editor .translated').click();
-      }).bind('keydown','Meta+return', function(e){ 
+      }).bind('keydown','Meta+return', function(e){
           e.preventDefault();
           $('.editor .translated').click();
-      }).bind('keydown','Ctrl+pageup', function(e){ 
+      }).bind('keydown','Ctrl+pageup', function(e){
           e.preventDefault();
           alert('pageup');;
-      }).bind('keydown','Ctrl+down', function(e){ 
+      }).bind('keydown','Ctrl+down', function(e){
           e.preventDefault();
           e.stopPropagation();
           UI.gotoNextSegment();
-      }).bind('keydown','Meta+down', function(e){ 
+      }).bind('keydown','Meta+down', function(e){
           e.preventDefault();
           e.stopPropagation();
           UI.gotoNextSegment();
-      }).bind('keydown','Ctrl+up', function(e){ 
+      }).bind('keydown','Ctrl+up', function(e){
           e.preventDefault();
           e.stopPropagation();
           UI.gotoPreviousSegment();
-      }).bind('keydown','Meta+up', function(e){ 
+      }).bind('keydown','Meta+up', function(e){
           e.preventDefault();
           e.stopPropagation();
           UI.gotoPreviousSegment();
-      }).bind('keydown','Ctrl+left', function(e){ 
+      }).bind('keydown','Ctrl+left', function(e){
           e.preventDefault();
           if(UI.segmentIdToRestore) {
               UI.reloadToSegment(UI.segmentIdToRestore);
           } else {
               UI.gotoOpenSegment();
           }
-      }).bind('keydown','Meta+left', function(e){ 
+      }).bind('keydown','Meta+left', function(e){
           e.preventDefault();
           if(UI.segmentIdToRestore) {
               UI.reloadToSegment(UI.segmentIdToRestore);
           } else {
               UI.gotoOpenSegment();
           }
-      }).bind('keydown','Ctrl+right', function(e){ 
+      }).bind('keydown','Ctrl+right', function(e){
           e.preventDefault();
           UI.copySource();
-      }).bind('keydown','Meta+right', function(e){ 
+      }).bind('keydown','Meta+right', function(e){
           e.preventDefault();
           UI.copySource();
       });
   },
-  
+
     reinitMMShortcuts: function(a) {
       $('body').unbind('keydown.alt1').unbind('keydown.alt2').unbind('keydown.alt3').unbind('keydown.alt4').unbind('keydown.alt5');
-        $("body, .editarea").bind('keydown.alt1','Alt+1', function(e){ 
+        $("body, .editarea").bind('keydown.alt1','Alt+1', function(e){
             e.preventDefault();
             e.stopPropagation();
             if(e.which != 97) {
                 UI.chooseSuggestion('1');
             }
-        }).bind('keydown.alt2','Alt+2', function(e){ 
+        }).bind('keydown.alt2','Alt+2', function(e){
             e.preventDefault();
             e.stopPropagation();
             if(e.which != 98) {
                 UI.chooseSuggestion('2');
             }
-        }).bind('keydown.alt3','Alt+3', function(e){ 
+        }).bind('keydown.alt3','Alt+3', function(e){
             e.preventDefault();
             e.stopPropagation();
             if(e.which != 99) {
                 UI.chooseSuggestion('3');
-            }            
-        }).bind('keydown.alt4','Alt+4', function(e){ 
+            }
+        }).bind('keydown.alt4','Alt+4', function(e){
             e.preventDefault();
             e.stopPropagation();
             if(e.which != 100) {
                 UI.chooseSuggestion('4');
-            }            
-        }).bind('keydown.alt5','Alt+5', function(e){ 
+            }
+        }).bind('keydown.alt5','Alt+5', function(e){
             e.preventDefault();
             e.stopPropagation();
             if(e.which != 101) {
                 UI.chooseSuggestion('5');
-            }            
+            }
         })
     },
 
@@ -1064,7 +1079,7 @@ UI = {
         $('#outer').empty();
         this.render(false);
     },
-	
+
     reloadWarning: function() {
         var m = confirm('The next untranslated segment is outside the current view.');
         if(m) {
@@ -1073,12 +1088,14 @@ UI = {
             window.location.hash = this.nextSegmentId;
             $('#outer').empty();
             this.render(false);
-        }            	
+        }
     },
 
     removeButtons: function(byButton) {
         var segment = (byButton)? this.currentSegment : this.lastOpenedSegment;
-        $('#'+segment.attr('id')+'-buttons').empty();
+        if (segment) {
+            $('#'+segment.attr('id')+'-buttons').empty();
+        }
     },
 
     removeFooter: function(byButton) {
@@ -1086,7 +1103,9 @@ UI = {
 
     removeHeader: function(byButton) {
         var segment = (byButton)? this.currentSegment : this.lastOpenedSegment;
-        $('#'+segment.attr('id')+'-header').empty();
+        if (segment) {
+            $('#'+segment.attr('id')+'-header').empty();
+        }
     },
 
     removeStatusMenu: function(statusMenu) {
@@ -1095,13 +1114,13 @@ UI = {
 
     triggerSuggestionChosen: function(segment, which, translation) {
     },
-    
+
     renderContributions: function(d,segment) {
-        console.log("renderContributions:", d, segment)
+//        console.log("renderContributions:", d, segment)
         var isActiveSegment = $(segment).hasClass('editor');
         var editarea = $('.editarea', segment);
-        
-        
+
+
         if(d.data.matches.length) {
             var editareaLength = editarea.text().length;
             if(isActiveSegment) {
@@ -1112,10 +1131,10 @@ UI = {
 //			console.log('indent: ' + editarea.hasClass('indent'));
             var translation = d.data.matches[0].translation;
             var perc_t=$(".percentuage",segment).attr("title");
-            
+
             $(".percentuage",segment).attr("title",''+perc_t + "Created by " + d.data.matches[0].created_by);
             var match = d.data.matches[0].match;
- 
+
             if (editareaLength==0){
                 UI.copySuggestionInEditarea(segment,translation,editarea,match,true);
                 // CASMACAT extension start
@@ -1129,12 +1148,12 @@ UI = {
             var segment_id = parsedId[0];
             $(segment).removeClass('loaded').addClass('loaded');
             $('.sub-editor .overflow',segment).empty();
-            
+
             $.each(d.data.matches, function(index) {
-                var disabled = (segment_id=='0')? true : false;                 
-                cb= this['created_by'];                    
+                var disabled = (segment_id=='0')? true : false;
+                cb= this['created_by'];
                 cl_suggestion=UI.getPercentuageClass(this['match']);
-            
+
                 if(!$('.sub-editor',segment).length) {
                     UI.createFooter(segment);
                 }
@@ -1142,14 +1161,14 @@ UI = {
                 // before doing a enanched view you will need to add a data-original tag
                 $('.sub-editor .overflow',segment).append('<ul class="graysmall" data-item="'+(index+1)+'" data-id="'+segment_id+'"><li >'+((disabled)?'':' <a id="'+segment_id+'-tm-'+segment_id+'-delete" href="#" class="trash" title="delete this row"></a>')+'<span id="'+segment_id+'-tm-'+segment_id+'-source" class="suggestion_source">'+this.segment+'</span></li><li class="b"><span class="graysmall-message">ALT+'+(index+1)+'</span><span id="'+segment_id+'-tm-'+segment_id+'-translation" class="translation">'+this.translation+'</span></li><ul class="graysmall-details"><li class="percent ' + cl_suggestion + '">'+(this.match)+'</li><li>'+this['last_update_date']+'</li><li class="graydesc">Source: <span class="bold">'+cb+'</span></li></ul></ul>');
             });
-            UI.setDeleteSuggestion(segment);	    
+            UI.setDeleteSuggestion(segment);
 
             $('.translated',segment).removeAttr('disabled');
             $('.draft',segment).removeAttr('disabled');
         } else {
             if(UI.debug) console.log('no matches');
             $(segment).removeClass('loaded').addClass('loaded');
-            $('.sub-editor .overflow',segment).append('<ul class="graysmall message"><li>Sorry. Can\'t help you this time. Check the language pair if you feel this is weird.</li></ul>');  				
+            $('.sub-editor .overflow',segment).append('<ul class="graysmall message"><li>Sorry. Can\'t help you this time. Check the language pair if you feel this is weird.</li></ul>');
         }
     },
 
@@ -1190,23 +1209,23 @@ UI = {
             $.each(this.segments, function(index) {
                 var escapedSegment = htmlEncode(this.segment.replace(/\"/g,"&quot;"));
                 newFile += '<section id="segment-' + this.sid + '" class="status-' + ((!this.status)?'new':this.status.toLowerCase()) + '">'+
-							
+
                 '	<a tabindex="-1" href="#' + this.sid + '"></a>'+
                 '	<span class="number">' + this.sid + '</span>'+
-							
+
                 '	<div class="body">'+
-													
+
                 '		<div class="header toggle" id="segment-' + this.sid + '-header">' +
                 '                 <h2 title="" class="percentuage"><span></span></h2><a href="#" id="segment-'+this.sid+'-close" class="close" title="Close this segment"></a>'+
                 '               </div>'+
                 '		<div class="text">'+
-							
+
                 '			<div class="wrap">'+
-							
+
                 '				<div class="source item" id="segment-' + this.sid + '-source" data-original="' + escapedSegment + '">'+ this.segment +'</div> <!-- .source -->'+
-							
+
                 '				<div class="target item" id="segment-' + this.sid + '-target">'+
-							
+
                 '					<span class="hide toggle"> '+
                 '						<a href="#" class="warning normalTip exampleTip" title="Warning: as">!</a>'+
                 '					</span>'+
@@ -1216,26 +1235,26 @@ UI = {
                 '					</div> <!-- .textarea-container -->'+
                 '				</div> <!-- .target -->'+
                 '			</div> <!-- .wrap -->'+
-							
+
                 '						<ul class="buttons toggle provissima" id="segment-' + this.sid + '-buttons"></ul>'+
-							
-							
+
+
                 '			<div class="status-container">'+
                 '				<a href=# title="' + ((!this.status)?'Change segment status':this.status.toLowerCase()+', click to change it') + '" class="status" id="segment-' + this.sid + '-changestatus"></a>'+
                 '			</div> <!-- .status-container -->'+
-							
+
                 '		</div> <!-- .text -->'+
                 '		<div class="timetoedit" data-raw_time_to_edit="' + this.time_to_edit + '">'+
                 ((t)?'			<span class=edit-min>' + this.parsed_time_to_edit[1] + '</span>m:':'')+
                 ((t)?'			<span class=edit-sec>' + this.parsed_time_to_edit[2] + '</span>s':'')+
                 '		</div>'+
-							
-                '		<div class="footer toggle"></div> <!-- .footer -->     '+         
-							
+
+                '		<div class="footer toggle"></div> <!-- .footer -->     '+
+
                 '	</div> <!-- .body -->'+
-							
+
                 '	<ul class="statusmenu"></ul>'+
-							
+
                 '</section> ';
             })
 
@@ -1255,15 +1274,15 @@ UI = {
                     $('article').last().after(newFile);
                 } else if(where == 'center') {
                     $('#outer').append(newFile);
-                }     
+                }
             } else {
                 if(where == 'before') {
                     $('#file-'+fid).prepend(newFile);
                 } else if(where == 'after') {
                     $('#file-'+fid).append(newFile);
-                }   				
+                }
             }
-            
+
             if(articleToAdd) {
             // fit_text_to_container($('.filenameshow',$('#file-'+fid)));
             }
@@ -1303,16 +1322,16 @@ UI = {
                 }
             } else { // if segment to open is above the current segment
                 destinationTop = destinationTop - spread;
-            }		
+            }
         } else { // if no segment is opened
             destinationTop = destinationTop - spread;
-        }	
+        }
 
         $("html,body").stop();
         $("html,body").animate({
             scrollTop: destinationTop-20
         }, 500 );
-    },	        
+    },
 
     segmentIsLoaded: function(segmentId) {
         if($('#segment-'+segmentId).length) {
@@ -1321,7 +1340,7 @@ UI = {
             return false;
         }
     },
-	
+
     setContribution: function(segment,status,byStatus) {
         if((status=='draft')||(status=='rejected')) return false;
         var source = $('.source',segment).text();
@@ -1429,7 +1448,7 @@ UI = {
         var t_perc = s.TRANSLATED_PERC;
         var a_perc = s.APPROVED_PERC;
         var d_perc = s.DRAFT_PERC;
-        var r_perc = s.REJECTED_PERC;	
+        var r_perc = s.REJECTED_PERC;
 
         var t_perc_formatted = s.TRANSLATED_PERC_FORMATTED;
         var a_perc_formatted = s.APPROVED_PERC_FORMATTED;
@@ -1439,7 +1458,7 @@ UI = {
         var d_formatted = s.DRAFT_FORMATTED;
         var r_formatted = s.REJECTED_FORMATTED;
         var t_formatted = s.TODO_FORMATTED;
-    	
+
         var wph 		= s.WORDS_PER_HOUR;
         var completion  = s.ESTIMATED_COMPLETION;
 		if(typeof wph == 'undefined') {
@@ -1461,9 +1480,9 @@ UI = {
         $('.translated-bar', m).css('width', t_perc + '%').attr('title','Translated ' + t_perc_formatted + '%');
         $('.draft-bar',      m).css('width', d_perc + '%').attr('title','Draft ' + d_perc_formatted + '%');
         $('.rejected-bar',   m).css('width', r_perc + '%').attr('title','Rejected ' + r_perc_formatted + '%');
-    
+
         $('#stat-progress').html(this.progress_perc);
-	
+
         $('#stat-todo strong').html(t_formatted);
         $('#stat-wph strong').html(wph);
         $('#stat-completion strong').html(completion);
@@ -1472,7 +1491,7 @@ UI = {
     setStatus: function(segment,status) {
         segment.removeClass("status-draft status-translated status-approved status-rejected status-new").addClass("status-"+status);
     },
-    
+
     setStatusButtons: function(button) {
         this.editStop = new Date();
         var segment = this.currentSegment;
@@ -1543,7 +1562,7 @@ UI = {
     },
     //CASMACAT
 
-    
+
     setWaypoints: function() {
         this.firstSegment.waypoint('remove');
         this.lastSegment.waypoint('remove');
@@ -1649,7 +1668,7 @@ function htmlEncode(value){
         return '';
     }
 }
- 
+
 function htmlDecode(value) {
     if (value) {
         return $('<div />').html(value).text();
@@ -1661,7 +1680,7 @@ function htmlDecode(value) {
 function utf8_to_b64(str) { // currently unused
     return window.btoa(unescape(encodeURIComponent(str)));
 }
- 
+
 function b64_to_utf8(str) { // currently unused
     return decodeURIComponent(escape(window.atob(str)));
 }
@@ -1673,7 +1692,7 @@ function handlepaste (elem, e) {
     /*
     var sel, range;
 
-    if (window.getSelection && document.createRange) {                    
+    if (window.getSelection && document.createRange) {
         range = document.createRange();
         sel = window.getSelection();
         sel.removeAllRanges();
@@ -1766,7 +1785,7 @@ function focusOnPlaceholder() {
     if( !placeholder ) return;
     var sel, range;
 
-    if (window.getSelection && document.createRange) {                    
+    if (window.getSelection && document.createRange) {
         range = document.createRange();
         range.selectNodeContents(placeholder);
         range.collapse(true);
@@ -1807,10 +1826,10 @@ function fit_text_to_container(container,child){
     }else{
         container.text(first_half+"..."+last_half);
     }
-    
+
     h=container.height();
     hh=$(child,container).height();
-    
+
     for (var i=1 ; i< a.length; i=i+1){
         old_first_half=first_half;
         old_last_half=last_half;
@@ -1824,7 +1843,7 @@ function fit_text_to_container(container,child){
             container.text(first_half+"..."+last_half);
         }
         h2=container.height();
-        
+
         if (h2>h){
             if (typeof(child)!='undefined'){
                 $(child,container).text(old_first_half+"..."+last_half);
@@ -1832,8 +1851,8 @@ function fit_text_to_container(container,child){
                 container.text(old_first_half+"..."+last_half);
             }
             h2=$(container).height();
-            
-            if (h2>h){ 
+
+            if (h2>h){
                 if (typeof(child)!='undefined'){
                     $(child,container).text(old_first_half+"..."+old_last_half);
                 }else{
@@ -1889,13 +1908,13 @@ $(window).resize(function(){
 
 var LTPLACEHOLDER = "##LESSTHAN##";
 var GTPLACEHOLDER= "##GREATERTHAN##";
-var re_lt = new RegExp(LTPLACEHOLDER,"g"); 
-var re_gt = new RegExp(GTPLACEHOLDER,"g"); 
+var re_lt = new RegExp(LTPLACEHOLDER,"g");
+var re_gt = new RegExp(GTPLACEHOLDER,"g");
 // test jsfiddle http://jsfiddle.net/YgKDu/
 
 function placehold_xliff_tags(segment) {
     segment = segment.replace(/<(g\s*.*?)>/gi, LTPLACEHOLDER+"$1"+GTPLACEHOLDER);
-    segment = segment.replace(/<(\/g)>/gi, LTPLACEHOLDER+"$1"+GTPLACEHOLDER);    
+    segment = segment.replace(/<(\/g)>/gi, LTPLACEHOLDER+"$1"+GTPLACEHOLDER);
     segment = segment.replace(/<(x.*?\/?)>/gi, LTPLACEHOLDER+"$1"+GTPLACEHOLDER);
     segment = segment.replace(/<(bx.*?\/?])>/gi, LTPLACEHOLDER+"$1"+GTPLACEHOLDER,segment);
     segment = segment.replace(/<(ex.*?\/?)>/gi, LTPLACEHOLDER+"$1"+GTPLACEHOLDER,segment);
@@ -1930,11 +1949,11 @@ function view2rawxliff(segment){
     // input : <g id="43">bang & olufsen < 3 </g> <x id="33"/>; --> valore della funzione .text() in cat.js su source, target, source suggestion,target suggestion
     // output : <g id="43"> bang &amp; olufsen are &gt; 555 </g> <x/>
 
-    // caso controverso <g id="4" x="&lt; dfsd &gt;"> 
+    // caso controverso <g id="4" x="&lt; dfsd &gt;">
     //segment=htmlDecode(segment);
     segment = placehold_xliff_tags (segment);
     segment = htmlEncode(segment);
-    segment = restore_xliff_tags(segment);	
+    segment = restore_xliff_tags(segment);
 
     return segment;
 }
@@ -1944,7 +1963,7 @@ function rawxliff2view(segment){ // currently unused
     // input : <g id="43">bang &amp; &lt; 3 olufsen </g>; <x id="33"/>
     // output : &lt;g id="43"&gt;bang & < 3 olufsen &lt;/g&gt;;  &lt;x id="33"/&gt;
     segment = placehold_xliff_tags (segment);
-    segment = htmlDecode(segment);	
+    segment = htmlDecode(segment);
     segment = segment.replace(/<(.*?)>/i, "&lt;$1&gt;");
     segment = restore_xliff_tags_for_view(segment);		// li rendering avviene via concat o via funzione html()
     return segment;
@@ -1953,8 +1972,8 @@ function rawxliff2view(segment){ // currently unused
 function rawxliff2rawview(segment){ // currently unused
     // input : <g id="43">bang &amp; &lt; 3 olufsen </g>; <x id="33"/>
     segment = placehold_xliff_tags (segment);
-    segment = htmlDecode(segment);		
-    segment = restore_xliff_tags_for_view(segment);		
+    segment = htmlDecode(segment);
+    segment = restore_xliff_tags_for_view(segment);
     return segment;
 }
 

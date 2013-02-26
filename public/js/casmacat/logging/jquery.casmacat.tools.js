@@ -22,41 +22,79 @@
  */
 
 (function($) {
+    var replaceEntities = function(s) {
+        // TODO add more?
+//        s = s.replace(/&nbsp;/gmi, " ");
+        s = s.replace(new RegExp(String.fromCharCode(160), "gmi"), " ");
+
+//        s = s.replace(/&lt;/gmi, "<");
+        s = s.replace(new RegExp(String.fromCharCode(60), "gmi"), "");
+
+//        s = s.replace(/&gt;/gmi, ">");
+        s = s.replace(new RegExp(String.fromCharCode(62), "gmi"), "");
+
+//        s = s.replace(/&quot;/gmi, "\"");
+//        s = s.replace(/&amp;/gmi, "&");
+
+        return s;
+    };
+
     /**
      * Sanitizes (removes) unwanted HTML markup. See also: "http://zadasnotes.blogspot.dk/2011/06/
      * jquery-tip-sanitize-input-fields.html". But maybe the jquery-clean plugin is a better choice? See:
      * "http://code.google.com/p/jquery-clean/"
+     *
+     * List with entities: "http://www.theukwebdesigncompany.com/articles/entity-escape-characters.php"
      */
-    $.fn.sanitizeHTML = function() {
-        /*var pos = $(this).getCursorPositionContenteditable();
-        var pos2 = $(this).getCaretPos();
-        debug(pos);
-        debug(pos2);*/
-        
-        var str = $(this).html();
-        str = str.replace(/&nbsp;/g, ' ');
-        $(this).html(str);
-        $(this).text($(this).text());
-        //$(this).recursiveSanitizeHTML();
-        //$(this).setCursorPositionContenteditable(pos2);
-    }
-    $.fn.recursiveSanitizeHTML = function() {
-        var children = $(this).children();
-        children.each(function() {
-            debug("$.fn.sanitizeHTML(): Working...");
-            $(this).removeAttributes(); // remove all attributes, especially styles
-            // TODO make this configurable and check for errors as it seems not to work properly
-            // (copy&pasting an input[type=button] works)
-            if ($(this).not("b").not("em").not("i").not("strong").not("u").length > 0) {
-                $(this).replaceWith($(this).text());
-            }
-            else {
-                $(this).recursiveSanitizeHTML();
-            }
-        });
+    $.fn.sanitizeHTML = function(fullSanitize, next) {
 
-        return $(this);
-    }
+        var $this = $(this);
+
+        if (!fullSanitize) {
+            if (!next) {
+                debug("$.fn.sanitizeHTML(): Only removing entities...");
+            }
+            $this.children().each(function() {
+                var s = this.textContent.toString();
+//console.log(s.charAt(0) + "->" + s.charCodeAt(0));
+//                debug("$.fn.sanitizeHTML(): nodeValue before entity replace: '" + s + ".'");
+                var sNew = replaceEntities(s);
+//                debug("$.fn.sanitizeHTML(): nodeValue after entity replace: '" + s + ".'");
+                if (sNew !== s) {
+                    this.textContent = s;
+                }
+                $(this).sanitizeHTML(fullSanitize, true);
+            });
+        }
+        else {
+            var sanitized = "";
+
+            debug("$.fn.sanitizeHTML(): Performing full sanitize...");
+            var treeWalker = document.createTreeWalker($this[0],
+                NodeFilter.SHOW_TEXT, function (node) {
+                    return NodeFilter.FILTER_ACCEPT;
+                }, false);
+
+            while (treeWalker.nextNode()) {
+                var s = treeWalker.currentNode.nodeValue.toString();
+    //console.log(s.charAt(0) + "->" + s.charCodeAt(0));
+//                debug("$.fn.sanitizeHTML(): nodeValue before entity replace: '" + s + ".'");
+
+                s = replaceEntities(s);
+
+//                debug("$.fn.sanitizeHTML(): nodeValue after entity replace: '" + s + ".'");
+
+
+                sanitized = sanitized + s;
+            }
+
+            $this.html(sanitized);
+        }
+
+//        debug("$.fn.sanitizeHTML(): innerHTML after sanitize: '" + $this.html() + ".'");
+
+        return $this;
+    };
 
     /**
      * Removes all attributes from a given element, see also: "http://stackoverflow.com/questions/1870441/
@@ -73,7 +111,7 @@
                 e.removeAttr(item);
             });
         });
-    }
+    };
 
     /**
      * Returns the element belonging to the (composed) elementId: (parent) id + (relative) xPath.
@@ -84,10 +122,10 @@
 //        debug("$.fn.resolveFromElementId(): Resolving element with: id: '" + id + "', '" + xPath + "'.");
 
         var element = null;
-        if (id == "window") {
+        if (id === "window") {
             element = $("window", this)[0];
         }
-        else if (id == "") {   // TODO check this case if and when it may happen. that is probably in pure xPath mode only
+        else if (id === "") {   // TODO check this case if and when it may happen. that is probably in pure xPath mode only
             element = $("html", this)[0];
         }
         else {
@@ -96,7 +134,7 @@
 //        debug("$.fn.resolveFromElementId(): element dump after id:");
 //        debug(element);
 
-        if (xPath != null && xPath != "") { // if hybrid or xPath only mode
+        if (xPath !== null && xPath !== "") { // if hybrid or xPath only mode
 
 //            debug("$.fn.resolveFromElementId(): Using xPath: '" + xPath + "'.");
 
@@ -111,7 +149,7 @@
 
         // breaking the chain ;-)
         return element;
-    }
+    };
 
     /**
      * Returns the (composed) id of this element: (parent) id + (relative) xPath
@@ -132,14 +170,14 @@
             var xPath = "";
             var index = 0;
 
-            if (element.nodeType == Node.TEXT_NODE) {
+            if (element.nodeType === Node.TEXT_NODE) {
 //                debug("$.fn.getElementId(): Element is a text node.");
 
                 var nodeList = element.parentNode.childNodes;
                 for (var i = 0; i < nodeList.length; i++) {
-                    if (nodeList[i].nodeType == Node.TEXT_NODE) {
+                    if (nodeList[i].nodeType === Node.TEXT_NODE) {
                         index++;
-                        if (nodeList[i] == element.parentNode) {
+                        if (nodeList[i] === element.parentNode) {
                             break;
                         }
                     }
@@ -152,14 +190,14 @@
             }
 
 //            debug("$.fn.getElementId(): Element has no id...");
-            for (; element && element.nodeType == Node.ELEMENT_NODE && !element.id; element = element.parentNode) {
+            for (; element && element.nodeType === Node.ELEMENT_NODE && !element.id; element = element.parentNode) {
 //                debug("$.fn.getElementId(): Processing element: '" + element.tagName + "'...");
                 index = $(element.parentNode).children(element.tagName).index(element) + 1;
                 index = index > 1 ? ("[" + index + "]") : "";
                 xPath = "/" + element.tagName.toLowerCase() + index + xPath;
             }
 
-            if (!element.tagName || element.tagName.toLowerCase() == "html") {
+            if (!element.tagName || element.tagName.toLowerCase() === "html") {
                 elementId.xPath = xPath;
 //                debug("$.fn.getElementId(): No parent has an id.");
             }
@@ -175,7 +213,7 @@
 
         // breaking the chain ;-)
         return elementId;
-    }
+    };
 
     /**
      * Gets an absolute the 'xPath' to this element. See also:
@@ -185,7 +223,7 @@
 
         var element = $(this).get(0);
         var xPath = "";
-        for (; element && element.nodeType == Node.ELEMENT_NODE /*&& element != $(this).get(0)*/; element = element.parentNode) {
+        for (; element && element.nodeType === Node.ELEMENT_NODE /*&& element != $(this).get(0)*/; element = element.parentNode) {
 
             var idx = $(element.parentNode).children(element.tagName).index(element) + 1;
             idx = idx > 1 ? ("[" + idx + "]") : "";
@@ -199,7 +237,7 @@
 //            + xPath + "'.");
         // breaking the chain ;-)
         return xPath;
-    }
+    };
 
     /**
      * This one assumes that we cannot change multiple places at once, so everything between diffs has also been
@@ -213,6 +251,9 @@
 // !!!!!!!! TODO somewhere here maybe an error: it seems that the starting offset (pos) needs a -1 in some cases !!
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+// TODO there is also a problem here with strings like:
+// 'aaabc' and 'aaaabc'. the newly inserted 'a' could be any arbitray 'a' of the second text. diff_match_patch of course
+// returns the 4th 'a' as the difference
         var
             diff = dmp.diff_main(previousText, currentText),
             cursorPosition = 0,
@@ -220,10 +261,11 @@
             inserted = "",
             start = 0,
             end = 0;
+
 try {
         // if first entry is an EQUAL, we use its length for cursorPosition otherwise we are not interested in equal
         // start and end
-        if (diff[0][0] == 0) {
+        if (diff[0][0] === 0) {
             cursorPosition = diff[0][1].length;
             start++;
         }
@@ -236,7 +278,7 @@ catch (e) {
     alert("$.fn.getChanges(): Fatal error!");
     $.error("$.fn.getChanges(): Fatal error!");
 }
-        if (diff[diff.length - 1][0] == 0) {
+        if (diff[diff.length - 1][0] === 0) {
             end = diff.length - 1;
         }
         else {
@@ -274,7 +316,7 @@ catch (e) {
 
         // breaking the chain ;-)
 //        return $(this);
-    }
+    };
 
     // TODO
     $.fn.getSelection = function() {
@@ -331,7 +373,7 @@ catch (e) {
 
         // breaking the chain ;-)
         return range;
-    }
+    };
 
     /**
      * Get the cursor position within a content editable while only counting text nodes. See also:
@@ -345,8 +387,8 @@ catch (e) {
             var range = window.getSelection().getRangeAt(0);
             var node = $(this).get(0);
 
-            debug("$.fn.getCursorPositionContenteditable: Running on node: '" + node.tagName + "' and range: '"
-                + range.selectedText + "'...");
+//            debug("$.fn.getCursorPositionContenteditable: Running on node: '" + node.tagName + "' and range: '"
+//                + range.selectedText + "'...");
 
             var treeWalker = document.createTreeWalker(node,
                 NodeFilter.SHOW_TEXT, function (node) {
@@ -367,11 +409,11 @@ catch (e) {
                 pos += treeWalker.currentNode.length;
             }
 
-            if (range.startContainer.nodeType == Node.TEXT_NODE) {
+            if (range.startContainer.nodeType === Node.TEXT_NODE) {
                 pos += range.startOffset;
             }
 
-            debug("$.fn.getCursorPositionContenteditable: Cursor position: '" + pos + "'.");
+//            debug("$.fn.getCursorPositionContenteditable: Cursor position: '" + pos + "'.");
 
             // breaking the chain ;-)
 //            return $(this);
@@ -382,22 +424,22 @@ catch (e) {
 //            debug("Info: Could not get cursor position.");
 //            return -1;
 //        }
-    }
+    };
 
-       $.fn.getCaretPos = function() { 
+       $.fn.getCaretPos = function() {
       var $this = $(this),
           data = $this.data('editable'),
           node = $this.get(0);
 
       var caretOffset = 0;
       try {
-        if (typeof window.getSelection != "undefined") {
+        if (typeof window.getSelection !== "undefined") {
           var range = window.getSelection().getRangeAt(0);
           var preCaretRange = range.cloneRange();
           preCaretRange.selectNodeContents(node);
           preCaretRange.setEnd(range.endContainer, range.endOffset);
           caretOffset = preCaretRange.toString().length;
-        } else if (typeof document.selection != "undefined" && document.selection.type != "Control") {
+        } else if (typeof document.selection !== "undefined" && document.selection.type !== "Control") {
           var textRange = document.selection.createRange();
           var preCaretTextRange = document.body.createTextRange();
           preCaretTextRange.moveToElementText(node);
@@ -409,8 +451,8 @@ catch (e) {
         return -1;
       }
       return caretOffset;
-    }
-    
+    };
+
     /**
      * Set the cursor position within a content editable while only counting text nodes. See also:
      * "http://stackoverflow.com/questions/2871081/jquery-setting-cursor-position-in-contenteditable-div"
@@ -421,7 +463,7 @@ catch (e) {
 
         var node = $(this).get(0);
 
-        //debug("$.fn.setCursorPositionContenteditable: Running on node: '" + node.nodeName + "'...");
+        debug("$.fn.setCursorPositionContenteditable: Running on node: '" + node.nodeName + "' for position: '" + pos + "'...");
 
         var treeWalker = document.createTreeWalker(node,
             NodeFilter.SHOW_TEXT, function (node) {
@@ -440,7 +482,7 @@ catch (e) {
 //                debug("$.fn.setCursorPositionContenteditable: Substracting...");
                 pos -= currentNode.nodeValue.length;
             }
-            else {
+            else /*if ($.browser.webkit)*/ {
                 /*debug("$.fn.setCursorPositionContenteditable: Selecting: nodeName: '" + currentNode.nodeName + "', "
                     + "nodeValue: '" + currentNode.nodeValue + "', "
                     + "value length: '" + currentNode.nodeValue.length + "', remaining cursor position: '" + pos + "'");*/
@@ -461,7 +503,7 @@ catch (e) {
 //        $(this).focus();  // should be called in the last handler
 
         return $(this);
-    }
+    };
 
     /**
      * Extends the jQuery selector to have one that selects scrollable elements. See
@@ -552,7 +594,7 @@ catch (e) {
                 "top": "0px",
                 "left": "0px",
                 "width": $(document).width(),
-                "height": $(document).height(),
+                "height": $(document).height()
             });
 
             $("a.casLogo").addClass("progressIndicatorLogo").removeClass("casLogo");
@@ -561,7 +603,7 @@ catch (e) {
         }
 
         return $(this);
-    }
+    };
 
     $.fn.hideProgressIndicator = function() {
 
@@ -577,9 +619,120 @@ catch (e) {
         }
 
         return $(this);
-    }
+    };
 
-      console.log("replay tools", window.location);
+    // see "http://www.kodyaz.com/content/HowToGetKeyCodesList.aspx" and "http://www.javascripter.net/faq/keycodes.htm"
+    var keyCodeToKeyMap = {
+        8: "Backspace",
+        9: "Tab",
+        13: "Enter",
+        16: "Shift",
+        17: "Ctrl",
+        18: "Alt",
+        19: "Pause/Break",
+        20: "Caps Lock",
+        27: "Escape",
+        32: "Space",
+        33: "Page Up",
+        34: "Page Down",
+        35: "End",
+        36: "Home",
+        37: "Left Arrow",
+        38: "Up Arrow",
+        39: "Right Arrow",
+        40: "Down Arrow",
+        44: "Print Screen",
+        45: "Insert",
+        46: "Delete",
+        48: "0",
+        49: "1",
+        50: "2",
+        51: "3",
+        52: "4",
+        53: "5",
+        54: "6",
+        55: "7",
+        56: "8",
+        57: "9",
+        65: "A",
+        66: "B",
+        67: "C",
+        68: "D",
+        69: "E",
+        70: "F",
+        71: "G",
+        72: "H",
+        73: "I",
+        74: "J",
+        75: "K",
+        76: "L",
+        77: "M",
+        78: "N",
+        79: "O",
+        80: "P",
+        81: "Q",
+        82: "R",
+        83: "S",
+        84: "T",
+        85: "U",
+        86: "V",
+        87: "W",
+        88: "X",
+        89: "Y",
+        90: "Z",
+        91: "Left Windows Key",
+        92: "Right Windows Key",
+        93: "Select Key",   // key for windows context menu
+        96: "Number Pad 0",
+        97: "Number Pad 1",
+        98: "Number Pad 2",
+        99: "Number Pad 3",
+        100: "Number Pad 4",
+        101: "Number Pad 5",
+        102: "Number Pad 6",
+        103: "Number Pad 7",
+        104: "Number Pad 8",
+        105: "Number Pad 9",
+        106: "*",
+        107: "+",
+        109: "-",
+        110: "Decimal Point",
+        111: "/",
+        112: "F1",
+        113: "F2",
+        114: "F3",
+        115: "F4",
+        116: "F5",
+        117: "F6",
+        118: "F7",
+        119: "F8",
+        120: "F9",
+        121: "F10",
+        122: "F11",
+        123: "F12",
+        144: "Num Lock",
+        145: "Scroll Lock",
+//        186: "(Semi) Colon",
+        188: "Comma",
+        189: "Dash/Underline",
+        190: ".",
+//        191: "Forward Slash",
+//        192: "",  // Grave Accent
+//        219: "Open Bracket",
+//        220: "Back Slash",
+//        221: "Close Bracket",
+        222: "Quote"
+    };
+
+    // see "http://www.javascripter.net/faq/keycodes.htm"
+    $.fn.keyCodeToKey = function(keyCode) {
+        var character = keyCodeToKeyMap[keyCode];
+        if (!character) {
+            character = "";
+        }
+        return character;
+    };
+
 
 })(jQuery);
 

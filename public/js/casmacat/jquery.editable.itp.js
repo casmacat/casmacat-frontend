@@ -56,10 +56,10 @@
               config: {
                 useAlignments: true,
                 useConfidences: true,
+                useSuggestions: false,
                 mode: 'ITP',
-                prioritizer: 'confidence',
+                prioritizer: 'none',
                 priorityLength: 1,
-                suggestions: false,
                 confidenceThresholds: { doubt: 0.4, bad: 0.03 },
               }
             };
@@ -79,15 +79,16 @@
 
     destroy: function() {
       return this.each(function() {
-        var $this = $(this)
-          , $source = $this.data(namespace).$source
-          ;
+        var $this = $(this);
+        if ($this.data(namespace)) {
+          var $source = $this.data(namespace).$source;
 
-        // Namespacing FTW
-        $this.data(namespace).events.removeEvents();
-        $this.removeData(namespace);
-        $source.editable('destroy');
-        $this.editable('destroy');
+          // Namespacing FTW
+          $this.data(namespace).events.removeEvents();
+          $this.removeData(namespace);
+          $source.editable('destroy');
+          $this.editable('destroy');
+        }
       })
     },
 
@@ -109,9 +110,27 @@
       data.itpServer.endSession();
     },
 
+    updateTokens: function() { 
+      var data = $(this).data(namespace);
+      data.itpServer.getTokens({
+        source: data.$source.editable('getText'), 
+        target: data.$target.editable('getText')
+      });
+    },
+
     validate: function() { 
       var data = $(this).data(namespace);
-      data.itpServer.decode({source: data.$source.editable('getText'), target: data.$target.editable('getText')});
+      data.itpServer.validate({source: data.$source.editable('getText'), target: data.$target.editable('getText')});
+    },
+
+    getValidatedContributions: function() { 
+      var data = $(this).data(namespace);
+      data.itpServer.getValidatedContributions();
+    },
+
+    reset: function() { 
+      var data = $(this).data(namespace);
+      data.itpServer.reset();
     },
 
     trigger: function(name, evData) { 
@@ -124,8 +143,41 @@
       data.$target.editable('setText', str);
     },
 
-  };
+    updateConfig: function(config) {
+      var data = $(this).data(namespace);
+      $.extend(data.config, config);
+      data.itpServer.configure(data.config);
+    },
 
+    getConfig: function() {
+      var data = $(this).data(namespace);
+      return data.config;
+    },
+    
+    rejectSuffix: function(caretPos) {
+      var data = $(this).data(namespace);
+      data.itpServer.rejectSuffix({
+        source: data.$source.text(),
+        target: data.$target.text(),
+        caretPos: caretPos,
+        numResults: 1,
+      });
+    },
+
+    setPrefix: function(caretPos) {
+      var data = $(this).data(namespace);
+      data.itpServer.setPrefix({
+        source: data.$source.text(),
+        target:   data.$target.text(),
+        caretPos: caretPos,
+        numResults: 1,    
+      });
+    },
+
+    itpServer: function(str) { 
+      return $(this).data(namespace).itpServer;
+    },
+  };
 
 
   $.fn.editableItp = function(method) {

@@ -157,7 +157,7 @@
         return undefined;
       }
 
-      if (!pos) pos = $this.editable('getCaretPos');
+      if (typeof pos === 'undefined') pos = $this.editable('getCaretPos');
       var absoluteCaretPos = pos;
 
       var token = $this.editable('getTokenAtCaretPos', pos);
@@ -288,7 +288,7 @@
           data = $this.data('editable');
 
       //XXX: can we assume this?
-      if (data['str'] === str) return;
+      //if (data['str'] === str) return;
       data['str'] = str;
 
       if (segs && segs.length > 0) {

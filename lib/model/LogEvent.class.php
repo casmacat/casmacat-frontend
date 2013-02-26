@@ -27,8 +27,13 @@ class LogEvent {
     const CONFIDENCES = "confidences";
     const TOKENS = "tokens";
 
-    const SHOW_ALIGNMENT = "showAlignment";    
-    const HIDE_ALIGNMENT = "hideAlignment";   
+    const SHOW_ALIGNMENT_BY_MOUSE = "showAlignmentByMouse";
+    const HIDE_ALIGNMENT_BY_MOUSE = "hideAlignmentByMouse";
+    const SHOW_ALIGNMENT_BY_KEY = "showAlignmentByKey";
+    const HIDE_ALIGNMENT_BY_KEY = "hideAlignmentByKey";
+
+    const KEY_DOWN = "keyDown";
+    const KEY_UP = "keyUp";
 
     public $id;
     public $jobId;
@@ -51,10 +56,10 @@ class LogEvent {
         $this->time = $object->time;
         $this->type = $object->type;
 
-        log::doLog("CASMACAT: LogEvent->__construct(): Initialized new LogEvent: "
-            . "jobId: '$jobId', fileId: '$fileId'"
-            . "id: '$this->id', elementId: '$this->elementId', xPath: '$this->xPath', "
-            . "time: '$this->time', type: '$this->type'");
+//        log::doLog("CASMACAT: LogEvent->__construct(): Initialized new LogEvent: "
+//            . "jobId: '$jobId', fileId: '$fileId'"
+//            . "id: '$this->id', elementId: '$this->elementId', xPath: '$this->xPath', "
+//            . "time: '$this->time', type: '$this->type'");
     }
 
     public function resizeData($object) {
@@ -113,6 +118,15 @@ class LogEvent {
 
     public function itpData($object) {
         $this->data = $object->data;
+    }
+
+    public function keyData($object) {
+        $this->cursorPosition = $object->cursorPosition;
+        $this->which = $object->which;
+        $this->character = $object->character;
+        $this->shift = $object->shift;
+        $this->ctrl = $object->ctrl;
+        $this->alt = $object->alt;
     }
 
     public function toString() {

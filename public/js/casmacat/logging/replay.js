@@ -113,7 +113,9 @@ $(function() {
     $(window).replaying({
         "fileId": config.fileId,
         "jobId": config.jobId,
-        "maxChunkSize": 20
+        "maxChunkSize": 20,
+        "isLive": true, // experimental
+        "itpEnabled": config.itpEnabled
     });
 
 //                $(window).on("vsEditorReady", function(e) {
