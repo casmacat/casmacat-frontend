@@ -93,9 +93,25 @@ CREATE TABLE `key_event` (
   `header_id` int(11) NOT NULL COMMENT 'Reference to log_event_header table',
   `cursor_position` int(5) NOT NULL COMMENT 'Cursor position where the key event occured',
   `which` varchar(5) NOT NULL COMMENT 'The javascript keycode',
-  `character` varchar(20) NOT NULL COMMENT 'The character or key mapped to the code of which',
+--  `mappedKey` varchar(20) NOT NULL COMMENT 'The key mapped to the code of which',  
+  `character` varchar(20) NOT NULL COMMENT 'The key mapped to the code of which',
   `shift` bit(1) NOT NULL COMMENT 'Was the shift key pressed in addition?',
   `ctrl` bit(1) NOT NULL COMMENT 'Was the ctrl key pressed in addition?',
   `alt` bit(1) NOT NULL COMMENT 'Was the alt key pressed in addition?',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2440 DEFAULT CHARSET=utf8 COMMENT='Stores key (down/up) events.'$$
+
+delimiter $$
+
+CREATE TABLE `mouse_event` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary key',
+  `header_id` int(11) NOT NULL COMMENT 'Reference to log_event_header table',
+  `which` varchar(1) NOT NULL COMMENT 'The button (1 for the left button, 2 for the middle button, or 3 for the right button)',
+  `x` int(5) NOT NULL COMMENT 'clientX (relative to window)',  
+  `y` int(5) NOT NULL COMMENT 'clientY (relative to window)',
+  `shift` bit(1) NOT NULL COMMENT 'Was the shift key pressed in addition?',
+  `ctrl` bit(1) NOT NULL COMMENT 'Was the ctrl key pressed in addition?',
+  `alt` bit(1) NOT NULL COMMENT 'Was the alt key pressed in addition?',
+  `cursor_position` int(5) NOT NULL COMMENT 'Cursor position where the mouse event occured (if available)',  
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2184 DEFAULT CHARSET=utf8 COMMENT='Stores mouse (down/click/move) events.'$$

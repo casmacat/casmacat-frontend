@@ -266,26 +266,24 @@
         }
 
         // attach to mouse events
-//        if (settings.logMouse) {  // attach even, if settings.logMouse is false due to logging selections and removing
-                                    // multiple selection stuff of FF
-            if (settings.logMouseMove) { // log mouse movements only if desired
-                $(settings.logRootElement).on("mousemove." + pluginName, mouseMove);
-            }
-            $(settings.logRootElement).on("mouseleave." + pluginName, mouseLeave);
-            $(settings.logRootElement).on("mousedown." + pluginName, mouseDown); // fires first
-            $(settings.logRootElement).on("mouseup." + pluginName, mouseUp); // fires second
-            $(settings.logRootElement).on("click." + pluginName, mouseClick); // fires last
-//        }
+        // attach even, if settings.logMouse is false due to logging selections and removing
+        // multiple selection stuff of FF
+        if (settings.logMouseMove) { // log mouse movements only if desired
+            $(settings.logRootElement).on("mousemove." + pluginName, mouseMove);
+        }
+        $(settings.logRootElement).on("mouseleave." + pluginName, mouseLeave);
+        $(settings.logRootElement).on("mousedown." + pluginName, mouseDown); // fires first
+        $(settings.logRootElement).on("mouseup." + pluginName, mouseUp); // fires second
+        $(settings.logRootElement).on("click." + pluginName, mouseClick); // fires last
 
         // attach to key events
-//        if (settings.logKeys) {   // attach even, if settings.logKeys is false due to logging selections and removing
-                                    // multiple selection stuff of FF
-            $(settings.logRootElement).on("keydown." + pluginName, keyDown); // fires first
-            //$(document).keypress(keyPress);   // fires second and may repeat, not covered by any official
-                                                // specification, cross browser behavior differs, but luckily it seems
-                                                // not to be needed :-)
-            $(settings.logRootElement).on("keyup." + pluginName, keyUp); // fires last
-//        }
+        // attach even, if settings.logKeys is false due to logging selections and removing
+        // multiple selection stuff of FF
+        $(settings.logRootElement).on("keydown." + pluginName, keyDown); // fires first
+        //$(document).keypress(keyPress);   // fires second and may repeat, not covered by any official
+                                            // specification, cross browser behavior differs, but luckily it seems
+                                            // not to be needed :-)
+        $(settings.logRootElement).on("keyup." + pluginName, keyUp); // fires last
 
         // TODO problems with opera with on{paste, cut, copy}
         // attach to cut
@@ -585,10 +583,6 @@
 //        return "Window closed, logging finished.";    // will display a dialog whether to leave the page
     };
 
-//    var mouseMove = function(e) {
-//        debug(pluginName + ": Mouse moved.");
-//    };
-
     var mouseLeave = function(e) {
 //        debug(pluginName + ": Mouse leave.");
         if (e.which != 0) {
@@ -597,10 +591,11 @@
     };
 
     var mouseDown = function(e) {
-//        debug(pluginName + ": Mouse down.");
+        debug(pluginName + ": Mouse down.");
 
         if (e.ctrlKey) {  // do not allow CTRL for selecting text, this prevents multiple selections in Firefox
                         // TODO is it possibly to disable that by another way, like document.execCommand()?
+                        // best would be that, of course: "https://bugzilla.mozilla.org/show_bug.cgi?id=753718"
             e.preventDefault();
             debug(pluginName + ": Mouse down: Blocking multiple selections...");
         }
@@ -611,8 +606,9 @@
             debug(pluginName + ": Mouse down: Blocking selection movements...");
         }
 
-//        var pos = $(e.target).getCursorPositionContenteditable();
-//        debug(pluginName + ": Mouse down, cursor position: pos: '" + pos + "'.");
+        if (settings.logMouse) {
+            mouseCommon(logEventFactory.MOUSE_DOWN, e);
+        }
     };
 
     var mouseUp = function(e) {
@@ -628,28 +624,69 @@
             logSelectionEvent(e.target);
         }
 
-//        var pos = $(e.target).getCursorPositionContenteditable();
-//        debug(pluginName + ": Mouse up, cursor position: pos: '" + pos + "'.");
+        if (settings.logMouse) {
+            mouseCommon(logEventFactory.MOUSE_UP, e);
+        }
     };
 
     var mouseClick = function(e) {
-        debug(pluginName + ": Mouse clicked.");
+//        debug(pluginName + ": Mouse clicked.");
+
+        if (settings.logMouse) {
+            mouseCommon(logEventFactory.MOUSE_CLICK, e);
+        }
     };
 
-    var ctrlKey = false;
+    var mouseMove = function(e) {
+//        debug(pluginName + ": Mouse moved.");
+
+        mouseCommon(logEventFactory.MOUSE_MOVE, e);
+    };
+
+    var mouseCommon = function(type, e) { // helper function that logs a mouse-whatever event
+
+        if (!e.originalEvent) { // ignore programmatic clicks
+            debug(pluginName + ": Ignoring programmatic mouse event: type: '" + type + "'.");
+            return;
+        }
+
+        var target = null;
+        if ($(e.target).hasClass("editarea")) {
+            target = e.target;
+        }
+        else if ($(e.target).parents("div.editarea").get(0)) {
+            target = $(e.target).parents("div.editarea").get(0);
+        }
+
+        var pos = -1;
+        if (target !== null) {
+            pos = $(target).getCursorPositionContenteditable();
+        }
+        debug(pluginName + ": Mouse event: type: '" + type + "', cursor position: pos: '" + pos + "'.");
+
+        var altKey = false;
+        if (e.altKey) {
+            altKey = e.altKey;
+        }
+
+        storeLogEvent(logEventFactory.newLogEvent(type, e.target,
+            e.which, e.clientX, e.clientY, shiftKey, ctrlKey, e.altKey, pos));
+    };
+
     var shiftKey = false;
+    var ctrlKey = false;
     var keyDown = function(e) {
         if (!keysDown[e.keyCode]) { // do not repeat the debug output
             keysDown[e.keyCode] = true;
 //            debug(pluginName + ": Key down.");
         }
 
-        if (e.ctrlKey) {
-            ctrlKey = e.ctrlKey;
-        }
-
         if (e.shiftKey) {
             shiftKey = e.shiftKey;
+        }
+
+        if (e.ctrlKey) {
+            ctrlKey = e.ctrlKey;
         }
 
         if (settings.logKeys) {

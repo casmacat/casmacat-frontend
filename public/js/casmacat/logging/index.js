@@ -77,11 +77,12 @@ $(function() {
         $(window).logging({
             "fileId": config.file_id,
             "jobId": config.job_id,
-
-            "doSanitize": true,    // TODO check this! not working with IMT currently
-            "logRootElement": "html > body > div#outer",
             "maxChunkSize": 10,
-            "logItp": config.itpEnabled    // when IMT enabled, set this to false, set to true otherwise
+            "logRootElement": "html > body > div#outer",
+
+            "doSanitize": true,             // TODO check this! not working with IMT currently
+            "logItp": config.itpEnabled,    // when IMT enabled, set this to true, set to false otherwise
+            "logMouseMove": true            // when IMT enabled, set this to true, otherwise it is optional
         });
         $(window).logging("start");
 

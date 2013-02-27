@@ -1129,9 +1129,13 @@ input[readonly] {
     /*width: 400px;*/
 }
 
-/*body {
-    font-size: 22pt;
-}*/
+#vMousePointer {
+    z-index: 1000000000;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+}
+
 /* CASMACAT extension end */
 
 /*RTL language*/

@@ -134,6 +134,13 @@ function resetDocument($jobId, $fileId) {
                 deleteEventRow($logEvent->id, "key_event");
                 break;
 
+            case LogEvent::MOUSE_DOWN:
+            case LogEvent::MOUSE_UP:
+            case LogEvent::MOUSE_CLICK:
+            case LogEvent::MOUSE_MOVE:
+                deleteEventRow($logEvent->id, "mouse_event");
+                break;
+
             default:
                 log::doLog("CASMACAT: resetDocument(): Unknown log event type: '$logEvent->type', header id: '$logEvent->id'");
                 throw new Exception("CASMACAT: resetDocument(): Unknown log event type: '$logEvent->type', header id: '$logEvent->id'");
@@ -303,6 +310,14 @@ function fetchLogChunk($jobId, $fileId, $startOffset, $endOffset) {
                 $logEvent->keyData($eventRow);
                 break;
 
+            case LogEvent::MOUSE_DOWN:
+            case LogEvent::MOUSE_UP:
+            case LogEvent::MOUSE_CLICK:
+            case LogEvent::MOUSE_MOVE:
+                $eventRow = fetchEventRow($logEvent->id, "mouse_event");
+                $logEvent->mouseData($eventRow);
+                break;
+
             default:
                 log::doLog("CASMACAT: fetchLogChunk(): Unknown log event type: '$logEvent->type', header id: '$logEvent->id'");
                 throw new Exception("CASMACAT: fetchLogChunk(): Unknown log event type: '$logEvent->type', header id: '$logEvent->id'");
@@ -360,7 +375,38 @@ function snakeToCamel($row) {
 }
 
 /**
+ * Inserts an entry into the mouse_event and log_event_header table.
+ */
+function insertMouseEvent($event) {
+    $headerId = insertLogEventHeader($event);
+
+    $data = array();
+    $data["id"] = "NULL";
+    $data["header_id"] = $headerId;
+    $data["which"] = $event->which;
+    $data["x"] = $event->x;
+    $data["y"] = $event->y;
+    $data["shift"] = $event->shift;
+    $data["ctrl"] = $event->ctrl;
+    $data["alt"] = $event->alt;
+    $data["cursor_position"] = $event->cursorPosition;
+
+    $db = Database::obtain();
+    $db->insert("mouse_event", $data);
+
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: insertMouseEvent(): " . print_r($err, true));
+        throw new Exception("CASMACAT: insertMouseEvent(): " . print_r($err, true));
+//        return $errno * -1;
+    }
+}
+
+/**
  * Inserts an entry into the key_event and log_event_header table.
+ *
+ * TODO replace 'character' by 'mappedKey'
  *
  */
 function insertKeyEvent($event) {

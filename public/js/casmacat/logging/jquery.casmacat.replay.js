@@ -315,6 +315,9 @@
             vsContents = $("#virtualScreen").contents();
 //            settings.itpEnabled = new Boolean(vsWindow.config.enable_itp);
 
+            // insert virtual mouse pointer
+            vsContents.find("body").append("<img id='vMousePointer' src='" + config.basepath + "public/img/casMousePointer.png'></img>");
+
             vsReady = true;
             if (firstChunkLoaded) {
                 updateUIStatus("Ready.");
@@ -787,7 +790,7 @@ debug(event);
                     data: {
                         matches: JSON.parse(event.matches)
                     }
-                }
+                };
                 vsWindow.UI.getContributionSuccess(d, element, element, 0, element);
                 break;
             case logEventFactory.SUGGESTION_CHOSEN:
@@ -829,13 +832,13 @@ debug(event);
             case logEventFactory.SHOW_ALIGNMENT_BY_KEY:
 //debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
 //debug(event);
-//                itpData = JSON.parse(event.data);
-//                vsWindow.$("#" + event.elementId).trigger('caretenter', itpData);
-//                break;
+                itpData = JSON.parse(event.data);
+                vsWindow.$("#" + event.elementId).trigger('caretenter', itpData);
+                break;
             case logEventFactory.HIDE_ALIGNMENT_BY_KEY:
-//                itpData = JSON.parse(event.data);
-//                vsWindow.$("#" + event.elementId).trigger('caretleave', itpData);
-//                break;
+                itpData = JSON.parse(event.data);
+                vsWindow.$("#" + event.elementId).trigger('caretleave', itpData);
+                break;
 
             case logEventFactory.KEY_DOWN:
                 break;
@@ -848,6 +851,23 @@ debug(event);
                         setCursorPos(event.elementId, event.cursorPosition);
                     }
                 }
+                break;
+
+            case logEventFactory.MOUSE_DOWN:
+                break;
+            case logEventFactory.MOUSE_UP:
+                break;
+            case logEventFactory.MOUSE_CLICK:
+                if (element.hasClass("editarea")) {
+                    setCursorPos(event.elementId, event.cursorPosition);
+                }
+                else if (element.parents("div.editarea").get(0)) {
+                    setCursorPos(element.parents("div.editarea").get(0).prop("id"), event.cursorPosition);
+                }
+//                break;    // let it slip so the pointer is moved, too
+            case logEventFactory.MOUSE_MOVE:
+                vsWindow.$("#vMousePointer").css("left", event.x + "px");
+                vsWindow.$("#vMousePointer").css("top", event.y + "px");
                 break;
 
             default:
@@ -870,9 +890,9 @@ $.error("Erroneous event");
     };
 
     var setCursorPos = function(elementId, pos) {
-        if (settings.itpEnabled) {
-            return;
-        }
+//        if (settings.itpEnabled) {
+//            return;
+//        }
         vsWindow.$("#" + elementId).focus();
         vsWindow.$("#" + elementId).setCursorPositionContenteditable(pos);
     };

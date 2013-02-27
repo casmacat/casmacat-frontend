@@ -54,6 +54,11 @@ var LogEventFactory = function(elementIdMode) {
 
     this.KEY_DOWN = "keyDown";
     this.KEY_UP = "keyUp";
+
+    this.MOUSE_DOWN = "mouseDown";
+    this.MOUSE_UP = "mouseUp";
+    this.MOUSE_CLICK = "mouseClick";
+    this.MOUSE_MOVE = "mouseMove";
 };
 
 /**
@@ -190,10 +195,23 @@ LogEventFactory.prototype.newLogEvent = function(type, element) {
             logEvent.alt = arguments[7];
             break;
 
+        case this.MOUSE_DOWN:
+        case this.MOUSE_UP:
+        case this.MOUSE_CLICK:
+        case this.MOUSE_MOVE:
+            logEvent.which = arguments[2];
+            logEvent.x = arguments[3];
+            logEvent.y = arguments[4];
+            logEvent.shift = arguments[5];
+            logEvent.ctrl = arguments[6];
+            logEvent.alt = arguments[7];
+            logEvent.cursorPosition = arguments[8];
+            break;
+
         default:
             alert("Unknown event type: '" + $(element).getAbsoluteXPath() + "'!");
             $.error("Unknown event type: '" + $(element).getAbsoluteXPath() + "'");
     }
 
     return logEvent;
-}
+};

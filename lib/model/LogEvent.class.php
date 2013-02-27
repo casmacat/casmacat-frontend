@@ -35,6 +35,11 @@ class LogEvent {
     const KEY_DOWN = "keyDown";
     const KEY_UP = "keyUp";
 
+    const MOUSE_DOWN = "mouseDown";
+    const MOUSE_UP = "mouseUp";
+    const MOUSE_CLICK = "mouseClick";
+    const MOUSE_MOVE = "mouseMove";
+
     public $id;
     public $jobId;
     public $fileId;
@@ -127,6 +132,16 @@ class LogEvent {
         $this->shift = $object->shift;
         $this->ctrl = $object->ctrl;
         $this->alt = $object->alt;
+    }
+
+    public function mouseData($object) {
+        $this->which = $object->which;
+        $this->x = $object->x;
+        $this->y = $object->y;
+        $this->shift = $object->shift;
+        $this->ctrl = $object->ctrl;
+        $this->alt = $object->alt;
+        $this->cursorPosition = $object->cursorPosition;
     }
 
     public function toString() {
