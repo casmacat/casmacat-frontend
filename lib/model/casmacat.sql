@@ -100,3 +100,8 @@ CREATE TABLE `key_event` (
   `alt` bit(1) NOT NULL COMMENT 'Was the alt key pressed in addition?',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2440 DEFAULT CHARSET=utf8 COMMENT='Stores key (down/up) events.'$$
+
+CREATE VIEW v_files_jobs AS
+SELECT f.id, f.id_project, f.filename, f.source_language, fj.id_job, j.password 
+FROM files f, jobs j, files_job fj
+WHERE fj.id_file = f.id AND fj.id_job = f.id$$

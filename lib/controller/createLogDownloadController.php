@@ -109,7 +109,8 @@ class createLogDOwnloadController extends downloadController {
 
         // Source text
         $sourceTextElement = createAndAppendElement($doc, $root, 'sourceText');
-        $targetTextElement = createAndAppendElement($doc, $root, 'targetText');
+        $initialTargetTextElement = createAndAppendElement($doc, $root, 'initialTargetText');
+        $finalTargetTextElement = createAndAppendElement($doc, $root, 'finalTargetText');
         
         
         
@@ -124,7 +125,7 @@ class createLogDOwnloadController extends downloadController {
         }
 
         // Target text
-        $queryId = $db->query("SELECT id_segment, translation FROM `segment_translations` st, `files_job` fj WHERE st.id_job = $this->id_job AND fj.id_job = $this->id_job AND fj.id_file = $this->id_file");
+        $queryId = $db->query("SELECT id_segment, translation, suggestion FROM `segment_translations` st, `files_job` fj WHERE st.id_job = $this->id_job AND fj.id_job = $this->id_job AND fj.id_file = $this->id_file");
         log::doLog("queryId: ".$queryId);
 
         $err = $db->get_error();
@@ -140,9 +141,14 @@ class createLogDOwnloadController extends downloadController {
         while ( ($row = $db->fetch($queryId)) != false ) {
             log::doLog("CASMACAT: fetchTranslations(): Next row: " . print_r($row, true));
             
-            $tmp = createAndAppendElement($doc, $targetTextElement, 'segment');
+            $tmp = createAndAppendElement($doc, $initialTargetTextElement, 'segment');
             $tmp->setAttribute('id', $row['id_segment']);
-            $tmp->appendChild($doc->createTextNode($row['translation']));            
+            $tmp->appendChild($doc->createTextNode($row['suggestion']));
+            
+            $tmp = createAndAppendElement($doc, $finalTargetTextElement, 'segment');
+            $tmp->setAttribute('id', $row['id_segment']);
+            $tmp->appendChild($doc->createTextNode($row['translation']));  
+
         }         
         
         //Events
