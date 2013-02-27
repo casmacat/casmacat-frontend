@@ -40,7 +40,7 @@ var Memento = require("module.memento");
       var conf = cfg();
       if (conf.config.mode != 'PE') {
         var target = $target.editable('getText'),
-            pos    = $target.editable('getCaretPos');
+            pos    = typeof self.currentCaretPos !== 'undefined' ? self.currentCaretPos.pos : $target.editable('getCaretPos');
     
         conf.itpServer.rejectSuffix({
           target: target,
@@ -165,11 +165,14 @@ var Memento = require("module.memento");
       
       // Handle translation responses
       itp.on('decodeResult', function(data, err) {
-        var bestResult = data.nbest[0];
         // make sure new data still applies to current source
-        if (data.source !== $source().editable('getText')) return;
-    
+        if (data.source !== $source().editable('getText')) {
+          console.warn("Current source and received source do not match");
+          return;
+        }
+ 
         //console.log('contribution changed', data);
+        var bestResult = data.nbest[0];
    
         self.vis.updateSuggestions(data);
         
@@ -199,6 +202,19 @@ var Memento = require("module.memento");
         cfg().itpServer.getTokens(query);
       });
 
+      // Handle post-editing (target has changed but not source)
+      itp.on('applyReplacementRulesResult', function(data, err) {
+        if (data.source !== $source().editable('getText')) return;
+        
+      	self.vis.updateTranslationDisplay(data);
+
+        // resizes the alignment matrix in a smoothed manner but it does not fill missing alignments 
+        // (makes a diff between previous and current tokens and inserts/replaces/deletes columns and rows)
+        $target.trigger('tokens', [data, err]);
+        $target.trigger('editabledomchange', [data, err]);
+      });
+    
+ 
       // Handle post-editing (target has changed but not source)
       itp.on('getTokensResult', function(data, err) {
         // make sure new data still applies to current source and target texts
@@ -231,6 +247,12 @@ var Memento = require("module.memento");
     
       // Handle confidence changes (updates highlighting) 
       itp.on(['setPrefixResult', 'rejectSuffixResult'], function(data, err) {
+        // make sure new data still applies to current source
+        if (data.source !== $source().editable('getText')) {
+          console.warn("Current source and received source do not match");
+          return;
+        }
+
         self.vis.updateSuggestions(data);
         
         self.mousewheel.addElement(data);

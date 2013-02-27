@@ -65,14 +65,14 @@
       // sets the text in the editable div. It tokenizes the sentence and wraps tokens in spans
       $source().editable('setText', source, sourceSeg);
       $target.editable('setText', target, targetSeg);
-      
+
       // requests the server for new alignment and confidence info
       var query = {
         source: source,
         target: target,
         //validated_words: []
       }
-      
+
       var conf = cfg();
       if (conf.config.useAlignments) {
         conf.itpServer.getAlignments(query);
@@ -165,7 +165,7 @@
       if (!(alignments.length > 0 && alignments[0].length > 0)) return;
       if (source !== $source().editable('getText')) return;
       if (target !== $target.editable('getText')) return;
-      
+
       // get span tokens 
       var sourcespans = $('.editable-token', $source());
       var targetspans = $('.editable-token', $target);

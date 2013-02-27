@@ -1129,6 +1129,105 @@ input[readonly] {
     /*width: 400px;*/
 }
 
+/* style for selected row in table */
+.rowSelected {
+    font-weight: bolder;
+    font-style: italic;
+}
+
+.documentListTable {
+    width: 100%;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+/*table#documentList */
+span.paginate_button,
+span.paginate_active {
+    display: inline-block;
+    background-color: silver;
+    padding: 2px 6px;
+    margin-left: 2px;
+    cursor: pointer;
+    /*	*cursor: hand;*/
+}
+span.paginate_active {
+    background-color: transparent;
+    border: 1px solid black;
+}
+
+span.paginate_button_disabled {
+    color: #e7e7e7;
+}
+
+table {
+    /*    border: 1px solid #666;*/
+    border: 1px solid white;
+    margin: 20px 0 20px 0 !important;
+}
+
+th, td {
+    padding: 2px 4px 2px 4px !important;
+    text-align: left;
+    vertical-align: top;
+}
+
+th {
+    background-color: silver;
+}
+
+th:hover {
+    background-color: #fc7;
+}
+
+tbody tr.even {
+    background-color: #e7e7e7;
+}
+
+tr a {
+    color: rgb(102, 102, 102);
+    text-decoration: none;
+}
+tr a:hover {
+    text-decoration: underline;
+}
+
+dl dd {
+    margin-left: 10px;
+}
+
+dl dt {
+    font-weight: bold;
+}
+
+dl {
+    border: 1px solid black;
+    margin: 5px;
+}
+
+.highlight {
+    border: 5px dotted #eee;
+}
+
+.error {
+    background-color: #fee;
+}
+
+/*Button download in the list of documents */
+#downloadForm{
+    display: inline;
+    
+}
+
+.dataTables_length{
+    display: inline;
+    margin-right: 15px;
+}
+
+.dataTables_filter{
+    display: inline;
+    margin-left: 15px;
+}
 #vMousePointer {
     z-index: 1000000000;
     position: absolute;

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en-GB">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Documents</title>
+        <link rel="shortcut icon" href="${basepath}public/img/favicon.ico" />
+        <link href="${basepath}public/css/style.css" rel="stylesheet" type="text/css" />
+        <link rel='stylesheet' media='screen and (min-width: 1181px) and (max-width: 1680px)' href='${basepath}public/css/1300more.css' />
+        
+        <script type="text/javascript" src="${basepath}public/js/lib/jquery.js"></script>
+        <script type="text/javascript" src="${basepath}public/js/casmacat/jquery.dataTables.js" language="javascript" />
+        <script type="text/javascript">
+            var config = {
+                basepath: '${basepath | string:/}'
+        }
+        </script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+
+                $('#documentList').dataTable( {
+                    'bProcessing': true,
+                    'bServerSide': true,
+                    'sPaginationType': 'full_numbers',
+                    'bStateSave': false,
+                    'sAjaxSource': '${basepath}index.php?action=generateList'
+                } );
+            } );
+            var jobid = null;
+            var password = null;
+            var selectedDoc = null;
+            var selectedAssignment = null;
+            $('#documentList tbody tr').live('click', function(e) {
+
+                if ( $(this).hasClass('rowSelected') ) {
+                    $(this).removeClass('rowSelected');
+                    fileid = null;
+                    jobid = null;
+                    password = null;
+                    filename = null;
+                    srclang = null;
+                    selectedDoc = null;
+                    selectedAssignment = null;
+                    
+                    $('#downloadForm input[id=download]').attr('disabled','disabled');
+                    $('#startTranslation').attr('disabled', true);
+                    //$('#downloadTxt').attr('disabled', true);
+//                    $('#downloadTranslog2').attr('disabled', true);
+                    $('#replay').attr('disabled', true);
+                }
+                else {
+                    $(selectedDoc).parent('tr').removeClass('rowSelected');
+                    $(this).addClass('rowSelected');
+                    selectedAssignment = $(this).find('td');
+                    selectedDoc = $(this).find('td').next();
+                    fileid = $(this).find('td').get(0).textContent;
+                    filename = $(this).find('td').get(1).textContent;
+                    srclang = $(this).find('td').get(2).textContent;
+                    jobid = $(this).find('td').get(4).textContent;
+                    password = $(this).find('td').get(5).textContent;
+                    $("#downloadForm input[name=jid]").val(jobid);
+                    $("#downloadForm input[name=fileid]").val(fileid);
+                    $("#downloadForm input[name=filename]").val(filename);
+                    $("#downloadForm input[name=srclang]").val(srclang);
+
+                    $('#startTranslation').attr('disabled', false);
+                    //$('#downloadTxt').attr('disabled', false);
+//                    $('#downloadTranslog2').attr('disabled', false);
+                    $('#replay').attr('disabled', false);
+                    $('#downloadForm input[id=download]').attr('disabled',false);
+                } }
+        );
+            function startTranslation() {
+//                var data = {
+//                    action: "cat",
+//                    jid: jobid,
+//                    password: password
+//                };
+//                $.ajax({
+//                    async: false,
+//                    url:config.basepath + 'index.php?action=cat',
+//                    data: data,
+//                    type: "GET"
+//                 
+//                })
+                //window.location.href = '${basepath}index.php?action=cat&jid='+jobid+'&password='+password;
+                window.location.href = '${basepath}translate/'+filename+'/'+srclang+'/'+jobid+'-'+password;
+       
+            }
+            
+            function replay(){
+                window.location.href = '${basepath}replay/'+filename+'/'+srclang+'/'+jobid+'-'+password;
+            }
+
+//            function download() {
+//                var data = {
+//                    action: "createLogDownload",
+//                    jid: jobid,
+//                    fileid: fileid
+//                };
+//                $.ajax({
+//                    async: false,
+//                    url:config.basepath + 'index.php?action=createLogDownload',
+//                    data: data,
+//                    type: "POST"
+//                 
+//                })
+                //alert(encodeURIComponent('&'));
+                //window.location.href = "${basepath}index.php?action=createLogDownload&jid=" + jobid + "&fileid="+fileid;
+//            }
+
+//            function downloadTranslog2() {
+//                window.location.href = 'download.php?assignment_id=' + selectedAssignment.html() + '&type=translog2';
+//            }
+
+            
+            
+          </script>   
+     </head>
+    <body>
+        <header>
+            <div class="wrapper">   
+                <a href="${basepath}" class="logo"></a>
+            </div> <!-- .wrapper -->
+        </header>
+        <article>
+            <h3>Select a document:</h3>
+        <table id="documentList" class="documentListTable"
+               style="border:1px solid black;">
+            <thead>
+                <tr>
+                    <th width="17%" style="border:1px solid black;">File ID</th>
+                    <th width="17%" style="border:1px solid black;">Filename</th>
+                    <th width="17%" style="border:1px solid black;">Source language</th>
+                    <th width="17%" style="border:1px solid black;">Project ID</th>
+                    <th width="17%" style="border:1px solid black;">Job ID</th>
+                    <th width="17%" style="border:1px solid black;">Password</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="2" class="dataTables_empty">Loading data from server</td>
+                </tr>
+            </tbody>
+
+        </table>
+        
+
+            <input id="startTranslation" type="button" value="Translate" disabled="disabled" onclick="javascript:startTranslation();"/>
+            <input id="replay" type="button" value="Replay" disabled="disabled" onclick="javascript:replay();"/>
+            
+            <form id="downloadForm" action="${basepath}" method="post">
+                <input type="hidden" name="action" value="createLogDownload"/>
+                <input type="hidden" name="jid" value="0"/>
+                <input type="hidden" name="fileid" value="0"/>
+                <input type="hidden" name="filename" value="0"/>
+                <input type="hidden" name="srclang" value="0"/>
+                <input id="download" name="submit" type="submit" value="Download" disabled="disabled"/>
+            </form>    
+        
+            
+        
+    </article>
+    </body>
+</html>
+

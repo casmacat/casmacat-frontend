@@ -677,4 +677,11 @@ function getMoreSegmentsWithoutTranslation($jid, $password, $step = 50, $ref_seg
     return $results;
 }
 
+function createAndAppendElement($doc, $parent, $name) {
+    $tmp = $doc->createElement($name);
+    $parent->appendChild($tmp);
+
+    return $tmp;
+}
+
 ?>
