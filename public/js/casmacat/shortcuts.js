@@ -1,0 +1,84 @@
+$(function(){
+
+  require('jquery.hotkeys');
+  
+  UI.addKeyboardShortcut = function(combo, fn) {
+    // XXX: Should events be attached to other DOM nodes?
+    $("body, .editarea").bind('keydown', combo, fn);
+  };
+  
+  UI.delKeyboardShortcut = function(combo, fn) {
+    // XXX: Should events be detached from other DOM nodes?
+    $("body, .editarea").unbind('keydown', combo, fn);
+  };
+  
+  // Define handlers as named functions to ease attaching/detaching
+  
+  function loadNextSegment(e) {
+    e.preventDefault();
+    UI.gotoNextSegment();  
+  };
+  
+  function loadPrevSegment(e) {
+    e.preventDefault();
+    UI.gotoPreviousSegment();
+  };
+  
+  function copySourceToTarget(e) {
+    e.preventDefault();
+    UI.copySource();
+  };
+  
+  function validateTranslation(e) {
+    e.preventDefault();
+    // This is copied from cat.js ¬¬
+    $('.editor .translated').click();
+  };
+  
+  function chooseSuggestion(e) {
+    e.preventDefault();
+    var num;
+    switch(e.which) {
+      case 49:  // key 1
+      case 97:  // numpad 1
+        num = 1;
+        break;
+      case 50:  // key 2
+      case 98:  // numpad 2
+        num = 2;
+        break;
+      case 51:  // key 3
+      case 99:  // numpad 3
+        num = 3;
+      case 52:  // key 4
+      case 100: // numpad 4
+        num = 4;
+        break;
+      case 53:  // key 5
+      case 101: // numpad 5
+        num = 5;
+    }
+    UI.chooseSuggestion(num);
+  };
+
+  // Define key bindings here
+  
+  var keyBindings = {
+        'Ctrl+up': loadPrevSegment,
+      'Ctrl+down': loadNextSegment,
+       'Ctrl+ins': copySourceToTarget,
+    'Ctrl+return': validateTranslation,
+         'Ctrl+1': chooseSuggestion,
+         'Ctrl+2': chooseSuggestion,
+         'Ctrl+3': chooseSuggestion,
+         'Ctrl+4': chooseSuggestion,
+         'Ctrl+5': chooseSuggestion,
+  };
+  
+  for (var k in keyBindings) {
+    if (keyBindings.hasOwnProperty(k)) {
+      UI.addKeyboardShortcut(k, keyBindings[k]);
+    }
+  }
+  
+});
