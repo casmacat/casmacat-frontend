@@ -72,10 +72,10 @@ require("jquery.hotkeys");
         }
         // block scroll over element
         return false;
-      }).bind('keydown', 'Ctrl+up', function(e){
+      }).bind('keydown', 'Alt+up', function(e){
         e.preventDefault(); // prevent scrolling
         onMoveUp(e);
-      }).bind('keydown', 'Ctrl+down', function(e){ 
+      }).bind('keydown', 'Alt+down', function(e){ 
         e.preventDefault(); // prevent scrolling
         onMoveDown(e);
       });
