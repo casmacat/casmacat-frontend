@@ -66,7 +66,7 @@ $(function(){
   var keyBindings = {
         'Ctrl+up': loadPrevSegment,
       'Ctrl+down': loadNextSegment,
-       'Ctrl+ins': copySourceToTarget,
+    'Ctrl+insert': copySourceToTarget,
     'Ctrl+return': validateTranslation,
          'Ctrl+1': chooseSuggestion,
          'Ctrl+2': chooseSuggestion,
