@@ -60,7 +60,7 @@ $(function(){
     original_openSegment.call(UI, editarea);
     var $target = $(editarea), sid = $target.data('sid'), $source = $("#segment-" + sid + "-source");
     console.log('open', $target);
-    $target.on('ready', function() {
+    $target.on('ready.matecat', function() {
       console.log('onready', $target.text());
       if ($target.text().length === 0) $target.editableItp('decode');
       $target.editableItp('startSession');
