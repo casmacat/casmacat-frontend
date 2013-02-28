@@ -363,28 +363,31 @@ var Memento = require("module.memento");
         }      
       };
       
-      // #source events
-      // on key up throttle a new translation
-      $source.bind('keyup' + nsClass, function(e) {
-        var $this = $(this),
-            data = $this.data('editable'),
-            source = $this.editable('getText');
+      var sourceOptions = $source.data('editable').options;
+      if (!sourceOptions.disabled) {
+        // #source events
+        // on key up throttle a new translation
+        $source.bind('keyup' + nsClass, function(e) {
+          var $this = $(this),
+              data = $this.data('editable'),
+              source = $this.editable('getText');
   
-        if (isPrintableChar(e)) {
-          throttle(function() {
-            if (data.str != source) {
-              var query = {
-                source: source,
-                //num_results: 2,
+          if (isPrintableChar(e)) {
+            throttle(function() {
+              if (data.str != source) {
+                var query = {
+                  source: source,
+                  //num_results: 2,
+                }
+                itp.decode(query);
               }
-              itp.decode(query);
-            }
-          }, throttle_ms);
-        }
-      })
-      .bind('change' + nsClass, function(e){
-        itp.startSession({source: $source.editable('getText')});
-      });
+            }, throttle_ms);
+          }
+        })
+        .bind('change' + nsClass, function(e){
+          itp.startSession({source: $source.editable('getText')});
+        });
+      }
 
     
       self.typedWords = {};

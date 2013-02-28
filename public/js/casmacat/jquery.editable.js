@@ -18,7 +18,7 @@
         
         // If the plugin hasn't been initialized yet
         if (!data) {
-          $(this).data('editable', {ntok: 0});
+          $(this).data('editable', {ntok: 0, options: options});
         }
 
         $this.bind('blur.editable click.editable mouseleave.editable keyup.editable', this, function(ev) {
