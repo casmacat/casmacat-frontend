@@ -64,6 +64,11 @@ $(function(){
       console.log('onready', $target.text());
       if ($target.text().length === 0) $target.editableItp('decode');
       $target.editableItp('startSession');
+      // Check for user-defined ITP conf
+      var settings = require(config.basepath + '/' + config.catsetting);
+      if (settings) {
+        $target.editableItp('updateConfig', settings);
+      }
     })
     .on('decode.matecat', function (ev, data, err) {
         $(window).trigger('translationChange', {element: $target[0], type: "decode", data: data});
@@ -112,21 +117,18 @@ $(function(){
       itpServerUrl:   config.catserver,
       replay:         config.replay
     });
-    console.log('editableItp', $target);
+    
     addSearchReplaceEvents();
   };
 
   UI.closeSegment = function(editarea) {
     // WTF? editarea semantics is not the same as in openSegment
-    console.log('close*', editarea);
     if (editarea) {
       var sid = $(editarea).attr('id');
       var $target = $('#'+sid+'-editarea'),  $source = $('#'+sid+'-editarea');
       $target.find('*').andSelf().off('.matecat');
       $source.find('*').andSelf().off('.matecat');
-      console.log('close', $target);
       $target.editableItp('destroy');
-      console.log('bye editableItp', $target.attr('id'));
     }
     original_closeSegment.call(UI, editarea);
   };

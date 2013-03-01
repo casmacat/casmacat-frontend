@@ -1159,7 +1159,7 @@ UI = {
                 }
                 // Attention Bug: We are mixing the view mode and the raw data mode.
                 // before doing a enanched view you will need to add a data-original tag
-                $('.sub-editor .overflow',segment).append('<ul class="graysmall" data-item="'+(index+1)+'" data-id="'+segment_id+'"><li >'+((disabled)?'':' <a id="'+segment_id+'-tm-'+segment_id+'-delete" href="#" class="trash" title="delete this row"></a>')+'<span id="'+segment_id+'-tm-'+segment_id+'-source" class="suggestion_source">'+this.segment+'</span></li><li class="b"><span class="graysmall-message">ALT+'+(index+1)+'</span><span id="'+segment_id+'-tm-'+segment_id+'-translation" class="translation">'+this.translation+'</span></li><ul class="graysmall-details"><li class="percent ' + cl_suggestion + '">'+(this.match)+'</li><li>'+this['last_update_date']+'</li><li class="graydesc">Source: <span class="bold">'+cb+'</span></li></ul></ul>');
+                $('.sub-editor .overflow',segment).append('<ul class="graysmall" data-item="'+(index+1)+'" data-id="'+segment_id+'"><li >'+((disabled)?'':' <a id="'+segment_id+'-tm-'+segment_id+'-delete" href="#" class="trash" title="delete this row"></a>')+'<span id="'+segment_id+'-tm-'+segment_id+'-source" class="suggestion_source">'+this.segment+'</span></li><li class="b"><span class="graysmall-message">Ctrl+'+(index+1)+'</span><span id="'+segment_id+'-tm-'+segment_id+'-translation" class="translation">'+this.translation+'</span></li><ul class="graysmall-details"><li class="percent ' + cl_suggestion + '">'+(this.match)+'</li><li>'+this['last_update_date']+'</li><li class="graydesc">Source: <span class="bold">'+cb+'</span></li></ul></ul>');
             });
             UI.setDeleteSuggestion(segment);
 
@@ -1423,7 +1423,7 @@ UI = {
                     if(UI.debug) console.log('match deleted');
 
                     $(".editor .matches .graysmall").each(function(index){
-                        $(this).find('.graysmall-message').text('ALT+'+(index+1));
+                        $(this).find('.graysmall-message').text('Ctrl+'+(index+1));
                         $(this).attr('data-item',index+1);
                         UI.reinitMMShortcuts();
                     })
