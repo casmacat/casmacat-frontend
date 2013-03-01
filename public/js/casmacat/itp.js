@@ -72,7 +72,7 @@ $(function(){
         }
       }
       // A button to toggle ITP mode
-      var indicator = $('<li/>').html('<span id="itp-indicator" class="translated">'+settings.mode+'</span>');
+      var indicator = $('<li/>').html('<span id="itp-indicator" class="translated">'+$target.editableItp('getConfig').mode+'</span>');
       indicator.click(function(e){
         UI.toggleItp(e);
       });
