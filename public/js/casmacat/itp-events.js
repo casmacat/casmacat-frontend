@@ -40,8 +40,8 @@ var Memento = require("module.memento");
       var conf = cfg();
       if (conf.config.mode != 'PE') {
         var target = $target.editable('getText'),
-            pos    = typeof self.currentCaretPos !== 'undefined' ? self.currentCaretPos.pos : $target.editable('getCaretPos');
-    
+            pos    = $target.editable('getCaretPos');
+
         conf.itpServer.rejectSuffix({
           target: target,
           caretPos: pos,
@@ -64,8 +64,7 @@ var Memento = require("module.memento");
           console.log("Loading previous data...", data);
           self.vis.updateSuggestions(data);
         } else {
-          console.log("Rejecting...");
-          self.mousewheel.addElement(decodedResult);
+          console.log("Rejecting...", decodedResult);
           reject();
         }
       }
@@ -395,7 +394,7 @@ var Memento = require("module.memento");
         // IF "implicit reject on click" AND "cursor pos has chaged": invalidate previous states
         if (typeof self.currentCaretPos != 'undefined' && caretPos !== self.currentCaretPos.pos) {
           self.mousewheel.invalidate();
-          //self.memento.invalidate();
+          self.mousewheel.addElement(decodedResult);
         }
       };
             

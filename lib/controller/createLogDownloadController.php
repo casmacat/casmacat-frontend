@@ -155,16 +155,35 @@ class createLogDOwnloadController extends downloadController {
         $eventElements = createAndAppendElement($doc, $root, 'events');
         
         $data = '';
+        log::doLog("total = ".$total);
         while ($total > 100){
             $end = 100;
             $total = $total - 100;
             $result = fetchLogChunk($this->id_job, $this->id_file, 0, $end);        
             
             $data = $data.print_r($result, true);
+            log::doLog("total = ".$total);
+            
+            for ($i=0; $i<100; $i++){
+            $tmp = createAndAppendElement($doc, $eventElements, $result[$i]->type);
+            $tmp->setAttribute('id', $result[$i]->id);
+            
+            //Recorrer elementos del objeto
+            foreach($result[$i] as $attribute => $val){
+                
+                if ($attribute != jobId and $attribute != fileId and $attribute != type){
+                    $tmp->setAttribute($attribute, $val); 
+                }
+            }
+
+        }
+            
+
         } 
 
         $result = fetchLogChunk($this->id_job, $this->id_file, 0, $total);
         $data = $data.print_r($result, true);
+        log::doLog("data = ".print_r($data, true));
         $len = count($result);
         for ($i=0; $i<$len; $i++){
             $tmp = createAndAppendElement($doc, $eventElements, $result[$i]->type);
@@ -180,7 +199,9 @@ class createLogDOwnloadController extends downloadController {
 
         }
         
-        //log::doLog("Events = ".print_r($data, true));
+        log::doLog("Events = ".print_r($data, true));
+        
+        
         
         header('Content-Type: text/xml; charset=UTF-8');
         header('Content-Disposition: attachment; filename="' . $this->filename . '.xml"');

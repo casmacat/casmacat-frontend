@@ -519,7 +519,7 @@ UI = {
         // Attention I use .text to obtain a entity conversion, by I ignore the quote conversion done before adding to the data-original
         // I hope it still works.
 
-        $(".editarea",this.currentSegment).text(source_val).keyup().focus();
+        $(".editarea",this.currentSegment).text(source_val).focus();
         $(".editarea",this.currentSegment).effect("highlight", {}, 1000);
     },
 

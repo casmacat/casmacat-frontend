@@ -48,6 +48,9 @@ $(function(){
   UI.callbacks = {};
 
   UI.setKeyboardShortcuts = function(){}; // FTW
+  UI.reinitMMShortcuts    = function(){}; // Use shortcuts.js instead
+  require('shortcuts');
+  
   var original_openSegment = UI.openSegment;
   var original_closeSegment = UI.closeSegment;
   var original_doRequest = UI.doRequest;
