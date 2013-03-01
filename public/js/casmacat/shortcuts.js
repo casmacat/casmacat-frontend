@@ -71,8 +71,9 @@ $(function(){
     e.preventDefault();
     getEditArea().editable('setText', "");
   };
-  
-  function toggleItp(e) {
+
+  // Expose this function to other modules
+  UI.toggleItp = function(e) {
     e.preventDefault();
     var $ea = getEditArea();
     var currentMode = $ea.editableItp('getConfig').mode,
@@ -80,6 +81,8 @@ $(function(){
     $ea.editableItp('updateConfig', {
       mode: newMode
     });
+    // Inform user via UI
+    $('#itp-indicator').text(newMode);
   };
   
   // Define key bindings here
@@ -95,7 +98,7 @@ $(function(){
          'Ctrl+4': chooseSuggestion,
          'Ctrl+5': chooseSuggestion,
        'Ctrl+del': clearTarget,
-            'esc': toggleItp,
+            'esc': UI.toggleItp,
   };
   
   for (var k in keyBindings) {

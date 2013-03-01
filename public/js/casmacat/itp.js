@@ -71,6 +71,12 @@ $(function(){
           $target.editableItp('updateConfig', settings);
         }
       }
+      // A button to toggle ITP mode
+      var indicator = $('<li/>').html('<span id="itp-indicator" class="translated">'+settings.mode+'</span>');
+      indicator.click(function(e){
+        UI.toggleItp(e);
+      });
+      $('.buttons').prepend(indicator);
     })
     .on('decode.matecat', function (ev, data, err) {
         $(window).trigger('translationChange', {element: $target[0], type: "decode", data: data});
@@ -269,5 +275,5 @@ $(function(){
     itpServer.setReplacementRule(rule);
   });
   // END S&R facilities --------------------------------------------------------
-  
+     
 });
