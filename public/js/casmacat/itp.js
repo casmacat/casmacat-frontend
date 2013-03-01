@@ -65,9 +65,11 @@ $(function(){
       if ($target.text().length === 0) $target.editableItp('decode');
       $target.editableItp('startSession');
       // Check for user-defined ITP conf
-      var settings = require(config.basepath + '/' + config.catsetting);
-      if (settings) {
-        $target.editableItp('updateConfig', settings);
+      if (config.catsetting) {
+        var settings = require(config.basepath + '/' + config.catsetting);
+        if (settings) {
+          $target.editableItp('updateConfig', settings);
+        }
       }
     })
     .on('decode.matecat', function (ev, data, err) {
