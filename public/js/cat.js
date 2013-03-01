@@ -487,7 +487,7 @@ UI = {
     chooseSuggestion: function(w) {
         this.copySuggestionInEditarea(this.currentSegment,$('.editor ul[data-item='+w+'] li.b .translation').text(),$('.editor .editarea'),$('.editor ul[data-item='+w+'] ul.graysmall-details .percent').text());
         this.editarea.focus().effect("highlight", {}, 1000);
-		this.placeCaretAtEnd(document.getElementById($(this.editarea).attr('id')));
+		//this.placeCaretAtEnd(document.getElementById($(this.editarea).attr('id')));
 
     },
 
