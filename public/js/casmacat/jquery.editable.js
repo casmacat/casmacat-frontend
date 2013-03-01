@@ -264,7 +264,7 @@
       }
 
       return pos;
-     },
+    },
 
     setCaretAtToken: function(token) {
       var pos = this.editable('getTokenPos', token);
@@ -368,6 +368,13 @@
           $this.html(tokens.html()); 
           $this.editable('setCaretPos', pos);
           //console.log(pos, $this.html());
+          var lastEditedToken = $this.editable('getTokenAtCaretPos', pos).elem;
+          if (lastEditedToken.parentNode && $(lastEditedToken.parentNode).is('.editable-token')) {
+            lastEditedToken = lastEditedToken.parentNode;
+          }
+          $(lastEditedToken).prevAll().andSelf().each(function(i, elem){
+            $(elem).data("validated", true);
+          });
         }
         else {
           $this.html(tokens.html()); 

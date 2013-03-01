@@ -439,6 +439,10 @@ var Memento = require("module.memento");
           if (isPrintableChar(e)) {
             throttle(function () {
               if (data.str != target) {
+                // Predict from last edited token onwards
+                $target.find('span').each(function(i, elem){
+                  // TODO
+                });
                 var query = {
                   target: target,
                   caretPos: pos,
