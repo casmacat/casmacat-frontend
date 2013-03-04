@@ -2,6 +2,7 @@
 
   var NLP = require('nlp-utils');
   var G   = require('geometry-utils');
+  $('html').attr('spellcheck', 'false');
 
   var methods = {
     init: function(_options) {
