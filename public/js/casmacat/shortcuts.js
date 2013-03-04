@@ -11,6 +11,10 @@ $(function(){
     // XXX: Should events be detached from other DOM nodes?
     $("body, .editarea").unbind('keydown', combo, fn);
   };
+
+  function getEditArea() {
+    return UI.editarea || $('.editarea', UI.currentSegment)
+  };
   
   // Define handlers as named functions to ease attaching/detaching
   
@@ -27,6 +31,7 @@ $(function(){
   function copySourceToTarget(e) {
     e.preventDefault();
     UI.copySource();
+    getEditArea().editableItp('updateTokens');
   };
   
   function validateTranslation(e) {
@@ -59,8 +64,31 @@ $(function(){
         num = 5;
     }
     UI.chooseSuggestion(num);
+    getEditArea().editableItp('updateTokens');
   };
-
+  
+  function clearTarget(e) {
+    e.preventDefault();
+    getEditArea().editable('setText', "");
+  };
+  
+  function saveDraft(e) {
+    UI.setTranslation(UI.currentSegment, "draft");
+  };
+  
+  // Expose this function to other modules
+  UI.toggleItp = function(e) {
+    e.preventDefault();
+    var $ea = getEditArea();
+    var currentMode = $ea.editableItp('getConfig').mode,
+        newMode = currentMode == "ITP" ? "PE" : "ITP";
+    $ea.editableItp('updateConfig', {
+      mode: newMode
+    });
+    // Inform user via UI
+    $('#itp-indicator').text(newMode);
+  };
+  
   // Define key bindings here
   
   var keyBindings = {
@@ -73,6 +101,9 @@ $(function(){
          'Ctrl+3': chooseSuggestion,
          'Ctrl+4': chooseSuggestion,
          'Ctrl+5': chooseSuggestion,
+       'Ctrl+del': clearTarget,
+            'esc': UI.toggleItp,
+         'return': saveDraft,
   };
   
   for (var k in keyBindings) {

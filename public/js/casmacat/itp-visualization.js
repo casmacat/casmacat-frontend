@@ -65,7 +65,7 @@
       // sets the text in the editable div. It tokenizes the sentence and wraps tokens in spans
       $source().editable('setText', source, sourceSeg);
       $target.editable('setText', target, targetSeg);
-
+      
       // requests the server for new alignment and confidence info
       var query = {
         source: source,

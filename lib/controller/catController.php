@@ -263,6 +263,9 @@ class catController extends viewcontroller {
 		$this->template->target=$this->target;
 		//$this->template->cucu=$this->open_segment;
 
+        // FIXME: This is a temp workaround for the pre-evaluation. We should homogenize stuff like this ASAP!
+        // We reuse the $page var to indicate the CAT client configuration, since $page is actually not being used in the prototype.
+        $this->template->catsetting = $this->page;
 
 //		$this->template->stats=$stats[0]['TOTAL'];
 

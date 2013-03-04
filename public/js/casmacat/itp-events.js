@@ -311,7 +311,7 @@ var Memento = require("module.memento");
       .bind('keydown' + nsClass, function(e) {
         // prevent new lines
         if (e.which === 13) {
-          e.stopPropagation();
+          //e.stopPropagation(); // We need to capture the event to fire 'save draft translation' fn
           e.preventDefault();
         }
       }).bind('keydown' + nsClass, 'tab', function(e){
@@ -363,28 +363,31 @@ var Memento = require("module.memento");
         }      
       };
       
-      // #source events
-      // on key up throttle a new translation
-      $source.bind('keyup' + nsClass, function(e) {
-        var $this = $(this),
-            data = $this.data('editable'),
-            source = $this.editable('getText');
+      var sourceOptions = $source.data('editable').options;
+      if (!sourceOptions.disabled) {
+        // #source events
+        // on key up throttle a new translation
+        $source.bind('keyup' + nsClass, function(e) {
+          var $this = $(this),
+              data = $this.data('editable'),
+              source = $this.editable('getText');
   
-        if (isPrintableChar(e)) {
-          throttle(function() {
-            if (data.str != source) {
-              var query = {
-                source: source,
-                //num_results: 2,
+          if (isPrintableChar(e)) {
+            throttle(function() {
+              if (data.str != source) {
+                var query = {
+                  source: source,
+                  //num_results: 2,
+                }
+                itp.decode(query);
               }
-              itp.decode(query);
-            }
-          }, throttle_ms);
-        }
-      })
-      .bind('change' + nsClass, function(e){
-        itp.startSession({source: $source.editable('getText')});
-      });
+            }, throttle_ms);
+          }
+        })
+        .bind('change' + nsClass, function(e){
+          itp.startSession({source: $source.editable('getText')});
+        });
+      }
 
     
       self.typedWords = {};
@@ -436,6 +439,10 @@ var Memento = require("module.memento");
           if (isPrintableChar(e)) {
             throttle(function () {
               if (data.str != target) {
+                // Predict from last edited token onwards
+                $target.find('span').each(function(i, elem){
+                  // TODO
+                });
                 var query = {
                   target: target,
                   caretPos: pos,
