@@ -58,26 +58,36 @@ $(function(){
 
   UI.openSegment = function(editarea) {
     original_openSegment.call(UI, editarea);
-    var $target = $(editarea), sid = $target.data('sid'), $source = $("#segment-" + sid + "-source");
-    console.log('open', $target);
+    var $target = $(editarea), sid = $target.data('sid'), $source = $("#segment-" + sid + "-source"), settings;
+    
+    $target.editableItp({
+      sourceSelector: "#segment-" + sid + "-source",
+      itpServerUrl:   config.catserver,
+      replay:         config.replay
+    });
+    
+    if (config.catsetting) {
+      settings = require(config.basepath + '/' + config.catsetting);
+    } else {
+      settings = $target.editableItp('getConfig');
+    }
+        
     $target.on('ready.matecat', function() {
-      console.log('onready', $target.text());
-      if ($target.text().length === 0) $target.editableItp('decode');
-      $target.editableItp('startSession');
-      // Check for user-defined ITP conf
-      if (config.catsetting) {
-        var settings = require(config.basepath + '/' + config.catsetting);
-        if (settings) {
-          $target.editableItp('updateConfig', settings);
-        }
+      if ($target.text().length === 0 && settings.mode != "manual") {
+        $target.editableItp('decode');
       }
+      $target.editableItp('startSession');
       // A button to toggle ITP mode
       if ($('#itp-indicator').length === 0) {
-        var indicator = $('<li/>').html('<a id="itp-indicator" href="#" class="draft">'+$target.editableItp('getConfig').mode+'</a><p>ESC</p>');
-        indicator.click(function(e){
-          UI.toggleItp(e);
-        });
-        $('.buttons').prepend(indicator);
+        // Check for user-defined ITP conf
+        $target.editableItp('updateConfig', settings);
+        if (settings.mode != "manual") {
+          var indicator = $('<li/>').html('<a id="itp-indicator" href="#" class="draft">'+settings.mode+'</a><p>ESC</p>');
+          indicator.click(function(e){
+            UI.toggleItp(e);
+          });          
+          $('.buttons').prepend(indicator);
+        }
       }
     })
     .on('decode.matecat', function (ev, data, err) {
@@ -121,11 +131,6 @@ $(function(){
         .on('mouseleave.matecat', function (ev) {
           $(window).trigger('hideAlignmentByMouse', ev.target);
         })
-    })
-    .editableItp({
-      sourceSelector: "#segment-" + sid + "-source",
-      itpServerUrl:   config.catserver,
-      replay:         config.replay
     });
     
     addSearchReplaceEvents();
@@ -203,7 +208,19 @@ $(function(){
   };
 
   // BEGIN S&R facilities ------------------------------------------------------  
-  $('#sr-rules').hide();
+  if (config.catsetting) {
+    var settings = require(config.basepath + '/' + config.catsetting);
+    if (settings) {
+      // For the evaluation, S&R can be optional
+      if (settings.allowSearchReplace || !settings.hasOwnProperty('allowSearchReplace')) {
+        setupSearchReplace();
+      } else {
+        $('#sr-replace').hide();
+      }
+    }
+  }
+
+  $('#sr-rules').hide(); // In any case, this must be hidden beforehand
   
   function addSearchReplaceEvents() {
     var $ea = getEditArea(), itpServer = $ea.editableItp('itpServer');
@@ -260,26 +277,28 @@ $(function(){
     $li.text(ruleText).append($btn);
     $('#sr-rules').append($li);
   };
-  
-  $('#sr-viewreplaceBtn').click(function(e){
-    $('#sr-rules').toggle("fast");
-  });
-  
-  $('#sr-addreplaceBtn').click(function(e){
-    var rule = {};
-    $("#sr-replace :input").each(function(){
-      var $this = $(this); 
-      if (!$this.attr('name')) return;
-      if ($this.attr('type') === 'checkbox') {
-        rule[$this.attr('name')] = $this.prop('checked');  
-      }
-      else {
-        rule[$this.attr('name')] = $this.val();  
-      }
+
+  function setupSearchReplace() {
+    $('#sr-viewreplaceBtn').click(function(e){
+      $('#sr-rules').toggle("fast");
     });
-    var $ea = getEditArea(), itpServer = $ea.editableItp('itpServer');
-    itpServer.setReplacementRule(rule);
-  });
+    
+    $('#sr-addreplaceBtn').click(function(e){
+      var rule = {};
+      $("#sr-replace :input").each(function(){
+        var $this = $(this); 
+        if (!$this.attr('name')) return;
+        if ($this.attr('type') === 'checkbox') {
+          rule[$this.attr('name')] = $this.prop('checked');  
+        }
+        else {
+          rule[$this.attr('name')] = $this.val();  
+        }
+      });
+      var $ea = getEditArea(), itpServer = $ea.editableItp('itpServer');
+      itpServer.setReplacementRule(rule);
+    });
+  };
   // END S&R facilities --------------------------------------------------------
      
 });

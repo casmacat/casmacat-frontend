@@ -80,13 +80,17 @@ $(function(){
   UI.toggleItp = function(e) {
     e.preventDefault();
     var $ea = getEditArea();
+    if ($ea.editableItp('getConfig').mode == "manual") {
+      return false;
+    }
     var currentMode = $ea.editableItp('getConfig').mode,
         newMode = currentMode == "ITP" ? "PE" : "ITP";
     $ea.editableItp('updateConfig', {
       mode: newMode
     });
     // Inform user via UI
-    $('#itp-indicator').text(newMode);
+    // FIXME: Selecting by ID doesn't work (!?) We must specify also the node type: a#id
+    $('a#itp-indicator').text(newMode);
   };
   
   // Define key bindings here

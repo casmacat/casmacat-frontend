@@ -372,6 +372,7 @@ var Memento = require("module.memento");
               data = $this.data('editable'),
               source = $this.editable('getText');
   
+       
           if (isPrintableChar(e)) {
             throttle(function() {
               if (data.str != source) {
@@ -427,8 +428,15 @@ var Memento = require("module.memento");
               target = $this.editable('getText'),
               source = $source.editable('getText'),
               pos = $target.editable('getCaretPos');
-              
-          var spanElem = $target.editable('getTokenAtCaretPos', pos).elem.parentNode;
+
+          var spanElem = $target.editable('getTokenAtCaretPos', pos).elem;
+          if (spanElem.parentNode && $(spanElem.parentNode).is('.editable-token')) {
+            spanElem = spanElem.parentNode;
+          }
+          var suffixHasUserCorrections = $(spanElem).next('.editable-token').filter(function(index, elem){ return $(elem).data('validated'); });
+          //var suffixHasUserCorrections = $(spanElem).next('.editable-token[data-validated=true]');
+          //console.log('>>>>>>>>>>>>suffixHasUserCorrections', suffixHasUserCorrections.length, spanElem);
+ 
           var targetId = $(spanElem).attr('id');
           // Remember interacted words only when the user types in the right span
           var numInStr = targetId ? targetId.match(/(\d+)$/) : null;
@@ -444,12 +452,18 @@ var Memento = require("module.memento");
                   // TODO
                 });
                 var query = {
+                  source: source,
                   target: target,
                   caretPos: pos,
                   numResults: 1
                 }
                 var itpCfg = cfg(), itp = itpCfg.itpServer;
-                itp.setPrefix(query);
+                if (suffixHasUserCorrections.length === 0) {
+                  itp.setPrefix(query);
+                }
+                else {
+                  //itp.getTokens(query);
+                }
               }
             }, throttle_ms);
           }

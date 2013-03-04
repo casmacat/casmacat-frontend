@@ -216,7 +216,6 @@
         if ($span.data('priority') >= currentPriority + userPriorityLength) {
           opacity = 0.3; //Math.pow(2, (-priorities[c] + 2) * scale);
         }
-        $span.css({ opacity: opacity });
       });
       //console.log("user priority:", userPriorityLength, "word priorities:", priorities);
     }
