@@ -72,11 +72,13 @@ $(function(){
         }
       }
       // A button to toggle ITP mode
-      var indicator = $('<li/>').html('<span id="itp-indicator" class="translated">'+$target.editableItp('getConfig').mode+'</span>');
-      indicator.click(function(e){
-        UI.toggleItp(e);
-      });
-      $('.buttons').prepend(indicator);
+      if ($('#itp-indicator').length === 0) {
+        var indicator = $('<li/>').html('<a id="itp-indicator" href="#" class="draft">'+$target.editableItp('getConfig').mode+'</a><p>ESC</p>');
+        indicator.click(function(e){
+          UI.toggleItp(e);
+        });
+        $('.buttons').prepend(indicator);
+      }
     })
     .on('decode.matecat', function (ev, data, err) {
         $(window).trigger('translationChange', {element: $target[0], type: "decode", data: data});
@@ -157,6 +159,10 @@ $(function(){
             data: formatItpMatches(data)
           });
         });
+        // Edge case: Loading a DRAFTed segment should fire the complete UI callback
+        if (typeof d.num_results === 'undefined') {
+          req.complete(d);
+        }
         break;
       case "setContribution":
         $ea.unbind('validate').bind('validate', function(e, data, err){

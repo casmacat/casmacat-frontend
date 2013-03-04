@@ -311,7 +311,7 @@ var Memento = require("module.memento");
       .bind('keydown' + nsClass, function(e) {
         // prevent new lines
         if (e.which === 13) {
-          e.stopPropagation();
+          //e.stopPropagation(); // We need to capture the event to fire 'save draft translation' fn
           e.preventDefault();
         }
       }).bind('keydown' + nsClass, 'tab', function(e){

@@ -71,7 +71,11 @@ $(function(){
     e.preventDefault();
     getEditArea().editable('setText', "");
   };
-
+  
+  function saveDraft(e) {
+    UI.setTranslation(UI.currentSegment, "draft");
+  };
+  
   // Expose this function to other modules
   UI.toggleItp = function(e) {
     e.preventDefault();
@@ -99,6 +103,7 @@ $(function(){
          'Ctrl+5': chooseSuggestion,
        'Ctrl+del': clearTarget,
             'esc': UI.toggleItp,
+         'return': saveDraft,
   };
   
   for (var k in keyBindings) {
