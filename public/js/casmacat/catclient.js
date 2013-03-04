@@ -18,7 +18,18 @@
     * @param url {String} Server URL to connect to
     */
     self.connect = function(url) {
-      self.server = new io.connect(url);
+      var ioOptions = {}
+
+      var match = /^(.*)@(\d{1,4})(.*)$/.exec(url);
+      if (match) {
+        url = match[1] + match[3];
+        var port = match[2];
+        console.log("Use reverse proxy for", url, 'at port', port);
+        ioOptions.resource = 'socket.io/p' + port;
+      }
+       
+      self.server = new io.connect(url, ioOptions);
+
       if (self.replay) {
         self.server.emit = function() {};
       }
