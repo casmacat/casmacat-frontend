@@ -462,7 +462,7 @@ var Memento = require("module.memento");
                   itp.setPrefix(query);
                 }
                 else {
-                  //itp.getTokens(query);
+                  itp.getTokens(query);
                 }
               }
             }, throttle_ms);

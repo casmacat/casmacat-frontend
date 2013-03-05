@@ -365,10 +365,9 @@
 
         if ($this.is(':focus')) {
           var pos = $this.editable('getCaretPos');
-          //console.log(pos, $this.html());
-          $this.html(tokens.html()); 
+          $this.empty();
+          $this.append(tokens.contents()); 
           $this.editable('setCaretPos', pos);
-          //console.log(pos, $this.html());
           var lastEditedToken = $this.editable('getTokenAtCaretPos', pos).elem;
           if (lastEditedToken.parentNode && $(lastEditedToken.parentNode).is('.editable-token')) {
             lastEditedToken = lastEditedToken.parentNode;
@@ -378,7 +377,8 @@
           });
         }
         else {
-          $this.html(tokens.html()); 
+          $this.empty();
+          $this.append(tokens.contents()); 
         }
       }
       else { // not tokenization
