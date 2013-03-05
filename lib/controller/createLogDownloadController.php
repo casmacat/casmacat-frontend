@@ -155,33 +155,45 @@ class createLogDOwnloadController extends downloadController {
         $eventElements = createAndAppendElement($doc, $root, 'events');
         
         $data = '';
+        $ini = 0;
+        $end = 0;
         log::doLog("total = ".$total);
+
         while ($total > 100){
-            $end = 100;
-            $total = $total - 100;
-            $result = fetchLogChunk($this->id_job, $this->id_file, 0, $end);        
             
+            $end = $end + 100;
+            
+            log::doLog("ini = ".$ini);
+            log::doLog("end = ".$end);
+            
+            
+            $total = $total - 100;
+            $result = fetchLogChunk($this->id_job, $this->id_file, $ini, $end);        
+            
+            log::doLog("result = ".$result);
             $data = $data.print_r($result, true);
             log::doLog("total = ".$total);
+            //log::doLog("data = ".print_r($data, true));
             
             for ($i=0; $i<100; $i++){
-            $tmp = createAndAppendElement($doc, $eventElements, $result[$i]->type);
-            $tmp->setAttribute('id', $result[$i]->id);
+                $tmp = createAndAppendElement($doc, $eventElements, $result[$i]->type);
+                $tmp->setAttribute('id', $result[$i]->id);
             
-            //Recorrer elementos del objeto
-            foreach($result[$i] as $attribute => $val){
+                //Recorrer elementos del objeto
+                foreach($result[$i] as $attribute => $val){
                 
-                if ($attribute != jobId and $attribute != fileId and $attribute != type){
-                    $tmp->setAttribute($attribute, $val); 
+                    if ($attribute != jobId and $attribute != fileId and $attribute != type){
+                        $tmp->setAttribute($attribute, $val); 
+                    }
                 }
             }
 
-        }
-            
+            $ini = $ini + 100;
+
 
         } 
 
-        $result = fetchLogChunk($this->id_job, $this->id_file, 0, $total);
+        $result = fetchLogChunk($this->id_job, $this->id_file, $end, $total);
         $data = $data.print_r($result, true);
         log::doLog("data = ".print_r($data, true));
         $len = count($result);
