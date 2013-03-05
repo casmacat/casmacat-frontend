@@ -186,7 +186,6 @@
 
     self.updateWordPriorities = function($target, priorities) {
       // get target span tokens 
-
       $('.editable-token', $target).each(function(index) {
         $(this).data('priority', priorities[index]);
       });
@@ -212,12 +211,14 @@
 
       var currentPriority = $token.data('priority');
       spans.each(function() {
-        var $span = $(this), opacity = 1.0, scale = 2.0;
+        var $span = $(this), scale = 2.0;
         if ($span.data('priority') >= currentPriority + userPriorityLength) {
           opacity = 0.3; //Math.pow(2, (-priorities[c] + 2) * scale);
+        } else {
+          opacity = 1.0;
         }
+        $span.css('opacity', opacity);
       });
-      //console.log("user priority:", userPriorityLength, "word priorities:", priorities);
     }
  
     // updates the confidence display with new confidence info      

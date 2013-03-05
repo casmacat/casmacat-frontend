@@ -316,11 +316,11 @@ var Memento = require("module.memento");
         }
       }).bind('keydown' + nsClass, 'tab', function(e){
         // prevent tabs that move to the next word or to the next priority word
-        e.stopPropagation();
+        //e.stopPropagation();
         e.preventDefault();
         tabKeyHandler(e, 'fwd');
       }).bind('keydown' + nsClass, 'shift+tab', function(e){
-        e.stopPropagation();
+        //e.stopPropagation();
         e.preventDefault();
         tabKeyHandler(e, 'bck');
       });

@@ -69,8 +69,8 @@ $(function(){
       }
       if ($target.text().length === 0 && settings.mode != "manual") {
         $target.editableItp('decode');
-        $target.editableItp('startSession');
       }
+      $target.editableItp('startSession');
       $target.editableItp('updateConfig', settings);
       // A button to toggle ITP mode
       if (settings.mode == "ITP" && $('#itp-indicator').length === 0) {
