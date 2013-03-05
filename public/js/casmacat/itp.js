@@ -58,37 +58,33 @@ $(function(){
 
   UI.openSegment = function(editarea) {
     original_openSegment.call(UI, editarea);
-    var $target = $(editarea), sid = $target.data('sid'), $source = $("#segment-" + sid + "-source"), settings;
-    
-    $target.editableItp({
+    var $target = $(editarea), sid = $target.data('sid'), $source = $("#segment-" + sid + "-source");
+        
+    $target.on('ready.matecat', function() {
+      var settings;
+      if (config.catsetting) {
+        settings = require(config.basepath + '/' + config.catsetting);
+      } else {
+        settings = $target.editableItp('getConfig');
+      }
+      if ($target.text().length === 0 && settings.mode != "manual") {
+        $target.editableItp('decode');
+        $target.editableItp('startSession');
+      }
+      $target.editableItp('updateConfig', settings);
+      // A button to toggle ITP mode
+      if (settings.mode == "ITP" && $('#itp-indicator').length === 0) {
+        var indicator = $('<li/>').html('<a id="itp-indicator" href="#" class="draft">'+settings.mode+'</a><p>ESC</p>');
+        indicator.click(function(e){
+          UI.toggleItp(e);
+        });
+        $('.buttons').prepend(indicator);
+      }
+    })
+    .editableItp({
       sourceSelector: "#segment-" + sid + "-source",
       itpServerUrl:   config.catserver,
       replay:         config.replay
-    });
-    
-    if (config.catsetting) {
-      settings = require(config.basepath + '/' + config.catsetting);
-    } else {
-      settings = $target.editableItp('getConfig');
-    }
-        
-    $target.on('ready.matecat', function() {
-      if ($target.text().length === 0 && settings.mode != "manual") {
-        $target.editableItp('decode');
-      }
-      $target.editableItp('startSession');
-      // A button to toggle ITP mode
-      if ($('#itp-indicator').length === 0) {
-        // Check for user-defined ITP conf
-        $target.editableItp('updateConfig', settings);
-        if (settings.mode != "manual") {
-          var indicator = $('<li/>').html('<a id="itp-indicator" href="#" class="draft">'+settings.mode+'</a><p>ESC</p>');
-          indicator.click(function(e){
-            UI.toggleItp(e);
-          });          
-          $('.buttons').prepend(indicator);
-        }
-      }
     })
     .on('decode.matecat', function (ev, data, err) {
         $(window).trigger('translationChange', {element: $target[0], type: "decode", data: data});

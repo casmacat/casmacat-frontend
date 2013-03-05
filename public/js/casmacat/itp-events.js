@@ -430,7 +430,7 @@ var Memento = require("module.memento");
               pos = $target.editable('getCaretPos');
 
           var spanElem = $target.editable('getTokenAtCaretPos', pos).elem;
-          if (spanElem.parentNode && $(spanElem.parentNode).is('.editable-token')) {
+          if (spanElem && spanElem.parentNode && $(spanElem.parentNode).is('.editable-token')) {
             spanElem = spanElem.parentNode;
           }
           var suffixHasUserCorrections = $(spanElem).next('.editable-token').filter(function(index, elem){ return $(elem).data('validated'); });
