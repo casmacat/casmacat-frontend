@@ -32,13 +32,13 @@ class createProjectController extends ajaxcontroller {
         }
         $arFiles = explode(',', $this->file_name);
 	$default_project_name=$arFiles[0];
-	if (count($arFiles)>1){
+	if (count($arFiles)>1 && empty($this->project_name)){
 		$default_project_name="MATECAT_PROJ-".date("Ymdhi");
 	}
 		$intDir=INIT::$UPLOAD_ROOT.'/'.$_COOKIE['upload_session'];
 
         if (count($arFiles)>0) {
-          $xliff = simplexml_load_file($intDir.'/'.$default_project_name);
+          $xliff = simplexml_load_file($intDir.'/'.$arFiles[0]);
           $src_lang = (string)$xliff->file['source-language'];
 	        if (!empty($src_lang) && empty($this->source_language)) {
             $this->source_language = $src_lang;
