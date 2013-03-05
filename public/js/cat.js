@@ -462,6 +462,7 @@ UI = {
         $('.percentuage',segment).removeClass('visible');
         this.setContribution(segment,status,byStatus);
         this.setTranslation(segment,status);
+        this.closeSegment(segment,1);
     },
 
     checkHeaviness: function() {
@@ -552,11 +553,11 @@ UI = {
 
     createButtons: function() {
         var disabled = (this.currentSegment.hasClass('loaded'))? '' : ' disabled="disabled"';
-        var buttons  = '<li><a id="segment-'+this.currentSegmentId+'-button-draft" data-segmentid="segment-'+this.currentSegmentId+'" ';
-            buttons += 'href="#" class="f draft"'+disabled+'>DRAFT</a><p>ENTER</p></li>';
-            buttons += '<li><a id="segment-'+this.currentSegmentId+'-copysource" ';
+        var buttons  = '<li><a id="segment-'+this.currentSegmentId+'-copysource" ';
             buttons += 'href="#" class="btn copysource" data-segmentid="segment-'+this.currentSegmentId+'" ';
             buttons += 'title="Copy source to target"></a><p>CTRL+INS</p></li>';
+            buttons += '<li><a id="segment-'+this.currentSegmentId+'-button-draft" data-segmentid="segment-'+this.currentSegmentId+'" ';
+            buttons += 'href="#" class="f draft"'+disabled+'>DRAFT</a><p>ENTER</p></li>';            
             buttons += '<li><a id="segment-'+this.currentSegmentId+'-button-translated" data-segmentid="segment-'+this.currentSegmentId+'" ';
             buttons += 'href="#" class="translated"'+disabled+'>TRANSLATED</a><p>CTRL+ENTER</p></li>';
         $('#segment-'+this.currentSegmentId+'-buttons').append(buttons);

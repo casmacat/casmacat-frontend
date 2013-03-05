@@ -73,7 +73,8 @@ $(function(){
   };
   
   function saveDraft(e) {
-    UI.setTranslation(UI.currentSegment, "draft");
+    // Copied from cat.js
+    $('.editor .draft').click();
   };
   
   // Expose this function to other modules
