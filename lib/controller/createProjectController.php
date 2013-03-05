@@ -38,7 +38,7 @@ class createProjectController extends ajaxcontroller {
 		$intDir=INIT::$UPLOAD_ROOT.'/'.$_COOKIE['upload_session'];
 
         if (count($arFiles)>0) {
-          $xliff = simplexml_load_file($intDir.'/'.$arFiles[0]);
+          $xliff = simplexml_load_file($intDir.'/'.$default_project_name);
           $src_lang = (string)$xliff->file['source-language'];
 	        if (!empty($src_lang) && empty($this->source_language)) {
             $this->source_language = $src_lang;
