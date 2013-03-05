@@ -3,3 +3,4 @@
 .wordconf-bad { color: red; }
 .mouse-align { background-color: yellow; }
 .caret-align { background-color: aquamarine; }
+.editable-token[data-validated] { color: inherit; !important }
