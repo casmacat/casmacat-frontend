@@ -433,7 +433,7 @@ var Memento = require("module.memento");
           if (spanElem && spanElem.parentNode && $(spanElem.parentNode).is('.editable-token')) {
             spanElem = spanElem.parentNode;
           }
-          var suffixHasUserCorrections = $(spanElem).next('.editable-token').filter(function(index, elem){ return elem.dataset.validated; });
+          var suffixHasUserCorrections = $(spanElem).nextAll('.editable-token').filter(function(index, elem){ return elem.dataset.validated; });
  
           var targetId = $(spanElem).attr('id');
           // Remember interacted words only when the user types in the right span
