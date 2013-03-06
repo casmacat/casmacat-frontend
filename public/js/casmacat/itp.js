@@ -73,12 +73,12 @@ $(function(){
       $target.editableItp('startSession');
       $target.editableItp('updateConfig', settings);
       // A button to toggle ITP mode
-      if (settings.mode == "ITP" && $('#itp-indicator').length === 0) {
+      if (settings.mode == "ITP" && $('.buttons', UI.currentSegment).find('#itp-indicator').length === 0) {
         var indicator = $('<li/>').html('<a id="itp-indicator" href="#" class="draft">'+settings.mode+'</a><p>ESC</p>');
         indicator.click(function(e){
           UI.toggleItp(e);
         });
-        $('.buttons').prepend(indicator);
+        $('.buttons', UI.currentSegment).prepend(indicator);
       }
     })
     .editableItp({
