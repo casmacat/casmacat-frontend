@@ -35,7 +35,7 @@ $(function(){
                  segment: data.source,
              translation: d.target,
               created_by: d.author,
-                   match: d.quality,
+                   match: parseInt(d.quality * 100),
         last_update_date: new Date()
       });
     }
