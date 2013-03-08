@@ -250,7 +250,7 @@ article .draft, article .approved{ margin-left:5px; }
 
 .buttons li:hover p{display:block;}
 
-.translated{color:#fff !important}
+.translated{color:#fff !important; margin-left:1em;}
 
 article .translated:hover, article .draft:hover, article .btn:hover, article .approved:hover, .search .btn:hover{
 cursor:pointer;-webkit-box-shadow: 0 1px 2px #ccc;box-shadow: 0 1px 2px #ccc;border:1px solid #000;

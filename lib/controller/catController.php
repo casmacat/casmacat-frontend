@@ -265,7 +265,11 @@ class catController extends viewcontroller {
 
         // FIXME: This is a temp workaround for the pre-evaluation. We should homogenize stuff like this ASAP!
         // We reuse the $page var to indicate the CAT client configuration, since $page is actually not being used in the prototype.
-        $this->template->catsetting = $this->page;
+        list($catsetting, $portnum) = explode("@", $this->page);
+        $this->template->catsetting = $catsetting;
+        if ($portnum) {
+          $this->template->catserver = preg_replace('/@[0-9]+/', '@'.$portnum, INIT::$CATSERVER);
+        }
 
 //		$this->template->stats=$stats[0]['TOTAL'];
 

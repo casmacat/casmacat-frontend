@@ -32,7 +32,7 @@ class createProjectController extends ajaxcontroller {
         }
         $arFiles = explode(',', $this->file_name);
 	$default_project_name=$arFiles[0];
-	if (count($arFiles)>1){
+	if (count($arFiles)>1 && empty($this->project_name)){
 		$default_project_name="MATECAT_PROJ-".date("Ymdhi");
 	}
 		$intDir=INIT::$UPLOAD_ROOT.'/'.$_COOKIE['upload_session'];

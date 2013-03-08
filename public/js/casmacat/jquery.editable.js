@@ -2,6 +2,7 @@
 
   var NLP = require('nlp-utils');
   var G   = require('geometry-utils');
+  $('html').attr('spellcheck', 'false');
 
   var methods = {
     init: function(_options) {
@@ -364,20 +365,25 @@
 
         if ($this.is(':focus')) {
           var pos = $this.editable('getCaretPos');
-          //console.log(pos, $this.html());
-          $this.html(tokens.html()); 
+          $this.empty();
+          $this.append(tokens.contents()); 
           $this.editable('setCaretPos', pos);
-          //console.log(pos, $this.html());
-          var lastEditedToken = $this.editable('getTokenAtCaretPos', pos).elem;
-          if (lastEditedToken.parentNode && $(lastEditedToken.parentNode).is('.editable-token')) {
-            lastEditedToken = lastEditedToken.parentNode;
+          var tokenAtPos = $this.editable('getTokenAtCaretPos', pos);
+          if (tokenAtPos.pos > 0) {
+            var lastEditedToken = tokenAtPos.elem;
+            if (lastEditedToken.parentNode && $(lastEditedToken.parentNode).is('.editable-token')) {
+              lastEditedToken = lastEditedToken.parentNode;
+            }
+            // XXX: do not use jquery data if you want css selectors to work
+            lastEditedToken.dataset.validated = true;
           }
-          $(lastEditedToken).prevAll().andSelf().each(function(i, elem){
-            $(elem).data("validated", true);
-          });
+          //$(lastEditedToken).prevAll().andSelf().each(function(i, elem){
+          //  $(elem).data("validated", true);
+          //});
         }
         else {
-          $this.html(tokens.html()); 
+          $this.empty();
+          $this.append(tokens.contents()); 
         }
       }
       else { // not tokenization
