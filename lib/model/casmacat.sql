@@ -102,6 +102,8 @@ CREATE TABLE `key_event` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2440 DEFAULT CHARSET=utf8 COMMENT='Stores key (down/up) events.'$$
 
 CREATE VIEW v_files_jobs AS
-SELECT f.id, f.id_project, f.filename, f.source_language, fj.id_job, j.password 
-FROM files f, jobs j, files_job fj
-WHERE fj.id_file = f.id AND fj.id_job = f.id$$
+SELECT f.id, f.id_project, f.filename, f.source_language, fj.id_job, j.password
+FROM files f, files_job fj, jobs j
+WHERE fj.id_file = f.id
+AND fj.id_job = f.id_project
+AND j.id = fj.id_job$$
