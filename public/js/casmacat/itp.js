@@ -104,7 +104,7 @@ $(function(){
         $target.find('span.editable-token')
         .off('mouseenter.matecat mouseleave.matecat caretenter.matecat caretleave.matecat')
         .on('mouseenter.matecat', function (ev) {
-          $(window).trigger('showAlignmentByMouse', ev.target);
+          $(window).trigger('showAlignmentByMouse', ev.target, ev.clientX, ev.clientY);
         })
         .on('mouseleave.matecat', function (ev) {
           $(window).trigger('hideAlignmentByMouse', ev.target);
