@@ -57,7 +57,7 @@
       // find HTML text element in cursor position
       while (walker.nextNode()) {
         elem = walker.currentNode;
-        if ((pos - elem.length) > 0) pos -= elem.length;
+        if ((pos - elem.length) >= 0) pos -= elem.length;
         else break;
       }
 
@@ -66,7 +66,8 @@
         // where we would like to move to the beginning of the next token:
         // 1. the current token is not editable-token, so it is a 'space' token
         // 2. the next token is an editable-token so we move to the beginning of the next token 
-        if (pos === elem.length && (!$(elem.parentNode).is('.editable-token') || $(walker.currentNode.parentNode).is('.editable-token') )) {
+        //if (pos === elem.length && (!$(elem.parentNode).is('.editable-token') || $(walker.currentNode.parentNode).is('.editable-token') )) {
+        while (elem && pos === elem.length) {
           elem = walker.currentNode;
           pos  = 0;
         }

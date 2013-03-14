@@ -328,12 +328,14 @@ var Memento = require("module.memento");
       function tabKeyHandler(e, mode) {
         //if (mode == 'fwd') {}
         var ui = userCfg(), $token;
-        
+
+        var caretPos = $target.editable('getCaretPos');
+
         if (ui.prioritizer != 'none') {
           if (mode == 'fwd') {
             $token = $('.editable-token', $target).filter(function(e){ return $(this).css('opacity') < 1.0}).first();
           } else {
-            var tok = $target.editable('getTokenAtCaret');
+            var tok = $target.editable('getTokenAtCaretPos', caretPos);
             if (tok.elem) {
               $token = $(tok.elem).parent().prev('.editable-token');
             }
@@ -345,7 +347,8 @@ var Memento = require("module.memento");
           }
         } else {
           if (self.currentCaretPos && self.currentCaretPos.token) {
-            $token = $(self.currentCaretPos.token.elem);
+            $token = $($target.editable('getTokenAtCaretPos', caretPos).elem);
+            //$token = $(self.currentCaretPos.token.elem);
             if ($token.parent().is('.editable-token')) {
               $token = $token.parent();
             }
@@ -354,13 +357,14 @@ var Memento = require("module.memento");
             } else {
               $token = $token.prev('.editable-token');
             }
-            if ($token) {
-              $target.editable('setCaretAtToken', $token.get(0));
-            } else {
-              $target.editable('setCaretPos', $target.text().length);
-            }
           }
-        }      
+
+          if ($token) {
+            $target.editable('setCaretAtToken', $token.get(0));
+          } else {
+            $target.editable('setCaretPos', $target.text().length);
+          }
+        }
       };
       
       var sourceOptions = $source.data('editable').options;
