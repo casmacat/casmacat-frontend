@@ -1,6 +1,7 @@
-.wordconf-ok { color: inherit; }
-.wordconf-doubt { color: darkorange; }
-.wordconf-bad { color: red; }
-.mouse-align { background-color: yellow; }
-.caret-align { background-color: aquamarine; }
-.editable-token[data-validated] { color: inherit; !important }
+.editarea[data-showConfidences=true] > .wordconf-ok { color: inherit; }
+.editarea[data-showConfidences=true] > .wordconf-doubt { color: darkorange; }
+.editarea[data-showConfidences=true] > .wordconf-bad { color: red; }
+.editarea[data-showMouseAlign=true]  > .mouse-align { background-color: yellow; }
+.editarea[data-showCaretAlign=true]  > .caret-align { background-color: aquamarine; }
+.editarea[data-showValidated=true]   > .editable-token[data-validated=true] { color: green; }
+.editarea[data-showPrefix=true]      > .editable-token[data-prefix=true] { background-color: #CCFFFF; } 

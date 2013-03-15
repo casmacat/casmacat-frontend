@@ -101,6 +101,11 @@
           if (alignment[v] > 0.5) {
             sourceal[c].push('#' + targetspans[v].id);
             targetal[v].push('#' + sourcespans[c].id);
+
+            var s = $('#' + sourcespans[c].id).get(0);
+            var t = $('#' + targetspans[v].id).get(0);
+            if (t.dataset.prefix) s.dataset.prefix = true;
+            if (t.dataset.validated) s.dataset.validated = true;
           }
         }
       }
