@@ -1,7 +1,11 @@
-.editarea[data-showConfidences=true] > .wordconf-ok { color: inherit; }
-.editarea[data-showConfidences=true] > .wordconf-doubt { color: darkorange; }
-.editarea[data-showConfidences=true] > .wordconf-bad { color: red; }
-.editarea[data-showMouseAlign=true]  > .mouse-align { background-color: yellow; }
-.editarea[data-showCaretAlign=true]  > .caret-align { background-color: aquamarine; }
-.editarea[data-showValidated=true]   > .editable-token[data-validated=true] { color: green; }
-.editarea[data-showPrefix=true]      > .editable-token[data-prefix=true] { background-color: #CCFFFF; } 
+.editarea[data-opt-confidences=true] > .wordconf-ok { color: inherit; }
+.editarea[data-opt-confidences=true] > .wordconf-doubt { color: darkorange; }
+.editarea[data-opt-confidences=true] > .wordconf-bad { color: red; }
+.source[data-opt-validated=true]     > .editable-token[data-validated=true] { color: green; }
+.editarea[data-opt-validated=true]   > .editable-token[data-validated=true] { color: green; }
+.source[data-opt-prefix=true]        > .editable-token[data-prefix=true] { background-color: #CCFFFF; } 
+.editarea[data-opt-prefix=true]      > .editable-token[data-prefix=true] { background-color: #CCFFFF; } 
+.source[data-opt-mouse-align=true]   > .mouse-align { background-color: yellow !important; }
+.editarea[data-opt-mouse-align=true] > .mouse-align { background-color: yellow !important; }
+.source[data-opt-caret-align=true]   > .caret-align { background-color: aquamarine !important; }
+.editarea[data-opt-caret-align=true] > .caret-align { background-color: aquamarine !important; }

@@ -297,6 +297,16 @@ var Memento = require("module.memento");
         }
       };
         
+      function toggleOpt($elem, opt) {
+        var elem = $elem.get(0);
+        if (!elem.getAttribute(["data-" + opt])) {
+          elem.setAttribute(["data-" + opt], true);
+        }
+        else {
+          elem.setAttribute(["data-" + opt], false);
+        }
+      }
+
       // #source and #target events
       // caretenter is a new event from jquery.editable that is triggered
       // whenever the caret enters in a new token span
@@ -326,6 +336,31 @@ var Memento = require("module.memento");
         //e.stopPropagation();
         e.preventDefault();
         tabKeyHandler(e, 'bck');
+      }).bind('keydown' + nsClass, 'ctrl+shift+1', function(e){
+        //e.stopPropagation();
+        e.preventDefault();
+        toggleOpt($target, "opt-caret-align");
+        toggleOpt($source, "opt-caret-align");
+      }).bind('keydown' + nsClass, 'ctrl+shift+2', function(e){
+        //e.stopPropagation();
+        e.preventDefault();
+        toggleOpt($target, "opt-mouse-align");
+        toggleOpt($source, "opt-mouse-align");
+      }).bind('keydown' + nsClass, 'ctrl+shift+3', function(e){
+        //e.stopPropagation();
+        e.preventDefault();
+        toggleOpt($target, "opt-confidences");
+        toggleOpt($source, "opt-confidences");
+      }).bind('keydown' + nsClass, 'ctrl+shift+4', function(e){
+        //e.stopPropagation();
+        e.preventDefault();
+        toggleOpt($target, "opt-validated");
+        toggleOpt($source, "opt-validated");
+      }).bind('keydown' + nsClass, 'ctrl+shift+5', function(e){
+        //e.stopPropagation();
+        e.preventDefault();
+        toggleOpt($target, "opt-prefix");
+        toggleOpt($source, "opt-prefix");
       });
 
       function tabKeyHandler(e, mode) {
