@@ -26,6 +26,10 @@
         var port = match[2];
         console.log("Use reverse proxy for", url, 'at port', port);
         ioOptions.resource = 'socket.io/p' + port;
+        // avoid socket.io socket cache. Since we are redirecting 
+        // sockets with url and not machine:port, socket.io cache
+        // uses the same connection for htr@port and itp@port
+        ioOptions['force new connection'] = true;
       }
        
       self.server = new io.connect(url, ioOptions);
