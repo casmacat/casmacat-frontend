@@ -57,7 +57,7 @@ class createLogDOwnloadController extends downloadController {
         $root->setAttribute('xmlns:xsd', 'http://www.w3.org/2001/XMLSchema');
         
         $tmp = createAndAppendElement($doc, $root, 'version');
-        $tmp->appendChild($doc->createTextNode('CASMACAT')); // TODO add real CASMACAT version string
+        $tmp->appendChild($doc->createTextNode('CASMACAT2')); // TODO add real CASMACAT version string
 
         $tmp = createAndAppendElement($doc, $root, 'jobId');
         $tmp->appendChild($doc->createTextNode($this->id_job));
