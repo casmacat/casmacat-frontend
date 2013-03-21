@@ -43,7 +43,7 @@ class createLogDOwnloadController extends downloadController {
 
         $row = $db->fetch($queryId);
         //log::doLog("Total = ".$row["COUNT(*)"]);
-        $this->filename ="log".$this->id_file.".xml";
+        $this->filename ="log_id".$this->id_file."_".$this->file_name.".xml";
 
         //SELECT COUNT(*) to know the lenght of the table, we will do the query with just 100 items. Otherwise will be very heavy
         $total = $row["COUNT(*)"];
