@@ -42,8 +42,7 @@
         self.server.emit = function() {
           if (arguments.length === 2) {
             console.log("emit", [arguments[0]], arguments[1]);
-          }
-          else {
+          } else {
             console.log("emit", arguments);
           }
           emit.apply(this, arguments);
@@ -77,8 +76,7 @@
                 }
                 if (arguments.length === 1) {
                   console.log(msg, [ev[e]], arguments[0]);
-                }
-                else {
+                } else {
                   console.log(msg, [ev[e]], arguments);
                 }
               }
@@ -88,10 +86,6 @@
             fn();
           }
         });
-      }
-
-      if (self.debug) {
-        console.log("on", ev, "attached");
       }
     };
 
