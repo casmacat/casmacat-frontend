@@ -388,10 +388,12 @@ catch (e) {
      * TODO check for bugs
      */
     $.fn.getCursorPositionContenteditable = function() {
-//        try { // TODO error handling
+        try { // TODO error handling
             var range = window.getSelection().getRangeAt(0);
             var node = $(this).get(0);
-
+        } catch (e) {
+          return false;
+        }
 //            debug("$.fn.getCursorPositionContenteditable: Running on node: '" + node.tagName + "' and range: '"
 //                + range.selectedText + "'...");
 
