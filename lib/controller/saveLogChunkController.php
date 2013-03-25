@@ -54,14 +54,12 @@ class saveLogChunkController extends ajaxcontroller {
                         insertScrollEvent($logEvent);
                         break;
                     case LogEvent::GAZE:
-                        $logEvent->eyeData($value);
-                        $logEvent->eyeGazeData($value);
-    //                    insertEyeGazeEvent($logEvent);
+                        $logEvent->gazeData($value);
+                        insertGazeEvent($logEvent);
                         break;
-                    case LogEvent::FIX:
-                        $logEvent->eyeData($value);
-                        $logEvent->eyeFixData($value);
-    //                    insertEyeFixEvent($logEvent);
+                    case LogEvent::FIXATION:
+                        $logEvent->fixationData($value);
+                        insertFixationEvent($logEvent);
                         break;
 
                     case LogEvent::DRAFTED:

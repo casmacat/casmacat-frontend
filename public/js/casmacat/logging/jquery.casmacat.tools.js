@@ -571,51 +571,51 @@ catch (e) {
     });
 
     /**
-     * Shows ore hides the progress indicator (moving CASMACAT logo).
-     *
      * TODO Should be made more general in the future. It could be a plugin on its own, so that the namespace is not
      * cluttered like it is currently the case...
      */
-    var lastFocusedElement = null;
+    var lastFocusedElement = [];    // TODO not realy perfect, may lead to errors
 
-    $.fn.showProgressIndicator = function() {
+    $.fn.showOverlay = function(msg, id) {
 
-        if ( $("#progressIndicator").length > 0 ) {
-            $.error("$.fn.showProgressIndicator: Progress indicator already active");
+        if (typeof id === "undefined") {
+            id = "ø¤º°¨¨°º¤ø-ø¤º°¨¨°º¤ø";
+        }
+
+        if ( $("#" + id).length > 0) {
+            $.error("$.fn.showOverlay: Overlay '" + id + "' already active");
         }
         else {
-            lastFocusedElement = document.activeElement;
-            $(document.body).append("<div id='progressIndicator'/>");
+            lastFocusedElement[id] = document.activeElement;
+            $(document.body).append("<div id='" + id + "' class='overlay'/>");
 
-            $("#progressIndicator").css({
-                "position": "absolute",
-                "z-index": "9999999999",
-                "background-color": "rgba(127, 127, 127, 0.5)",
-                "top": "0px",
-                "left": "0px",
-                "width": $(document).width(),
-                "height": $(document).height()
-            });
+            if (typeof msg === "undefined") {
+                $("#" + id).html("<br><br>Processing...");
+            }
+            else {
+                $("#" + id).html(msg);
+            }
 
-            $("a.casLogo").addClass("progressIndicatorLogo").removeClass("casLogo");
-
-            debug("$.fn.showProgressIndicator: Progress indicator displayed.");
+            debug("$.fn.showOverlay: Overlay '" + id + "' displayed.");
         }
 
         return $(this);
     };
 
-    $.fn.hideProgressIndicator = function() {
+    $.fn.hideOverlay = function(id) {
 
-        if ( !$("#progressIndicator") ) {
-            $.error("$.fn.hideProgressIndicator: Progress indicator not active");
+        if (typeof id === "undefined") {
+            id = "ø¤º°¨¨°º¤ø-ø¤º°¨¨°º¤ø";
+        }
+
+        if ( !$("#" + id) ) {
+            $.error("$.fn.hideOverlay: Overlay '" + id + "' not active");
         }
         else {
-            $("#progressIndicator").remove();
-            $("a.progressIndicatorLogo").addClass("casLogo").removeClass("progressIndicatorLogo");
-            $(lastFocusedElement).focus();
-            lastFocusedElement = null;
-            debug("$.fn.hideProgressIndicator: Progress indicator removed.");
+            $("#" + id).remove();
+            $(lastFocusedElement[id]).focus();
+            lastFocusedElement[id] = null;
+            debug("$.fn.hideOverlay: Overlay '" + id + "' removed.");
         }
 
         return $(this);
@@ -733,6 +733,93 @@ catch (e) {
         return character;
     };
 
+    $.fn.getETPlugin = function() {
+        return document.getElementById("cbsEyeTrackerPlugin");
+    };
+
+    $.fn.attachToETPluginEvent = function(plugin, eventName, callback) {
+        if (plugin.attachEvent) {
+            plugin.attachEvent("on" + eventName, callback);
+        }
+        else {
+            plugin.addEventListener(eventName, callback, false);
+        }
+    };
+
+    $.fn.detachFromETPluginEvent = function(plugin, eventName, callback) {
+        if (plugin.detachEvent) {
+            plugin.detachEvent("on" + eventName, callback);
+        }
+        else {
+            plugin.removeEventListener(eventName, callback);
+        }
+    };
+
+    $.fn.characterFromPoint = function(rx, ry) {
+
+        var range = null;
+        var charInfo = { offset: -1, character: "" };
+
+        if (document.caretPositionFromPoint) {  // FF 20.0, see: https://developer.mozilla.org/en-US/docs/DOM/document.caretPositionFromPoint
+                                                // and https://wiki.mozilla.org/RapidRelease/Calendar
+            range = document.caretPositionFromPoint(rx, ry);
+            if (range !== null && range.offsetNode !== null) {
+                charInfo.offset = range.offset;
+                var nodeText = range.offsetNode.textContent;
+                if (charInfo.offset < nodeText.length) {  // select to the right
+                    charInfo.character = nodeText[charInfo.offset];
+                }
+                else {  // select to the left
+                    charInfo.character = nodeText[charInfo.offset - 1];
+                }
+
+                if (typeof charInfo.character === "undefined") {
+                    debug(pluginName + ": Couldn't determine character!");
+                    charInfo.character = "";
+                    charInfo.offset = -1;
+                }
+            }
+            // Couldn't determine character
+        }
+        else if (document.caretRangeFromPoint) {
+            range = document.caretRangeFromPoint(rx, ry);
+            if (range !== null) {
+                charInfo.offset = range.startOffset;
+                try {
+                    range.setEnd(range.endContainer, range.endOffset + 1);  // select to the right
+                    charInfo.character = range.toString();
+                }
+                catch (eRight) {
+                    try {
+                        range.setStart(range.startContainer, range.startOffset - 1);  // select to the left
+                        charInfo.character = range.toString();
+                    }
+                    catch (eLeft) {
+                        debug(pluginName + ": Couldn't determine character!");
+                        charInfo.offset = -1;
+                    }
+                }
+            }
+            // Couldn't determine character
+        }
+        else if (document.body.createTextRange) {
+            range = document.body.createTextRange();
+            range.moveToPoint(rx, ry);
+            range.expand("character"); // or .moveEnd("character", 1); ???
+            range.select();
+            charInfo.offset = range.startOffset;
+            // TODO
+        }
+        else {
+            // TODO for this case there is the possibility of using a range which is allways checked against isPointInRange
+            // and then shrinked and shrinked until if fits ;-)
+            // another(?) idea (the last post): http://stackoverflow.com/questions/3189812/creating-a-collapsed-range-from-a-pixel-position-in-ff-webkit
+            alert("Error getting character offset: 'Unsupported browser'");
+            $.error("Error getting character offset: 'Unsupported browser'");
+        }
+
+        return charInfo;
+    };
 
 })(jQuery);
 

@@ -1,6 +1,6 @@
 $(function() {
 
-  $.fn.showProgressIndicator();
+  $.fn.showOverlay();
 
   $(window).on("articleloaded", function () {
     var article = $('div#outer article');
@@ -82,11 +82,11 @@ $(function() {
 
             "doSanitize": true,             // TODO check this! not working with IMT currently
             "logItp": config.itpEnabled,    // when IMT enabled, set this to true, set to false otherwise
-            "logMouseMove": true            // when IMT enabled, set this to true, otherwise it is optional
+            "logEyeTracker": config.etEnabled,    // when IMT enabled, set this to true, set to false otherwise
         });
         $(window).logging("start");
 
-        $.fn.hideProgressIndicator();
+        $.fn.hideOverlay();
     }
     else {
 //      debug("virtualScreen: Setting editables read-only...");
@@ -106,7 +106,7 @@ $(function() {
       debug("virtualScreen: 'vsEditorReady'");
       window.parent.$(window.parent).trigger("vsEditorReady", null);*/
 
-       $.fn.hideProgressIndicator();
+       $.fn.hideOverlay();
     }
   });
 });

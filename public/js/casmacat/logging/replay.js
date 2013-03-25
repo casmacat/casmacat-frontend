@@ -6,7 +6,7 @@ $(function() {
     $("html > body > article").attr("style" , "border: none; background: none; -moz-box-shadow: none;"
         + " -webkit-box-shadow: none; margin-left: 0px; margin-right: 0px; width: 100%;");
 
-    $.fn.showProgressIndicator();
+    $.fn.showOverlay();
 
     $("#virtualScreen").load(function(e) {  // TODO why is it also triggered after the initial load completed?
 //                    vsWindow = $("#virtualScreen")[0].contentWindow;
@@ -122,5 +122,5 @@ $(function() {
 //                    $(window).replaying("setVsEditorReady");
 //                });
 
-    $.fn.hideProgressIndicator();
+    $.fn.hideOverlay();
 });

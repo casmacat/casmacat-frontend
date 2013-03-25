@@ -27,7 +27,7 @@ var LogEventFactory = function(elementIdMode) {
     this.TEXT = "text";
     this.SELECTION = "selection";
     this.GAZE = "gaze";
-    this.FIX = "fix";
+    this.FIXATION = "fixation";
     this.SCROLL = "scroll";
     this.RESIZE = "resize";
     this.DRAFTED = "drafted";
@@ -123,17 +123,26 @@ LogEventFactory.prototype.newLogEvent = function(type, element) {
             logEvent.selectedText = range.selectedText;
             break;
 
-        case this.GAZE || this.FIX:    // tTime, eyeX, eyeY, character, characterOffset, ...
+        case this.GAZE: // time, leftX, leftY, rightX, rightY, leftDilation, rightDilation
             logEvent.tTime = arguments[2];
-            logEvent.eyeX = arguments[3];
-            logEvent.eyeY = arguments[4];
-            logEvent.character = arguments[5];
-            logEvent.characterOffset = arguments[6];
-        case this.GAZE:    // ..., pupilDilation
-            logEvent.pupilDilation = arguments[7];
+            logEvent.lx = arguments[3];
+            logEvent.ly = arguments[4];
+            logEvent.rx = arguments[5];
+            logEvent.ry = arguments[6];
+            logEvent.lDil = arguments[7];
+            logEvent.rDil = arguments[8];
+            logEvent.lChar = arguments[9];
+            logEvent.lOffset = arguments[10];
+            logEvent.rChar = arguments[11];
+            logEvent.rOffset = arguments[12];
             break;
-        case this.FIX:    // ..., duration
-            logEvent.duration = arguments[7];
+        case this.FIXATION: // time, x, y, duration
+            logEvent.tTime = arguments[2];
+            logEvent.x = arguments[3];
+            logEvent.y = arguments[4];
+            logEvent.duration = arguments[5];
+            logEvent.character = arguments[6];
+            logEvent.offset = arguments[7];
             break;
 
         case this.SCROLL:    // offset
@@ -189,7 +198,8 @@ LogEventFactory.prototype.newLogEvent = function(type, element) {
         case this.KEY_UP:
             logEvent.cursorPosition = arguments[2];
             logEvent.which = arguments[3];
-            logEvent.character = arguments[4];
+            //logEvent.character = arguments[4];
+            logEvent.mappedKey = arguments[4];
             logEvent.shift = arguments[5];
             logEvent.ctrl = arguments[6];
             logEvent.alt = arguments[7];

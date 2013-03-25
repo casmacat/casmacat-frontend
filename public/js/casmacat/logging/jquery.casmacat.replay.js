@@ -290,12 +290,12 @@
             debug(pluginName + ": Time change request to: '" + newTime + "'.");
 
             if (currentTime < newTime) {    // replay forward
-                $.fn.showProgressIndicator();
+                $.fn.showOverlay();
                 updateUIStatus("Fast forwarding...");
                 timerId = window.setTimeout(tick, 1, newTime);
             }
             else if (currentTime > newTime) {   // replay backward
-                $.fn.showProgressIndicator();
+                $.fn.showOverlay();
                 updateUIStatus("Fast rewinding...");
                 currentIndex--;
                 timerId = window.setTimeout(reverseTick, 1, newTime);
@@ -326,7 +326,7 @@
 
         previousEvent: function() {
             if (currentIndex > 0) {
-                $.fn.showProgressIndicator();
+                $.fn.showOverlay();
                 debug(pluginName + ": Jumping to previous event...");
                 updateUIStatus("Jumping to previous event...");
                 currentIndex--;
@@ -341,7 +341,7 @@
         nextEvent: function() {
             // the possibility of an error (if that was already the last chunk) is handled in tick()
             if (currentIndex < replayList.length || !allChunksLoaded) {
-                $.fn.showProgressIndicator();
+                $.fn.showOverlay();
                 debug(pluginName + ": Jumping to next event...");
                 updateUIStatus("Jumping to next event...");
                 timerId = window.setTimeout(tick, 1, replayList[currentIndex].time);
@@ -399,15 +399,15 @@
         // fetch next chunk?
         if (!allChunksLoaded) {
             if (currentIndex >= replayList.length) {
-//                $.fn.showProgressIndicator();
+//                $.fn.showOverlay();
                 debug(pluginName + ": Requesting next chunk...");
                 updateUIStatus("Requesting next chunk...");
                 pendingRequest = loadLogChunk(false, eventCounter);
-//                $.fn.hideProgressIndicator();
+//                $.fn.hideOverlay();
 
                 if (allChunksLoaded) {
                     if (currentIndex >= replayList.length) {    // last chunk doesn't contain any more events
-                        $.fn.hideProgressIndicator();
+                        $.fn.hideOverlay();
                         debug(pluginName + ": Finished, no more events.");
                         updateUIStatus("Finished, end of replay reached.");
                         isReplaying = false;
@@ -418,7 +418,7 @@
             }
         }
         else if (currentIndex >= replayList.length) {
-            $.fn.hideProgressIndicator();
+            $.fn.hideOverlay();
             debug(pluginName + ": Finished, no more events.");
             updateUIStatus("Finished, end of replay reached.");
             isReplaying = false;
@@ -444,7 +444,7 @@
 //                + "nextTick: '" + nextTick + "'.");
         }
         else {
-            $.fn.hideProgressIndicator();
+            $.fn.hideOverlay();
             debug(pluginName + ": Finished, no more events.");
             updateUIStatus("Finished, end of replay reached.");
             isReplaying = false;
@@ -457,7 +457,7 @@
                 timerId = window.setTimeout(tick, 1, newTime);
             }
             else {
-                $.fn.hideProgressIndicator();
+                $.fn.hideOverlay();
                 debug(pluginName + ": Stopping fast forward...");
                 updateUIStatus("Closest event reached, stopping fast forward.");
             }
@@ -493,7 +493,7 @@
                 + "nextTick: '" + nextTick + "'.");
         }
         else {
-            $.fn.hideProgressIndicator();
+            $.fn.hideOverlay();
             debug(pluginName + ": Stopping fast rewind, no more events.");
             updateUIStatus("Finished, start of replay reached.");
             currentTickTime = startTime;
@@ -504,11 +504,11 @@
         if (newTime < currentTime) {  // time still bigger, repeat ticking with newTime
             timerId = window.setTimeout(reverseTick, 1, newTime);
         }
-        else if (newTime == startTime) {    // when rewinding to the first event
+        else if (newTime === startTime) {    // when rewinding to the first event
             timerId = window.setTimeout(reverseTick, 1, newTime);
         }
         else {
-            $.fn.hideProgressIndicator();
+            $.fn.hideOverlay();
             debug(pluginName + ": Stopping fast rewind...");
             updateUIStatus("Closest event reached, stopping fast rewind.");
             var timeOffset = parseInt($("#timeOffset").val());

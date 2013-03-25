@@ -75,16 +75,16 @@ CREATE TABLE `key_event` (
   `header_id` int(11) NOT NULL COMMENT 'Reference to log_event_header table',
   `cursor_position` int(5) NOT NULL COMMENT 'Cursor position where the key event occured',
   `which` varchar(5) NOT NULL COMMENT 'The javascript keycode',
---  `mappedKey` varchar(20) NOT NULL COMMENT 'The key mapped to the code of which',  
-  `character` varchar(20) NOT NULL COMMENT 'The key mapped to the code of which',
+  `mapped_key` varchar(20) NOT NULL COMMENT 'The key mapped to the code of which',
+--  `character` varchar(20) NOT NULL COMMENT 'The key mapped to the code of which',
   `shift` bit(1) NOT NULL COMMENT 'Was the shift key pressed in addition?',
   `ctrl` bit(1) NOT NULL COMMENT 'Was the ctrl key pressed in addition?',
   `alt` bit(1) NOT NULL COMMENT 'Was the alt key pressed in addition?',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2440 DEFAULT CHARSET=utf8 COMMENT='Stores key (down/up) events.';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores key (down/up) events.';
 
 CREATE VIEW v_files_jobs AS
-SELECT f.id, f.id_project, f.filename, f.source_language, fj.id_job, j.password 
+SELECT f.id, f.id_project, f.filename, f.source_language, fj.id_job, j.password
 FROM files f, jobs j, files_job fj
 WHERE fj.id_file = f.id AND fj.id_job = f.id;
 
@@ -92,11 +92,40 @@ CREATE TABLE `mouse_event` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary key',
   `header_id` int(11) NOT NULL COMMENT 'Reference to log_event_header table',
   `which` varchar(1) NOT NULL COMMENT 'The button (1 for the left button, 2 for the middle button, or 3 for the right button)',
-  `x` int(5) NOT NULL COMMENT 'clientX (relative to window)',  
+  `x` int(5) NOT NULL COMMENT 'clientX (relative to window)',
   `y` int(5) NOT NULL COMMENT 'clientY (relative to window)',
   `shift` bit(1) NOT NULL COMMENT 'Was the shift key pressed in addition?',
   `ctrl` bit(1) NOT NULL COMMENT 'Was the ctrl key pressed in addition?',
   `alt` bit(1) NOT NULL COMMENT 'Was the alt key pressed in addition?',
-  `cursor_position` int(5) NOT NULL COMMENT 'Cursor position where the mouse event occured (if available)',  
+  `cursor_position` int(5) NOT NULL COMMENT 'Cursor position where the mouse event occured (if available)',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2184 DEFAULT CHARSET=utf8 COMMENT='Stores mouse (down/click/move) events.';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores mouse (down/click/move) events.';
+
+CREATE TABLE `fixation_event` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary key',
+  `header_id` int(11) NOT NULL COMMENT 'Reference to log_event_header table',
+  `t_time` varchar(20) NOT NULL COMMENT 'Time submitted by the eye tracker',
+  `x` int(5) NOT NULL COMMENT 'x coordinate of fixation (relative to window)',
+  `y` int(5) NOT NULL COMMENT 'y coordinate of fixation (relative to window)',
+  `duration` VARCHAR(20) NOT NULL COMMENT 'Duration of the fixation',
+  `character` VARCHAR(1) NOT NULL COMMENT 'The character fixated',
+  `offset` INT(5) NOT NULL COMMENT 'The offset of the character within the HTML element',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores fixation events.';
+
+CREATE TABLE `gaze_event` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary key',
+  `header_id` int(11) NOT NULL COMMENT 'Reference to log_event_header table',
+  `t_time` varchar(20) NOT NULL COMMENT 'Time submitted by the eye tracker',
+  `lx` int(5) NOT NULL COMMENT 'x coordinate of the left eye (relative to window)',
+  `ly` int(5) NOT NULL COMMENT 'y coordinate of the left eye (relative to window)',
+  `rx` int(5) NOT NULL COMMENT 'x coordinate of the right eye (relative to window)',
+  `ry` int(5) NOT NULL COMMENT 'y coordinate of the right eye (relative to window)',
+  `l_dil` varchar(10) NOT NULL COMMENT 'Dilation of the left eye',
+  `r_dil` varchar(10) NOT NULL COMMENT 'Dilation of the right eye',
+  `l_char` VARCHAR(1) NOT NULL COMMENT 'The character gazed by the left eye',
+  `l_offset` INT(5) NOT NULL COMMENT 'The offset of the character within the HTML element',
+  `r_char` VARCHAR(1) NOT NULL COMMENT 'The character gazed by the right eye',
+  `r_offset` INT(5) NOT NULL COMMENT 'The offset of the character within the HTML element',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores gaze events.';

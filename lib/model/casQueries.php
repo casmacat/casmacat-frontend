@@ -86,10 +86,10 @@ function resetDocument($jobId, $fileId) {
                 deleteEventRow($logEvent->id, "scroll_event");
                 break;
             case LogEvent::GAZE:
-                // TODO
+                deleteEventRow($logEvent->id, "gaze_event");
                 break;
-            case LogEvent::FIX:
-                // TODO
+            case LogEvent::FIXATION:
+                deleteEventRow($logEvent->id, "fixation_event");
                 break;
 
             case LogEvent::DRAFTED:
@@ -258,10 +258,12 @@ function fetchLogChunk($jobId, $fileId, $startOffset, $endOffset) {
                 $logEvent->scrollData($eventRow);
                 break;
             case LogEvent::GAZE:
-                // TODO
+                $eventRow = fetchEventRow($logEvent->id, "gaze_event");
+                $logEvent->gazeData($eventRow);
                 break;
-            case LogEvent::FIX:
-                // TODO
+            case LogEvent::FIXATION:
+                $eventRow = fetchEventRow($logEvent->id, "fixation_event");
+                $logEvent->fixationData($eventRow);
                 break;
 
             case LogEvent::DRAFTED:
@@ -375,6 +377,67 @@ function snakeToCamel($row) {
 }
 
 /**
+ * Inserts an entry into the gaze_event and log_event_header table.
+ */
+function insertGazeEvent($event) {
+    $headerId = insertLogEventHeader($event);
+
+    $data = array();
+    $data["id"] = "NULL";
+    $data["header_id"] = $headerId;
+    $data["t_time"] = $event->tTime;
+    $data["lx"] = $event->lx;
+    $data["ly"] = $event->ly;
+    $data["rx"] = $event->rx;
+    $data["ry"] = $event->ry;
+    $data["l_dil"] = $event->lDil;
+    $data["r_dil"] = $event->rDil;
+    $data["l_char"] = $event->lChar;
+    $data["l_offset"] = $event->lOffset;
+    $data["r_char"] = $event->rChar;
+    $data["r_offset"] = $event->rOffset;
+
+    $db = Database::obtain();
+    $db->insert("gaze_event", $data);
+
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: insertGazeEvent(): " . print_r($err, true));
+        throw new Exception("CASMACAT: insertGazeEvent(): " . print_r($err, true));
+//        return $errno * -1;
+    }
+}
+
+/**
+ * Inserts an entry into the fixation_event and log_event_header table.
+ */
+function insertFixationEvent($event) {
+    $headerId = insertLogEventHeader($event);
+
+    $data = array();
+    $data["id"] = "NULL";
+    $data["header_id"] = $headerId;
+    $data["t_time"] = $event->tTime;
+    $data["x"] = $event->x;
+    $data["y"] = $event->y;
+    $data["duration"] = $event->duration;
+    $data["character"] = $event->character;
+    $data["offset"] = $event->offset;
+
+    $db = Database::obtain();
+    $db->insert("fixation_event", $data);
+
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: insertFixationEvent(): " . print_r($err, true));
+        throw new Exception("CASMACAT: insertFixationEvent(): " . print_r($err, true));
+//        return $errno * -1;
+    }
+}
+
+/**
  * Inserts an entry into the mouse_event and log_event_header table.
  */
 function insertMouseEvent($event) {
@@ -417,7 +480,8 @@ function insertKeyEvent($event) {
     $data["header_id"] = $headerId;
     $data["cursor_position"] = $event->cursorPosition;
     $data["which"] = $event->which;
-    $data["character"] = $event->character;
+    //$data["character"] = $event->character;
+    $data["mapped_key"] = $event->mappedKey;
     $data["shift"] = $event->shift;
     $data["ctrl"] = $event->ctrl;
     $data["alt"] = $event->alt;

@@ -286,7 +286,9 @@ class catController extends viewcontroller {
         $this->template->debug = INIT::$DEBUG;
         $this->template->itpEnabled = INIT::$ITPENABLED;
         if (INIT::$LOGGING) {
-            log::doLog(INIT::$ITPENABLED);
+            log::doLog("CASMACAT: itpEnabled: " . INIT::$ITPENABLED);
+            $this->template->etEnabled = INIT::$ETENABLED;
+            log::doLog("CASMACAT: etEnabled: " . INIT::$ETENABLED);
             log::doLog("CASMACAT: Correcting 'last_opened_segment'...");
             if ($this->casIsReplaying) {
                     $this->last_opened_segment = 0;
