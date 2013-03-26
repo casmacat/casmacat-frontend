@@ -3,7 +3,7 @@ global $_INI_FILE;
 $_INI_FILE = parse_ini_file(dirname(__FILE__).'/config.ini', true);
 
 ini_set("display_errors", (bool) $_INI_FILE['debug']['displayerrors']);
-ini_set("error_reporting", eval("return ".$_INI_FILE['debug']['displayerrors'].";"));
+ini_set("error_reporting", eval("return ".$_INI_FILE['debug']['errorreporting'].";"));
 
 class INIT {
     private static $instance;

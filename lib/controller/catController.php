@@ -263,13 +263,17 @@ class catController extends viewcontroller {
 		$this->template->target=$this->target;
 		//$this->template->cucu=$this->open_segment;
 
+        if (!empty($_GET["itp-server"])) {
+          $this->template->catserver = $_GET["itp-server"];
+        }
+
         // FIXME: This is a temp workaround for the pre-evaluation. We should homogenize stuff like this ASAP!
         // We reuse the $page var to indicate the CAT client configuration, since $page is actually not being used in the prototype.
         $delimiters = array(":", "@");
         foreach ($delimiters as $delim) {
           list($catsetting, $portnum) = explode($delim, $this->page);
           if (intval($portnum) > 0) {
-            $server_url = INIT::$CATSERVER;
+            $server_url = $this->template->catserver;
             if (strstr($server_url, "http://") === true) {
               $server_url = str_replace("http://", "", $server_url);
             }
