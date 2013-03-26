@@ -287,7 +287,26 @@ var Memento = require("module.memento");
         , $source = itpCfg.$source
         , itp     = itpCfg.itpServer
         ;
-  
+
+      function onCaretChange(e, d, callback) {
+        if (!itp.replay || e.isTrigger) {
+          var alignments = $(d.token).data('alignments');
+          if (alignments && alignments.alignedIds) {
+            callback(alignments.alignedIds, 'caret-align');
+          }
+        }
+      };
+        
+      function toggleOpt($elem, opt) {
+        var elem = $elem.get(0);
+        if (!elem.getAttribute(["data-" + opt])) {
+          elem.setAttribute(["data-" + opt], true);
+        }
+        else {
+          elem.setAttribute(["data-" + opt], false);
+        }
+      }
+
       // #source and #target events
       // caretenter is a new event from jquery.editable that is triggered
       // whenever the caret enters in a new token span
@@ -295,18 +314,12 @@ var Memento = require("module.memento");
         self.vis.updateWordPriorityDisplay($target, $(d.token));
       });
       $([$source[0], $target[0]]).bind('caretenter' + nsClass, function(e, d) {
-        var alignments = $(d.token).data('alignments');
-        if (alignments && alignments.alignedIds) {
-          self.vis.showAlignments(alignments.alignedIds, 'caret-align');
-        }
+        onCaretChange(e, d, self.vis.showAlignments);
       })
       // caretleave is a new event from jquery.editable that is triggered
       // whenever the caret leaves a token span
       .bind('caretleave' + nsClass, function(e, d) {
-        var alignments = $(d.token).data('alignments');
-        if (alignments && alignments.alignedIds) {
-          self.vis.hideAlignments(alignments.alignedIds, 'caret-align');
-        }
+        onCaretChange(e, d, self.vis.hideAlignments);
       })
       .bind('keydown' + nsClass, function(e) {
         // prevent new lines
@@ -323,44 +336,98 @@ var Memento = require("module.memento");
         //e.stopPropagation();
         e.preventDefault();
         tabKeyHandler(e, 'bck');
+      }).bind('keydown' + nsClass, 'ctrl+shift+1', function(e){
+        //e.stopPropagation();
+        e.preventDefault();
+        toggleOpt($target, "opt-caret-align");
+        toggleOpt($source, "opt-caret-align");
+      }).bind('keydown' + nsClass, 'ctrl+shift+2', function(e){
+        //e.stopPropagation();
+        e.preventDefault();
+        toggleOpt($target, "opt-mouse-align");
+        toggleOpt($source, "opt-mouse-align");
+      }).bind('keydown' + nsClass, 'ctrl+shift+3', function(e){
+        //e.stopPropagation();
+        e.preventDefault();
+        toggleOpt($target, "opt-confidences");
+        toggleOpt($source, "opt-confidences");
+      }).bind('keydown' + nsClass, 'ctrl+shift+4', function(e){
+        //e.stopPropagation();
+        e.preventDefault();
+        toggleOpt($target, "opt-validated");
+        toggleOpt($source, "opt-validated");
+      }).bind('keydown' + nsClass, 'ctrl+shift+5', function(e){
+        //e.stopPropagation();
+        e.preventDefault();
+        toggleOpt($target, "opt-prefix");
+        toggleOpt($source, "opt-prefix");
       });
 
       function tabKeyHandler(e, mode) {
-        //if (mode == 'fwd') {}
-        var ui = userCfg(), $token;
-        
-        if (ui.prioritizer != 'none') {
-          if (mode == 'fwd') {
+        var ui = userCfg(), $token, gotoEnd = false;
+
+        // find next token 
+        if (mode == 'fwd') {
+          // if we have a prioritizer, we rely on the representation and find the first greyed out token 
+          if (ui.prioritizer != 'none') {
             $token = $('.editable-token', $target).filter(function(e){ return $(this).css('opacity') < 1.0}).first();
-          } else {
-            var tok = $target.editable('getTokenAtCaret');
-            if (tok.elem) {
-              $token = $(tok.elem).parent().prev('.editable-token');
+          }
+          // if we don't have prioritizer, we find the token next to the caret position 
+          else {
+            //if (self.currentCaretPos && self.currentCaretPos.token) {
+            //$token = $(self.currentCaretPos.token.elem);
+            var tokenPos = $target.editable('getTokenAtCaret');
+            $token = $(tokenPos.elem);
+            if ($token) {
+              if ($token.parent().is('.editable-token')) {
+                $token = $token.parent();
+              }
+              // move to the next token editable if we are at the end of a token and the next token is pasted
+              // since we assume we are already at the beginning of the next token 
+              if (tokenPos.elem.nodeValue.length - tokenPos.pos === 0 &&
+                  $token[0].nextSibling && $token[0].nextSibling.nodeType === 3 && $token[0].nextSibling.nodeValue.length === 0)
+              {
+                $token = $token.next('.editable-token');
+              }
             }
           }
-          if ($token) {
-            $target.editable('setCaretAtToken', $token.get(0));
-          } else {
-            $target.editable('setCaretPos', $target.text().length);
+          // if this is the last token go to end
+          var $next = $token.next('.editable-token');
+          if ($token && $token.length && !$next.length) {
+            gotoEnd = true;
           }
-        } else {
-          if (self.currentCaretPos && self.currentCaretPos.token) {
-            $token = $(self.currentCaretPos.token.elem);
+          $token = $next;
+        }
+        // find previous token 
+        else {
+          var tokenPos = $target.editable('getTokenAtCaret');
+          if (tokenPos.elem) {
+            $token = $(tokenPos.elem);
+            
+            // $token is editable 
             if ($token.parent().is('.editable-token')) {
               $token = $token.parent();
+              if (tokenPos.pos === 0) {
+                $token = $token.prev('.editable-token');
+              }
             }
-            if (mode == 'fwd') {
-              $token = $token.next('.editable-token');
-            } else {
-              $token = $token.prev('.editable-token');
-            }
-            if ($token) {
-              $target.editable('setCaretAtToken', $token.get(0));
-            } else {
-              $target.editable('setCaretPos', $target.text().length);
+            // elem is non-token (space) 
+            else {
+              var elem = tokenPos.elem;
+              while (elem && elem.nodeType === 3) {
+                elem = elem.previousSibling;
+              }
+              $token = $(elem);
             }
           }
-        }      
+        }
+
+        if ($token && $token.length) {
+          $target.editable('setCaretAtToken', $token.get(0));
+        } 
+        else if (gotoEnd) {
+          $target.editable('setCaretPos', $target.text().length);
+        }
       };
       
       var sourceOptions = $source.data('editable').options;

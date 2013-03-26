@@ -78,6 +78,26 @@
       var r = this.getRect($(node));
       return { x: r.x + r.width/2, y: r.y + r.height/2 } 
     },
+
+    getNextHighestDepth: function(e) {
+      var highestIndex = 0, currentIndex = 0, elementArray = [];
+      // check all elements in page ...
+      if (document.getElementsByTagName) {
+        elementArray = document.getElementsByTagName('*');
+      } else if (e.getElementsByTagName) {
+        elementArray = document.getElementsByTagName('*');
+      }
+      // ... and iterate
+      for (var i = 0, l = elementArray.length; i < l; ++i) {
+        if (elementArray[i].currentStyle) {
+          currentIndex = parseFloat(elementArray[i].currentStyle.zIndex);
+        } else if (window.getComputedStyle) {
+          currentIndex = parseFloat(document.defaultView.getComputedStyle(elementArray[i],null).getPropertyValue('z-index'));
+        }
+        if (currentIndex > highestIndex) { highestIndex = currentIndex; }
+      }
+      return highestIndex + 1;
+    },
   
   };
 

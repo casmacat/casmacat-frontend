@@ -26,6 +26,10 @@
         var port = match[2];
         console.log("Use reverse proxy for", url, 'at port', port);
         ioOptions.resource = 'socket.io/p' + port;
+        // avoid socket.io socket cache. Since we are redirecting 
+        // sockets with url and not machine:port, socket.io cache
+        // uses the same connection for htr@port and itp@port
+        ioOptions['force new connection'] = true;
       }
        
       self.server = new io.connect(url, ioOptions);
@@ -38,8 +42,7 @@
         self.server.emit = function() {
           if (arguments.length === 2) {
             console.log("emit", [arguments[0]], arguments[1]);
-          }
-          else {
+          } else {
             console.log("emit", arguments);
           }
           emit.apply(this, arguments);
@@ -73,8 +76,7 @@
                 }
                 if (arguments.length === 1) {
                   console.log(msg, [ev[e]], arguments[0]);
-                }
-                else {
+                } else {
                   console.log(msg, [ev[e]], arguments);
                 }
               }
@@ -84,10 +86,6 @@
             fn();
           }
         });
-      }
-
-      if (self.debug) {
-        console.log("on", ev, "attached");
       }
     };
 

@@ -1,0 +1,32 @@
+.epen-source, .epen-target { 
+  display:block !important; clear:both !important; table-layout:auto !important; 
+  width:auto !important; margin-left:0 !important; margin-right:0 !important; 
+  background-color:white !important; 
+}
+
+.epen-source { 
+  /* border:1px solid green !important; */
+}
+
+.epen-target { 
+  margin-top:15px !important; width:100% !important;
+  /* border:1px solid red !important; */
+}
+
+.epen-wrap { 
+  display:block !important; text-align:center !important; 
+}
+
+.epen-wrap canvas { 
+  border:2px dashed black !important;
+	display:block !important; position:absolute !important;
+}
+
+.epen-wrap .target {
+  display:block !important; table-layout:auto !important; width:auto !important; 
+}
+
+.epen-wrap .editarea { 
+  box-shadow:none !important; -webkit-box-shadow:none !important; border:none !important;
+  line-height:160% !important;
+}

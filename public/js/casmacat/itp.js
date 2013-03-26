@@ -20,6 +20,8 @@ $(function(){
   };
 
   insertStyle(config.basepath  + 'public/css/itp.css');
+  insertStyle(config.basepath  + 'public/css/htr.css');
+  
   require('jquery.editable.itp');
 
   function getEditArea() {
@@ -35,16 +37,72 @@ $(function(){
                  segment: data.source,
              translation: d.target,
               created_by: d.author,
-                   match: d.quality,
+                   match: parseInt(d.quality * 100),
         last_update_date: new Date()
       });
     }
     return { matches: matches };
   };
 
+  function toogleEpenMode(editarea) {
+    var $target = $(editarea), sid = $target.data('sid'), prefix = "#segment-" + sid;
+    var $source = $(prefix + "-source"), $section = $(prefix), animMs = 300;
+    var $targetParent = $(prefix + "-target");
+    $section.find('.wrap').toggleClass("epen-wrap");
+    $source.toggleClass("epen-source", animMs);
+    $target.toggleClass("epen-target", animMs, function(){
+      var $canvas = $targetParent.find('canvas'), $clearBtn = $('.buttons', UI.currentSegment).find('.pen-clear-indicator');    
+      // Create canvas on top
+      if ($canvas.length === 0) {
+        var geom = require('geometry-utils'),
+             pos = $target.offset(), 
+             siz = { width: $target.width() + 25, height: $target.height() + 35 };
+        
+        $canvas = $('<canvas tabindex="-1" id="'+prefix+'-canvas" width="'+(siz.width)+'" height="'+(siz.height)+'"/>');
+        $canvas.prependTo($targetParent).hide().delay(10).css({
+             top: $source.height() + 15,
+            left: 7,
+          zIndex: geom.getNextHighestDepth()
+        }).bind('mousedown mouseup click', function(e){
+          // This is to prevent logging click events on the canvas
+          e.stopPropagation();
+        });
+        
+        var htr = require('htr');
+        htr.init($canvas, $source, $target);
+        
+        // A button to clear canvas (see http://ikwebdesigner.com/special-characters/)
+        if ($clearBtn.length === 0) {
+          $clearBtn = $('<li/>').html('<a href="#" class="draft pen-clear-indicator" title="Clear drawing area">&#10227;</a>');
+          $clearBtn.click(function(e){
+            e.preventDefault();
+            $canvas.sketchable('clear');
+          });
+          $('.buttons', UI.currentSegment).prepend($clearBtn);
+          $clearBtn.hide();
+        }
+      } else {
+        $canvas = $targetParent.find('canvas');
+      }
+      /*
+      // TODO: Remove suffix length feature for e-pen mode and restore previous prioritizer
+      $target.editableItp('updateConfig', {
+        prioritizer: "none"
+      });
+      */
+      // Toogle buttons
+      $canvas.sketchable('clear').toggle();
+      $clearBtn.toggle();
+      // Toggle translation matches et al.
+      $section.find('.overflow').toggle(animMs);    
+      // Remove contenteditable selection
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+    });
+  };
+  
   // Overwrite UI methods ------------------------------------------------------
 
-  console.log("Wrapping UI methods for ITP");
   UI.callbacks = {};
 
   UI.setKeyboardShortcuts = function(){}; // FTW
@@ -55,13 +113,13 @@ $(function(){
   var original_closeSegment = UI.closeSegment;
   var original_doRequest = UI.doRequest;
   var original_copySuggestionInEditarea = UI.copySuggestionInEditarea;
-
+        
   UI.openSegment = function(editarea) {
     original_openSegment.call(UI, editarea);
     var $target = $(editarea), sid = $target.data('sid'), $source = $("#segment-" + sid + "-source");
-        
+                  
     $target.on('ready.matecat', function() {
-      var settings;
+      var settings, $indicator;
       if (config.catsetting) {
         settings = require(config.basepath + '/' + config.catsetting);
       } else {
@@ -73,12 +131,24 @@ $(function(){
       $target.editableItp('startSession');
       $target.editableItp('updateConfig', settings);
       // A button to toggle ITP mode
-      if (settings.mode == "ITP" && $('.buttons', UI.currentSegment).find('#itp-indicator').length === 0) {
-        var indicator = $('<li/>').html('<a id="itp-indicator" href="#" class="draft">'+settings.mode+'</a><p>ESC</p>');
-        indicator.click(function(e){
+      $indicator = ('.buttons', UI.currentSegment).find('.itp-indicator');
+      if (settings.mode == "ITP" && $indicator.length === 0) {
+        $indicator = $('<li/>').html('<a href="#" class="draft itp-indicator">'+settings.mode+'</a><p>ESC</p>');
+        $indicator.click(function(e){
+          e.preventDefault();
           UI.toggleItp(e);
         });
-        $('.buttons', UI.currentSegment).prepend(indicator);
+        $('.buttons', UI.currentSegment).prepend($indicator);
+      }
+      // A button to toggle e-pen mode
+      $indicator = $('.buttons', UI.currentSegment).find('.pen-indicator');
+      if (config.htrserver && $indicator.length === 0) {
+        $indicator = $('<li/>').html('<a href="#" class="draft pen-indicator" title="Toggle e-pen input">&#9997;</a>');
+        $indicator.click(function(e){
+          e.preventDefault();
+          toogleEpenMode(editarea);
+        });
+        $('.buttons', UI.currentSegment).prepend($indicator);
       }
     })
     .editableItp({
@@ -104,7 +174,7 @@ $(function(){
         $target.find('span.editable-token')
         .off('mouseenter.matecat mouseleave.matecat caretenter.matecat caretleave.matecat')
         .on('mouseenter.matecat', function (ev) {
-          $(window).trigger('showAlignmentByMouse', ev.target);
+          $(window).trigger('showAlignmentByMouse', ev.target, ev.clientX, ev.clientY);
         })
         .on('mouseleave.matecat', function (ev) {
           $(window).trigger('hideAlignmentByMouse', ev.target);
@@ -136,10 +206,13 @@ $(function(){
     // WTF? editarea semantics is not the same as in openSegment
     if (editarea) {
       var sid = $(editarea).attr('id');
-      var $target = $('#'+sid+'-editarea'),  $source = $('#'+sid+'-editarea');
+      var $target = $('#'+sid+'-editarea'), $source = $('#'+sid+'-editarea');
       $target.find('*').andSelf().off('.matecat');
       $source.find('*').andSelf().off('.matecat');
       $target.editableItp('destroy');
+      if ($target.hasClass('epen-target')) {
+        toogleEpenMode($target);
+      }
     }
     original_closeSegment.call(UI, editarea);
   };

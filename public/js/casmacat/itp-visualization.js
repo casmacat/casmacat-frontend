@@ -65,7 +65,7 @@
       // sets the text in the editable div. It tokenizes the sentence and wraps tokens in spans
       $source().editable('setText', source, sourceSeg);
       $target.editable('setText', target, targetSeg);
-      
+
       // requests the server for new alignment and confidence info
       var query = {
         source: source,
@@ -101,6 +101,11 @@
           if (alignment[v] > 0.5) {
             sourceal[c].push('#' + targetspans[v].id);
             targetal[v].push('#' + sourcespans[c].id);
+
+            var s = $('#' + sourcespans[c].id).get(0);
+            var t = $('#' + targetspans[v].id).get(0);
+            if (t.dataset.prefix) s.dataset.prefix = true;
+            if (t.dataset.validated) s.dataset.validated = true;
           }
         }
       }
@@ -186,6 +191,7 @@
 
     self.updateWordPriorities = function($target, priorities) {
       // get target span tokens 
+
       $('.editable-token', $target).each(function(index) {
         $(this).data('priority', priorities[index]);
       });

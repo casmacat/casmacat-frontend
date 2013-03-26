@@ -28,7 +28,8 @@ class createLogDOwnloadController extends downloadController {
 
     
     public function doAction() {
-        
+
+	ini_set('memory_limit', '8000M');        
         $db = Database::obtain();
         $queryId = $db->query("SELECT COUNT(*) FROM log_event_header h WHERE h.job_id = $this->id_job AND h.file_id = $this->id_file");
 
@@ -38,11 +39,11 @@ class createLogDOwnloadController extends downloadController {
             log::doLog("CASMACAT: fetchLengthEvents: " . print_r($err, true));
             return $errno * -1;
         }
-        log::doLog("CASMACAT: fetchLengthEvents(): Event headers found: '$db->affected_rows' ");
+        //log::doLog("CASMACAT: fetchLengthEvents(): Event headers found: '$db->affected_rows' ");
 
         $row = $db->fetch($queryId);
-        log::doLog("Total = ".$row["COUNT(*)"]);
-        $this->filename ="log".$this->id_file.".xml";
+        //log::doLog("Total = ".$row["COUNT(*)"]);
+        $this->filename ="log_id".$this->id_file."_".$this->file_name.".xml";
 
         //SELECT COUNT(*) to know the lenght of the table, we will do the query with just 100 items. Otherwise will be very heavy
         $total = $row["COUNT(*)"];
@@ -88,7 +89,7 @@ class createLogDOwnloadController extends downloadController {
             log::doLog("Target language error: " . print_r($err, true));
             return $errno * -1;
         }
-        log::doLog("CASMACAT: fetchTargetLang(): Event headers found: '$db->affected_rows' ");
+        //log::doLog("CASMACAT: fetchTargetLang(): Event headers found: '$db->affected_rows' ");
 
         $row = $db->fetch($queryId);
         log::doLog("Target lang = ".$row["target"]);
@@ -102,10 +103,10 @@ class createLogDOwnloadController extends downloadController {
         $err = $db->get_error();
         $errno = $err["error_code"];
         if ($errno != 0) {
-            log::doLog("CASMACAT: fetchSegments(): " . print_r($err, true));
+            //log::doLog("CASMACAT: fetchSegments(): " . print_r($err, true));
             return $errno * -1;
         }
-        log::doLog("CASMACAT: fetchSegments(): Event headers found: '$db->affected_rows' ");
+        //log::doLog("CASMACAT: fetchSegments(): Event headers found: '$db->affected_rows' ");
 
         // Source text
         $sourceTextElement = createAndAppendElement($doc, $root, 'sourceText');
@@ -117,34 +118,55 @@ class createLogDOwnloadController extends downloadController {
         $logSegments = array();
         $row = null;
         while ( ($row = $db->fetch($queryId)) != false ) {
-            log::doLog("CASMACAT: fetchSegments(): Next row: " . print_r($row, true));
+            //log::doLog("CASMACAT: fetchSegments(): Next row: " . print_r($row, true));
 
             $tmp = createAndAppendElement($doc, $sourceTextElement, 'segment');
             $tmp->setAttribute('id', $row['id']);
             $tmp->appendChild($doc->createTextNode($row['segment']));            
         }
 
+	//Check if it is ITP
+	$itp = 0;
+	$queryId = $db->query("SELECT element_id, data FROM `log_event_header` l, itp_event i WHERE l.type = 'decode' AND l.job_id = $this->id_job AND l.file_id = $this->id_file AND i.header_id = l.id");
+        while ( ($row = $db->fetch($queryId)) != false ) {
+            	//log::doLog("CASMACAT: fetchTranslations(): Next row: " . print_r($row, true));
+		$itp = 1;
+
+		$json = $row["data"];
+		$obj = json_decode($json);
+		$nbest = $obj->{'nbest'};
+        	//log::doLog("nbest = ".print_r($nbest,true));
+        	$inisuggestion = $nbest[0]->target;
+        	//log::doLog("suggestion ITP = ".$inisuggestion);
+            	$tmp = createAndAppendElement($doc, $initialTargetTextElement, 'segment');
+        	list($segment, $id, $editarea) = split("-",$row['element_id']);
+
+            	$tmp->setAttribute('id', $id);
+            	$tmp->appendChild($doc->createTextNode($inisuggestion));
+	}
+				
+        log::doLog("ITP= ".$itp);
         // Target text
         $queryId = $db->query("SELECT id_segment, translation, suggestion FROM `segment_translations` st, `files_job` fj WHERE st.id_job = $this->id_job AND fj.id_job = $this->id_job AND fj.id_file = $this->id_file");
-        log::doLog("queryId: ".$queryId);
+        //log::doLog("queryId: ".$queryId);
 
         $err = $db->get_error();
         $errno = $err["error_code"];
         if ($errno != 0) {
-            log::doLog("CASMACAT: fetchTranslations(): " . print_r($err, true));
+            //log::doLog("CASMACAT: fetchTranslations(): " . print_r($err, true));
             return $errno * -1;
         }
-        log::doLog("CASMACAT: fetchTranslations(): Event headers found: '$db->affected_rows' ");
+        //log::doLog("CASMACAT: fetchTranslations(): Event headers found: '$db->affected_rows' ");
 
         $logSegments = array();
         $row = null;
         while ( ($row = $db->fetch($queryId)) != false ) {
-            log::doLog("CASMACAT: fetchTranslations(): Next row: " . print_r($row, true));
-            
-            $tmp = createAndAppendElement($doc, $initialTargetTextElement, 'segment');
-            $tmp->setAttribute('id', $row['id_segment']);
-            $tmp->appendChild($doc->createTextNode($row['suggestion']));
-            
+            //log::doLog("CASMACAT: fetchTranslations(): Next row: " . print_r($row, true));
+            if ($itp == 0) {
+            	$tmp = createAndAppendElement($doc, $initialTargetTextElement, 'segment');
+            	$tmp->setAttribute('id', $row['id_segment']);
+            	$tmp->appendChild($doc->createTextNode($row['suggestion']));
+	    }
             $tmp = createAndAppendElement($doc, $finalTargetTextElement, 'segment');
             $tmp->setAttribute('id', $row['id_segment']);
             $tmp->appendChild($doc->createTextNode($row['translation']));  
@@ -157,22 +179,22 @@ class createLogDOwnloadController extends downloadController {
         $data = '';
         $ini = 0;
         $end = 0;
-        log::doLog("total = ".$total);
+        //log::doLog("total = ".$total);
 
         while ($total > 100){
             
             $end = $end + 100;
             
-            log::doLog("ini = ".$ini);
-            log::doLog("end = ".$end);
+            //log::doLog("ini = ".$ini);
+            //log::doLog("end = ".$end);
             
             
             $total = $total - 100;
             $result = fetchLogChunk($this->id_job, $this->id_file, $ini, $end);        
             
-            log::doLog("result = ".$result);
+            //log::doLog("result = ".$result);
             $data = $data.print_r($result, true);
-            log::doLog("total = ".$total);
+            //log::doLog("total = ".$total);
             //log::doLog("data = ".print_r($data, true));
             
             for ($i=0; $i<100; $i++){
@@ -195,7 +217,7 @@ class createLogDOwnloadController extends downloadController {
 
         $result = fetchLogChunk($this->id_job, $this->id_file, $end, $total);
         $data = $data.print_r($result, true);
-        log::doLog("data = ".print_r($data, true));
+        //log::doLog("data = ".print_r($data, true));
         $len = count($result);
         for ($i=0; $i<$len; $i++){
             $tmp = createAndAppendElement($doc, $eventElements, $result[$i]->type);
@@ -211,7 +233,7 @@ class createLogDOwnloadController extends downloadController {
 
         }
         
-        log::doLog("Events = ".print_r($data, true));
+        //log::doLog("Events = ".print_r($data, true));
         
         
         
