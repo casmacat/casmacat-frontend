@@ -31,6 +31,28 @@
         if (targetPrefix === matchPrefix && conf.mode === match.author) {
           $target.editable('setText', match.target, match.targetSegmentation);
 
+          if (data.caretPos) {
+            var tokenAtPos = $target.editable('getTokenAtCaretPos', data.caretPos);
+            if (tokenAtPos) {
+              var lastEditedToken = tokenAtPos.elem;
+              if (lastEditedToken.parentNode && $(lastEditedToken.parentNode).is('.editable-token')) {
+                lastEditedToken = lastEditedToken.parentNode;
+              }
+
+              if (tokenAtPos.pos === 0) {
+                lastEditedToken = lastEditedToken.previousSibling;
+              }
+
+              if (lastEditedToken) {
+                // XXX: do not use jquery data if you want css selectors to work
+                lastEditedToken.dataset.validated = true;
+                $(lastEditedToken).prevAll(".editable-token").andSelf().each(function(i, elem){
+                  elem.dataset.prefix = true;
+                });
+              }
+            }
+          }
+
           if (match.priorities) {
             self.updateWordPriorities($target, match.priorities);
           }
