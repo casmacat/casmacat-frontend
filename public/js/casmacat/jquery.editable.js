@@ -340,6 +340,7 @@
 
           span.text(txt);
           span.data('tok', tok_id); 
+          span.data('merge-type', merge_type); 
           tokens.append(span);
 
           // add space token
