@@ -40,7 +40,10 @@
               }
 
               if (tokenAtPos.pos === 0) {
-                lastEditedToken = lastEditedToken.previousSibling;
+                while (lastEditedToken.previousSibling) {
+                  lastEditedToken = lastEditedToken.previousSibling;
+                  if ($(lastEditedToken).text().length > 0) break;
+                }
               }
 
               if (lastEditedToken) {
