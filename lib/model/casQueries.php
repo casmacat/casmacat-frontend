@@ -330,7 +330,12 @@ function fetchLogChunk($jobId, $fileId, $startOffset, $endOffset) {
 //        log::doLog("CASMACAT: fetchLogChunk(): Loaded: '" . $logEvent->toString() . "'");
     }
 
-    return $logListChunk;
+    if (empty($logListChunk)) {
+        return false;
+    }
+    else {
+        return $logListChunk;
+    }
 }
 
 /**
