@@ -19,6 +19,11 @@ class INIT {
     public static $DB_PASS;
     public static $LOG_REPOSITORY;
     public static $LOG_FILENAME;
+    
+    //Log download
+    public static $LOG_DOWNLOAD;
+    
+    
     public static $TEMPLATE_ROOT;
     public static $MODEL_ROOT;
     public static $CONTROLLER_ROOT;
@@ -69,6 +74,10 @@ class INIT {
 
         self::$LOG_REPOSITORY = self::$ROOT . "/". $_INI_FILE['log']['directory'];
         self::$LOG_FILENAME = $_INI_FILE['log']['filename'];
+        
+        //log download
+        self::$LOG_DOWNLOAD = self::$ROOT . "/". $_INI_FILE['download_temp']['directory'];        
+        
         self::$TEMPLATE_ROOT = self::$ROOT . "/lib/view";
         self::$MODEL_ROOT = self::$ROOT . '/lib/model';
         self::$CONTROLLER_ROOT = self::$ROOT . '/lib/controller';

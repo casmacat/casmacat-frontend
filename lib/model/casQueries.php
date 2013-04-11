@@ -200,7 +200,7 @@ function fetchEndTime($jobId, $fileId) {
  *
  */
 function fetchLogChunk($jobId, $fileId, $startOffset, $endOffset) {
-
+log::doLog($endOffset);
 //    include_once INIT::$MODEL_ROOT . "/LogEvent.class.php";
 
     $db = Database::obtain();
@@ -313,7 +313,12 @@ function fetchLogChunk($jobId, $fileId, $startOffset, $endOffset) {
 //        log::doLog("CASMACAT: fetchLogChunk(): Loaded: '" . $logEvent->toString() . "'");
     }
 
-    return $logListChunk;
+    if (empty($logListChunk)){
+        return false;
+    }
+    else{    
+        return $logListChunk;
+    }
 }
 
 /**
