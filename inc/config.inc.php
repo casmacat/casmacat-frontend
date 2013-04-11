@@ -3,7 +3,7 @@ global $_INI_FILE;
 $_INI_FILE = parse_ini_file(dirname(__FILE__).'/config.ini', true);
 
 ini_set("display_errors", (bool) $_INI_FILE['debug']['displayerrors']);
-ini_set("error_reporting", eval("return ".$_INI_FILE['debug']['displayerrors'].";"));
+ini_set("error_reporting", eval("return ".$_INI_FILE['debug']['errorreporting'].";"));
 
 class INIT {
     private static $instance;
@@ -40,6 +40,7 @@ class INIT {
     public static $CATSERVER;
     public static $HTRSERVER;
     public static $ITPENABLED;
+    public static $ETENABLED;
 
 
     public static function obtain() {
@@ -90,8 +91,9 @@ class INIT {
         // Custom translation/HTR servers (TODO: see how can integrate $_GET params with rewritten URLs)
         self::$CATSERVER = isset($_GET['catserver']) ? $_GET['catserver'] : $_INI_FILE['casmacat']['catserver'];
         self::$HTRSERVER = isset($_GET['htrserver']) ? $_GET['htrserver'] : $_INI_FILE['casmacat']['htrserver'];
-        self::$ITPENABLED = isset($_GET['itpenabled']) ? $_GET['itpenabled'] : 
+        self::$ITPENABLED = isset($_GET['itpenabled']) ? $_GET['itpenabled'] :
                             isset($_INI_FILE['casmacat']['itpenabled']) ? $_INI_FILE['casmacat']['itpenabled'] : "false";
+        self::$ETENABLED = isset($_INI_FILE['casmacat']['etenabled']) ? $_INI_FILE['casmacat']['etenabled'] : "false";
 
         self::$DEBUG = isset($_GET['debug']) ? $_GET['debug'] : $_INI_FILE['debug']['debug'];
     }

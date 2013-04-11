@@ -37,7 +37,7 @@ body.editing .grayed,body.virtualEditing .grayed{display:block;}
 .toggle{display:none;}
 .editor .toggle{display:block;}
 
-footer{background:#6d6e71;border-top:1px solid #333;color:#fff;position:fixed;bottom:0;left:0;width:100%;z-index:999999999999;}
+footer{background:#6d6e71;border-top:1px solid #333;color:#fff;position:fixed;bottom:0;left:0;width:100%;z-index:99999;}
 footer p, .projectbar p{margin:0 5px 0 0;padding:0;float:left;}
 footer ul, .projectbar  ul{margin:-5px 0 0 0;padding:0;float:left;border-right:1px solid #333;}
 
@@ -1087,28 +1087,40 @@ filter: �alpha(opacity=50)�; /*per Internet Explorer 8*/
 
 /* CASMACAT extension start */
 
-.casLogo {
+/*.casLogo {
     float: left;
     border: 0;
     background-image: url(../img/casLogo.png);
     background-repeat: no-repeat;
     width: 145px;
     height: 31px;
-}
+}*/
 
-.progressIndicatorLogo {
+/*.progressIndicatorLogo {
     float: left;
     border: 0;
     background-image: url(../img/casProgress-indicator.gif);
     background-repeat: no-repeat;
     width: 145px;
     height: 31px;
+}*/
+
+.overlay {
+    z-index: 999999999;
+    background-color: rgba(127, 127, 127, 1.0);
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    vertical-align: middle;
 }
 
 #blockInput {
     position: absolute;
     z-index: 10000;
-    background-color: rgba(127, 127, 127, 0.5);
+    background-color: rgba(127, 127, 127, 1.0);
     left: 0px;
     right: 0px;
     background-image: url(../img/casBlockInput.png);
@@ -1216,7 +1228,7 @@ dl {
 /*Button download in the list of documents */
 #downloadForm{
     display: inline;
-    
+
 }
 
 .dataTables_length{
@@ -1228,6 +1240,14 @@ dl {
     display: inline;
     margin-left: 15px;
 }
+
+#vMousePointer {
+    z-index: 1000000000;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+}
+
 /* CASMACAT extension end */
 
 /*RTL language*/

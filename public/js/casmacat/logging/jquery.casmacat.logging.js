@@ -15,7 +15,7 @@
  *  - debug.js [optional]
  *
  * Supported Browsers:
- *  - Firefox >= 15
+ *  - Firefox >= 20.0
  *  - Chrome >= 22.0.1229.79 m
  *  - IE >= 9 (no eye tracking) (TODO needs intensive testing -> DOMSubtreeModified stuff)
  *  - Opera >= 12.02 (no eye tracking, no contentenditable)
@@ -81,7 +81,9 @@
         logList = null,
         chunksUploading = 0,
 
-        logEventFactory = null
+        logEventFactory = null,
+
+        w = { width: 0, height: 0, x: 0, y: 0, positionValid: false }
     ; // var
 
     /*################################################################################################################*/
@@ -114,7 +116,7 @@
             $.error("Your browser is not supported by this plugin");
         }
 
-//        $.fn.showProgressIndicator();
+//        $.fn.showOverlay();
         logEventFactory = new LogEventFactory(settings.elementIdMode);
 
         debug(pluginName + ": Initialized.");
@@ -166,13 +168,15 @@
             else {
                 debug(pluginName + ": Running in elementIdMode: '" + settings.elementIdMode + "'.");
 
-                bindToEvents();
+                if (!bindToEvents()) {  // this is necessary for 'window' position calibration
+//                    return;
+                };
                 logList = [];
                 storeLogEvent(logEventFactory.newLogEvent(logEventFactory.START_SESSION, "window"));   // initialise with 'start session'
                 windowResized();   // ... and window size
                 isLogging = true;
 
-//                $.fn.hideProgressIndicator();
+//                $.fn.hideOverlay();
                 debug(pluginName + ": Started.");
             }
         },
@@ -188,7 +192,7 @@
                 $.error("Log has not been started");
             }
             else {
-//                $.fn.showProgressIndicator();
+//                $.fn.showOverlay();
 
                 storeLogEvent(logEventFactory.newLogEvent(logEventFactory.STOP_SESSION, window));
 
@@ -205,10 +209,10 @@
                 logList = [];
                 isLogging = false;
 
-//                $.fn.hideProgressIndicator();
+//                $.fn.hideOverlay();
                 debug(pluginName + ": Stopped.");
             }
-        },
+        }
     };
 
     /*################################################################################################################*/
@@ -254,6 +258,46 @@
         }
     };
 
+    var calibrateWindowPosition = function() {
+
+        if (w.positionValid) {
+            debug(pluginName + ": Already calibrated, returning...");
+            return;
+        }
+
+        debug(pluginName + ": Calibrating 'window' position...");
+        if (typeof window.mozInnerScreenX !== "undefined" && typeof window.mozInnerScreenY !== "undefined") {
+            // TODO "The Components object is deprecated. It will soon be removed."
+            var queryInterface = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor);
+            var domWindowUtils = queryInterface.getInterface(Components.interfaces.nsIDOMWindowUtils);
+            var cssPixelFactor = domWindowUtils.screenPixelsPerCSSPixel;
+
+            w.x = window.mozInnerScreenX * cssPixelFactor;
+            w.y = window.mozInnerScreenY * cssPixelFactor;
+            w.positionValid = true;
+            debug(pluginName + ": 'window' position: w.x: '" + w.x + "', w.y: '" + w.y + "'.");
+        }
+        else {
+            $.fn.showOverlay("<br><br>Please calibrate the 'window' position by moving the mouse over this area...", "windowCalibrator");
+
+            $(window).on("mousemove." + pluginName + "_temp", function(e) {
+                debug(pluginName + ": Mouse moved, calculating 'window' position...");
+                w.x = e.screenX - e.clientX;
+                w.y = e.screenY - e.clientY;
+                w.positionValid = true;
+                debug(pluginName + ": 'window' position: w.x: '" + w.x + "', w.y: '" + w.y + "'.");
+
+                $(window).off("mousemove." + pluginName + "_temp");
+                $.fn.hideOverlay("windowCalibrator");
+
+//                if (!isLogging) {   // call start() again
+//                    debug(pluginName + ": Calling 'start()' again...");
+//                    methods["start"]();
+//                }
+            });
+         }
+    };
+
     var bindToEvents = function() {
         debug(pluginName + ": Binding to events...");
 
@@ -262,30 +306,49 @@
 
         // attach eye tracker
         if (settings.logEyeTracker) {
-            // TODO attach to eye tracker
+            var plugin = $.fn.getETPlugin();
+            if (plugin.valid) {
+                debug(pluginName + ": Plugin is valid.");
+
+                calibrateWindowPosition();
+//                if (!w.positionValid) {
+//                    debug(pluginName + ": Returning from 'bindToEvents()' because 'window' position is not yet calibrated...");
+//                    return false;
+//                }
+
+                $.fn.attachToETPluginEvent(plugin, "state", state);
+                $.fn.attachToETPluginEvent(plugin, "gaze", gaze);
+                $.fn.attachToETPluginEvent(plugin, "fixation", fixation);
+
+                plugin.setDeviceAndConnect(0);
+                plugin.calibrate(0);
+                plugin.start();
+            }
+            else {
+                alert("Eye tracking plugin is not valid!");
+                $.error("Eye tracking plugin is not valid");
+            }
         }
 
         // attach to mouse events
-//        if (settings.logMouse) {  // attach even, if settings.logMouse is false due to logging selections and removing
-                                    // multiple selection stuff of FF
-            if (settings.logMouseMove) { // log mouse movements only if desired
-                $(settings.logRootElement).on("mousemove." + pluginName, mouseMove);
-            }
-            $(settings.logRootElement).on("mouseleave." + pluginName, mouseLeave);
-            $(settings.logRootElement).on("mousedown." + pluginName, mouseDown); // fires first
-            $(settings.logRootElement).on("mouseup." + pluginName, mouseUp); // fires second
-            $(settings.logRootElement).on("click." + pluginName, mouseClick); // fires last
-//        }
+        // attach even, if settings.logMouse is false due to logging selections and removing
+        // multiple selection stuff of FF
+        if (settings.logMouseMove) { // log mouse movements only if desired
+            $(settings.logRootElement).on("mousemove." + pluginName, mouseMove);
+        }
+        $(settings.logRootElement).on("mouseleave." + pluginName, mouseLeave);
+        $(settings.logRootElement).on("mousedown." + pluginName, mouseDown); // fires first
+        $(settings.logRootElement).on("mouseup." + pluginName, mouseUp); // fires second
+        $(settings.logRootElement).on("click." + pluginName, mouseClick); // fires last
 
         // attach to key events
-//        if (settings.logKeys) {   // attach even, if settings.logKeys is false due to logging selections and removing
-                                    // multiple selection stuff of FF
-            $(settings.logRootElement).on("keydown." + pluginName, keyDown); // fires first
-            //$(document).keypress(keyPress);   // fires second and may repeat, not covered by any official
-                                                // specification, cross browser behavior differs, but luckily it seems
-                                                // not to be needed :-)
-            $(settings.logRootElement).on("keyup." + pluginName, keyUp); // fires last
-//        }
+        // attach even, if settings.logKeys is false due to logging selections and removing
+        // multiple selection stuff of FF
+        $(settings.logRootElement).on("keydown." + pluginName, keyDown); // fires first
+        //$(document).keypress(keyPress);   // fires second and may repeat, not covered by any official
+                                            // specification, cross browser behavior differs, but luckily it seems
+                                            // not to be needed :-)
+        $(settings.logRootElement).on("keyup." + pluginName, keyUp); // fires last
 
         // TODO problems with opera with on{paste, cut, copy}
         // attach to cut
@@ -316,9 +379,8 @@
 
 //            debugAttachedTo("textarea", this);
         });
-        $(settings.logRootElement).find(".editarea").each(function(index, value) {    // TODO not working
-                                                                                                    // in opera
-
+        $(settings.logRootElement).find(".editarea").each(function(index, value) {  // TODO not working
+                                                                                    // in opera
             if (!$(this).is("div")) {
                 alert("Only 'div' with 'contenteditable=true' is supported!");
                 $.error("Only 'div' with 'contenteditable=true' is supported");
@@ -437,12 +499,20 @@
         }
 
         debug(pluginName + ": Bound to events.");
+        return true;    // this is necessary for 'window' position calibration
     };
 
     var unbindFromEvents = function() {
         debug(pluginName + ": Unbinding from events...");
 
         // TODO check this for completeness/correctness
+        var plugin = $.fn.getETPlugin();
+        if (plugin.valid) {
+            $.fn.detachFromETPluginEvent(plugin, "state", state);
+            $.fn.detachFromETPluginEvent(plugin, "gaze", gaze);
+            $.fn.detachFromETPluginEvent(plugin, "fixation", fixation);
+            plugin.stop();
+        }
 
         // input stuff
         $(settings.logRootElement).find("input:text").off("." + pluginName);
@@ -512,7 +582,7 @@
             dataType: "json",
             cache: false,
             success: function(result) {
-                if (result.data && result.data == "OK") {
+                if (result.data && result.data === "OK") {
 //                    debug(pluginName + ": Upload of 'logList' completed.");
                 }
                 else if (result.errors) {    // TODO is the error format really like this? with the index access
@@ -532,14 +602,14 @@
     };
 
     var debugAttachedTo = function(type, element) {
-        if (!element.tagName || element.tagName.toLowerCase() == "html") {
+        if (!element.tagName || element.tagName.toLowerCase() === "html") {
             debug(pluginName + ": Attached to '" + type + "' (id: 'window', xPath: '').");
         }
-        else if (settings.elementIdMode == "xPath") {
+        else if (settings.elementIdMode === "xPath") {
             debug(pluginName + ": Attached to '" + type + "' (id: '', xPath: '" + $(element).getAbsoluteXPath()
                 + "').");
         }
-        else if (settings.elementIdMode == "id") {
+        else if (settings.elementIdMode === "id") {
             debug(pluginName + ": Attached to '" + type + "' (id: '" + element.id + "', xPath: '').");
         }
         else {  // hybrid mode
@@ -555,7 +625,7 @@
     };
 
     /**
-     * Logs an selection event if the selected text is not empty.
+     * Logs a selection event if the selected text is not empty.
      */
     var logSelectionEvent = function(element) {
         var range = $(element).getSelection();
@@ -566,6 +636,36 @@
         else {
 //            debug(pluginName + ": Ignoring empty selection.");
         }
+    };
+
+    var mouseCommon = function(type, e) { // helper function that logs a mouse-whatever event
+
+        if (!e.originalEvent) { // ignore programmatic clicks
+            debug(pluginName + ": Ignoring programmatic mouse event: type: '" + type + "'.");
+            return;
+        }
+
+        var target = null;
+        if ($(e.target).hasClass("editarea")) {
+            target = e.target;
+        }
+        else if ($(e.target).parents("div.editarea").get(0)) {
+            target = $(e.target).parents("div.editarea").get(0);
+        }
+
+        var pos = -1;
+        if (target !== null) {
+            pos = $(target).getCursorPositionContenteditable();
+        }
+        debug(pluginName + ": Mouse event: type: '" + type + "', cursor position: pos: '" + pos + "'.");
+
+        var altKey = false;
+        if (e.altKey) {
+            altKey = e.altKey;
+        }
+
+        storeLogEvent(logEventFactory.newLogEvent(type, e.target,
+            e.which, e.clientX, e.clientY, shiftKey, ctrlKey, e.altKey, pos));
     };
 
     /*################################################################################################################*/
@@ -585,10 +685,6 @@
 //        return "Window closed, logging finished.";    // will display a dialog whether to leave the page
     };
 
-//    var mouseMove = function(e) {
-//        debug(pluginName + ": Mouse moved.");
-//    };
-
     var mouseLeave = function(e) {
 //        debug(pluginName + ": Mouse leave.");
         if (e.which != 0) {
@@ -597,10 +693,11 @@
     };
 
     var mouseDown = function(e) {
-//        debug(pluginName + ": Mouse down.");
+        debug(pluginName + ": Mouse down.");
 
         if (e.ctrlKey) {  // do not allow CTRL for selecting text, this prevents multiple selections in Firefox
                         // TODO is it possibly to disable that by another way, like document.execCommand()?
+                        // best would be that, of course: "https://bugzilla.mozilla.org/show_bug.cgi?id=753718"
             e.preventDefault();
             debug(pluginName + ": Mouse down: Blocking multiple selections...");
         }
@@ -611,8 +708,9 @@
             debug(pluginName + ": Mouse down: Blocking selection movements...");
         }
 
-//        var pos = $(e.target).getCursorPositionContenteditable();
-//        debug(pluginName + ": Mouse down, cursor position: pos: '" + pos + "'.");
+        if (settings.logMouse) {
+            mouseCommon(logEventFactory.MOUSE_DOWN, e);
+        }
     };
 
     var mouseUp = function(e) {
@@ -628,28 +726,39 @@
             logSelectionEvent(e.target);
         }
 
-//        var pos = $(e.target).getCursorPositionContenteditable();
-//        debug(pluginName + ": Mouse up, cursor position: pos: '" + pos + "'.");
+        if (settings.logMouse) {
+            mouseCommon(logEventFactory.MOUSE_UP, e);
+        }
     };
 
     var mouseClick = function(e) {
-        debug(pluginName + ": Mouse clicked.");
+//        debug(pluginName + ": Mouse clicked.");
+
+        if (settings.logMouse) {
+            mouseCommon(logEventFactory.MOUSE_CLICK, e);
+        }
     };
 
-    var ctrlKey = false;
+    var mouseMove = function(e) {
+//        debug(pluginName + ": Mouse moved.");
+
+        mouseCommon(logEventFactory.MOUSE_MOVE, e);
+    };
+
     var shiftKey = false;
+    var ctrlKey = false;
     var keyDown = function(e) {
         if (!keysDown[e.keyCode]) { // do not repeat the debug output
             keysDown[e.keyCode] = true;
 //            debug(pluginName + ": Key down.");
         }
 
-        if (e.ctrlKey) {
-            ctrlKey = e.ctrlKey;
-        }
-
         if (e.shiftKey) {
             shiftKey = e.shiftKey;
+        }
+
+        if (e.ctrlKey) {
+            ctrlKey = e.ctrlKey;
         }
 
         if (settings.logKeys) {
@@ -808,14 +917,20 @@
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SCROLL, e.target, $(e.target).scrollTop()));
     };
 
-    var lw, lh; // width and height from last resize
+    //var lw = -1, lh = -1; // width and height from last resize
     var windowResized = function(e) {
-        if ( lw != $(window).width() && lh != $(window).height()) {
+
+        if ( w.width !== $(window).width() && w.height !== $(window).height()) {
             debug(pluginName + ": Window resized.");
             storeLogEvent(logEventFactory.newLogEvent(logEventFactory.RESIZE, window,
                 $(window).width(), $(window).height()));
-            lw = $(window).width();
-            lh = $(window).height();
+            w.width = $(window).width();
+            w.height = $(window).height();
+
+            if (isLogging) {
+                w.positionValid = false;
+                calibrateWindowPosition();
+            }
         }
         else {
 //            debug(pluginName + ": Window resize ignored.");
@@ -954,17 +1069,95 @@
 
     var alignmentHiddenByMouse = function(e, data) {
 //      debug(pluginName + ": Alignment hidden by mouse.");
-      storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HIDE_ALIGNMENT_BY_MOUSE, data));
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HIDE_ALIGNMENT_BY_MOUSE, data));
     };
 
     var alignmentShownByKey = function(e, data) {
-      debug(pluginName + ": Alignment shown by key.");
-      storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SHOW_ALIGNMENT_BY_KEY, data.element, data.data));
+        debug(pluginName + ": Alignment shown by key.");
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SHOW_ALIGNMENT_BY_KEY, data.element, data.data));
     };
 
     var alignmentHiddenByKey = function(e, data) {
-      debug(pluginName + ": Alignment hidden by key.");
-      storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HIDE_ALIGNMENT_BY_KEY, data.element, data.data));
+        debug(pluginName + ": Alignment hidden by key.");
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HIDE_ALIGNMENT_BY_KEY, data.element, data.data));
+    };
+
+    var state = function(s) {
+        debug(pluginName + ": Eye tracker state changed.");
+
+        // TODO error handling
+    };
+
+    var gaze = function(trackerTime, lx, ly, rx, ry, leftDilation, rightDilation) {
+        debug(pluginName + ": Gaze received.");
+
+        if (w.positionValid) {
+
+            // make left eye coordinates relative to window
+            var lrx = lx - w.x;
+            var lry = ly - w.y;
+            debug(pluginName + ": Coordinates: lx: '" + lx + "', ly: '" + ly + "', lrx: '" + lrx + "', lry: '" + lry + "'.");
+
+            // make right eye coordinates relative to window
+            var rrx = rx - w.x;
+            var rry = ry - w.y;
+            debug(pluginName + ": Coordinates: rx: '" + rx + "', ry: '" + ry + "', rrx: '" + rrx + "', rry: '" + rry + "'.");
+
+            if (lx < w.x || ly < w.y || lrx > w.width || lry > w.height) {
+                debug(pluginName + ": Left eye coordinates are outside of tracked area, gaze discarded!");
+                return;
+            }
+            else if (rx < w.x || ry < w.y || rrx > w.width || rry > w.height) {
+                debug(pluginName + ": Right eye coordinates are outside of tracked area, gaze discarded!");
+                return;
+            }
+
+            // put it all together
+            var lElement = document.elementFromPoint(lrx, lry);
+            var lCharInfo = $.fn.characterFromPoint(lrx, lry);
+            var rElement = document.elementFromPoint(rrx, rry);
+            var rCharInfo = $.fn.characterFromPoint(rrx, rry);
+            var element = lElement;
+            if (lElement !== rElement) {
+                element += " " + rElement;
+            }
+
+            debug(pluginName + ": element: '" + element + "'");
+            debug(pluginName + ": left char offset: '" + lCharInfo.offset + "', left char: '" + lCharInfo.character + "'");
+            debug(pluginName + ": right char offset: '" + rCharInfo.offset + "', right char: '" + rCharInfo.character + "'");
+
+            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.GAZE, trackerTime, lrx, lry, rrx, rry,
+                leftDilation, rightDilation, lCharInfo.character, lCharInfo.offset, rCharInfo.character, rCharInfo.offset));
+        }
+        else {
+            debug(pluginName + ": 'window' position is not valid, gaze discarded!");
+        }
+    };
+
+    var fixation = function(trackerTime, x, y, duration) {
+        debug(pluginName + ": Fixation received.");
+
+        if (w.positionValid) {
+            // make coordinates relative to window
+            var rx = x - w.x;
+            var ry = y - w.y;
+            debug(pluginName + ": Coordinates: x: '" + x + "', y: '" + y + "', rx: '" + rx + "', ry: '" + ry + "'.");
+
+            if (x < w.x || y < w.y || rx > w.width || ry > w.height) {
+                debug(pluginName + ": Coordinates are outside of tracked area, fixation discarded!");
+                return;
+            }
+
+            var element = document.elementFromPoint(rx, ry);
+            var charInfo = $.fn.characterFromPoint(rx, ry);
+
+            debug(pluginName + ": char offset: '" + charInfo.offset + "', char: '" + charInfo.character + "'");
+            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FIXATION, element, trackerTime, rx, ry, duration,
+                charInfo.character, charInfo.offset));
+        }
+        else {
+            debug(pluginName + ": 'window' position is not valid, fixation discarded!");
+        }
     };
 
     // Just to now that everything has been parsed...

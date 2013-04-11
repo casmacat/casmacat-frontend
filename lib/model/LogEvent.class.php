@@ -6,7 +6,7 @@ class LogEvent {
     const TEXT = "text";
     const SELECTION = "selection";
     const GAZE = "gaze";
-    const FIX = "fix";
+    const FIXATION = "fixation";
     const SCROLL = "scroll";
     const RESIZE = "resize";
     const DRAFTED = "drafted";
@@ -34,6 +34,11 @@ class LogEvent {
 
     const KEY_DOWN = "keyDown";
     const KEY_UP = "keyUp";
+
+    const MOUSE_DOWN = "mouseDown";
+    const MOUSE_UP = "mouseUp";
+    const MOUSE_CLICK = "mouseClick";
+    const MOUSE_MOVE = "mouseMove";
 
     public $id;
     public $jobId;
@@ -87,20 +92,27 @@ class LogEvent {
         $this->offset = $object->offset;
     }
 
-    public function eyeData($object) {
+    public function gazeData($object) {
         $this->tTime = $object->tTime;
-        $this->eyeX = $object->eyeX;
-        $this->eyeY = $object->eyeY;
-        $this->character = $object->character;
-        $this->characterOffset = $object->characterOffset;
+        $this->lx = $object->lx;
+        $this->ly = $object->ly;
+        $this->rx = $object->rx;
+        $this->ry = $object->ry;
+        $this->lDil = $object->lDil;
+        $this->rDil = $object->rDil;
+        $this->lChar = $object->lChar;
+        $this->lOffset = $object->lOffset;
+        $this->rChar = $object->rChar;
+        $this->rOffset = $object->rOffset;
     }
 
-    public function eyeGazeData($object) {
-        $this->pupilDilation = $object->pupilDilation;
-    }
-
-    public function eyeFixData($object) {
+    public function fixationData($object) {
+        $this->tTime = $object->tTime;
+        $this->x = $object->x;
+        $this->y = $object->y;
         $this->duration = $object->duration;
+        $this->character = $object->character;
+        $this->offset = $object->offset;
     }
 
     public function segmentChangedData($object) {
@@ -123,10 +135,21 @@ class LogEvent {
     public function keyData($object) {
         $this->cursorPosition = $object->cursorPosition;
         $this->which = $object->which;
-        $this->character = $object->character;
+        //$this->character = $object->character;
+        $this->mappedKey = $object->mappedKey;
         $this->shift = $object->shift;
         $this->ctrl = $object->ctrl;
         $this->alt = $object->alt;
+    }
+
+    public function mouseData($object) {
+        $this->which = $object->which;
+        $this->x = $object->x;
+        $this->y = $object->y;
+        $this->shift = $object->shift;
+        $this->ctrl = $object->ctrl;
+        $this->alt = $object->alt;
+        $this->cursorPosition = $object->cursorPosition;
     }
 
     public function toString() {

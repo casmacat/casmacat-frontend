@@ -1,8 +1,8 @@
 <IfModule mod_rewrite.c>
 RewriteEngine On
 RewriteRule ^$ index.php?action=newProject [QSA,L]
-RewriteRule ^(translate)[/]?$ index.php?action=cat [L]
-RewriteRule ^(translate)/([^/]*)/([^/]*)/([^/]*)-([^/]*)[/]*([^/]*)[/]*$ index.php?action=cat&jid=$4&password=$5&page=$6&replay=$7 [L]
+RewriteRule ^(translate)[/]?$ index.php?action=cat [QSA,L]
+RewriteRule ^(translate)/([^/]*)/([^/]*)/([^/]*)-([^/]*)[/]*([^/]*)[/]*$ index.php?action=cat&jid=$4&password=$5&page=$6&replay=$7 [QSA,L]
 RewriteRule ^(translatenew)[/]?$ index.php?action=catnew [L]
 RewriteRule ^(translatenew)/([^/]*)/([^/]*)/([^/]*)-([^/]*)[/]*([^/]*)[/]*$ index.php?action=catnew&jid=$4&password=$5&step=$6 [L]
 RewriteRule ^(analyze)/([^/]*)/([^/]*)-([^/]*)$ index.php?action=analyze&pid=$3&password=$4 [L]

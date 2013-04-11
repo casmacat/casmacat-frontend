@@ -30,4 +30,4 @@ matchthreshold = 50
 catserver = "my.cat.server:8080"
 htrserver = "my.htr.server:8080"
 itpenabled = "true"
-
+etenabled = "false"   ; enable eye tracking

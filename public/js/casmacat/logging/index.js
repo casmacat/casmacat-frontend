@@ -1,6 +1,6 @@
 $(function() {
 
-  $.fn.showProgressIndicator();
+  $.fn.showOverlay();
 
   $(window).on("articleloaded", function () {
     var article = $('div#outer article');
@@ -77,15 +77,16 @@ $(function() {
         $(window).logging({
             "fileId": config.file_id,
             "jobId": config.job_id,
-
-            "doSanitize": true,    // TODO check this! not working with IMT currently
-            "logRootElement": "html > body > div#outer",
             "maxChunkSize": 10,
-            "logItp": config.itpEnabled    // when IMT enabled, set this to false, set to true otherwise
+            "logRootElement": "html > body > div#outer",
+
+            "doSanitize": true,             // TODO check this! not working with IMT currently
+            "logItp": config.itpEnabled,    // when IMT enabled, set this to true, set to false otherwise
+            "logEyeTracker": config.etEnabled,    // when IMT enabled, set this to true, set to false otherwise
         });
         $(window).logging("start");
 
-        $.fn.hideProgressIndicator();
+        $.fn.hideOverlay();
     }
     else {
 //      debug("virtualScreen: Setting editables read-only...");
@@ -105,7 +106,7 @@ $(function() {
       debug("virtualScreen: 'vsEditorReady'");
       window.parent.$(window.parent).trigger("vsEditorReady", null);*/
 
-       $.fn.hideProgressIndicator();
+       $.fn.hideOverlay();
     }
   });
 });
