@@ -29,7 +29,8 @@ class createLogDOwnloadController extends downloadController {
     
     public function doAction() {
 
-	ini_set('memory_limit', '8000M');        
+	ini_set('memory_limit', '8000M');  
+        ini_set('max_execution_time', 600);
         $db = Database::obtain();
         $queryId = $db->query("SELECT COUNT(*) FROM log_event_header h WHERE h.job_id = $this->id_job AND h.file_id = $this->id_file");
 
@@ -241,7 +242,8 @@ class createLogDOwnloadController extends downloadController {
         header('Content-Disposition: attachment; filename="' . $this->filename . '.xml"');
 
         $this->content = $doc->saveXML();
-
+        ini_set('max_execution_time', 30);
+        ini_set('memory_limit', '128M');
     }
     
 }

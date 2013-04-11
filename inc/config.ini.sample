@@ -22,6 +22,9 @@ debug = "true"
 directory = "logs"    ; relative to root path
 filename  = "log.txt" ; file to write logs into
 
+[download_temp]
+directory = "downloads" ;
+
 [mymemory]
 numresults     = 3
 matchthreshold = 50
