@@ -72,17 +72,19 @@ $(function() {
 //            $(".graysmall li span").css("font-size", "20pt");
 //        });
 
-        $('head').append("<link rel='stylesheet' href='" + config.basepath + "/public/css/et.css' type='text/css' />");
+        if (config.etEnabled) {
+            $('head').append("<link rel='stylesheet' href='" + config.basepath + "/public/css/et.css' type='text/css' />");
+        }
 
         $(window).logging({
             "fileId": config.file_id,
             "jobId": config.job_id,
-            "maxChunkSize": 10,
+            "maxChunkSize": 5000,
             "logRootElement": "html > body > div#outer",
 
             "doSanitize": true,             // TODO check this! not working with IMT currently
             "logItp": config.itpEnabled,    // when IMT enabled, set this to true, set to false otherwise
-            "logEyeTracker": config.etEnabled,    // when IMT enabled, set this to true, set to false otherwise
+            "logEyeTracker": config.etEnabled,    // when ET enabled, set this to true, set to false otherwise
         });
         $(window).logging("start");
 
