@@ -101,7 +101,7 @@ else {
 		$nbest = $obj->{'nbest'};
 		$inisuggestion = $nbest[0]->target;
 		$writer->startElement('segment');
-		list($segment, $id, $editarea) = split("-",$row['element_id']);
+		list($segment, $id, $editarea) = explode("-",$row['element_id']);
 		$writer->writeAttribute('id', $id);
 		$writer->text($inisuggestion);
         $writer->endElement();            	
