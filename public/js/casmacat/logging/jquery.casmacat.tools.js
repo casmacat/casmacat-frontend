@@ -345,7 +345,7 @@ catch (e) {
             range.selectedText = $(this).val().substring(range.sCursorPosition, range.eCursorPosition);
         }
         else {
-        
+
           try {
             var selection = window.getSelection();  // TODO check cross browser compatibility of this
             var r = selection.getRangeAt(0);
@@ -781,7 +781,7 @@ catch (e) {
                 }
 
                 if (typeof charInfo.character === "undefined") {
-                    debug(pluginName + ": Couldn't determine character!");
+                    debug("$.fn.characterFromPoint: Couldn't determine character!");
                     charInfo.character = "";
                     charInfo.offset = -1;
                 }
@@ -802,7 +802,7 @@ catch (e) {
                         charInfo.character = range.toString();
                     }
                     catch (eLeft) {
-                        debug(pluginName + ": Couldn't determine character!");
+                        debug("$.fn.characterFromPoint: Couldn't determine character!");
                         charInfo.offset = -1;
                     }
                 }

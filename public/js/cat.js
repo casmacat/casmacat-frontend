@@ -973,7 +973,11 @@ UI = {
         this.editarea.attr('contenteditable','true');
         this.editStart = new Date();
         $(editarea).removeClass("indent");
-        //this.getContribution(segment,1);
+        // CASMACAT extension start
+        if (!config.itpEnabled) {
+            this.getContribution(segment,1);
+        }
+        // CASMACAT extension end
         if(this.debug) console.log('close/open time: ' + ( (new Date()) - this.openSegmentStart));
     },
 

@@ -866,6 +866,7 @@ debug(event);
                 }
 //                break;    // let it slip so the pointer is moved, too
             case logEventFactory.MOUSE_MOVE:
+                // TODO this is still buggy (position not 100% valid) and a performance issue, should not be used
                 vsWindow.$("#vMousePointer").css("left", event.x + "px");
                 vsWindow.$("#vMousePointer").css("top", event.y + "px");
                 break;
