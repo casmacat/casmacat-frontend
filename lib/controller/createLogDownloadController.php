@@ -140,7 +140,7 @@ class createLogDOwnloadController extends downloadController {
         	$inisuggestion = $nbest[0]->target;
         	//log::doLog("suggestion ITP = ".$inisuggestion);
             	$tmp = createAndAppendElement($doc, $initialTargetTextElement, 'segment');
-        	list($segment, $id, $editarea) = split("-",$row['element_id']);
+        	list($segment, $id, $editarea) = explode("-",$row['element_id']);
 
             	$tmp->setAttribute('id', $id);
             	$tmp->appendChild($doc->createTextNode($inisuggestion));
@@ -205,7 +205,7 @@ class createLogDOwnloadController extends downloadController {
                 //Recorrer elementos del objeto
                 foreach($result[$i] as $attribute => $val){
                 
-                    if ($attribute != jobId and $attribute != fileId and $attribute != type){
+                    if ($attribute != 'jobId' and $attribute != 'fileId' and $attribute != 'type'){
                         $tmp->setAttribute($attribute, $val); 
                     }
                 }
@@ -227,7 +227,7 @@ class createLogDOwnloadController extends downloadController {
             //Recorrer elementos del objeto
             foreach($result[$i] as $attribute => $val){
                 
-                if ($attribute != jobId and $attribute != fileId and $attribute != type){
+                if ($attribute != 'jobId' and $attribute != 'fileId' and $attribute != 'type'){
                     $tmp->setAttribute($attribute, $val); 
                 }
             }

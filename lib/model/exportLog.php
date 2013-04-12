@@ -153,7 +153,6 @@ else {
 		
 		for ($i = 0; $i < count($logListChunk); $i++){
 			$writer->startElement($logListChunk[$i]->type);
-			$writer->writeAttribute('id', $logListChunk[$i]->id);
 			//elements of the object
             foreach($logListChunk[$i] as $attribute => $val){                
 				if ($attribute != 'jobId' && $attribute != 'fileId' && $attribute != 'type'){
