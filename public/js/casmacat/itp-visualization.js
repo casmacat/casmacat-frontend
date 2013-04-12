@@ -12,6 +12,46 @@
     function userCfg() { return cfg().config; }
     function $source() { return $target.data(namespace).$source; }
 
+    self.updateValidated = function(caretPos) {
+      if (caretPos) {
+        var tokenAtPos = $target.editable('getTokenAtCaretPos', caretPos);
+        if (tokenAtPos) {
+          var lastEditedToken = tokenAtPos.elem;
+          if (lastEditedToken.parentNode && $(lastEditedToken.parentNode).is('.editable-token')) {
+            lastEditedToken = lastEditedToken.parentNode;
+          }
+
+          if (tokenAtPos.pos === 0) {
+            if (lastEditedToken.nodeType === 3) {
+              lastEditedToken = lastEditedToken.previousSibling;
+            }
+            else {
+              var $lastEditedToken = $(lastEditedToken).prev('.editable-token');
+              if ($lastEditedToken.length > 0) {
+                lastEditedToken = $lastEditedToken.get(0);
+              }
+              else {
+                lastEditedToken = undefined;
+              }
+            }
+          }
+
+          if (lastEditedToken) {
+            // XXX: do not use jquery data if you want css selectors to work
+            lastEditedToken.dataset.validated = true;
+            lastEditedToken.dataset.prefix = true;
+            $(lastEditedToken).prevAll(".editable-token").each(function(i, elem) {
+              elem.dataset.prefix = true;
+              // if the element in the prefix has been inserted, then it must have been introduced by the user 
+              if ($(elem).data('merge-type') !== 'N') {
+                elem.dataset.validated = true;
+              }
+            });
+          }
+        }
+      }
+    }
+
     self.updateSuggestions = function(data) {
       var d = $target.editable('getCaretXY')
         , targetPrefix = $target.editable('getText').substr(0, d.pos)
@@ -31,30 +71,7 @@
         if (targetPrefix === matchPrefix && conf.mode === match.author) {
           $target.editable('setText', match.target, match.targetSegmentation);
 
-          if (data.caretPos) {
-            var tokenAtPos = $target.editable('getTokenAtCaretPos', data.caretPos);
-            if (tokenAtPos) {
-              var lastEditedToken = tokenAtPos.elem;
-              if (lastEditedToken.parentNode && $(lastEditedToken.parentNode).is('.editable-token')) {
-                lastEditedToken = lastEditedToken.parentNode;
-              }
-
-              if (tokenAtPos.pos === 0) {
-                while (lastEditedToken.previousSibling) {
-                  lastEditedToken = lastEditedToken.previousSibling;
-                  if ($(lastEditedToken).text().length > 0) break;
-                }
-              }
-
-              if (lastEditedToken) {
-                // XXX: do not use jquery data if you want css selectors to work
-                lastEditedToken.dataset.validated = true;
-                $(lastEditedToken).prevAll(".editable-token").andSelf().each(function(i, elem){
-                  elem.dataset.prefix = true;
-                });
-              }
-            }
-          }
+          self.updateValidated(data.caretPos);
 
           if (match.priorities) {
             self.updateWordPriorities($target, match.priorities);
@@ -90,6 +107,8 @@
       // sets the text in the editable div. It tokenizes the sentence and wraps tokens in spans
       $source().editable('setText', source, sourceSeg);
       $target.editable('setText', target, targetSeg);
+
+      self.updateValidated(data.caretPos);
 
       // requests the server for new alignment and confidence info
       var query = {
