@@ -510,16 +510,6 @@ var Memento = require("module.memento");
           }
           
           if (isPrintableChar(e)) {
-            // /* set token at caret pos as user validated */
-            // var tokenAtPos = $this.editable('getTokenAtCaretPos', pos);
-            // if (tokenAtPos.pos > 0) {
-            //   // XXX: do not use jquery data if you want css selectors to work
-            //   spanElem.dataset.validated = true;
-            // }
-            // $(spanElem).prevAll(".editable-token").andSelf().each(function(i, elem){
-            //   elem.dataset.prefix = true;
-            // });
-
             throttle(function () {
               if (data.str != target) {
                 // Predict from last edited token onwards

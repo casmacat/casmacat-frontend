@@ -506,12 +506,14 @@
         debug(pluginName + ": Unbinding from events...");
 
         // TODO check this for completeness/correctness
-        var plugin = $.fn.getETPlugin();
-        if (plugin.valid) {
-            $.fn.detachFromETPluginEvent(plugin, "state", state);
-            $.fn.detachFromETPluginEvent(plugin, "gaze", gaze);
-            $.fn.detachFromETPluginEvent(plugin, "fixation", fixation);
-            plugin.stop();
+        if (settings.logEyeTracker) {
+            var plugin = $.fn.getETPlugin();
+            if (plugin.valid) {
+                $.fn.detachFromETPluginEvent(plugin, "state", state);
+                $.fn.detachFromETPluginEvent(plugin, "gaze", gaze);
+                $.fn.detachFromETPluginEvent(plugin, "fixation", fixation);
+                plugin.stop();
+            }
         }
 
         // input stuff
@@ -1025,7 +1027,7 @@
     };
 
     // store translationChange event
-    var itp = function(e, data) {
+    var itp = function(e, data) { alert(data);
         var t;
         switch (data.type) {
             case "decode":

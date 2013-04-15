@@ -55,9 +55,6 @@
       var walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, null, false)
 
       // find HTML text element in cursor position
-      // XXX: but how is this element defined? 
-      // what happens if the cursor is between two tokens
-      // or at the end of a token when the next char is space?
       while (walker.nextNode()) {
         elem = walker.currentNode;
         if ((pos - elem.length) >= 0) pos -= elem.length;
@@ -361,6 +358,18 @@
           $this.empty();
           $this.append(tokens.contents()); 
           $this.editable('setCaretPos', pos);
+          var tokenAtPos = $this.editable('getTokenAtCaretPos', pos);
+          if (tokenAtPos.pos > 0) {
+            var lastEditedToken = tokenAtPos.elem;
+            if (lastEditedToken.parentNode && $(lastEditedToken.parentNode).is('.editable-token')) {
+              lastEditedToken = lastEditedToken.parentNode;
+            }
+            // XXX: do not use jquery data if you want css selectors to work
+            lastEditedToken.dataset.validated = true;
+          }
+          $(lastEditedToken).prevAll(".editable-token").andSelf().each(function(i, elem){
+            elem.dataset.prefix = true;
+          });
         }
         else {
           $this.empty();
