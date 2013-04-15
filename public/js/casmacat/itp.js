@@ -21,7 +21,7 @@ $(function(){
 
   insertStyle(config.basepath  + 'public/css/itp.css');
   insertStyle(config.basepath  + 'public/css/htr.css');
-  
+
   require('jquery.editable.itp');
 
   function getEditArea() {
@@ -51,13 +51,13 @@ $(function(){
     $section.find('.wrap').toggleClass("epen-wrap");
     $source.toggleClass("epen-source", animMs);
     $target.toggleClass("epen-target", animMs, function(){
-      var $canvas = $targetParent.find('canvas'), $clearBtn = $('.buttons', UI.currentSegment).find('.pen-clear-indicator');    
+      var $canvas = $targetParent.find('canvas'), $clearBtn = $('.buttons', UI.currentSegment).find('.pen-clear-indicator');
       // Create canvas on top
       if ($canvas.length === 0) {
         var geom = require('geometry-utils'),
-             pos = $target.offset(), 
+             pos = $target.offset(),
              siz = { width: $target.width() + 25, height: $target.height() + 35 };
-        
+
         $canvas = $('<canvas tabindex="-1" id="'+prefix+'-canvas" width="'+(siz.width)+'" height="'+(siz.height)+'"/>');
         $canvas.prependTo($targetParent).hide().delay(10).css({
              top: $source.height() + 15,
@@ -67,10 +67,10 @@ $(function(){
           // This is to prevent logging click events on the canvas
           e.stopPropagation();
         });
-        
+
         var htr = require('htr');
         htr.init($canvas, $source, $target);
-        
+
         // A button to clear canvas (see http://ikwebdesigner.com/special-characters/)
         if ($clearBtn.length === 0) {
           $clearBtn = $('<li/>').html('<a href="#" class="draft pen-clear-indicator" title="Clear drawing area">&#10227;</a>');
@@ -94,13 +94,13 @@ $(function(){
       $canvas.sketchable('clear').toggle();
       $clearBtn.toggle();
       // Toggle translation matches et al.
-      $section.find('.overflow').toggle(animMs);    
+      $section.find('.overflow').toggle(animMs);
       // Remove contenteditable selection
       var sel = window.getSelection();
       sel.removeAllRanges();
     });
   };
-  
+
   // Overwrite UI methods ------------------------------------------------------
 
   UI.callbacks = {};
@@ -108,16 +108,16 @@ $(function(){
   UI.setKeyboardShortcuts = function(){}; // FTW
   UI.reinitMMShortcuts    = function(){}; // Use shortcuts.js instead
   require('shortcuts');
-  
+
   var original_openSegment = UI.openSegment;
   var original_closeSegment = UI.closeSegment;
   var original_doRequest = UI.doRequest;
   var original_copySuggestionInEditarea = UI.copySuggestionInEditarea;
-        
+
   UI.openSegment = function(editarea) {
     original_openSegment.call(UI, editarea);
     var $target = $(editarea), sid = $target.data('sid'), $source = $("#segment-" + sid + "-source");
-                  
+
     $target.on('ready.matecat', function() {
       var settings, $indicator;
       if (config.catsetting) {
@@ -174,7 +174,12 @@ $(function(){
         $target.find('span.editable-token')
         .off('mouseenter.matecat mouseleave.matecat caretenter.matecat caretleave.matecat')
         .on('mouseenter.matecat', function (ev) {
-          $(window).trigger('showAlignmentByMouse', ev.target, ev.clientX, ev.clientY);
+            var data = {
+                target: ev.target,
+                x: ev.clientX,
+                y: ev.clientY
+            };
+          $(window).trigger('showAlignmentByMouse', data);
         })
         .on('mouseleave.matecat', function (ev) {
           $(window).trigger('hideAlignmentByMouse', ev.target);
@@ -192,13 +197,18 @@ $(function(){
 
         $source.find('span.editable-token').off('mouseenter.matecat mouseleave.matecat')
         .on('mouseenter.matecat', function (ev) {
-          $(window).trigger('showAlignmentByMouse', ev.target);
+            var data = {
+                target: ev.target,
+                x: ev.clientX,
+                y: ev.clientY
+            };
+          $(window).trigger('showAlignmentByMouse', data);
         })
         .on('mouseleave.matecat', function (ev) {
           $(window).trigger('hideAlignmentByMouse', ev.target);
         })
     });
-    
+
     addSearchReplaceEvents();
   };
 
@@ -276,7 +286,7 @@ $(function(){
     //return req.data;
   };
 
-  // BEGIN S&R facilities ------------------------------------------------------  
+  // BEGIN S&R facilities ------------------------------------------------------
   if (config.catsetting) {
     var settings = require(config.basepath + '/' + config.catsetting);
     if (settings) {
@@ -290,10 +300,10 @@ $(function(){
   }
 
   $('#sr-rules').hide(); // In any case, this must be hidden beforehand
-  
+
   function addSearchReplaceEvents() {
     var $ea = getEditArea(), itpServer = $ea.editableItp('itpServer');
-    
+
     itpServer.on('setReplacementRuleResult', function(data, err) {
       itpServer.getReplacementRules();
     });
@@ -301,23 +311,23 @@ $(function(){
     itpServer.on('delReplacementRuleResult', function(data, err) {
       itpServer.getReplacementRules();
     });
-   
+
     itpServer.on('applyReplacementRulesResult', function(data, err) {
     });
 
     itpServer.on('getReplacementRulesResult', function(data, err) {
       $('#sr-rules').empty();
-      for (var i = 0; i < data.rules.length; ++i) { 
+      for (var i = 0; i < data.rules.length; ++i) {
         processRule(data.rules[i]);
       }
     });
   };
-  
+
   function delSearchReplaceEvents() {
     var $ea = getEditArea(), itpServer = $ea.editableItp('itpServer');
     itpServer.off('setReplacementRuleResult delReplacementRuleResult getReplacementRulesResult');
-  };  
-  
+  };
+
   function processRule(rule) {
     var $ea = getEditArea(), itpServer = $ea.editableItp('itpServer');
     // Apply rule for the first time
@@ -351,17 +361,17 @@ $(function(){
     $('#sr-viewreplaceBtn').click(function(e){
       $('#sr-rules').toggle("fast");
     });
-    
+
     $('#sr-addreplaceBtn').click(function(e){
       var rule = {};
       $("#sr-replace :input").each(function(){
-        var $this = $(this); 
+        var $this = $(this);
         if (!$this.attr('name')) return;
         if ($this.attr('type') === 'checkbox') {
-          rule[$this.attr('name')] = $this.prop('checked');  
+          rule[$this.attr('name')] = $this.prop('checked');
         }
         else {
-          rule[$this.attr('name')] = $this.val();  
+          rule[$this.attr('name')] = $this.val();
         }
       });
       var $ea = getEditArea(), itpServer = $ea.editableItp('itpServer');
@@ -369,5 +379,5 @@ $(function(){
     });
   };
   // END S&R facilities --------------------------------------------------------
-     
+
 });

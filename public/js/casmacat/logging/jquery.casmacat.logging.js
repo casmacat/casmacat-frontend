@@ -1027,7 +1027,8 @@
     };
 
     // store translationChange event
-    var itp = function(e, data) { alert(data);
+    var itp = function(e, data) {
+
         var t;
         switch (data.type) {
             case "decode":
@@ -1065,12 +1066,12 @@
     };
 
     var alignmentShownByMouse = function(e, data) {
-//      debug(pluginName + ": Alignment shown by mouse.");
-      storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SHOW_ALIGNMENT_BY_MOUSE, data));
+        debug(pluginName + ": Alignment shown by mouse.");
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SHOW_ALIGNMENT_BY_MOUSE, data.target));
     };
 
     var alignmentHiddenByMouse = function(e, data) {
-//      debug(pluginName + ": Alignment hidden by mouse.");
+        debug(pluginName + ": Alignment hidden by mouse.");
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HIDE_ALIGNMENT_BY_MOUSE, data));
     };
 

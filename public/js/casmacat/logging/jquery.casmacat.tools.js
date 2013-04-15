@@ -346,12 +346,13 @@ catch (e) {
         }
         else {
 
-          try {
-            var selection = window.getSelection();  // TODO check cross browser compatibility of this
-            var r = selection.getRangeAt(0);
-          } catch(err) {
-            return false;
-          }
+            try {
+                var selection = window.getSelection();  // TODO check cross browser compatibility of this
+                var r = selection.getRangeAt(0);
+            }
+            catch(err) {
+                return false;
+            }
 
 //            debug("$.fn.getSelection: Text range dump:");
 //            debug(r);
