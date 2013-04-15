@@ -108,7 +108,7 @@ else {
 	}        
 	
     if ($itp == 0) {
-		$queryId = $db->query("SELECT id_segment, suggestion FROM `segment_translations` st, `files_job` fj WHERE st.id_job = ".$jobId." AND fj.id_job = ".$jobId." AND fj.id_file = ".$fileId);
+		$queryId = $db->query("SELECT id_segment, suggestion FROM `segment_translations` st, `files_job` fj WHERE st.id_job = fj.id_job AND fj.id_job = ".$jobId." AND fj.id_file = ".$fileId." ORDER BY id_segment");
         $err = $db->get_error();
         $errno = $err["error_code"];
         if ($errno != 0) {
@@ -127,7 +127,7 @@ else {
 	        
     //target
     $writer->startElement('finalTargetText');        
-    $queryId = $db->query("SELECT id_segment, translation FROM `segment_translations` st, `files_job` fj WHERE st.id_job = ".$jobId." AND fj.id_job = ".$jobId." AND fj.id_file = ".$fileId);
+    $queryId = $db->query("SELECT id_segment, translation FROM `segment_translations` st, `files_job` fj WHERE st.id_job = fj.id_job AND fj.id_job = ".$jobId." AND fj.id_file = ".$fileId." ORDER BY id_segment");
     $err = $db->get_error();
     $errno = $err["error_code"];
     if ($errno != 0) {
