@@ -357,9 +357,10 @@
         $(settings.logRootElement).find(".editarea").on("cut." + pluginName, beforeCut);
 
         // attach to copy
-        $(settings.logRootElement).find("input:text").on("copy." + pluginName, beforeCopy);
+        /*$(settings.logRootElement).find("input:text").on("copy." + pluginName, beforeCopy);
         $(settings.logRootElement).find("textarea").on("copy." + pluginName, beforeCopy);
-        $(settings.logRootElement).find(".editarea").on("copy", beforeCopy);
+        $(settings.logRootElement).find(".editarea").on("copy", beforeCopy);*/
+        $(settings.logRootElement).on("copy", beforeCopy);
 
         // attach to paste
         $(settings.logRootElement).find("input:text").on("paste." + pluginName, beforePaste);
@@ -819,11 +820,14 @@
         else {
             contentBeforeCut = $(e.target).val();
         }
+
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.BEFORE_CUT, e.target));
     };
 
     var beforeCopy = function(e) {  // TODO how about CTRL+X or CTRL+V?
 //        debug(pluginName + ": Copy.");
-        // TODO get selected/copied text
+
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.BEFORE_COPY, e.target));
     };
 
     var pasted = false;
@@ -839,6 +843,8 @@
         else {
             contentBeforePaste = $(e.target).val();
         }
+
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.BEFORE_PASTE, e.target));
     };
 
     // called on 'input'
@@ -1106,12 +1112,8 @@
             var rry = ry - w.y;
             debug(pluginName + ": Coordinates: rx: '" + rx + "', ry: '" + ry + "', rrx: '" + rrx + "', rry: '" + rry + "'.");
 
-            if (lx < w.x || ly < w.y || lrx > w.width || lry > w.height) {
-                debug(pluginName + ": Left eye coordinates are outside of tracked area, gaze discarded!");
-                return;
-            }
-            else if (rx < w.x || ry < w.y || rrx > w.width || rry > w.height) {
-                debug(pluginName + ": Right eye coordinates are outside of tracked area, gaze discarded!");
+            if ( (lx < w.x || ly < w.y || lrx > w.width || lry > w.height) && (rx < w.x || ry < w.y || rrx > w.width || rry > w.height) ) {
+                debug(pluginName + ": Both eye's coordinates are outside of tracked area, gaze discarded!");
                 return;
             }
 
