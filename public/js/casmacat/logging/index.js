@@ -108,7 +108,11 @@ $(function() {
       debug("virtualScreen: 'vsEditorReady'");
       window.parent.$(window.parent).trigger("vsEditorReady", null);*/
 
-       $.fn.hideOverlay();
+        if (config.etEnabled) {
+            $('head').append("<link rel='stylesheet' href='" + config.basepath + "/public/css/et.css' type='text/css' />");
+        }
+
+        $.fn.hideOverlay();
     }
   });
 });

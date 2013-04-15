@@ -34,7 +34,7 @@ class loadLogChunkController extends ajaxcontroller {
                 $this->result["code"] = -1;
                 $this->result["errors"][] = array("code" => -1, "message" => "Error loading logListChunk");
             }
-            else if (count($logListChunk) == 0) {
+            else if (!$logListChunk) {
                 $this->result["code"] = 1;
                 $this->result["data"] = "No more data";
             }
