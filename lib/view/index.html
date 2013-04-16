@@ -13,7 +13,7 @@
         <script type="text/javascript">
             var config = {
                 basepath: '${basepath | string:/}',
-                catserver: '${catserver}',
+                itpserver: '${itpserver}',
                 htrserver: '${htrserver}',
                 id_translator: '${tid | nothing}',
                 private_translator: '${private_translator | string:0}',
@@ -35,8 +35,9 @@
                 debug: ${debug},
                 catsetting: '${catsetting}',
                 itpEnabled: ${itpEnabled},
-                etEnabled: ${etEnabled},
+                penEnabled: ${penEnabled},
                 etType: ${etType}
+                srEnabled: ${srEnabled}
                 // CASMACAT extension end
             }
             //			console.log('Server time: ' + Math.round(config.server_load_time));
@@ -56,7 +57,7 @@
     <body tal:condition="supportedBrowser">
 
         <!-- CASMACAT extension start -->
-        <tal:block condition="${etEnabled}">
+        <tal:block condition="true:etEnabled">
             <object id="cbsEyeTrackerPlugin" type="application/x-cbseyetrackerplugin" width="0px" height="0px"></object>
         </tal:block>
         <!-- CASMACAT extension end -->
@@ -308,7 +309,7 @@
         <footer>
 
             <!-- BEGIN S&R facilities -->
-            <span tal:condition="php:!empty(catserver)">
+            <span tal:condition="true:srEnabled">
               <div id="sr-replace">
                 <label for="sr-sourceRule">Source match</label>
                   <input type="text" id="sr-sourceRule" name="sourceRule" size="12" value=""/>
@@ -343,7 +344,7 @@
                 <!-- TODO support this in the near future -->
                 <!--<a tal:attributes="href string:${basepath}editlog/${jid}-${password}">Editing Log</a>-->
 
-                <span tal:condition="php: debug == 'true'">
+                <span tal:condition="true:debug">
                     <a id="resetDocument" href=".">Reset Document</a>
                     <!--<a id="stopLogging" href=".">Stop Logging</a>-->
                 </span>
