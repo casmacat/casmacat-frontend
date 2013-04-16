@@ -20,7 +20,9 @@ $(function(){
   };
 
   insertStyle(config.basepath  + 'public/css/itp.css');
-  insertStyle(config.basepath  + 'public/css/htr.css');
+  if (config.penEnabled) {
+    insertStyle(config.basepath  + 'public/css/htr.css');
+  }
   
   require('jquery.editable.itp');
 
@@ -45,6 +47,10 @@ $(function(){
   };
 
   function toogleEpenMode(editarea) {
+    if (!config.penEnabled) {
+      return false;
+    }
+    
     var $target = $(editarea), sid = $target.data('sid'), prefix = "#segment-" + sid;
     var $source = $(prefix + "-source"), $section = $(prefix), animMs = 300;
     var $targetParent = $(prefix + "-target");
@@ -67,7 +73,7 @@ $(function(){
           // This is to prevent logging click events on the canvas
           e.stopPropagation();
         });
-        
+
         var htr = require('htr');
         htr.init($canvas, $source, $target);
         
@@ -132,7 +138,7 @@ $(function(){
       $target.editableItp('updateConfig', settings);
       // A button to toggle ITP mode
       $indicator = ('.buttons', UI.currentSegment).find('.itp-indicator');
-      if (settings.mode == "ITP" && $indicator.length === 0) {
+      if (config.itpserver && settings.mode == "ITP" && $indicator.length === 0) {
         $indicator = $('<li/>').html('<a href="#" class="draft itp-indicator">'+settings.mode+'</a><p>ESC</p>');
         $indicator.click(function(e){
           e.preventDefault();
@@ -142,7 +148,7 @@ $(function(){
       }
       // A button to toggle e-pen mode
       $indicator = $('.buttons', UI.currentSegment).find('.pen-indicator');
-      if (config.htrserver && $indicator.length === 0) {
+      if (config.htrserver && config.penEnabled && $indicator.length === 0) {
         $indicator = $('<li/>').html('<a href="#" class="draft pen-indicator" title="Toggle e-pen input">&#9997;</a>');
         $indicator.click(function(e){
           e.preventDefault();
@@ -153,7 +159,7 @@ $(function(){
     })
     .editableItp({
       sourceSelector: "#segment-" + sid + "-source",
-      itpServerUrl:   config.catserver,
+      itpServerUrl:   config.itpserver,
       replay:         config.replay
     })
     .on('decode.matecat', function (ev, data, err) {

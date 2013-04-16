@@ -1,6 +1,8 @@
 <?php
-global $_INI_FILE;
+global $_INI_FILE; // Global because of the ini_sets
 $_INI_FILE = parse_ini_file(dirname(__FILE__).'/config.ini', true);
+// TODO: This INI should be parsed *only once*.
+// Probably we should cache config vars in $_SESSION or something similar.
 
 ini_set("display_errors", (bool) $_INI_FILE['debug']['displayerrors']);
 ini_set("error_reporting", eval("return ".$_INI_FILE['debug']['errorreporting'].";"));
@@ -12,17 +14,14 @@ class INIT {
     public static $ERROR_REPORTING;
 
     public static $ROOT;
-    public static $BASEURL;
+    public static $BASE_URL;
     public static $DB_SERVER;
     public static $DB_DATABASE;
     public static $DB_USER;
     public static $DB_PASS;
     public static $LOG_REPOSITORY;
     public static $LOG_FILENAME;
-    
-    //Log download
     public static $LOG_DOWNLOAD;
-    
     
     public static $TEMPLATE_ROOT;
     public static $MODEL_ROOT;
@@ -37,10 +36,12 @@ class INIT {
     public static $BUILD_NUMBER;
 
     public static $LOGGING;
-    public static $CATSERVER;
-    public static $HTRSERVER;
-    public static $ITPENABLED;
-    public static $ETENABLED;
+    public static $ITP_SERVER;
+    public static $HTR_SERVER;
+    public static $ITP_ENABLED;
+    public static $PEN_ENABLED;    
+    public static $ET_ENABLED;
+    public static $SR_ENABLED;
 
 
     public static function obtain() {
@@ -57,11 +58,11 @@ class INIT {
         $root = realpath(dirname(__FILE__).'/../');
         self::$ROOT = $root;  // Accesible by Apache/PHP
 
-        self::$BASEURL = $_INI_FILE['ui']['baseurl']; // Accesible by the browser
+        self::$BASE_URL = $_INI_FILE['ui']['baseurl']; // Accesible by the browser
 
 	set_include_path(get_include_path() . PATH_SEPARATOR . $root);
 
-        self::$TIME_TO_EDIT_ENABLED = $_INI_FILE['ui']['timetoedit'];
+        self::$TIME_TO_EDIT_ENABLED = self::getConfigBool('timetoedit', 'ui');
 
         self::$DEFAULT_NUM_RESULTS_FROM_TM=$_INI_FILE['mymemory']['numresults'];
 	self::$THRESHOLD_MATCH_TM_NOT_TO_SHOW=$_INI_FILE['mymemory']['matchthreshold'];
@@ -71,7 +72,7 @@ class INIT {
                 self::$DB_USER = $_INI_FILE['db']['username'];
                 self::$DB_PASS = $_INI_FILE['db']['password'];
 
-        self::$LOGGING = $_INI_FILE['ui']['logging'];
+        self::$LOGGING = self::getConfigBool('logenabled', 'ui');
 
         self::$LOG_REPOSITORY = self::$ROOT . "/". $_INI_FILE['log']['directory'];
         self::$LOG_FILENAME = $_INI_FILE['log']['filename'];
@@ -88,14 +89,22 @@ class INIT {
 	self::$ENABLED_BROWSERS=array('chrome','firefox','safari');
 	self::$BUILD_NUMBER='0.3.0';
 
-        // Custom translation/HTR servers (TODO: see how can integrate $_GET params with rewritten URLs)
-        self::$CATSERVER = isset($_GET['catserver']) ? $_GET['catserver'] : $_INI_FILE['casmacat']['catserver'];
-        self::$HTRSERVER = isset($_GET['htrserver']) ? $_GET['htrserver'] : $_INI_FILE['casmacat']['htrserver'];
-        self::$ITPENABLED = isset($_GET['itpenabled']) ? $_GET['itpenabled'] :
-                            isset($_INI_FILE['casmacat']['itpenabled']) ? $_INI_FILE['casmacat']['itpenabled'] : "false";
-        self::$ETENABLED = isset($_INI_FILE['casmacat']['etenabled']) ? $_INI_FILE['casmacat']['etenabled'] : "false";
+        // Casmacat customizations
+        self::$ITP_SERVER = isset($_GET['itpserver']) ? $_GET['itpserver'] : $_INI_FILE['casmacat']['itpserver'];
+        self::$HTR_SERVER = isset($_GET['htrserver']) ? $_GET['htrserver'] : $_INI_FILE['casmacat']['htrserver'];
+        self::$ITP_ENABLED = self::getConfigBool('itpenabled');
+        self::$PEN_ENABLED = self::getConfigBool('penenabled');
+        self::$ET_ENABLED = self::getConfigBool('etenabled');
+        self::$SR_ENABLED = self::getConfigBool('srenabled');
 
-        self::$DEBUG = isset($_GET['debug']) ? $_GET['debug'] : $_INI_FILE['debug']['debug'];
+        self::$DEBUG = self::getConfigBool('debug', "debug");
+    }
+    
+    private static function getConfigBool($name, $namespace = "casmacat", $default_value = false) {
+      global $_INI_FILE;
+      return isset($_GET[$name]) ? 
+              (bool)$_GET[$name] : isset($_INI_FILE[$namespace][$name]) ? 
+               (bool)$_INI_FILE[$namespace][$name] : $default_value;
     }
 
 }
