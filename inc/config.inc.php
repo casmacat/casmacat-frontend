@@ -19,11 +19,11 @@ class INIT {
     public static $DB_PASS;
     public static $LOG_REPOSITORY;
     public static $LOG_FILENAME;
-    
+
     //Log download
     public static $LOG_DOWNLOAD;
-    
-    
+
+
     public static $TEMPLATE_ROOT;
     public static $MODEL_ROOT;
     public static $CONTROLLER_ROOT;
@@ -41,6 +41,7 @@ class INIT {
     public static $HTRSERVER;
     public static $ITPENABLED;
     public static $ETENABLED;
+    public static $ETTYPE;
 
 
     public static function obtain() {
@@ -75,10 +76,10 @@ class INIT {
 
         self::$LOG_REPOSITORY = self::$ROOT . "/". $_INI_FILE['log']['directory'];
         self::$LOG_FILENAME = $_INI_FILE['log']['filename'];
-        
+
         //log download
-        self::$LOG_DOWNLOAD = self::$ROOT . "/". $_INI_FILE['download_temp']['directory'];        
-        
+        self::$LOG_DOWNLOAD = self::$ROOT . "/". $_INI_FILE['download_temp']['directory'];
+
         self::$TEMPLATE_ROOT = self::$ROOT . "/lib/view";
         self::$MODEL_ROOT = self::$ROOT . '/lib/model';
         self::$CONTROLLER_ROOT = self::$ROOT . '/lib/controller';
@@ -94,6 +95,7 @@ class INIT {
         self::$ITPENABLED = isset($_GET['itpenabled']) ? $_GET['itpenabled'] :
                             isset($_INI_FILE['casmacat']['itpenabled']) ? $_INI_FILE['casmacat']['itpenabled'] : "false";
         self::$ETENABLED = isset($_INI_FILE['casmacat']['etenabled']) ? $_INI_FILE['casmacat']['etenabled'] : "false";
+        self::$ETTYPE = isset($_INI_FILE['casmacat']['ettype']) ? $_INI_FILE['casmacat']['ettype'] : 0;
 
         self::$DEBUG = isset($_GET['debug']) ? $_GET['debug'] : $_INI_FILE['debug']['debug'];
     }

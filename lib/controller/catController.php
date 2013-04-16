@@ -293,7 +293,7 @@ class catController extends viewcontroller {
           }
         }
         $this->template->catsetting = $catsetting;
-        
+
 //		$this->template->stats=$stats[0]['TOTAL'];
 
 		$this->template->source_code=$this->source_code;
@@ -309,6 +309,7 @@ class catController extends viewcontroller {
         $this->template->debug = INIT::$DEBUG;
         $this->template->itpEnabled = INIT::$ITPENABLED;
         $this->template->etEnabled = INIT::$ETENABLED;
+        $this->template->etType = INIT::$ETTYPE;
         log::doLog("CASMACAT: itpEnabled: " . INIT::$ITPENABLED);
         log::doLog("CASMACAT: etEnabled: " . INIT::$ETENABLED);
         if (INIT::$LOGGING) {

@@ -59,6 +59,8 @@
                                         //          id is a parent of E then the path from this parent to E is stored as an
                                         //          relative xPath
             logEyeTracker: false,       // should eye tracking be logged?
+            etDiscardInvalid: true,     // discard gaze samples and fixations outside the tracked area (inner window area)
+            etType: 0,                  // Eye Tracker to use: 0 = Mouse Emulator, 100 = EyeLink 1000, 200 = Tobii 120
             logKeys: true,
             logMouse: true,
             logMouseMove: false,        // should mouse movements be logged?
@@ -320,8 +322,8 @@
                 $.fn.attachToETPluginEvent(plugin, "gaze", gaze);
                 $.fn.attachToETPluginEvent(plugin, "fixation", fixation);
 
-                plugin.setDeviceAndConnect(0);
-                plugin.calibrate(0);
+                plugin.setDeviceAndConnect(settings.etType);
+                plugin.calibrate();
                 plugin.start();
             }
             else {
@@ -1112,9 +1114,11 @@
             var rry = ry - w.y;
             debug(pluginName + ": Coordinates: rx: '" + rx + "', ry: '" + ry + "', rrx: '" + rrx + "', rry: '" + rry + "'.");
 
-            if ( (lx < w.x || ly < w.y || lrx > w.width || lry > w.height) && (rx < w.x || ry < w.y || rrx > w.width || rry > w.height) ) {
-                debug(pluginName + ": Both eye's coordinates are outside of tracked area, gaze discarded!");
-                return;
+            if (settings.etDiscardInvalid) {
+                if ( (lx < w.x || ly < w.y || lrx > w.width || lry > w.height) && (rx < w.x || ry < w.y || rrx > w.width || rry > w.height) ) {
+                    debug(pluginName + ": Both eye's coordinates are outside of tracked area, gaze discarded!");
+                    return;
+                }
             }
 
             // put it all together
@@ -1148,9 +1152,11 @@
             var ry = y - w.y;
             debug(pluginName + ": Coordinates: x: '" + x + "', y: '" + y + "', rx: '" + rx + "', ry: '" + ry + "'.");
 
-            if (x < w.x || y < w.y || rx > w.width || ry > w.height) {
-                debug(pluginName + ": Coordinates are outside of tracked area, fixation discarded!");
-                return;
+            if (settings.etDiscardInvalid) {
+                if (x < w.x || y < w.y || rx > w.width || ry > w.height) {
+                    debug(pluginName + ": Coordinates are outside of tracked area, fixation discarded!");
+                    return;
+                }
             }
 
             var element = document.elementFromPoint(rx, ry);

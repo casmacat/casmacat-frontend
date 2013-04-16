@@ -34,3 +34,6 @@ catserver = "my.cat.server:8080"
 htrserver = "my.htr.server:8080"
 itpenabled = "true"
 etenabled = "false"   ; enable eye tracking
+ettype = 0 ; Mouse Emulator
+;ettype = 100 ; EyeLink 1000
+;ettype = 200 ; Tobii 120
