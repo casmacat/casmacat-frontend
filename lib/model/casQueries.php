@@ -141,6 +141,11 @@ function resetDocument($jobId, $fileId) {
                 deleteEventRow($logEvent->id, "mouse_event");
                 break;
 
+            case LogEvent::BEFORE_CUT:
+            case LogEvent::BEFORE_COPY:
+            case LogEvent::BEFORE_PASTE:
+                break;
+
             default:
                 log::doLog("CASMACAT: resetDocument(): Unknown log event type: '$logEvent->type', header id: '$logEvent->id'");
                 throw new Exception("CASMACAT: resetDocument(): Unknown log event type: '$logEvent->type', header id: '$logEvent->id'");
@@ -318,6 +323,11 @@ log::doLog($endOffset);
             case LogEvent::MOUSE_MOVE:
                 $eventRow = fetchEventRow($logEvent->id, "mouse_event");
                 $logEvent->mouseData($eventRow);
+                break;
+
+            case LogEvent::BEFORE_CUT:
+            case LogEvent::BEFORE_COPY:
+            case LogEvent::BEFORE_PASTE:
                 break;
 
             default:

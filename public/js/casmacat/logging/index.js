@@ -10,7 +10,7 @@ $(function() {
             $("#resetDocument").on("click", function(e) {
                 e.preventDefault();
 
-                $(window).logging("stop");
+                $(window).logging("stop", true);
 
                 var data = {
                     action: "resetDocument",
@@ -47,6 +47,12 @@ $(function() {
                     }
                 });
             });
+
+//            $("#stopLogging").on("click", function(e) {
+//                e.preventDefault();
+//
+//                $(window).logging("stop", true);
+//            });
         }
 
         // from: "http://stackoverflow.com/questions/1950038/jquery-fire-event-if-css-class-changed#1950052"

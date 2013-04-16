@@ -1,7 +1,7 @@
 <?php
 include INIT::$UTILS_ROOT . "/engines/mt.class.php";
 include INIT::$UTILS_ROOT . "/engines/tms.class.php";
-include INIT::$UTILS_ROOT . "/cat.class.php";
+include_once INIT::$UTILS_ROOT . "/cat.class.php";
 include_once INIT::$MODEL_ROOT . "/queries.php";
 
 class getContributionController extends ajaxcontroller {
@@ -10,7 +10,7 @@ class getContributionController extends ajaxcontroller {
     private $id_job;
     private $num_results;
     private $text;
-        
+
     private $source;
     private $target;
     private $id_mt_engine;
@@ -27,10 +27,10 @@ class getContributionController extends ajaxcontroller {
         $this->id_translator = $this->get_from_get_post('id_translator');
 
 	if ($this->id_translator=='unknown_translator'){
-		$this->id_translator="";	
+		$this->id_translator="";
 	}
-        
-        
+
+
     }
 
     public function doAction() {
@@ -49,9 +49,9 @@ class getContributionController extends ajaxcontroller {
         if (!empty($this->result['errors'])) {
             return -1;
         }
-        
+
         $st = getJobData($this->id_job);
-        
+
         $this->source=$st['source'];
         $this->target=$st['target'];
         $this->id_mt_engine = $st['id_mt_engine'];
@@ -95,7 +95,7 @@ class getContributionController extends ajaxcontroller {
             }
         }
         $matches=array();
-		
+
         if (!empty($tms_match)) {
             $matches = $tms_match;
         }

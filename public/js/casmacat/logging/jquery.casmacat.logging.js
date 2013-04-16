@@ -130,19 +130,24 @@
     // always 1...
     $.fn.logging = function ( optionsOrMethod ) {
 
+        var realArgs = arguments;   // TODO otherwise it's not possible to pass arguments to functions (e.g. stop());
+
         return this.each(function () {
 
             // per element
             if (!$.data(this, "plugin_" + pluginName)) {
                 $.data(this, "plugin_" + pluginName, new LogModule(this, optionsOrMethod));
-                return null;    // otherwise an eror occurs: "Error: Method '[object Object]' does not exist on
-                                // 'logModule', thrown be the code below...
+                return null;    // otherwise an error occurs: "Error: Method '[object Object]' does not exist on
+                                // 'logModule', thrown by the code below...
             }
 
             if (methods[optionsOrMethod]) {
 //                debug(pluginName + ": Calling function: optionsOrMethod: '" + optionsOrMethod + "', arguments: '" + Array.prototype.slice.call(arguments, 1) + "'.");
-                return methods[optionsOrMethod].apply(this, Array.prototype.slice.call(arguments, 1));
+                return methods[optionsOrMethod].apply(this, Array.prototype.slice.call(realArgs, 1));
             }
+//            else if ( typeof optionsOrMethod === 'object' || ! optionsOrMethod ) {
+//                return methods.init.apply( this, arguments );
+//            }
             else {
                 $.error("Method '" + optionsOrMethod + "' does not exist on '" + pluginName + "'"); // TODO what is the
                                                                                                     // functionality of
@@ -187,7 +192,7 @@
 //            debug(pluginName + ": Pausing...");
 //        },
 
-        stop: function() {
+        stop: function(force) {
             debug(pluginName + ": Stopping...");
             if (!isLogging) {
                 alert("Log has not been started!");
@@ -196,16 +201,18 @@
             else {
 //                $.fn.showOverlay();
 
-                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.STOP_SESSION, window));
+                if (!force) {
+                    storeLogEvent(logEventFactory.newLogEvent(logEventFactory.STOP_SESSION, window));
 
-                if (logList.length >= 0) {
-                    debug(pluginName + ": Upload remaining 'logList'...");
-                    uploadLogChunk(false);
-                }
+                    if (logList.length >= 0) {
+                        debug(pluginName + ": Uploading remaining 'logList'...");
+                        uploadLogChunk(false);
+                    }
 
-                // TODO check for completeness/correctness, also see: "http://docs.jquery.com/Plugins/Authoring"
-                if (chunksUploading > 0) {
-                    // TODO wait for uploads to complete
+                    // TODO check for completeness/correctness, also see: "http://docs.jquery.com/Plugins/Authoring"
+                    if (chunksUploading > 0) {
+                        // TODO wait for uploads to complete
+                    }
                 }
                 unbindFromEvents();
                 logList = [];
@@ -991,13 +998,13 @@
     };
 
     var segmentOpened = function(e, data) {
-        debug(pluginName + ": Segment opened.");
+        debug(pluginName + ": Segment opened: '" + data.segment + "'.");
 
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SEGMENT_OPENED, data.segment));
     };
 
     var segmentClosed = function(e, data) {
-        debug(pluginName + ": Segment closed.");
+        debug(pluginName + ": Segment closed: '" + data.segment + "'.");
 
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SEGMENT_CLOSED, data.segment));
     };
@@ -1129,7 +1136,7 @@
             var rElement = document.elementFromPoint(rrx, rry);
             var element = lElement;
             if (element === null && rElement === null) {
-                debug(pluginName + ": 'element' is null, adjusting to 'window'...");
+//                debug(pluginName + ": 'element' is null, adjusting to 'window'...");
                 element = window;
             }
             else if (element === null && rElement !== null) {
@@ -1171,7 +1178,7 @@
 
             var element = document.elementFromPoint(rx, ry);
             if (element === null) {
-                debug(pluginName + ": 'element' is null, adjusting to 'window'...");
+//                debug(pluginName + ": 'element' is null, adjusting to 'window'...");
                 element = window;
             }
             var charInfo = $.fn.characterFromPoint(rx, ry);

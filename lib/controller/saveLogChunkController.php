@@ -127,6 +127,12 @@ class saveLogChunkController extends ajaxcontroller {
                         insertMouseEvent($logEvent);
                         break;
 
+                    case LogEvent::BEFORE_CUT:
+                    case LogEvent::BEFORE_COPY:
+                    case LogEvent::BEFORE_PASTE:
+                        insertLogEventHeader($logEvent);
+                        break;
+
                     default:
                         $this->result["code"] = -1;
                         $this->result["errors"][] = array("code" => -1, "message" => "Unknown log event type: '$logEvent->type' at index: '$key'");

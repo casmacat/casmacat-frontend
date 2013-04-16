@@ -40,6 +40,10 @@ class LogEvent {
     const MOUSE_CLICK = "mouseClick";
     const MOUSE_MOVE = "mouseMove";
 
+    const BEFORE_CUT = "beforeCut";
+    const BEFORE_COPY = "beforeCopy";
+    const BEFORE_PASTE = "beforePaste";
+
     public $id;
     public $jobId;
     public $fileId;

@@ -1,7 +1,7 @@
 <?
 include_once realpath(dirname(__FILE__) . '/../../../') . '/inc/config.inc.php';
 include_once "engine.class.php";
-include_once ("utils/cat.class.php");
+//include_once INIT::$UTILS_ROOT . "/cat.class.php";
 
 class TMS_GET_MATCHES {
 
@@ -43,13 +43,13 @@ class TMS_GET_MATCHES {
 
             $match['match'] = $match['match'] * 100;
             $match['match'] = $match['match'] . "%";
-            
+
         }
-        
+
         if (count($args) > 1  and is_array($args[0])) {
             throw new Exception("Invalid arg 1 " . __CLASS__ . " constructor");
         }
-                
+
         if (count($args) == 5 and !is_array($args[0])) {
             $match['segment'] = $args[0];
             $match['translation'] = $args[1];
@@ -94,7 +94,7 @@ class TMS_RESULT {
         $this->responseDetails = isset($result['responseDetails']) ? $result['responseDetails'] : '';
         $this->responseStatus = $result['responseStatus'];
 
-        if (is_array($result) and !empty($result) and array_key_exists('matches', $result)) {         
+        if (is_array($result) and !empty($result) and array_key_exists('matches', $result)) {
             $matches = $result['matches'];
             if (is_array($matches) and !empty($matches)) {
                 foreach ($matches as $match) {
