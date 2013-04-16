@@ -276,6 +276,8 @@ class catController extends viewcontroller {
               if (intval($portnum) > 0) {
                 $server_url = $this->template->catserver;
                 if (strstr($server_url, "http://") === true) {
+                    $server_url = str_replace("http://", "", $server_url);
+                }
             }
             $path_parts = explode("/", $server_url);
             $server_data = $path_parts[0];
@@ -291,6 +293,7 @@ class catController extends viewcontroller {
             $this->template->itpserver = implode("/", $path_parts);
             break;
           }
+          $this->template->catsetting = $catsetting;
         }
         else {
             $this->template->catsetting = "";
@@ -310,8 +313,8 @@ class catController extends viewcontroller {
         $this->template->debug = INIT::$DEBUG;
         $this->template->itpEnabled = INIT::$ITP_ENABLED;
         $this->template->penEnabled = INIT::$PEN_ENABLED;
-        $this->template->etEnabled = INIT::$ET_ENABLED; 
-        $this->template->etType = INIT::$ETTYPE;
+        $this->template->etEnabled = INIT::$ET_ENABLED;
+        $this->template->etType = INIT::$ET_TYPE;
         $this->template->srEnabled = INIT::$SR_ENABLED;
         log::doLog("CASMACAT: itpEnabled: " . INIT::$ITP_ENABLED);
         log::doLog("CASMACAT: etEnabled: " . INIT::$ET_ENABLED);

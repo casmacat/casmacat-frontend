@@ -42,7 +42,7 @@ class INIT {
     public static $PEN_ENABLED;    
     public static $ET_ENABLED;
     public static $SR_ENABLED;
-    public static $ETTYPE;
+    public static $ET_TYPE;
 
 
     public static function obtain() {
@@ -97,7 +97,7 @@ class INIT {
         self::$PEN_ENABLED = self::getConfigBool('penenabled');
         self::$ET_ENABLED = self::getConfigBool('etenabled');
         self::$SR_ENABLED = self::getConfigBool('srenabled');
-        self::$ETTYPE = isset($_INI_FILE['casmacat']['ettype']) ? $_INI_FILE['casmacat']['ettype'] : 0;
+        self::$ET_TYPE = isset($_INI_FILE['casmacat']['ettype']) ? $_INI_FILE['casmacat']['ettype'] : 0;
 
         self::$DEBUG = self::getConfigBool('debug', "debug");
     }
