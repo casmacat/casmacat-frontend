@@ -1027,7 +1027,7 @@
     };
 
     // store translationChange event
-    var itp = function(e, data) { alert(data);
+    var itp = function(e, data) { 
         var t;
         switch (data.type) {
             case "decode":
