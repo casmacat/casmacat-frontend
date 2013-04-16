@@ -15,7 +15,7 @@ $(function() {
                 var data = {
                     action: "resetDocument",
                     fileId: config.file_id,
-                    jobId: config.job_id,
+                    jobId: config.job_id
                 };
 
                 $.ajax({
@@ -34,16 +34,16 @@ $(function() {
                         }
                         else if (result.errors) {    // TODO is the error format really like this? with the index access
                                                     // 'result.errors[0]'?
-                            alert("(Server) Error uploading 'logList': '" + result.errors[0].message + "'");
-                            $.error("(Server) Error uploading 'logList': '" + result.errors[0].message + "'");
+                            alert("(Server) Error resetting document: '" + result.errors[0].message + "'");
+                            $.error("(Server) Error resetting document: '" + result.errors[0].message + "'");
                         }
                     },
                     error: function(request, status, error) {
                         debug(request);
                         debug(status);
                         debug(error);
-                        alert("Error uploading 'logList': '" + error + "'");
-                        $.error("Error uploading 'logList': '" + error + "'");
+                        alert("Error resetting document: '" + error + "'");
+                        $.error("Error resetting document: '" + error + "'");
                     }
                 });
             });
@@ -80,6 +80,7 @@ $(function() {
             "fileId": config.file_id,
             "jobId": config.job_id,
             "maxChunkSize": 5000,
+//            "maxChunkSize": 50,
             "logRootElement": "html > body > div#outer",
 
             "doSanitize": true,             // TODO check this! not working with IMT currently

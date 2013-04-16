@@ -267,7 +267,7 @@
             return;
         }
 
-        debug(pluginName + ": Calibrating 'window' position...");
+//        debug(pluginName + ": Calibrating 'window' position...");
         if (typeof window.mozInnerScreenX !== "undefined" && typeof window.mozInnerScreenY !== "undefined") {
             // TODO "The Components object is deprecated. It will soon be removed."
             var queryInterface = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor);
@@ -283,7 +283,7 @@
             $.fn.showOverlay("<br><br>Please calibrate the 'window' position by moving the mouse over this area...", "windowCalibrator");
 
             $(window).on("mousemove." + pluginName + "_temp", function(e) {
-                debug(pluginName + ": Mouse moved, calculating 'window' position...");
+//                debug(pluginName + ": Mouse moved, calculating 'window' position...");
                 w.x = e.screenX - e.clientX;
                 w.y = e.screenY - e.clientY;
                 w.positionValid = true;
@@ -323,7 +323,9 @@
                 $.fn.attachToETPluginEvent(plugin, "fixation", fixation);
 
                 plugin.setDeviceAndConnect(settings.etType);
-                plugin.calibrate();
+                while (!plugin.calibrate()) {
+                    debug(pluginName + ": Calibration failed, trying again...");
+                }
                 plugin.start();
             }
             else {
@@ -512,10 +514,10 @@
         if (settings.logEyeTracker) {
             var plugin = $.fn.getETPlugin();
             if (plugin.valid) {
+                plugin.stop();
                 $.fn.detachFromETPluginEvent(plugin, "state", state);
                 $.fn.detachFromETPluginEvent(plugin, "gaze", gaze);
                 $.fn.detachFromETPluginEvent(plugin, "fixation", fixation);
-                plugin.stop();
             }
         }
 
@@ -567,8 +569,8 @@
 
 //        debug(pluginName + ": 'logList' refers to: jobId: '" + jobId + "', settings.fileId: '" + settings.jobId + "'.");
 
-        debug(pluginName + ": 'logList' content dump:");
-        debug(logList);
+//        debug(pluginName + ": 'logList' content dump:");
+//        debug(logList);
 
         //try {
         var data = {
@@ -592,6 +594,7 @@
                 }
                 else if (result.errors) {    // TODO is the error format really like this? with the index access
                                             // 'result.errors[0]'?
+                    alert("(Server) Error uploading 'logList': '" + result.errors[0].message + "'");
                     alert("(Server) Error uploading 'logList': '" + result.errors[0].message + "'");
                     $.error("(Server) Error uploading 'logList': '" + result.errors[0].message + "'");
                 }
@@ -635,7 +638,7 @@
     var logSelectionEvent = function(element) {
         var range = $(element).getSelection();
         if (range.selectedText != "") {
-            debug(pluginName + ": Logging selection...");
+//            debug(pluginName + ": Logging selection...");
             storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SELECTION, element, range));
         }
         else {
@@ -662,7 +665,7 @@
         if (target !== null) {
             pos = $(target).getCursorPositionContenteditable();
         }
-        debug(pluginName + ": Mouse event: type: '" + type + "', cursor position: pos: '" + pos + "'.");
+//        debug(pluginName + ": Mouse event: type: '" + type + "', cursor position: pos: '" + pos + "'.");
 
         var altKey = false;
         if (e.altKey) {
@@ -698,7 +701,7 @@
     };
 
     var mouseDown = function(e) {
-        debug(pluginName + ": Mouse down.");
+//        debug(pluginName + ": Mouse down.");
 
         if (e.ctrlKey) {  // do not allow CTRL for selecting text, this prevents multiple selections in Firefox
                         // TODO is it possibly to disable that by another way, like document.execCommand()?
@@ -768,7 +771,7 @@
 
         if (settings.logKeys) {
             var pos = $(e.target).getCursorPositionContenteditable();
-            debug(pluginName + ": Key down, cursor position: pos: '" + pos + "'.");
+//            debug(pluginName + ": Key down, cursor position: pos: '" + pos + "'.");
 
             var altKey = false;
             if (e.altKey) {
@@ -800,7 +803,7 @@
 
         if (settings.logKeys) {
             var pos = $(e.target).getCursorPositionContenteditable();
-            debug(pluginName + ": Key up, cursor position: pos: '" + pos + "'.");
+//            debug(pluginName + ": Key up, cursor position: pos: '" + pos + "'.");
 
             var altKey = false;
             if (e.altKey) {
@@ -875,11 +878,11 @@
             if (getFieldContents(e.target) != $(e.target).text()) {
                 changes = $.fn.getChanges( getFieldContents(e.target), $(e.target).text() );
 
-                debug(pluginName + ": Text changed: "
-                    + "\n\told text: '" + getFieldContents(e.target) + "', "
-                    + "\n\tnew text: '" + $(e.target).text() + "', "
-                    + "\n\tdiff: (cursorPosition: '" + changes.cursorPosition + "', deleted: '" + changes.deleted
-                        + "', inserted: '" + changes.inserted + "').");
+//                debug(pluginName + ": Text changed: "
+//                    + "\n\told text: '" + getFieldContents(e.target) + "', "
+//                    + "\n\tnew text: '" + $(e.target).text() + "', "
+//                    + "\n\tdiff: (cursorPosition: '" + changes.cursorPosition + "', deleted: '" + changes.deleted
+//                        + "', inserted: '" + changes.inserted + "').");
 
                 setFieldContents(e.target, $(e.target).text());
             }
@@ -917,7 +920,7 @@
             }
         }
         else {
-            debug(pluginName + ": Text changed: No changes detected.");
+//            debug(pluginName + ": Text changed: No changes detected.");
         }
     };
 
@@ -1070,7 +1073,7 @@
                 break;
         }
 
-        debug(pluginName + ": ITP event: '" + t + "'.");
+//        debug(pluginName + ": ITP event: '" + t + "'.");
     };
 
     var alignmentShownByMouse = function(e, data) {
@@ -1094,25 +1097,25 @@
     };
 
     var state = function(s) {
-        debug(pluginName + ": Eye tracker state changed.");
+        debug(pluginName + ": Eye tracker state changed to: '" + s + "'.");
 
         // TODO error handling
     };
 
     var gaze = function(trackerTime, lx, ly, rx, ry, leftDilation, rightDilation) {
-        debug(pluginName + ": Gaze received.");
+//        debug(pluginName + ": Gaze received.");
 
         if (w.positionValid) {
 
             // make left eye coordinates relative to window
             var lrx = lx - w.x;
             var lry = ly - w.y;
-            debug(pluginName + ": Coordinates: lx: '" + lx + "', ly: '" + ly + "', lrx: '" + lrx + "', lry: '" + lry + "'.");
+//            debug(pluginName + ": Coordinates: lx: '" + lx + "', ly: '" + ly + "', lrx: '" + lrx + "', lry: '" + lry + "'.");
 
             // make right eye coordinates relative to window
             var rrx = rx - w.x;
             var rry = ry - w.y;
-            debug(pluginName + ": Coordinates: rx: '" + rx + "', ry: '" + ry + "', rrx: '" + rrx + "', rry: '" + rry + "'.");
+//            debug(pluginName + ": Coordinates: rx: '" + rx + "', ry: '" + ry + "', rrx: '" + rrx + "', rry: '" + rry + "'.");
 
             if (settings.etDiscardInvalid) {
                 if ( (lx < w.x || ly < w.y || lrx > w.width || lry > w.height) && (rx < w.x || ry < w.y || rrx > w.width || rry > w.height) ) {
@@ -1123,19 +1126,26 @@
 
             // put it all together
             var lElement = document.elementFromPoint(lrx, lry);
-            var lCharInfo = $.fn.characterFromPoint(lrx, lry);
             var rElement = document.elementFromPoint(rrx, rry);
-            var rCharInfo = $.fn.characterFromPoint(rrx, rry);
             var element = lElement;
-            if (lElement !== rElement) {
+            if (element === null && rElement === null) {
+                debug(pluginName + ": 'element' is null, adjusting to 'window'...");
+                element = window;
+            }
+            else if (element === null && rElement !== null) {
+                element = " " + rElement;
+            }
+            else if (element !== rElement && rElement !== null) {
                 element += " " + rElement;
             }
+            var lCharInfo = $.fn.characterFromPoint(lrx, lry);
+            var rCharInfo = $.fn.characterFromPoint(rrx, rry);
 
-            debug(pluginName + ": element: '" + element + "'");
-            debug(pluginName + ": left char offset: '" + lCharInfo.offset + "', left char: '" + lCharInfo.character + "'");
-            debug(pluginName + ": right char offset: '" + rCharInfo.offset + "', right char: '" + rCharInfo.character + "'");
+//            debug(pluginName + ": element: '" + element + "'");
+//            debug(pluginName + ": left char offset: '" + lCharInfo.offset + "', left char: '" + lCharInfo.character + "'.");
+//            debug(pluginName + ": right char offset: '" + rCharInfo.offset + "', right char: '" + rCharInfo.character + "'.");
 
-            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.GAZE, trackerTime, lrx, lry, rrx, rry,
+            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.GAZE, element, trackerTime, lrx, lry, rrx, rry,
                 leftDilation, rightDilation, lCharInfo.character, lCharInfo.offset, rCharInfo.character, rCharInfo.offset));
         }
         else {
@@ -1144,13 +1154,13 @@
     };
 
     var fixation = function(trackerTime, x, y, duration) {
-        debug(pluginName + ": Fixation received.");
+//        debug(pluginName + ": Fixation received.");
 
         if (w.positionValid) {
             // make coordinates relative to window
             var rx = x - w.x;
             var ry = y - w.y;
-            debug(pluginName + ": Coordinates: x: '" + x + "', y: '" + y + "', rx: '" + rx + "', ry: '" + ry + "'.");
+//            debug(pluginName + ": Coordinates: x: '" + x + "', y: '" + y + "', rx: '" + rx + "', ry: '" + ry + "'.");
 
             if (settings.etDiscardInvalid) {
                 if (x < w.x || y < w.y || rx > w.width || ry > w.height) {
@@ -1160,9 +1170,13 @@
             }
 
             var element = document.elementFromPoint(rx, ry);
+            if (element === null) {
+                debug(pluginName + ": 'element' is null, adjusting to 'window'...");
+                element = window;
+            }
             var charInfo = $.fn.characterFromPoint(rx, ry);
 
-            debug(pluginName + ": char offset: '" + charInfo.offset + "', char: '" + charInfo.character + "'");
+//            debug(pluginName + ": char offset: '" + charInfo.offset + "', char: '" + charInfo.character + "'.");
             storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FIXATION, element, trackerTime, rx, ry, duration,
                 charInfo.character, charInfo.offset));
         }
