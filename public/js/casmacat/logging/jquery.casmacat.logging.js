@@ -998,13 +998,13 @@
     };
 
     var segmentOpened = function(e, data) {
-        debug(pluginName + ": Segment opened: '" + data.segment + "'.");
+        debug(pluginName + ": Segment opened: '" + data.segment.id + "'.");
 
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SEGMENT_OPENED, data.segment));
     };
 
     var segmentClosed = function(e, data) {
-        debug(pluginName + ": Segment closed: '" + data.segment + "'.");
+        debug(pluginName + ": Segment closed: '" + data.segment.id + "'.");
 
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SEGMENT_CLOSED, data.segment));
     };
@@ -1045,7 +1045,7 @@
     };
 
     // store translationChange event
-    var itp = function(e, data) { 
+    var itp = function(e, data) {
         var t;
         switch (data.type) {
             case "decode":
