@@ -94,6 +94,12 @@ $(function(){
     $('a#itp-indicator').text(newMode);
   };
   
+  function toggleOpt(optname) {
+    return function(e) {
+      getEditArea().trigger(optname);
+    }
+  }
+
   // Define key bindings here
   
   var keyBindings = {
@@ -109,6 +115,11 @@ $(function(){
        'Ctrl+del': clearTarget,
             'esc': UI.toggleItp,
          'return': saveDraft,
+   'Ctrl+Shift+1': toggleOpt('toggleDisplayCaretAlign'),
+   'Ctrl+Shift+2': toggleOpt('toggleDisplayMouseAlign'),
+   'Ctrl+Shift+3': toggleOpt('toggleDisplayConfidences'),
+   'Ctrl+Shift+4': toggleOpt('toggleHighlightValidated'),
+   'Ctrl+Shift+5': toggleOpt('toggleHighlightPrefix'),
   };
   
   for (var k in keyBindings) {
