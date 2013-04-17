@@ -301,9 +301,11 @@ var Memento = require("module.memento");
         var elem = $elem.get(0);
         if (!elem.getAttribute(["data-" + opt])) {
           elem.setAttribute(["data-" + opt], true);
+          return true;
         }
         else {
           elem.setAttribute(["data-" + opt], false);
+          return false;
         }
       }
 
@@ -349,8 +351,22 @@ var Memento = require("module.memento");
       }).bind('keydown' + nsClass, 'ctrl+shift+3', function(e){
         //e.stopPropagation();
         e.preventDefault();
-        toggleOpt($target, "opt-confidences");
+        var isOn = toggleOpt($target, "opt-confidences");
         toggleOpt($source, "opt-confidences");
+        if ($target.options.debug) {
+          if (isOn) { 
+            $('.editable-token', $target).each(function(){
+              var $this = $(this);
+              $this.attr('title', 'conf: ' + Math.round($this.data('confidence')*100));
+            });
+          }
+          else {
+            $('.editable-token', $target).each(function(){
+              var $this = $(this);
+              $this.attr('title', '');
+            });
+          }
+        }
       }).bind('keydown' + nsClass, 'ctrl+shift+4', function(e){
         //e.stopPropagation();
         e.preventDefault();

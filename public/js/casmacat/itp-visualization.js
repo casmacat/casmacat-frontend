@@ -307,8 +307,7 @@
           cssClass = "wordconf-bad";
         }
 
-        $span.attr('title', 'conf: ' + Math.round(conf*100))
-             .data('confidence', conf)
+        $span.data('confidence', conf)
              .removeClass("wordconf-ok wordconf-doubt wordconf-bad")
              .addClass(cssClass);
       }
