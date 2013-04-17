@@ -1,30 +1,30 @@
 <?
 
-//{"error": 
+//{"error":
 //  {
-//  "code": 400, 
-//  "message": "Required parameter: key", 
-//  "errors": 
+//  "code": 400,
+//  "message": "Required parameter: key",
+//  "errors":
 //      [
 //          {
-//          "locationType": "parameter", 
-//          "domain": "global", 
-//          "message": "Required parameter: key", 
-//          "reason": "required", 
+//          "locationType": "parameter",
+//          "domain": "global",
+//          "message": "Required parameter: key",
+//          "reason": "required",
 //          "location": "key"
-//          }, 
+//          },
 //          {
-//          "locationType": "parameter", 
-//          "domain": "global", 
-//          "message": "Required parameter: source", 
-//          "reason": "required", 
+//          "locationType": "parameter",
+//          "domain": "global",
+//          "message": "Required parameter: source",
+//          "reason": "required",
 //          "location": "source"
 //          }
 //      ]
 //  }
 //}
-//{"data": 
-//  {"translations": 
+//{"data":
+//  {"translations":
 //      [
 //          {"translatedText": "ciao a tutti"}
 //       ]
@@ -33,8 +33,6 @@
 
 //include_once INIT::$UTILS_ROOT . "/cat.class.php";
 include_once "engine.class.php";
-include_once ("utils/cat.class.php");
-
 
 class MT_ERROR {
 
@@ -134,7 +132,7 @@ class MT extends engine {
         $this->doQuery("get", $parameters);
         // echo "--- $this->raw_result --";
 
-	
+
         $this->result = new MT_RESULT($this->raw_result);
 	log::doLog("--------------------------------------------------------------------------------------");
 	//log::doLog($this->result->error);

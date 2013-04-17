@@ -9,12 +9,19 @@ if (!defined('LOG_FILENAME')) {
     define('LOG_FILENAME', INIT::$LOG_FILENAME);
 }
 
+if (!defined('DEBUG')) {
+    define('DEBUG', INIT::$DEBUG);
+}
+
 class Log {
 
     private static $filename;
 
-    public static function doLog() { 
-
+    public static function doLog() {
+        if (DEBUG === false) {
+          return;
+        }
+        
         $trace=debug_backtrace();
 
 

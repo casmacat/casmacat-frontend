@@ -59,6 +59,10 @@ var LogEventFactory = function(elementIdMode) {
     this.MOUSE_UP = "mouseUp";
     this.MOUSE_CLICK = "mouseClick";
     this.MOUSE_MOVE = "mouseMove";
+
+    this.BEFORE_CUT = "beforeCut";
+    this.BEFORE_COPY = "beforeCopy";
+    this.BEFORE_PASTE = "beforePaste";
 };
 
 /**
@@ -216,6 +220,11 @@ LogEventFactory.prototype.newLogEvent = function(type, element) {
             logEvent.ctrl = arguments[6];
             logEvent.alt = arguments[7];
             logEvent.cursorPosition = arguments[8];
+            break;
+
+        case this.BEFORE_CUT:
+        case this.BEFORE_COPY:
+        case this.BEFORE_PASTE:
             break;
 
         default:

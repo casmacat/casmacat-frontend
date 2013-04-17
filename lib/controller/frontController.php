@@ -272,7 +272,7 @@ abstract class viewcontroller extends controller {
     protected function makeTemplate($skeleton_file) {
         try {
             $this->template = new PHPTAL(INIT::$TEMPLATE_ROOT . "/$skeleton_file"); // create a new template object
-            $this->template->basepath  = INIT::$BASEURL;
+            $this->template->basepath  = INIT::$BASE_URL;
 	    $this->template->supportedBrowser=$this->supportedBrowser;
             $this->template->setOutputMode(PHPTAL::HTML5);
 

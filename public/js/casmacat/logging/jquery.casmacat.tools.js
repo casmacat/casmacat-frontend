@@ -346,12 +346,13 @@ catch (e) {
         }
         else {
 
-          try {
-            var selection = window.getSelection();  // TODO check cross browser compatibility of this
-            var r = selection.getRangeAt(0);
-          } catch(err) {
-            return false;
-          }
+            try {
+                var selection = window.getSelection();  // TODO check cross browser compatibility of this
+                var r = selection.getRangeAt(0);
+            }
+            catch(err) {
+                return false;
+            }
 
 //            debug("$.fn.getSelection: Text range dump:");
 //            debug(r);
@@ -470,7 +471,7 @@ catch (e) {
 
         var node = $(this).get(0);
 
-        debug("$.fn.setCursorPositionContenteditable: Running on node: '" + node.nodeName + "' for position: '" + pos + "'...");
+//        debug("$.fn.setCursorPositionContenteditable: Running on node: '" + node.nodeName + "' for position: '" + pos + "'...");
 
         var treeWalker = document.createTreeWalker(node,
             NodeFilter.SHOW_TEXT, function (node) {
@@ -781,7 +782,7 @@ catch (e) {
                 }
 
                 if (typeof charInfo.character === "undefined") {
-                    debug("$.fn.characterFromPoint: Couldn't determine character!");
+//                    debug("$.fn.characterFromPoint: Couldn't determine character!");
                     charInfo.character = "";
                     charInfo.offset = -1;
                 }
@@ -802,7 +803,7 @@ catch (e) {
                         charInfo.character = range.toString();
                     }
                     catch (eLeft) {
-                        debug("$.fn.characterFromPoint: Couldn't determine character!");
+//                        debug("$.fn.characterFromPoint: Couldn't determine character!");
                         charInfo.offset = -1;
                     }
                 }

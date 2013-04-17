@@ -3,7 +3,7 @@
 include_once INIT::$MODEL_ROOT . "/queries.php";
 include INIT::$UTILS_ROOT . "/mymemory_queries_temp.php";
 include INIT::$UTILS_ROOT . "/filetype.class.php";
-include INIT::$UTILS_ROOT . "/cat.class.php";
+include_once INIT::$UTILS_ROOT . "/cat.class.php";
 include INIT::$UTILS_ROOT . "/langs/languages.inc.php";
 
 /**
@@ -250,8 +250,8 @@ class catController extends viewcontroller {
     }
 
     public function setTemplateVars() {
-        $this->template->catserver = INIT::$CATSERVER;
-        $this->template->htrserver = INIT::$HTRSERVER;
+        $this->template->itpserver = INIT::$ITP_SERVER;
+        $this->template->htrserver = INIT::$HTR_SERVER;
         $this->template->jid = $this->jid;
         $this->template->password=$this->password;
         $this->template->cid = $this->cid;
@@ -264,18 +264,20 @@ class catController extends viewcontroller {
 		//$this->template->cucu=$this->open_segment;
 
         if (!empty($_GET["itp-server"])) {
-          $this->template->catserver = $_GET["itp-server"];
+          $this->template->itpserver = $_GET["itp-server"];
         }
 
-        // FIXME: This is a temp workaround for the pre-evaluation. We should homogenize stuff like this ASAP!
-        // We reuse the $page var to indicate the CAT client configuration, since $page is actually not being used in the prototype.
-        $delimiters = array(":", "@");
-        foreach ($delimiters as $delim) {
-          list($catsetting, $portnum) = explode($delim, $this->page);
-          if (intval($portnum) > 0) {
-            $server_url = $this->template->catserver;
-            if (strstr($server_url, "http://") === true) {
-              $server_url = str_replace("http://", "", $server_url);
+        if ($this->page) {  // use this only when a value has been given. And yes, we should homogenize stuff like this ASAP!!
+            // FIXME: This is a temp workaround for the pre-evaluation. We should homogenize stuff like this ASAP!
+            // We reuse the $page var to indicate the CAT client configuration, since $page is actually not being used in the prototype.
+            $delimiters = array(":", "@");
+            foreach ($delimiters as $delim) {
+              list($catsetting, $portnum) = explode($delim, $this->page);
+              if (intval($portnum) > 0) {
+                $server_url = $this->template->catserver;
+                if (strstr($server_url, "http://") === true) {
+                    $server_url = str_replace("http://", "", $server_url);
+                }
             }
             $path_parts = explode("/", $server_url);
             $server_data = $path_parts[0];
@@ -288,12 +290,15 @@ class catController extends viewcontroller {
               $server_data .= $delim.$portnum;
             }
             $path_parts[0] = $server_data;
-            $this->template->catserver = implode("/", $path_parts);
+            $this->template->itpserver = implode("/", $path_parts);
             break;
           }
+          $this->template->catsetting = $catsetting;
         }
-        $this->template->catsetting = $catsetting;
-        
+        else {
+            $this->template->catsetting = "";
+        }
+
 //		$this->template->stats=$stats[0]['TOTAL'];
 
 		$this->template->source_code=$this->source_code;
@@ -305,12 +310,14 @@ class catController extends viewcontroller {
         // do this always, otherwise an error will be thrown in PHPTAL
         // when accessing template variables
         log::doLog("CASMACAT: Setting additional template variables...");
-        $this->template->is_casmacat = INIT::$LOGGING;
         $this->template->debug = INIT::$DEBUG;
-        $this->template->itpEnabled = INIT::$ITPENABLED;
-        $this->template->etEnabled = INIT::$ETENABLED;
-        log::doLog("CASMACAT: itpEnabled: " . INIT::$ITPENABLED);
-        log::doLog("CASMACAT: etEnabled: " . INIT::$ETENABLED);
+        $this->template->itpEnabled = INIT::$ITP_ENABLED;
+        $this->template->penEnabled = INIT::$PEN_ENABLED;
+        $this->template->etEnabled = INIT::$ET_ENABLED;
+        $this->template->etType = INIT::$ET_TYPE;
+        $this->template->srEnabled = INIT::$SR_ENABLED;
+        log::doLog("CASMACAT: itpEnabled: " . INIT::$ITP_ENABLED);
+        log::doLog("CASMACAT: etEnabled: " . INIT::$ET_ENABLED);
         if (INIT::$LOGGING) {
             log::doLog("CASMACAT: Correcting 'last_opened_segment'...");
             if ($this->casIsReplaying) {

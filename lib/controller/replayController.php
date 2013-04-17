@@ -3,7 +3,7 @@
 include_once INIT::$MODEL_ROOT . "/queries.php";
 include INIT::$UTILS_ROOT . "/mymemory_queries_temp.php";
 include INIT::$UTILS_ROOT . "/filetype.class.php";
-include INIT::$UTILS_ROOT . "/cat.class.php";
+include_once INIT::$UTILS_ROOT . "/cat.class.php";
 include INIT::$UTILS_ROOT . "/langs/languages.inc.php";
 include_once INIT::$MODEL_ROOT . "/casQueries.php";
 include_once INIT::$MODEL_ROOT . "/LogEvent.class.php";
@@ -44,7 +44,7 @@ class replayController extends viewcontroller {
             $this->vsSrc = "http://";
         }
         $this->vsSrc = $this->vsSrc . $_SERVER["SERVER_NAME"] . ":" . $_SERVER["SERVER_PORT"];
-        $this->vsSrc = $this->vsSrc . INIT::$BASEURL . "index.php?action=cat&jid=$this->jobId&password=$this->password&page=&replay=true";
+        $this->vsSrc = $this->vsSrc . INIT::$BASE_URL . "index.php?action=cat&jid=$this->jobId&password=$this->password&page=&replay=true";
     }
 
     public function doAction() {
@@ -79,8 +79,8 @@ class replayController extends viewcontroller {
         $this->template->vsHeight = $this->vsHeight;
         $this->template->startTime = $this->startTime;
         $this->template->endTime = $this->endTime;
-        $this->template->basepath = INIT::$BASEURL;
-        $this->template->itpEnabled = INIT::$ITPENABLED;
+        $this->template->basepath = INIT::$BASE_URL;
+        $this->template->itpEnabled = INIT::$ITP_ENABLED;
     }
 }
 ?>

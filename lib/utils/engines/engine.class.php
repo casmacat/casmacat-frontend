@@ -17,13 +17,14 @@ function getEngineData($id) {
     $row = mysql_fetch_assoc($res);
     return $row;
 }
- * 
- * 
+ *
+ *
  */
 
 //include "/home/matecat/cattool/lib/model/queries.php";
 //require_once '../../../inc/config.inc.php';
-include_once ("utils/cat.class.php");
+include_once INIT::$UTILS_ROOT . "/cat.class.php";
+//include_once (dirname(dirname(__FILE__)) . "/cat.class.php");
 abstract class Engine {
 
     protected $id = "";
@@ -73,10 +74,10 @@ abstract class Engine {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 //        curl_setopt($ch, CURLOPT_VERBOSE, true);
         curl_setopt($ch, CURLOPT_HTTPGET, true);
-	
-        
+
+
         // Scarica l'URL e lo passa al browser
-        
+
         $output = curl_exec($ch);
         $info = curl_getinfo($ch);
         // Chiude la risorsa curl
@@ -84,7 +85,7 @@ abstract class Engine {
         /*if ($output === false || $info != 200) {
             $output = null;
         }*/
-        
+
         //print_r ($info);
         //echo "$output\n\n";
         return $output;
@@ -98,7 +99,7 @@ abstract class Engine {
 
         $this->buildQuery($function, $parameters);
         $res=$this->curl($this->url);
-    
+
         $this->raw_result = json_decode($res,true);
 	//log::doLog("raw result");
 	//log::doLog($this->raw_result);
@@ -117,7 +118,7 @@ abstract class Engine {
         }
 	log::doLog("engine input parameters");
 	log::doLog($parameters);
-        $parameters_query_string = http_build_query($parameters);        
+        $parameters_query_string = http_build_query($parameters);
         $this->url.=$parameters_query_string;
         //echo " eurl $this->url";  exit;
 	log::doLog("\n engine url $this->url\n");
@@ -150,7 +151,7 @@ abstract class Engine {
     public function getPenalty() {
         return $this->default_penalty;
     }
-    
+
     public function getDescription() {
         return $this->description;
     }

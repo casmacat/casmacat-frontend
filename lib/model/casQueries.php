@@ -141,6 +141,11 @@ function resetDocument($jobId, $fileId) {
                 deleteEventRow($logEvent->id, "mouse_event");
                 break;
 
+            case LogEvent::BEFORE_CUT:
+            case LogEvent::BEFORE_COPY:
+            case LogEvent::BEFORE_PASTE:
+                break;
+
             default:
                 log::doLog("CASMACAT: resetDocument(): Unknown log event type: '$logEvent->type', header id: '$logEvent->id'");
                 throw new Exception("CASMACAT: resetDocument(): Unknown log event type: '$logEvent->type', header id: '$logEvent->id'");
@@ -320,6 +325,11 @@ log::doLog($endOffset);
                 $logEvent->mouseData($eventRow);
                 break;
 
+            case LogEvent::BEFORE_CUT:
+            case LogEvent::BEFORE_COPY:
+            case LogEvent::BEFORE_PASTE:
+                break;
+
             default:
                 log::doLog("CASMACAT: fetchLogChunk(): Unknown log event type: '$logEvent->type', header id: '$logEvent->id'");
                 throw new Exception("CASMACAT: fetchLogChunk(): Unknown log event type: '$logEvent->type', header id: '$logEvent->id'");
@@ -333,7 +343,7 @@ log::doLog($endOffset);
     if (empty($logListChunk)){
         return false;
     }
-    else{    
+    else{
         return $logListChunk;
     }
 }
@@ -728,7 +738,7 @@ function getMoreSegmentsWithoutTranslation($jid, $password, $step = 50, $ref_seg
                 p.id_customer as cid, j.id_translator as tid,
                 p.name as pname, p.create_date , fj.id_file, fj.id_segment_start, fj.id_segment_end,
                 f.filename, f.mime_type, s.id as sid, s.segment, s.raw_word_count, s.internal_id,
-                'NEW' as status, IF(st.time_to_edit is NULL,0,st.time_to_edit) as time_to_edit, s.xliff_ext_prec_tags,s.xliff_ext_succ_tags
+                'NEW' as status, '' as translation, IF(st.time_to_edit is NULL,0,st.time_to_edit) as time_to_edit, s.xliff_ext_prec_tags,s.xliff_ext_succ_tags
 
                 from jobs j
                 inner join projects p on p.id=j.id_project

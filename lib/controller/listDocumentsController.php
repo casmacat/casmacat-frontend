@@ -29,7 +29,7 @@
         }
         
         public function setTemplateVars() {
-            $this->template->basepath = INIT::$BASEURL;
+            $this->template->basepath = INIT::$BASE_URL;
         }
     }
 ?>

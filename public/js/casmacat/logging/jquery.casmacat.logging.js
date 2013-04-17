@@ -59,6 +59,8 @@
                                         //          id is a parent of E then the path from this parent to E is stored as an
                                         //          relative xPath
             logEyeTracker: false,       // should eye tracking be logged?
+            etDiscardInvalid: true,     // discard gaze samples and fixations outside the tracked area (inner window area)
+            etType: 0,                  // Eye Tracker to use: 0 = Mouse Emulator, 100 = EyeLink 1000, 200 = Tobii 120
             logKeys: true,
             logMouse: true,
             logMouseMove: false,        // should mouse movements be logged?
@@ -128,19 +130,24 @@
     // always 1...
     $.fn.logging = function ( optionsOrMethod ) {
 
+        var realArgs = arguments;   // TODO otherwise it's not possible to pass arguments to functions (e.g. stop());
+
         return this.each(function () {
 
             // per element
             if (!$.data(this, "plugin_" + pluginName)) {
                 $.data(this, "plugin_" + pluginName, new LogModule(this, optionsOrMethod));
-                return null;    // otherwise an eror occurs: "Error: Method '[object Object]' does not exist on
-                                // 'logModule', thrown be the code below...
+                return null;    // otherwise an error occurs: "Error: Method '[object Object]' does not exist on
+                                // 'logModule', thrown by the code below...
             }
 
             if (methods[optionsOrMethod]) {
 //                debug(pluginName + ": Calling function: optionsOrMethod: '" + optionsOrMethod + "', arguments: '" + Array.prototype.slice.call(arguments, 1) + "'.");
-                return methods[optionsOrMethod].apply(this, Array.prototype.slice.call(arguments, 1));
+                return methods[optionsOrMethod].apply(this, Array.prototype.slice.call(realArgs, 1));
             }
+//            else if ( typeof optionsOrMethod === 'object' || ! optionsOrMethod ) {
+//                return methods.init.apply( this, arguments );
+//            }
             else {
                 $.error("Method '" + optionsOrMethod + "' does not exist on '" + pluginName + "'"); // TODO what is the
                                                                                                     // functionality of
@@ -185,7 +192,7 @@
 //            debug(pluginName + ": Pausing...");
 //        },
 
-        stop: function() {
+        stop: function(force) {
             debug(pluginName + ": Stopping...");
             if (!isLogging) {
                 alert("Log has not been started!");
@@ -194,16 +201,18 @@
             else {
 //                $.fn.showOverlay();
 
-                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.STOP_SESSION, window));
+                if (!force) {
+                    storeLogEvent(logEventFactory.newLogEvent(logEventFactory.STOP_SESSION, window));
 
-                if (logList.length >= 0) {
-                    debug(pluginName + ": Upload remaining 'logList'...");
-                    uploadLogChunk(false);
-                }
+                    if (logList.length >= 0) {
+                        debug(pluginName + ": Uploading remaining 'logList'...");
+                        uploadLogChunk(false);
+                    }
 
-                // TODO check for completeness/correctness, also see: "http://docs.jquery.com/Plugins/Authoring"
-                if (chunksUploading > 0) {
-                    // TODO wait for uploads to complete
+                    // TODO check for completeness/correctness, also see: "http://docs.jquery.com/Plugins/Authoring"
+                    if (chunksUploading > 0) {
+                        // TODO wait for uploads to complete
+                    }
                 }
                 unbindFromEvents();
                 logList = [];
@@ -265,7 +274,7 @@
             return;
         }
 
-        debug(pluginName + ": Calibrating 'window' position...");
+//        debug(pluginName + ": Calibrating 'window' position...");
         if (typeof window.mozInnerScreenX !== "undefined" && typeof window.mozInnerScreenY !== "undefined") {
             // TODO "The Components object is deprecated. It will soon be removed."
             var queryInterface = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor);
@@ -281,7 +290,7 @@
             $.fn.showOverlay("<br><br>Please calibrate the 'window' position by moving the mouse over this area...", "windowCalibrator");
 
             $(window).on("mousemove." + pluginName + "_temp", function(e) {
-                debug(pluginName + ": Mouse moved, calculating 'window' position...");
+//                debug(pluginName + ": Mouse moved, calculating 'window' position...");
                 w.x = e.screenX - e.clientX;
                 w.y = e.screenY - e.clientY;
                 w.positionValid = true;
@@ -320,8 +329,15 @@
                 $.fn.attachToETPluginEvent(plugin, "gaze", gaze);
                 $.fn.attachToETPluginEvent(plugin, "fixation", fixation);
 
-                plugin.setDeviceAndConnect(0);
-                plugin.calibrate(0);
+                plugin.setDeviceAndConnect(settings.etType);
+                while (!plugin.calibrate()) {
+                    var answer = confirm("Calibration failed, trying again?");
+                    if (!answer) {
+                        alert("Calibration failed, logging aborted!");
+                        $.error("Calibration failed, logging aborted!");
+//                        return;
+                    }
+                }
                 plugin.start();
             }
             else {
@@ -357,9 +373,10 @@
         $(settings.logRootElement).find(".editarea").on("cut." + pluginName, beforeCut);
 
         // attach to copy
-        $(settings.logRootElement).find("input:text").on("copy." + pluginName, beforeCopy);
+        /*$(settings.logRootElement).find("input:text").on("copy." + pluginName, beforeCopy);
         $(settings.logRootElement).find("textarea").on("copy." + pluginName, beforeCopy);
-        $(settings.logRootElement).find(".editarea").on("copy", beforeCopy);
+        $(settings.logRootElement).find(".editarea").on("copy", beforeCopy);*/
+        $(settings.logRootElement).on("copy", beforeCopy);
 
         // attach to paste
         $(settings.logRootElement).find("input:text").on("paste." + pluginName, beforePaste);
@@ -509,10 +526,10 @@
         if (settings.logEyeTracker) {
             var plugin = $.fn.getETPlugin();
             if (plugin.valid) {
+                plugin.stop();
                 $.fn.detachFromETPluginEvent(plugin, "state", state);
                 $.fn.detachFromETPluginEvent(plugin, "gaze", gaze);
                 $.fn.detachFromETPluginEvent(plugin, "fixation", fixation);
-                plugin.stop();
             }
         }
 
@@ -551,6 +568,15 @@
                                     // (where the '1' is the value of maxChunkSize - 1)
             logList = []; // clear the logList
         }
+        else if (logList.length === parseInt(settings.maxChunkSize * 0.25)) {
+            debug(pluginName + ": 'logList' fill level 25%: '" + logList.length + "'.");
+        }
+        else if (logList.length === parseInt(settings.maxChunkSize * 0.50)) {
+            debug(pluginName + ": 'logList' fill level 50%: '" + logList.length + "'.");
+        }
+        else if (logList.length === parseInt(settings.maxChunkSize * 0.75)) {
+            debug(pluginName + ": 'logList' fill level 75%: '" + logList.length + "'.");
+        }
 
         logList.push(logEvent);
 //        debug(pluginName + ": 'logList' now contains '" + logList.length + "' events.");
@@ -564,8 +590,8 @@
 
 //        debug(pluginName + ": 'logList' refers to: jobId: '" + jobId + "', settings.fileId: '" + settings.jobId + "'.");
 
-        debug(pluginName + ": 'logList' content dump:");
-        debug(logList);
+//        debug(pluginName + ": 'logList' content dump:");
+//        debug(logList);
 
         //try {
         var data = {
@@ -590,6 +616,7 @@
                 else if (result.errors) {    // TODO is the error format really like this? with the index access
                                             // 'result.errors[0]'?
                     alert("(Server) Error uploading 'logList': '" + result.errors[0].message + "'");
+                    alert("(Server) Error uploading 'logList': '" + result.errors[0].message + "'");
                     $.error("(Server) Error uploading 'logList': '" + result.errors[0].message + "'");
                 }
             },
@@ -597,6 +624,8 @@
                 debug(request);
                 debug(status);
                 debug(error);
+                debug(pluginName + ": 'logList' content dump:");
+                debug(data.logList);
                 alert("Error uploading 'logList': '" + error + "'");
                 $.error("Error uploading 'logList': '" + error + "'");
             }
@@ -632,7 +661,7 @@
     var logSelectionEvent = function(element) {
         var range = $(element).getSelection();
         if (range.selectedText != "") {
-            debug(pluginName + ": Logging selection...");
+//            debug(pluginName + ": Logging selection...");
             storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SELECTION, element, range));
         }
         else {
@@ -659,7 +688,7 @@
         if (target !== null) {
             pos = $(target).getCursorPositionContenteditable();
         }
-        debug(pluginName + ": Mouse event: type: '" + type + "', cursor position: pos: '" + pos + "'.");
+//        debug(pluginName + ": Mouse event: type: '" + type + "', cursor position: pos: '" + pos + "'.");
 
         var altKey = false;
         if (e.altKey) {
@@ -695,7 +724,7 @@
     };
 
     var mouseDown = function(e) {
-        debug(pluginName + ": Mouse down.");
+//        debug(pluginName + ": Mouse down.");
 
         if (e.ctrlKey) {  // do not allow CTRL for selecting text, this prevents multiple selections in Firefox
                         // TODO is it possibly to disable that by another way, like document.execCommand()?
@@ -765,7 +794,7 @@
 
         if (settings.logKeys) {
             var pos = $(e.target).getCursorPositionContenteditable();
-            debug(pluginName + ": Key down, cursor position: pos: '" + pos + "'.");
+//            debug(pluginName + ": Key down, cursor position: pos: '" + pos + "'.");
 
             var altKey = false;
             if (e.altKey) {
@@ -797,7 +826,7 @@
 
         if (settings.logKeys) {
             var pos = $(e.target).getCursorPositionContenteditable();
-            debug(pluginName + ": Key up, cursor position: pos: '" + pos + "'.");
+//            debug(pluginName + ": Key up, cursor position: pos: '" + pos + "'.");
 
             var altKey = false;
             if (e.altKey) {
@@ -819,11 +848,14 @@
         else {
             contentBeforeCut = $(e.target).val();
         }
+
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.BEFORE_CUT, e.target));
     };
 
     var beforeCopy = function(e) {  // TODO how about CTRL+X or CTRL+V?
 //        debug(pluginName + ": Copy.");
-        // TODO get selected/copied text
+
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.BEFORE_COPY, e.target));
     };
 
     var pasted = false;
@@ -839,6 +871,8 @@
         else {
             contentBeforePaste = $(e.target).val();
         }
+
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.BEFORE_PASTE, e.target));
     };
 
     // called on 'input'
@@ -867,11 +901,11 @@
             if (getFieldContents(e.target) != $(e.target).text()) {
                 changes = $.fn.getChanges( getFieldContents(e.target), $(e.target).text() );
 
-                debug(pluginName + ": Text changed: "
-                    + "\n\told text: '" + getFieldContents(e.target) + "', "
-                    + "\n\tnew text: '" + $(e.target).text() + "', "
-                    + "\n\tdiff: (cursorPosition: '" + changes.cursorPosition + "', deleted: '" + changes.deleted
-                        + "', inserted: '" + changes.inserted + "').");
+//                debug(pluginName + ": Text changed: "
+//                    + "\n\told text: '" + getFieldContents(e.target) + "', "
+//                    + "\n\tnew text: '" + $(e.target).text() + "', "
+//                    + "\n\tdiff: (cursorPosition: '" + changes.cursorPosition + "', deleted: '" + changes.deleted
+//                        + "', inserted: '" + changes.inserted + "').");
 
                 setFieldContents(e.target, $(e.target).text());
             }
@@ -909,7 +943,7 @@
             }
         }
         else {
-            debug(pluginName + ": Text changed: No changes detected.");
+//            debug(pluginName + ": Text changed: No changes detected.");
         }
     };
 
@@ -980,13 +1014,13 @@
     };
 
     var segmentOpened = function(e, data) {
-        debug(pluginName + ": Segment opened.");
+        debug(pluginName + ": Segment opened: '" + data.segment.id + "'.");
 
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SEGMENT_OPENED, data.segment));
     };
 
     var segmentClosed = function(e, data) {
-        debug(pluginName + ": Segment closed.");
+        debug(pluginName + ": Segment closed: '" + data.segment.id + "'.");
 
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SEGMENT_CLOSED, data.segment));
     };
@@ -1027,7 +1061,7 @@
     };
 
     // store translationChange event
-    var itp = function(e, data) { alert(data);
+    var itp = function(e, data) {
         var t;
         switch (data.type) {
             case "decode":
@@ -1061,16 +1095,16 @@
                 break;
         }
 
-        debug(pluginName + ": ITP event: '" + t + "'.");
+//        debug(pluginName + ": ITP event: '" + t + "'.");
     };
 
     var alignmentShownByMouse = function(e, data) {
-//      debug(pluginName + ": Alignment shown by mouse.");
-      storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SHOW_ALIGNMENT_BY_MOUSE, data));
+        debug(pluginName + ": Alignment shown by mouse.");
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SHOW_ALIGNMENT_BY_MOUSE, data.target));
     };
 
     var alignmentHiddenByMouse = function(e, data) {
-//      debug(pluginName + ": Alignment hidden by mouse.");
+        debug(pluginName + ": Alignment hidden by mouse.");
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HIDE_ALIGNMENT_BY_MOUSE, data));
     };
 
@@ -1085,50 +1119,55 @@
     };
 
     var state = function(s) {
-        debug(pluginName + ": Eye tracker state changed.");
+        debug(pluginName + ": Eye tracker state changed to: '" + s + "'.");
 
         // TODO error handling
     };
 
     var gaze = function(trackerTime, lx, ly, rx, ry, leftDilation, rightDilation) {
-        debug(pluginName + ": Gaze received.");
+//        debug(pluginName + ": Gaze received.");
 
         if (w.positionValid) {
 
             // make left eye coordinates relative to window
-            var lrx = lx - w.x;
-            var lry = ly - w.y;
-            debug(pluginName + ": Coordinates: lx: '" + lx + "', ly: '" + ly + "', lrx: '" + lrx + "', lry: '" + lry + "'.");
+            var lrx = Math.floor(lx - w.x);
+            var lry = Math.floor(ly - w.y);
+//            debug(pluginName + ": Coordinates: lx: '" + lx + "', ly: '" + ly + "', lrx: '" + lrx + "', lry: '" + lry + "'.");
 
             // make right eye coordinates relative to window
             var rrx = rx - w.x;
             var rry = ry - w.y;
-            debug(pluginName + ": Coordinates: rx: '" + rx + "', ry: '" + ry + "', rrx: '" + rrx + "', rry: '" + rry + "'.");
+//            debug(pluginName + ": Coordinates: rx: '" + rx + "', ry: '" + ry + "', rrx: '" + rrx + "', rry: '" + rry + "'.");
 
-            if (lx < w.x || ly < w.y || lrx > w.width || lry > w.height) {
-                debug(pluginName + ": Left eye coordinates are outside of tracked area, gaze discarded!");
-                return;
-            }
-            else if (rx < w.x || ry < w.y || rrx > w.width || rry > w.height) {
-                debug(pluginName + ": Right eye coordinates are outside of tracked area, gaze discarded!");
-                return;
+            if (settings.etDiscardInvalid) {
+                if ( (lx < w.x || ly < w.y || lrx > w.width || lry > w.height) && (rx < w.x || ry < w.y || rrx > w.width || rry > w.height) ) {
+                    debug(pluginName + ": Both eye's coordinates are outside of tracked area, gaze discarded!");
+                    return;
+                }
             }
 
             // put it all together
             var lElement = document.elementFromPoint(lrx, lry);
-            var lCharInfo = $.fn.characterFromPoint(lrx, lry);
             var rElement = document.elementFromPoint(rrx, rry);
-            var rCharInfo = $.fn.characterFromPoint(rrx, rry);
             var element = lElement;
-            if (lElement !== rElement) {
+            if (element === null && rElement === null) {
+//                debug(pluginName + ": 'element' is null, adjusting to 'window'...");
+                element = window;
+            }
+            else if (element === null && rElement !== null) {
+                element = " " + rElement;
+            }
+            else if (element !== rElement && rElement !== null) {
                 element += " " + rElement;
             }
+            var lCharInfo = $.fn.characterFromPoint(lrx, lry);
+            var rCharInfo = $.fn.characterFromPoint(rrx, rry);
 
-            debug(pluginName + ": element: '" + element + "'");
-            debug(pluginName + ": left char offset: '" + lCharInfo.offset + "', left char: '" + lCharInfo.character + "'");
-            debug(pluginName + ": right char offset: '" + rCharInfo.offset + "', right char: '" + rCharInfo.character + "'");
+//            debug(pluginName + ": element: '" + element + "'");
+//            debug(pluginName + ": left char offset: '" + lCharInfo.offset + "', left char: '" + lCharInfo.character + "'.");
+//            debug(pluginName + ": right char offset: '" + rCharInfo.offset + "', right char: '" + rCharInfo.character + "'.");
 
-            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.GAZE, trackerTime, lrx, lry, rrx, rry,
+            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.GAZE, element, trackerTime, lrx, lry, rrx, rry,
                 leftDilation, rightDilation, lCharInfo.character, lCharInfo.offset, rCharInfo.character, rCharInfo.offset));
         }
         else {
@@ -1137,23 +1176,29 @@
     };
 
     var fixation = function(trackerTime, x, y, duration) {
-        debug(pluginName + ": Fixation received.");
+//        debug(pluginName + ": Fixation received.");
 
         if (w.positionValid) {
             // make coordinates relative to window
-            var rx = x - w.x;
-            var ry = y - w.y;
-            debug(pluginName + ": Coordinates: x: '" + x + "', y: '" + y + "', rx: '" + rx + "', ry: '" + ry + "'.");
+            var rx = Math.floor(x - w.x);
+            var ry = Math.floor(y - w.y);
+//            debug(pluginName + ": Coordinates: x: '" + x + "', y: '" + y + "', rx: '" + rx + "', ry: '" + ry + "'.");
 
-            if (x < w.x || y < w.y || rx > w.width || ry > w.height) {
-                debug(pluginName + ": Coordinates are outside of tracked area, fixation discarded!");
-                return;
+            if (settings.etDiscardInvalid) {
+                if (x < w.x || y < w.y || rx > w.width || ry > w.height) {
+                    debug(pluginName + ": Coordinates are outside of tracked area, fixation discarded!");
+                    return;
+                }
             }
 
             var element = document.elementFromPoint(rx, ry);
+            if (element === null) {
+//                debug(pluginName + ": 'element' is null, adjusting to 'window'...");
+                element = window;
+            }
             var charInfo = $.fn.characterFromPoint(rx, ry);
 
-            debug(pluginName + ": char offset: '" + charInfo.offset + "', char: '" + charInfo.character + "'");
+//            debug(pluginName + ": char offset: '" + charInfo.offset + "', char: '" + charInfo.character + "'.");
             storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FIXATION, element, trackerTime, rx, ry, duration,
                 charInfo.character, charInfo.offset));
         }

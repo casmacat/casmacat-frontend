@@ -322,6 +322,7 @@
             if (firstChunkLoaded) {
                 updateUIStatus("Ready.");
             }
+//            $.fn.hideOverlay();
         },
 
         previousEvent: function() {
@@ -824,20 +825,25 @@ debug(event);
                 vsWindow.$("#" + event.elementId).editableItp('trigger', "getTokensResult", {errors: [], data: itpData});
                 break;
             case logEventFactory.SHOW_ALIGNMENT_BY_MOUSE:
-                vsWindow.$("#" + event.elementId).trigger('mouseenter');
+                /*vsWindow.$("#vMousePointer").css("left", event.x + "px");
+                vsWindow.$("#vMousePointer").css("top", event.y + "px");
+                vsWindow.$("#vMousePointer").css("visibility", "visible");
+                vsWindow.$("#" + event.elementId).trigger('mouseenter');*/
                 break;
             case logEventFactory.HIDE_ALIGNMENT_BY_MOUSE:
-                vsWindow.$("#" + event.elementId).trigger('mouseleave');
+                /*vsWindow.$("#vMousePointer").css("left", event.x + "px");
+                vsWindow.$("#vMousePointer").css("visibility", "hidden");
+                vsWindow.$("#" + event.elementId).trigger('mouseleave');*/
                 break;
             case logEventFactory.SHOW_ALIGNMENT_BY_KEY:
 //debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
 //debug(event);
-                itpData = JSON.parse(event.data);
-                vsWindow.$("#" + event.elementId).trigger('caretenter', itpData);
+                /*itpData = JSON.parse(event.data);
+                vsWindow.$("#" + event.elementId).trigger('caretenter', itpData);*/
                 break;
             case logEventFactory.HIDE_ALIGNMENT_BY_KEY:
-                itpData = JSON.parse(event.data);
-                vsWindow.$("#" + event.elementId).trigger('caretleave', itpData);
+                /*itpData = JSON.parse(event.data);
+                vsWindow.$("#" + event.elementId).trigger('caretleave', itpData);*/
                 break;
 
             case logEventFactory.KEY_DOWN:
@@ -869,6 +875,11 @@ debug(event);
                 // TODO this is still buggy (position not 100% valid) and a performance issue, should not be used
                 vsWindow.$("#vMousePointer").css("left", event.x + "px");
                 vsWindow.$("#vMousePointer").css("top", event.y + "px");
+                break;
+
+            case logEventFactory.BEFORE_COPY:
+            case logEventFactory.BEFORE_CUT:
+            case logEventFactory.BEFORE_PASTE:
                 break;
 
             default:
