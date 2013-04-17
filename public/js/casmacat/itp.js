@@ -304,6 +304,8 @@ $(function(){
         $('#sr-replace').hide();
       }
     }
+  } else if (config.srEnabled) {
+    setupSearchReplace();
   }
 
   $('#sr-rules').hide(); // In any case, this must be hidden beforehand
@@ -321,7 +323,7 @@ $(function(){
 
     itpServer.on('applyReplacementRulesResult', function(data, err) {
     });
-
+    
     itpServer.on('getReplacementRulesResult', function(data, err) {
       $('#sr-rules').empty();
       for (var i = 0; i < data.rules.length; ++i) {
