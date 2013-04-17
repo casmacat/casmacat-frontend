@@ -624,6 +624,8 @@
                 debug(request);
                 debug(status);
                 debug(error);
+                debug(pluginName + ": 'logList' content dump:");
+                debug(data.logList);
                 alert("Error uploading 'logList': '" + error + "'");
                 $.error("Error uploading 'logList': '" + error + "'");
             }
@@ -1128,8 +1130,8 @@
         if (w.positionValid) {
 
             // make left eye coordinates relative to window
-            var lrx = lx - w.x;
-            var lry = ly - w.y;
+            var lrx = Math.floor(lx - w.x);
+            var lry = Math.floor(ly - w.y);
 //            debug(pluginName + ": Coordinates: lx: '" + lx + "', ly: '" + ly + "', lrx: '" + lrx + "', lry: '" + lry + "'.");
 
             // make right eye coordinates relative to window
@@ -1178,8 +1180,8 @@
 
         if (w.positionValid) {
             // make coordinates relative to window
-            var rx = x - w.x;
-            var ry = y - w.y;
+            var rx = Math.floor(x - w.x);
+            var ry = Math.floor(y - w.y);
 //            debug(pluginName + ": Coordinates: x: '" + x + "', y: '" + y + "', rx: '" + rx + "', ry: '" + ry + "'.");
 
             if (settings.etDiscardInvalid) {
