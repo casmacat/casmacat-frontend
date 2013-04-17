@@ -52,6 +52,23 @@
       }
     }
 
+    // requests the server for new alignment and confidence info
+    self.updateOptional = function(match) {
+      var validated_words = $('.editable-token', $target).map(function() { return (this.dataset.validated)?true:false; }).get();
+      var query = {
+        source: $source().editable('getText'),
+        target: match.target,
+        validated_words: validated_words, 
+      }
+      var conf = cfg();
+      if (conf.config.useAlignments) {
+        conf.itpServer.getAlignments(query);
+      }
+      if (conf.config.useConfidences) {
+        conf.itpServer.getConfidences(query);
+      }
+    }
+
     self.updateSuggestions = function(data) {
       var d = $target.editable('getCaretXY')
         , targetPrefix = $target.editable('getText').substr(0, d.pos)
@@ -78,17 +95,7 @@
           }
         
           // requests the server for new alignment and confidence info
-          var query = {
-            source: $source().editable('getText'),
-            target: match.target,
-          }
-          var conf = cfg();
-          if (conf.config.useAlignments) {
-            conf.itpServer.getAlignments(query);
-          }
-          if (conf.config.useConfidences) {
-            conf.itpServer.getConfidences(query);
-          }
+          self.updateOptional(match);
           break;
         }
       }
@@ -111,19 +118,7 @@
       self.updateValidated(data.caretPos);
 
       // requests the server for new alignment and confidence info
-      var query = {
-        source: source,
-        target: target,
-        //validated_words: []
-      }
-
-      var conf = cfg();
-      if (conf.config.useAlignments) {
-        conf.itpServer.getAlignments(query);
-      }
-      if (conf.config.useConfidences) {
-        conf.itpServer.getConfidences(query);
-      }
+      self.updateOptional(bestResult);
     }
 
 
