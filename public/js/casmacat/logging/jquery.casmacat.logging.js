@@ -331,7 +331,12 @@
 
                 plugin.setDeviceAndConnect(settings.etType);
                 while (!plugin.calibrate()) {
-                    debug(pluginName + ": Calibration failed, trying again...");
+                    var answer = confirm("Calibration failed, trying again?");
+                    if (!answer) {
+                        alert("Calibration failed, logging aborted!");
+                        $.error("Calibration failed, logging aborted!");
+//                        return;
+                    }
                 }
                 plugin.start();
             }
@@ -562,6 +567,15 @@
 //            logList.length = 0;   // clear the logList, this leads to '1x undefined' when debug(logList) is called
                                     // (where the '1' is the value of maxChunkSize - 1)
             logList = []; // clear the logList
+        }
+        else if (logList.length === parseInt(settings.maxChunkSize * 0.25)) {
+            debug(pluginName + ": 'logList' fill level 25%: '" + logList.length + "'.");
+        }
+        else if (logList.length === parseInt(settings.maxChunkSize * 0.50)) {
+            debug(pluginName + ": 'logList' fill level 50%: '" + logList.length + "'.");
+        }
+        else if (logList.length === parseInt(settings.maxChunkSize * 0.75)) {
+            debug(pluginName + ": 'logList' fill level 75%: '" + logList.length + "'.");
         }
 
         logList.push(logEvent);
