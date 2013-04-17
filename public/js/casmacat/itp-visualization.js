@@ -56,16 +56,26 @@
     self.updateOptional = function(match) {
       var validated_words = $('.editable-token', $target).map(function() { return (this.dataset.validated)?true:false; }).get();
       var query = {
-        source: $source().editable('getText'),
+        source: match.source,
         target: match.target,
         validated_words: validated_words, 
       }
-      var conf = cfg();
+      var conf = cfg(), itp = conf.itpServer;
       if (conf.config.useAlignments) {
-        conf.itpServer.getAlignments(query);
+        if (match.alignments) {
+          itp.trigger('getAlignmentsResult', {data: match, errors: []});
+        }
+        else {
+          itp.getAlignments(query);
+        }
       }
       if (conf.config.useConfidences) {
-        conf.itpServer.getConfidences(query);
+        if (match.confidences) {
+          itp.trigger('getConfidencesResult', {data: match, errors: []});
+        }
+        else {
+          itp.getConfidences(query);
+        }
       }
     }
 
@@ -95,7 +105,8 @@
           }
         
           // requests the server for new alignment and confidence info
-          self.updateOptional(match);
+          var nmatch = $.extend({source: data.source, sourceSegmentation: data.sourceSegmentation}, match);
+          self.updateOptional(nmatch);
           break;
         }
       }
