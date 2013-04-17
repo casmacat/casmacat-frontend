@@ -104,9 +104,10 @@ class INIT {
     
     private static function getConfigBool($name, $namespace = "casmacat", $default_value = false) {
       global $_INI_FILE;
-      return isset($_GET[$name]) ? 
-              (bool)$_GET[$name] : isset($_INI_FILE[$namespace][$name]) ? 
-               (bool)$_INI_FILE[$namespace][$name] : $default_value;
+      $retval = $default_value;
+      if (isset($_GET[$name])) $retval = $_GET[$name];
+      else if (isset($_INI_FILE[$namespace][$name])) $retval = $_INI_FILE[$namespace][$name];
+      return (bool)$retval;
     }
 
 }
