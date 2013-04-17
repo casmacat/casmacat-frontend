@@ -160,6 +160,7 @@ $(function(){
     .editableItp({
       sourceSelector: "#segment-" + sid + "-source",
       itpServerUrl:   config.itpserver,
+      debug:          config.debug,
       replay:         config.replay
     })
     .on('decode.matecat', function (ev, data, err) {
