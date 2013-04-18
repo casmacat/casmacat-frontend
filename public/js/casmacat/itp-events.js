@@ -328,15 +328,6 @@ var Memento = require("module.memento");
         tabKeyHandler(e, 'bck');
       });
 
-      function toggleOpt($elem, opt, value) {
-        var elem = $elem.get(0);
-        if (typeof value === "undefined") {
-          value = (elem.getAttribute("data-" + opt) !== "true");
-        }
-        elem.setAttribute("data-" + opt, value);
-        return value
-      }
-
       function updateAlignments() {
         var conf = userCfg();
         if (conf.useAlignments) {
@@ -355,7 +346,7 @@ var Memento = require("module.memento");
       function updateConfidences() {
         var conf = userCfg();
         if (conf.useAlignments) {
-          if (conf.displayCaretAlign) {
+          if (conf.displayConfidences) {
             var validated_words = $('.editable-token', $target).map(function() { return (this.dataset.validated)?true:false; }).get();
             var query = {
               source: $source.editable('getText'),
@@ -367,22 +358,35 @@ var Memento = require("module.memento");
         }
       }
 
+      function shouldUpdate($elem, opt, value) {
+        if (typeof value === "undefined") value = true;
+        var old = ($elem[0].getAttribute("data-" + opt) === "true")
+        return value === true && old === false; 
+      }
+
+      function toggleOpt($elem, opt, value) {
+        var elem = $elem.get(0);
+        if (typeof value === "undefined") {
+          value = (elem.getAttribute("data-" + opt) !== "true");
+        }
+        elem.setAttribute("data-" + opt, value);
+        return value
+      }
+
       $target.on('displayCaretAlignToggle' + nsClass, function(e, value) {
-        var cfg = userCfg(), update = false;
-        if (value === true && cfg.displayCaretAlign === false) update = true;
+        var cfg = userCfg(), update = shouldUpdate($target, "opt-caret-align", value);
         cfg.displayCaretAlign = toggleOpt($target, "opt-caret-align", value);
         toggleOpt($source, "opt-caret-align", cfg.displayCaretAlign);
         if (update) updateAlignments();
       })
       .on('displayMouseAlignToggle' + nsClass, function(e, value) {
-        var cfg = userCfg(), update = false;
-        if (value === true && cfg.displayMouseAlign === false) update = true;
+        var cfg = userCfg(), update = shouldUpdate($target, "opt-mouse-align", value);
         cfg.displayMouseAlign = toggleOpt($target, "opt-mouse-align", value);
         toggleOpt($source, "opt-mouse-align", cfg.displayMouseAlign);
         if (update) updateAlignments();
       })
       .on('displayConfidencesToggle' + nsClass, function(e, value) {
-        var cfg = userCfg(), update = false;
+        var cfg = userCfg(), update = shouldUpdate($target, "opt-confidences", value);
         if (value === true && cfg.displayConfidences === false) update = true;
         cfg.displayConfidences = toggleOpt($target, "opt-confidences", value);
         toggleOpt($source, "opt-confidences", cfg.displayConfidences);
@@ -399,12 +403,12 @@ var Memento = require("module.memento");
         }
       })
       .on('highlightValidatedToggle' + nsClass, function(e, value) {
-        var cfg = userCfg()
+        var cfg = userCfg();
         cfg.highlightValidated = toggleOpt($target, "opt-validated", value);
         toggleOpt($source, "opt-validated", cfg.highlightValidated);
       })
       .on('highlightPrefixToggle' + nsClass, function(e, value) {
-        var cfg = userCfg()
+        var cfg = userCfg();
         cfg.highlightPrefix = toggleOpt($target, "opt-prefix", value);
         toggleOpt($source, "opt-prefix", cfg.highlightPrefix);
       });
