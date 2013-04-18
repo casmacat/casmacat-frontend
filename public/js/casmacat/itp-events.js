@@ -331,7 +331,7 @@ var Memento = require("module.memento");
       function updateAlignments() {
         var conf = userCfg();
         if (conf.useAlignments) {
-          if (conf.displayCaretAlign) {
+          if (conf.displayCaretAlign || conf.displayMouseAlign) {
             var validated_words = $('.editable-token', $target).map(function() { return (this.dataset.validated)?true:false; }).get();
             var query = {
               source: $source.editable('getText'),
