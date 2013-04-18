@@ -64,6 +64,8 @@ class Database {
         $this->user = $user;
         $this->pass = $pass;
         $this->database = $database;
+
+        mysql_query("SET NAMES 'utf8'");
     }
 
 #-#constructor()
