@@ -7,6 +7,34 @@
 
   var itpServerCache = {};
 
+  // from jQuery.extend
+  function setDefaults(target, defs) {
+    if (!target) return defs;
+    // Only deal with non-null/undefined values
+    if (defs != null) {
+      // Extend the base object
+      for (name in defs) {
+        src = target[name];
+        copy = defs[name];
+
+        // Prevent never-ending loop
+        if (typeof copy === "undefined" || target === copy) {
+          continue;
+        }
+
+        if (typeof src === "undefined") {
+          target[name] = copy;
+        }
+        // Recurse if we're merging plain objects or arrays
+        else if (jQuery.isPlainObject(copy) || jQuery.isArray(copy)) {
+          setDefaults(target[name], copy);
+        }
+      }
+    }
+    return target
+  }
+
+
   /**
   * Create a PredictiveCatClient connection from the URL. Connections are cached, 
   * so if a connection  was already created, it will be reused
@@ -33,7 +61,7 @@
   }
 
   var methods = {
-    init: function(_options) {
+    init: function(_options, _config) {
       // extend default options with user defined options
       var options = $.extend({
         debug: false, 
@@ -53,7 +81,7 @@
               $source: $source,
               $target: $this,
               itpServer: itpServer,
-              config: {
+              config: setDefaults(_config, {
                 useAlignments: true,
                 useConfidences: true,
                 useSuggestions: false,
@@ -61,7 +89,12 @@
                 prioritizer: 'none',
                 priorityLength: 1,
                 confidenceThresholds: { doubt: 0.4, bad: 0.03 },
-              }
+                displayCaretAlign: false,
+                displayMouseAlign: false,
+                displayConfidences: false,
+                highlightValidated: false,
+                highlightPrefix: false,
+              })
             };
 
         $this.data(namespace, data);
@@ -73,7 +106,14 @@
         
         data.events = new ItpEvents($this, namespace, nsClass);
         data.events.attachEvents();
+
+        $this.one('ready', function() {
+          var $this = $(this);
+          $this.editableItp('configToggles', data.config);
+        });
+
         if (itpRes.doTriggerConnect) itpServer.trigger('connect');
+
       });
     },
 
@@ -177,6 +217,16 @@
     itpServer: function(str) { 
       return $(this).data(namespace).itpServer;
     },
+
+    toggle: function(option, value) {
+      $(this).trigger(option + "Toggle", value); 
+    },
+
+    configToggles: function(config) {
+      for (attr in config) {
+        $(this).editableItp('toggle', attr, config[attr]);
+      }
+    }
   };
 
 

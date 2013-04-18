@@ -96,7 +96,7 @@ $(function(){
   
   function toggleOpt(optname) {
     return function(e) {
-      getEditArea().trigger(optname);
+      getEditArea().editableItp('toggle', optname);
     }
   }
 
@@ -115,11 +115,11 @@ $(function(){
        'Ctrl+del': clearTarget,
             'esc': UI.toggleItp,
          'return': saveDraft,
-   'Ctrl+Shift+1': toggleOpt('toggleDisplayMouseAlign'),
-         'Ctrl+Y': toggleOpt('toggleDisplayCaretAlign'),
-   'Ctrl+Shift+3': toggleOpt('toggleDisplayConfidences'),
-   'Ctrl+Shift+4': toggleOpt('toggleHighlightValidated'),
-   'Ctrl+Shift+5': toggleOpt('toggleHighlightPrefix'),
+   'Ctrl+Shift+1': toggleOpt('displayMouseAlign'),
+         'Ctrl+Y': toggleOpt('displayCaretAlign'),
+   'Ctrl+Shift+3': toggleOpt('displayConfidences'),
+   'Ctrl+Shift+4': toggleOpt('highlightValidated'),
+   'Ctrl+Shift+5': toggleOpt('highlightPrefix'),
   };
   
   for (var k in keyBindings) {

@@ -37,7 +37,18 @@
                 itpEnabled: ${itpEnabled},
                 penEnabled: ${penEnabled},
                 etType: ${etType},
-                srEnabled: ${srEnabled}
+                srEnabled: ${srEnabled},
+
+                prefs: {
+                  confidenceThresholds: { doubt: 0.5, bad: 0.01 },
+                  displayMouseAlign: true,
+                  displayCaretAlign: false,
+                  displayConfidences: false,
+                  highlightValidated: false,
+                  highlightPrefix: false,
+                  prioritizer: "confidence",
+                  priorityLength: 1,
+                }
                 // CASMACAT extension end
             }
             //			console.log('Server time: ' + Math.round(config.server_load_time));

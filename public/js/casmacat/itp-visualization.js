@@ -60,8 +60,8 @@
         target: match.target,
         validated_words: validated_words, 
       }
-      var conf = cfg(), itp = conf.itpServer;
-      if (conf.config.useAlignments) {
+      var conf = userCfg(), itp = cfg().itpServer;
+      if (conf.useAlignments && (conf.displayCaretAlign || conf.displayMouseAlign)) {
         if (match.alignments) {
           itp.trigger('getAlignmentsResult', {data: match, errors: []});
         }
@@ -69,7 +69,7 @@
           itp.getAlignments(query);
         }
       }
-      if (conf.config.useConfidences) {
+      if (conf.useConfidences && conf.displayConfidences) {
         if (match.confidences) {
           itp.trigger('getConfidencesResult', {data: match, errors: []});
         }
@@ -236,6 +236,8 @@
 
       // add mouseenter mouseleave events to target spans
       self.addAlignmentEvents($target, targetspans, targetal);
+
+      //$target.editable('refreshCaret'); 
     }
 
 
@@ -310,6 +312,11 @@
         $span.data('confidence', conf)
              .removeClass("wordconf-ok wordconf-doubt wordconf-bad")
              .addClass(cssClass);
+
+        if ($target.options.debug && userCfg().displayConfidences) {
+          $span.attr('title', 'conf: ' + Math.round(conf*100));
+        }
+
       }
     }
   };

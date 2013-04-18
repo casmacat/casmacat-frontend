@@ -125,7 +125,6 @@
       }
     },
 
-
     storeCaret: function(span, pos, absoluteCaretPos) {
       var data = $(this).data('editable');
       var ev = {

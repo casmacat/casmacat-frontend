@@ -162,7 +162,7 @@ $(function(){
       itpServerUrl:   config.itpserver,
       debug:          config.debug,
       replay:         config.replay
-    })
+    }, config.prefs)
     .on('decode.matecat', function (ev, data, err) {
         $(window).trigger('translationChange', {element: $target[0], type: "decode", data: data});
     })
