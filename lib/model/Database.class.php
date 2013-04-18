@@ -64,8 +64,6 @@ class Database {
         $this->user = $user;
         $this->pass = $pass;
         $this->database = $database;
-
-        mysql_query("SET NAMES 'utf8'");
     }
 
 #-#constructor()
@@ -100,6 +98,7 @@ class Database {
 
     public function connect($new_link=false) {
         $this->link_id = @mysql_connect($this->server, $this->user, $this->pass, $new_link);
+        mysql_query("SET CHARACTER SET utf8", $this->link_id);
 
         if (!$this->link_id) {//open failed
             return $this->oops("Could not connect to server: <b>$this->server</b>.");
