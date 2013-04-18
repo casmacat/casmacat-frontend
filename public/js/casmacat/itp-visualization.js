@@ -236,8 +236,6 @@
 
       // add mouseenter mouseleave events to target spans
       self.addAlignmentEvents($target, targetspans, targetal);
-
-      //$target.editable('refreshCaret'); 
     }
 
 

@@ -377,7 +377,14 @@ var Memento = require("module.memento");
         var cfg = userCfg(), update = shouldUpdate($target, "opt-caret-align", value);
         cfg.displayCaretAlign = toggleOpt($target, "opt-caret-align", value);
         toggleOpt($source, "opt-caret-align", cfg.displayCaretAlign);
-        if (update) updateAlignments();
+        if (update) {
+          updateAlignments();
+
+          $target.one('alignments', function() {
+            console.log("***alignments***");
+            $target.editable('refreshCaret');
+          });
+        }
       })
       .on('displayMouseAlignToggle' + nsClass, function(e, value) {
         var cfg = userCfg(), update = shouldUpdate($target, "opt-mouse-align", value);
