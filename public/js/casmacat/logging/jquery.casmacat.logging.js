@@ -331,7 +331,12 @@
 
                 plugin.setDeviceAndConnect(settings.etType);
                 while (!plugin.calibrate()) {
-                    debug(pluginName + ": Calibration failed, trying again...");
+                    var answer = confirm("Calibration failed, trying again?");
+                    if (!answer) {
+                        alert("Calibration failed, logging aborted!");
+                        $.error("Calibration failed, logging aborted!");
+//                        return;
+                    }
                 }
                 plugin.start();
             }
@@ -563,6 +568,15 @@
                                     // (where the '1' is the value of maxChunkSize - 1)
             logList = []; // clear the logList
         }
+        else if (logList.length === parseInt(settings.maxChunkSize * 0.25)) {
+            debug(pluginName + ": 'logList' fill level 25%: '" + logList.length + "'.");
+        }
+        else if (logList.length === parseInt(settings.maxChunkSize * 0.50)) {
+            debug(pluginName + ": 'logList' fill level 50%: '" + logList.length + "'.");
+        }
+        else if (logList.length === parseInt(settings.maxChunkSize * 0.75)) {
+            debug(pluginName + ": 'logList' fill level 75%: '" + logList.length + "'.");
+        }
 
         logList.push(logEvent);
 //        debug(pluginName + ": 'logList' now contains '" + logList.length + "' events.");
@@ -610,6 +624,8 @@
                 debug(request);
                 debug(status);
                 debug(error);
+                debug(pluginName + ": 'logList' content dump:");
+                debug(data.logList);
                 alert("Error uploading 'logList': '" + error + "'");
                 $.error("Error uploading 'logList': '" + error + "'");
             }
@@ -998,13 +1014,13 @@
     };
 
     var segmentOpened = function(e, data) {
-        debug(pluginName + ": Segment opened: '" + data.segment + "'.");
+        debug(pluginName + ": Segment opened: '" + data.segment.id + "'.");
 
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SEGMENT_OPENED, data.segment));
     };
 
     var segmentClosed = function(e, data) {
-        debug(pluginName + ": Segment closed: '" + data.segment + "'.");
+        debug(pluginName + ": Segment closed: '" + data.segment.id + "'.");
 
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SEGMENT_CLOSED, data.segment));
     };
@@ -1045,7 +1061,7 @@
     };
 
     // store translationChange event
-    var itp = function(e, data) { 
+    var itp = function(e, data) {
         var t;
         switch (data.type) {
             case "decode":
@@ -1114,8 +1130,8 @@
         if (w.positionValid) {
 
             // make left eye coordinates relative to window
-            var lrx = lx - w.x;
-            var lry = ly - w.y;
+            var lrx = Math.floor(lx - w.x);
+            var lry = Math.floor(ly - w.y);
 //            debug(pluginName + ": Coordinates: lx: '" + lx + "', ly: '" + ly + "', lrx: '" + lrx + "', lry: '" + lry + "'.");
 
             // make right eye coordinates relative to window
@@ -1164,8 +1180,8 @@
 
         if (w.positionValid) {
             // make coordinates relative to window
-            var rx = x - w.x;
-            var ry = y - w.y;
+            var rx = Math.floor(x - w.x);
+            var ry = Math.floor(y - w.y);
 //            debug(pluginName + ": Coordinates: x: '" + x + "', y: '" + y + "', rx: '" + rx + "', ry: '" + ry + "'.");
 
             if (settings.etDiscardInvalid) {
