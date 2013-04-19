@@ -398,16 +398,14 @@ var Memento = require("module.memento");
         if (value === true && cfg.displayConfidences === false) update = true;
         cfg.displayConfidences = toggleOpt($target, "opt-confidences", value);
         toggleOpt($source, "opt-confidences", cfg.displayConfidences);
-        if ($target.options.debug) {
-          if (cfg.displayConfidences) { 
-            if (update) updateConfidences();
-          }
-          else {
-            $('.editable-token', $target).each(function(){
-              var $this = $(this);
-              $this.attr('title', '');
-            });
-          }
+        if (cfg.displayConfidences) { 
+          if (update) updateConfidences();
+        }
+        else {
+          $('.editable-token', $target).each(function(){
+            var $this = $(this);
+            $this.attr('title', '');
+          });
         }
         $target.trigger('togglechange', ['displayConfidences', cfg.displayConfidences, cfg]);
       })
