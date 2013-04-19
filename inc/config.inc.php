@@ -22,7 +22,7 @@ class INIT {
     public static $LOG_REPOSITORY;
     public static $LOG_FILENAME;
     public static $LOG_DOWNLOAD;
-    
+
     public static $TEMPLATE_ROOT;
     public static $MODEL_ROOT;
     public static $CONTROLLER_ROOT;
@@ -35,11 +35,12 @@ class INIT {
     public static $ENABLED_BROWSERS;
     public static $BUILD_NUMBER;
 
-    public static $LOGGING;
+    public static $LOG_ENABLED;
+    public static $LOG_MAXCHUNKSIZE;
     public static $ITP_SERVER;
     public static $HTR_SERVER;
     public static $ITP_ENABLED;
-    public static $PEN_ENABLED;    
+    public static $PEN_ENABLED;
     public static $ET_ENABLED;
     public static $SR_ENABLED;
     public static $ET_TYPE;
@@ -73,7 +74,8 @@ class INIT {
                 self::$DB_USER = $_INI_FILE['db']['username'];
                 self::$DB_PASS = $_INI_FILE['db']['password'];
 
-        self::$LOGGING = self::getConfigBool('logenabled', 'ui');
+        self::$LOG_ENABLED = self::getConfigBool('logenabled', 'ui');
+        self::$LOG_MAXCHUNKSIZE = isset($_INI_FILE['ui']['logmaxchunksize']) ? $_INI_FILE['ui']['logmaxchunksize'] : 3000;
 
         self::$LOG_REPOSITORY = self::$ROOT . "/". $_INI_FILE['log']['directory'];
         self::$LOG_FILENAME = $_INI_FILE['log']['filename'];
@@ -101,11 +103,11 @@ class INIT {
 
         self::$DEBUG = self::getConfigBool('debug', "debug");
     }
-    
+
     private static function getConfigBool($name, $namespace = "casmacat", $default_value = false) {
       global $_INI_FILE;
-      return isset($_GET[$name]) ? 
-              (bool)$_GET[$name] : isset($_INI_FILE[$namespace][$name]) ? 
+      return isset($_GET[$name]) ?
+              (bool)$_GET[$name] : isset($_INI_FILE[$namespace][$name]) ?
                (bool)$_INI_FILE[$namespace][$name] : $default_value;
     }
 

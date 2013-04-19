@@ -77,9 +77,9 @@ class LogEvent {
     }
 
     public function textData($object) {
-        $this->cursorPosition = $object->cursorPosition;
-        $this->deleted = $object->deleted;
-        $this->inserted = $object->inserted;
+        $this->cursorPosition = $object->cp;
+        $this->deleted = $object->d;
+        $this->inserted = $object->i;
     }
 
     public function selectionData($object) {
@@ -97,26 +97,26 @@ class LogEvent {
     }
 
     public function gazeData($object) {
-        $this->tTime = $object->tTime;
+        $this->tTime = $object->tt;
         $this->lx = $object->lx;
         $this->ly = $object->ly;
         $this->rx = $object->rx;
         $this->ry = $object->ry;
-        $this->lDil = $object->lDil;
-        $this->rDil = $object->rDil;
-        $this->lChar = $object->lChar;
-        $this->lOffset = $object->lOffset;
-        $this->rChar = $object->rChar;
-        $this->rOffset = $object->rOffset;
+        $this->lDil = $object->ld;
+        $this->rDil = $object->rd;
+        $this->lChar = $object->lc;
+        $this->lOffset = $object->lo;
+        $this->rChar = $object->rc;
+        $this->rOffset = $object->ro;
     }
 
     public function fixationData($object) {
-        $this->tTime = $object->tTime;
+        $this->tTime = $object->tt;
         $this->x = $object->x;
         $this->y = $object->y;
-        $this->duration = $object->duration;
-        $this->character = $object->character;
-        $this->offset = $object->offset;
+        $this->duration = $object->d;
+        $this->character = $object->c;
+        $this->offset = $object->o;
     }
 
     public function segmentChangedData($object) {

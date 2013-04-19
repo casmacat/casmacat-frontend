@@ -85,7 +85,7 @@ $(function() {
         $(window).logging({
             "fileId": config.file_id,
             "jobId": config.job_id,
-            "maxChunkSize": 5000,
+            "maxChunkSize": config.logMaxChunkSize,
 //            "maxChunkSize": 50,
             "logRootElement": "html > body > div#outer",
 

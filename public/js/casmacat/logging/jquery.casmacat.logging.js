@@ -82,6 +82,7 @@
                             // the event handlers to fire before the plugin is completely initialized
         logList = null,
         chunksUploading = 0,
+        chunkUploadCompletedInterval = 2000,
 
         logEventFactory = null,
 
@@ -201,25 +202,58 @@
             else {
 //                $.fn.showOverlay();
 
+                unbindFromEvents();
+
                 if (!force) {
+                    $.fn.showOverlay("<br><br>Waiting for log chunk upload to complete...", "chunksUpload");
+                    debug(pluginName + ": Waiting for log chunk upload to complete...");
+
                     storeLogEvent(logEventFactory.newLogEvent(logEventFactory.STOP_SESSION, window));
 
-                    if (logList.length >= 0) {
+                    if (logList.length > 0) {
                         debug(pluginName + ": Uploading remaining 'logList'...");
-                        uploadLogChunk(false);
+                        uploadLogChunk(true);
+//                        uploadLogChunk(logList, false);
                     }
 
-                    // TODO check for completeness/correctness, also see: "http://docs.jquery.com/Plugins/Authoring"
+                    // wait for uploads to complete
                     if (chunksUploading > 0) {
-                        // TODO wait for uploads to complete
+
+                        var intervalId = window.setInterval(function() {
+                            if (chunksUploading > 0) {
+                                $("#chunksUpload").html("<br><br>Waiting for " + chunksUploading + " more chunks...");
+                                debug(pluginName + ": Waiting for '" + chunksUploading + "' more chunks...");
+                            }
+                            else {
+                                $("#chunksUpload").html("<br><br>Upload finished.");
+                                window.onbeforeunload = null;
+                                window.clearTimeout(intervalId);
+                                logList = [];
+                                isLogging = false;
+//                                $.fn.hideOverlay("chunksUpload");
+                                debug(pluginName + ": Stopped (upload).");
+//                                window.close();
+                                closeWindow();
+                            }
+                        }, chunkUploadCompletedInterval);
+
+                        return;
                     }
                 }
-                unbindFromEvents();
+
+                window.onbeforeunload = null;
                 logList = [];
                 isLogging = false;
 
 //                $.fn.hideOverlay();
-                debug(pluginName + ": Stopped.");
+                if (force) {
+                    debug(pluginName + ": Stopped (force).");
+                }
+                else {
+                    debug(pluginName + ": Stopped (normal).");
+                }
+//                window.close();
+                closeWindow();
             }
         }
     };
@@ -547,7 +581,7 @@
         // (window) scroll + resize + segment
         $(window).off("." + pluginName);
 
-        window.onbeforeunload = null;
+//        window.onbeforeunload = null;
 
         fieldContents = [];   // clear field contents cache
         debug(pluginName + ": Unbound from events.");
@@ -564,6 +598,7 @@
         if (logList.length >= settings.maxChunkSize) {
             debug(pluginName + ": Forcing upload of 'logList'...");
             uploadLogChunk(true);
+//            uploadLogChunk(logList, true);
 //            logList.length = 0;   // clear the logList, this leads to '1x undefined' when debug(logList) is called
                                     // (where the '1' is the value of maxChunkSize - 1)
             logList = []; // clear the logList
@@ -587,20 +622,24 @@
      * to the server.
      */
     var uploadLogChunk = function(async) {
+//    var uploadLogChunk = function(logList, async) {
 
+        var startTime = new Date().getTime();
 //        debug(pluginName + ": 'logList' refers to: jobId: '" + jobId + "', settings.fileId: '" + settings.jobId + "'.");
 
 //        debug(pluginName + ": 'logList' content dump:");
 //        debug(logList);
 
-        //try {
         var data = {
             action: "saveLogChunk",
             fileId: settings.fileId,
             jobId: settings.jobId,
             logList: JSON.stringify(logList)
+//            logList: logList
         };
-        //}catch(e){console.log('savelog', logList)}
+
+        chunksUploading++;
+        debug(pluginName + ": Currently uploading '" + chunksUploading + "' chunks...");
 
         $.ajax({
             async: async,
@@ -610,8 +649,10 @@
             dataType: "json",
             cache: false,
             success: function(result) {
+                chunksUploading--;
                 if (result.data && result.data === "OK") {
-//                    debug(pluginName + ": Upload of 'logList' completed.");
+                    var executionTime = new Date().getTime() - startTime;
+                    debug(pluginName + ": Upload of 'logList' completed, executionTime: '" + executionTime + "', (server) executionTime: '" + result.executionTime + "'.");
                 }
                 else if (result.errors) {    // TODO is the error format really like this? with the index access
                                             // 'result.errors[0]'?
@@ -621,6 +662,7 @@
                 }
             },
             error: function(request, status, error) {
+                chunksUploading--;
                 debug(request);
                 debug(status);
                 debug(error);
@@ -630,6 +672,11 @@
                 $.error("Error uploading 'logList': '" + error + "'");
             }
         });
+    };
+
+    var closeWindow = function() {
+        window.open('', '_self', '');
+        window.close();
     };
 
     var debugAttachedTo = function(type, element) {
@@ -708,12 +755,26 @@
 
     var windowClose = function(e) {
         debug(pluginName + ": Window closed.");
-        unbindFromEvents();
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.STOP_SESSION, window));
-        uploadLogChunk(false);
-
-        debug(pluginName + ": Window closed, logging finished.");
+//        unbindFromEvents();
+//        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.STOP_SESSION, window));
+//        uploadLogChunk(false);
+//
+//        debug(pluginName + ": Window closed, logging finished.");
 //        return "Window closed, logging finished.";    // will display a dialog whether to leave the page
+
+        var msg = "Upload of log data is still in progress. Please CANCEL this dialog now and wait until the upload is finished."
+            + "The page will then close automatically.\n\nDo you really want to abort the upload and loose the data?";
+
+        if (!isLogging && chunksUploading > 0) {
+            debug(pluginName + ": Window close called while still uploading, notifying user again...");
+            return msg; // let use cancel
+        }
+
+        methods["stop"]();
+
+        if (chunksUploading > 0) {
+            return msg; // let use cancel
+        }
     };
 
     var mouseLeave = function(e) {

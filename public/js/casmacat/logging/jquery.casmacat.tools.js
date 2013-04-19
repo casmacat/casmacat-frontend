@@ -434,33 +434,6 @@ catch (e) {
 //        }
     };
 
-       $.fn.getCaretPos = function() {
-      var $this = $(this),
-          data = $this.data('editable'),
-          node = $this.get(0);
-
-      var caretOffset = 0;
-      try {
-        if (typeof window.getSelection !== "undefined") {
-          var range = window.getSelection().getRangeAt(0);
-          var preCaretRange = range.cloneRange();
-          preCaretRange.selectNodeContents(node);
-          preCaretRange.setEnd(range.endContainer, range.endOffset);
-          caretOffset = preCaretRange.toString().length;
-        } else if (typeof document.selection !== "undefined" && document.selection.type !== "Control") {
-          var textRange = document.selection.createRange();
-          var preCaretTextRange = document.body.createTextRange();
-          preCaretTextRange.moveToElementText(node);
-          preCaretTextRange.setEndPoint("EndToEnd", textRange);
-          caretOffset = preCaretTextRange.text.length;
-        }
-      }
-      catch (err) {
-        return -1;
-      }
-      return caretOffset;
-    };
-
     /**
      * Set the cursor position within a content editable while only counting text nodes. See also:
      * "http://stackoverflow.com/questions/2871081/jquery-setting-cursor-position-in-contenteditable-div"

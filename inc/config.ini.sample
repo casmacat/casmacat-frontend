@@ -8,6 +8,7 @@ baseurl    = "/"
 uploads    = "uploads" ; directory relative to root path
 timetoedit = 0 ; enable UI loading time
 logenabled = 1 ; enable logging
+logmaxchunksize = 3000 ; event list upload is triggered when this threshold is exceeded
 
 [db]
 hostname = "10.30.1.241"

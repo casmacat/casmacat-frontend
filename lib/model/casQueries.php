@@ -372,10 +372,20 @@ function fetchEventRow($headerId, $table) {
 
 // convert snake case to camel case
 // TODO add some caching to speed up
+//$snakeToCamelCache = array();
 function snakeToCamel($row) {
 //    log::doLog("CASMACAT: snakeToCamel(): camel case row: " . print_r($row, true));
 
     foreach ($row as $key => $value) {
+/*        if (!isset($snakeToCamelCache[$key])) {
+            // reorganize the array
+            $row[$snakeToCamelCache[$key]] = $value;
+            unset($row[$key]);
+
+            log::doLog("CASMACAT: snakeToCamel(): Cache hit: $key -> $snakeToCamelCache[$key]");
+            continue;
+        }*/
+
         // taken from: http://www.refreshinglyblue.com/2009/03/20/php-snake-case-to-camel-case/
         $s = str_replace(' ', '', ucwords(str_replace('_', ' ', $key)));
         $s = strtolower(substr($s, 0, 1)).substr($s, 1);
@@ -384,6 +394,9 @@ function snakeToCamel($row) {
         if ($s != $key) {
             $row[$s] = $value;
             unset($row[$key]);
+            // cache it
+            /*$snakeToCamelCache[$key] = $s;
+            log::doLog("CASMACAT: snakeToCamel(): New cache entry: $key -> $snakeToCamelCache[$key]");*/
         }
     }
 
