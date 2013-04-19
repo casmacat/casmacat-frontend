@@ -52,6 +52,33 @@
       }
     }
 
+    // requests the server for new alignment and confidence info
+    self.updateOptional = function(match) {
+      var validated_words = $('.editable-token', $target).map(function() { return (this.dataset.validated)?true:false; }).get();
+      var query = {
+        source: match.source,
+        target: match.target,
+        validated_words: validated_words, 
+      }
+      var conf = userCfg(), itp = cfg().itpServer;
+      if (conf.useAlignments && (conf.displayCaretAlign || conf.displayMouseAlign)) {
+        if (match.alignments) {
+          itp.trigger('getAlignmentsResult', {data: match, errors: []});
+        }
+        else {
+          itp.getAlignments(query);
+        }
+      }
+      if (conf.useConfidences && conf.displayConfidences) {
+        if (match.confidences) {
+          itp.trigger('getConfidencesResult', {data: match, errors: []});
+        }
+        else {
+          itp.getConfidences(query);
+        }
+      }
+    }
+
     self.updateSuggestions = function(data) {
       var d = $target.editable('getCaretXY')
         , targetPrefix = $target.editable('getText').substr(0, d.pos)
@@ -78,17 +105,8 @@
           }
         
           // requests the server for new alignment and confidence info
-          var query = {
-            source: $source().editable('getText'),
-            target: match.target,
-          }
-          var conf = cfg();
-          if (conf.config.useAlignments) {
-            conf.itpServer.getAlignments(query);
-          }
-          if (conf.config.useConfidences) {
-            conf.itpServer.getConfidences(query);
-          }
+          var nmatch = $.extend({source: data.source, sourceSegmentation: data.sourceSegmentation}, match);
+          self.updateOptional(nmatch);
           break;
         }
       }
@@ -111,19 +129,7 @@
       self.updateValidated(data.caretPos);
 
       // requests the server for new alignment and confidence info
-      var query = {
-        source: source,
-        target: target,
-        //validated_words: []
-      }
-
-      var conf = cfg();
-      if (conf.config.useAlignments) {
-        conf.itpServer.getAlignments(query);
-      }
-      if (conf.config.useConfidences) {
-        conf.itpServer.getConfidences(query);
-      }
+      self.updateOptional(bestResult);
     }
 
 
@@ -301,10 +307,14 @@
           cssClass = "wordconf-bad";
         }
 
-        $span.attr('title', 'conf: ' + Math.round(conf*100))
-             .data('confidence', conf)
+        $span.data('confidence', conf)
              .removeClass("wordconf-ok wordconf-doubt wordconf-bad")
              .addClass(cssClass);
+
+        if ($target.options.debug && userCfg().displayConfidences) {
+          $span.attr('title', 'conf: ' + Math.round(conf*100));
+        }
+
       }
     }
   };

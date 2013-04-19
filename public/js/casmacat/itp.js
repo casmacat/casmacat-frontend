@@ -113,7 +113,7 @@ $(function(){
 
   UI.setKeyboardShortcuts = function(){}; // FTW
   UI.reinitMMShortcuts    = function(){}; // Use shortcuts.js instead
-  require('shortcuts');
+  var shortcuts = require('shortcuts');
 
   var original_openSegment = UI.openSegment;
   var original_closeSegment = UI.closeSegment;
@@ -150,17 +150,52 @@ $(function(){
       $indicator = $('.buttons', UI.currentSegment).find('.pen-indicator');
       if (config.htrserver && config.penEnabled && $indicator.length === 0) {
         $indicator = $('<li/>').html('<a href="#" class="draft pen-indicator" title="Toggle e-pen input">&#9997;</a>');
-        $indicator.click(function(e){
+        $indicator.click(function(e){ 
           e.preventDefault();
           toogleEpenMode(editarea);
         });
         $('.buttons', UI.currentSegment).prepend($indicator);
       }
+      // A series of buttons to toggle visualization options
+      $indicator = $('.text', UI.currentSegment).find('.vis-commands');
+      if ($indicator.length === 0) {
+        var nav = '<a class="vis-button">visualization &gt;&gt;</a> <span class="vis-options">'; 
+        for (var opt in shortcuts.toggles) {
+          var toggleId = shortcuts.toggles[opt],
+              labelId  = $(UI.currentSegment).attr("id") + "-" + toggleId, 
+              sc = opt.toUpperCase();
+              prefStatus  = config.prefs[toggleId],
+              checkStatus = (prefStatus) ? ' checked="checked"' : '';
+          nav += '<input title='+sc+' type="checkbox" '+checkStatus+' id="'+labelId+'" name="'+toggleId+'"><label title='+sc+'>'+toggleId+'</label> ';
+        }
+        nav += '</span>';
+        $indicator = $('<div class="vis-commands"/>').html(nav);
+        $indicator.find('label').click(function(e){
+          var fn = $(this).text();
+          $target.editableItp('toggle', fn);
+        });
+        $indicator.find('input').click(function(e){
+          var fn = $(this).attr('name');
+          $target.editableItp('toggle', fn);
+        });
+        $('.text', UI.currentSegment).prepend($indicator);
+        $('.vis-options').hide();
+        $('.text', UI.currentSegment).find('.vis-button').click(function(e){
+          e.preventDefault();
+          $(this).next().toggle("fast");
+        });
+      }
     })
     .editableItp({
       sourceSelector: "#segment-" + sid + "-source",
       itpServerUrl:   config.itpserver,
+      debug:          config.debug,
       replay:         config.replay
+    }, config.prefs)
+    .on('togglechange.matecat', function (ev, toggle, value, cfg) {
+      var $indicator = $('.text', UI.currentSegment).find('.vis-commands'),
+          name = '#segment-' + sid + '-' + toggle;
+      $indicator.find(name).attr('checked', value);
     })
     .on('decode.matecat', function (ev, data, err) {
         $(window).trigger('translationChange', {element: $target[0], type: "decode", data: data});
@@ -214,7 +249,8 @@ $(function(){
           $(window).trigger('hideAlignmentByMouse', ev.target);
         })
     });
-
+    
+    $('.text', UI.currentSegment).find('.vis-commands').show();
     addSearchReplaceEvents();
   };
 
@@ -230,6 +266,8 @@ $(function(){
         toogleEpenMode($target);
       }
     }
+    
+    $('.vis-commands').hide();
     original_closeSegment.call(UI, editarea);
   };
 
@@ -303,6 +341,8 @@ $(function(){
         $('#sr-replace').hide();
       }
     }
+  } else if (config.srEnabled) {
+    setupSearchReplace();
   }
 
   $('#sr-rules').hide(); // In any case, this must be hidden beforehand
@@ -320,7 +360,7 @@ $(function(){
 
     itpServer.on('applyReplacementRulesResult', function(data, err) {
     });
-
+    
     itpServer.on('getReplacementRulesResult', function(data, err) {
       $('#sr-rules').empty();
       for (var i = 0; i < data.rules.length; ++i) {

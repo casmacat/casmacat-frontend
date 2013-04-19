@@ -55,7 +55,16 @@ else {
     $writer->writeElement('username', 'test');        
     $writer->writeElement('fileId', $fileId);
     $writer->writeElement('documentName', $row["filename"]);
-    $writer->writeElement('source', $src_lang);
+	
+	//Check if it is ITP
+	$itp = 0;
+	$queryId = $db->query("SELECT element_id, data FROM `log_event_header` l, itp_event i WHERE l.type = 'decode' AND l.job_id = ".$jobId." AND l.file_id = ".$fileId." AND i.header_id = l.id");
+    while ( ($row = $db->fetch($queryId)) != false ) {
+		$itp = 1;
+	}
+	
+	$writer->startElement('Languages');
+    $writer->writeAttribute('source', $src_lang);
 	
     // target language
     $queryId = $db->query("SELECT target FROM `files_job` fj, `jobs` j WHERE j.id = fj.id_job AND fj.id_file = ".$fileId." AND fj.id_job = ".$jobId);
@@ -65,7 +74,15 @@ else {
         return $errno * -1;
     }
     $row = $db->fetch($queryId);        
-    $writer->writeElement('target', $row['target']);
+    $writer->writeAttribute('target', $row['target']);
+		
+	$writer->writeAttribute('task', "post-editing");
+	
+	if ($itp == 1){
+		$writer->writeAttribute('gui', "ITP");
+	}
+	
+	$writer->endElement(); 
 	
 	//source text
     $queryId = $db->query("SELECT s.segment, s.id FROM `files_job` fj, `segments` s WHERE s.id_file = ".$fileId." AND fj.id_file = ".$fileId." AND fj.id_job = ".$jobId);

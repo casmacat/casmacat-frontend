@@ -297,16 +297,6 @@ var Memento = require("module.memento");
         }
       };
         
-      function toggleOpt($elem, opt) {
-        var elem = $elem.get(0);
-        if (!elem.getAttribute(["data-" + opt])) {
-          elem.setAttribute(["data-" + opt], true);
-        }
-        else {
-          elem.setAttribute(["data-" + opt], false);
-        }
-      }
-
       // #source and #target events
       // caretenter is a new event from jquery.editable that is triggered
       // whenever the caret enters in a new token span
@@ -336,31 +326,102 @@ var Memento = require("module.memento");
         //e.stopPropagation();
         e.preventDefault();
         tabKeyHandler(e, 'bck');
-      }).bind('keydown' + nsClass, 'ctrl+shift+1', function(e){
-        //e.stopPropagation();
-        e.preventDefault();
-        toggleOpt($target, "opt-caret-align");
-        toggleOpt($source, "opt-caret-align");
-      }).bind('keydown' + nsClass, 'ctrl+shift+2', function(e){
-        //e.stopPropagation();
-        e.preventDefault();
-        toggleOpt($target, "opt-mouse-align");
-        toggleOpt($source, "opt-mouse-align");
-      }).bind('keydown' + nsClass, 'ctrl+shift+3', function(e){
-        //e.stopPropagation();
-        e.preventDefault();
-        toggleOpt($target, "opt-confidences");
-        toggleOpt($source, "opt-confidences");
-      }).bind('keydown' + nsClass, 'ctrl+shift+4', function(e){
-        //e.stopPropagation();
-        e.preventDefault();
-        toggleOpt($target, "opt-validated");
-        toggleOpt($source, "opt-validated");
-      }).bind('keydown' + nsClass, 'ctrl+shift+5', function(e){
-        //e.stopPropagation();
-        e.preventDefault();
-        toggleOpt($target, "opt-prefix");
-        toggleOpt($source, "opt-prefix");
+      });
+
+      function updateAlignments() {
+        var conf = userCfg();
+        if (conf.useAlignments) {
+          if (conf.displayCaretAlign || conf.displayMouseAlign) {
+            var validated_words = $('.editable-token', $target).map(function() { return (this.dataset.validated)?true:false; }).get();
+            var query = {
+              source: $source.editable('getText'),
+              target: $target.editable('getText'),
+              validated_words: validated_words, 
+            }
+            itp.getAlignments(query);
+          }
+        }
+      }
+
+      function updateConfidences() {
+        var conf = userCfg();
+        if (conf.useAlignments) {
+          if (conf.displayConfidences) {
+            var validated_words = $('.editable-token', $target).map(function() { return (this.dataset.validated)?true:false; }).get();
+            var query = {
+              source: $source.editable('getText'),
+              target: $target.editable('getText'),
+              validated_words: validated_words, 
+            }
+            itp.getConfidences(query);
+          }
+        }
+      }
+
+      function shouldUpdate($elem, opt, value) {
+        if (typeof value === "undefined") value = true;
+        var old = ($elem[0].getAttribute("data-" + opt) === "true")
+        return value === true && old === false; 
+      }
+
+      function toggleOpt($elem, opt, value) {
+        var elem = $elem.get(0);
+        if (typeof value === "undefined") {
+          value = (elem.getAttribute("data-" + opt) !== "true");
+        }
+        elem.setAttribute("data-" + opt, value);
+        return value
+      }
+
+      $target.on('displayCaretAlignToggle' + nsClass, function(e, value) {
+        var cfg = userCfg(), update = shouldUpdate($target, "opt-caret-align", value);
+        cfg.displayCaretAlign = toggleOpt($target, "opt-caret-align", value);
+        toggleOpt($source, "opt-caret-align", cfg.displayCaretAlign);
+        if (update) {
+          updateAlignments();
+
+          $target.one('alignments', function() {
+            $target.editable('refreshCaret');
+          });
+        }
+        $target.trigger('togglechange', ['displayCaretAlign', cfg.displayCaretAlign, cfg]);
+      })
+      .on('displayMouseAlignToggle' + nsClass, function(e, value) {
+        var cfg = userCfg(), update = shouldUpdate($target, "opt-mouse-align", value);
+        cfg.displayMouseAlign = toggleOpt($target, "opt-mouse-align", value);
+        toggleOpt($source, "opt-mouse-align", cfg.displayMouseAlign);
+        if (update) updateAlignments();
+        $target.trigger('togglechange', ['displayMouseAlign', cfg.displayMouseAlign, cfg]);
+      })
+      .on('displayConfidencesToggle' + nsClass, function(e, value) {
+        var cfg = userCfg(), update = shouldUpdate($target, "opt-confidences", value);
+        if (value === true && cfg.displayConfidences === false) update = true;
+        cfg.displayConfidences = toggleOpt($target, "opt-confidences", value);
+        toggleOpt($source, "opt-confidences", cfg.displayConfidences);
+        if ($target.options.debug) {
+          if (cfg.displayConfidences) { 
+            if (update) updateConfidences();
+          }
+          else {
+            $('.editable-token', $target).each(function(){
+              var $this = $(this);
+              $this.attr('title', '');
+            });
+          }
+        }
+        $target.trigger('togglechange', ['displayConfidences', cfg.displayConfidences, cfg]);
+      })
+      .on('highlightValidatedToggle' + nsClass, function(e, value) {
+        var cfg = userCfg();
+        cfg.highlightValidated = toggleOpt($target, "opt-validated", value);
+        toggleOpt($source, "opt-validated", cfg.highlightValidated);
+        $target.trigger('togglechange', ['highlightValidated', cfg.highlightValidated, cfg]);
+      })
+      .on('highlightPrefixToggle' + nsClass, function(e, value) {
+        var cfg = userCfg();
+        cfg.highlightPrefix = toggleOpt($target, "opt-prefix", value);
+        toggleOpt($source, "opt-prefix", cfg.highlightPrefix);
+        $target.trigger('togglechange', ['highlightPrefix', cfg.highlightPrefix, cfg]);
       });
 
       function tabKeyHandler(e, mode) {
@@ -391,12 +452,13 @@ var Memento = require("module.memento");
               }
             }
           }
+          if (!$token || !$token.length) gotoEnd = true; 
           // if this is the last token go to end
-          var $next = $token.next('.editable-token');
-          if ($token && $token.length && !$next.length) {
-            gotoEnd = true;
-          }
-          $token = $next;
+          //var $next = $token.next('.editable-token');
+          //if ($token && $token.length && !$next.length) {
+          //  gotoEnd = true;
+          //}
+          //$token = $next;
         }
         // find previous token 
         else {

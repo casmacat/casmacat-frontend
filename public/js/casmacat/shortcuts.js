@@ -1,4 +1,4 @@
-$(function(){
+(function(module, global){
 
   require('jquery.hotkeys');
   
@@ -111,10 +111,34 @@ $(function(){
          'return': saveDraft,
   };
   
+  var toggleKeyBindings = {
+   'Ctrl+Shift+1': 'displayMouseAlign',
+         'Ctrl+Y': 'displayCaretAlign',
+   'Ctrl+Shift+3': 'displayConfidences',
+   'Ctrl+Shift+4': 'highlightValidated',
+   'Ctrl+Shift+5': 'highlightPrefix',
+  }
+
+  function toggleOpt(optname) {
+    return function(e) {
+      getEditArea().editableItp('toggle', optname);
+    }
+  }
+
   for (var k in keyBindings) {
     if (keyBindings.hasOwnProperty(k)) {
       UI.addKeyboardShortcut(k, keyBindings[k]);
     }
   }
-  
-});
+
+  for (var k in toggleKeyBindings) {
+    if (toggleKeyBindings.hasOwnProperty(k)) {
+      UI.addKeyboardShortcut(k, toggleOpt(toggleKeyBindings[k]));
+    }
+  }
+
+ 
+  module.exports = {
+    toggles: toggleKeyBindings,
+  }
+})('object' === typeof module ? module : {}, this);

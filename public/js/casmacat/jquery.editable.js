@@ -125,6 +125,19 @@
       }
     },
 
+    refreshCaret: function() {
+      var data = $(this).data('editable');
+      var absoluteCaretPos = $(this).editable('getCaretPos');
+      var token = $(this).editable('getTokenAtCaretPos', absoluteCaretPos);
+      var $span = $(token.token);
+      var ev = {
+        token: $span,
+        caretPos: token.pos,
+        absoluteCaretPos: absoluteCaretPos
+      };
+      data.currentElement = token.token;
+      $span.trigger('caretenter', ev);
+    },
 
     storeCaret: function(span, pos, absoluteCaretPos) {
       var data = $(this).data('editable');

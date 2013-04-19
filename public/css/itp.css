@@ -9,3 +9,9 @@
 .editarea[data-opt-mouse-align=true] > .mouse-align { background-color: yellow !important; }
 .source[data-opt-caret-align=true]   > .caret-align { background-color: aquamarine !important; }
 .editarea[data-opt-caret-align=true] > .caret-align { background-color: aquamarine !important; }
+
+.vis-commands { text-align:right; margin-right:45px; margin-bottom:0.5em; }
+  .vis-commands label { font-size:80%; }
+  /* .vis-commands * { vertical-align:middle; } */
+  .vis-button { cursor:pointer; font-size:80%; font-weight:bold; }
+  
