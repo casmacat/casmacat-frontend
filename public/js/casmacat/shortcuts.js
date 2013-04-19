@@ -1,4 +1,4 @@
-$(function(){
+(function(module, global){
 
   require('jquery.hotkeys');
   
@@ -94,12 +94,6 @@ $(function(){
     $('a#itp-indicator').text(newMode);
   };
   
-  function toggleOpt(optname) {
-    return function(e) {
-      getEditArea().editableItp('toggle', optname);
-    }
-  }
-
   // Define key bindings here
   
   var keyBindings = {
@@ -115,17 +109,36 @@ $(function(){
        'Ctrl+del': clearTarget,
             'esc': UI.toggleItp,
          'return': saveDraft,
-   'Ctrl+Shift+1': toggleOpt('displayMouseAlign'),
-         'Ctrl+Y': toggleOpt('displayCaretAlign'),
-   'Ctrl+Shift+3': toggleOpt('displayConfidences'),
-   'Ctrl+Shift+4': toggleOpt('highlightValidated'),
-   'Ctrl+Shift+5': toggleOpt('highlightPrefix'),
   };
   
+  var toggleKeyBindings = {
+   'Ctrl+Shift+1': 'displayMouseAlign',
+         'Ctrl+Y': 'displayCaretAlign',
+   'Ctrl+Shift+3': 'displayConfidences',
+   'Ctrl+Shift+4': 'highlightValidated',
+   'Ctrl+Shift+5': 'highlightPrefix',
+  }
+
+  function toggleOpt(optname) {
+    return function(e) {
+      getEditArea().editableItp('toggle', optname);
+    }
+  }
+
   for (var k in keyBindings) {
     if (keyBindings.hasOwnProperty(k)) {
       UI.addKeyboardShortcut(k, keyBindings[k]);
     }
   }
-  
-});
+
+  for (var k in toggleKeyBindings) {
+    if (toggleKeyBindings.hasOwnProperty(k)) {
+      UI.addKeyboardShortcut(k, toggleOpt(toggleKeyBindings[k]));
+    }
+  }
+
+ 
+  module.exports = {
+    toggles: toggleKeyBindings,
+  }
+})('object' === typeof module ? module : {}, this);

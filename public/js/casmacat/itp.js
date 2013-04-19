@@ -113,7 +113,7 @@ $(function(){
 
   UI.setKeyboardShortcuts = function(){}; // FTW
   UI.reinitMMShortcuts    = function(){}; // Use shortcuts.js instead
-  require('shortcuts');
+  var shortcuts = require('shortcuts');
 
   var original_openSegment = UI.openSegment;
   var original_closeSegment = UI.closeSegment;
@@ -150,7 +150,7 @@ $(function(){
       $indicator = $('.buttons', UI.currentSegment).find('.pen-indicator');
       if (config.htrserver && config.penEnabled && $indicator.length === 0) {
         $indicator = $('<li/>').html('<a href="#" class="draft pen-indicator" title="Toggle e-pen input">&#9997;</a>');
-        $indicator.click(function(e){
+        $indicator.click(function(e){ 
           e.preventDefault();
           toogleEpenMode(editarea);
         });
@@ -159,14 +159,14 @@ $(function(){
       // A series of buttons to toggle visualization options
       $indicator = $('.text', UI.currentSegment).find('.vis-commands');
       if ($indicator.length === 0) {
-        var nav = '<a class="vis-button">visualization &gt;&gt;</a> <span class="vis-options">', 
-            toogles = ["displayMouseAlign", "displayCaretAlign", "displayConfidences", "highlightValidated", "highlightPrefix"];
-        for (var opt in toogles) {
-          var labelId  = $(UI.currentSegment).attr("id") + "-" + toogles[opt], 
-              toggleId = toogles[opt],
+        var nav = '<a class="vis-button">visualization &gt;&gt;</a> <span class="vis-options">'; 
+        for (var opt in shortcuts.toggles) {
+          var toggleId = shortcuts.toggles[opt],
+              labelId  = $(UI.currentSegment).attr("id") + "-" + toggleId, 
+              sc = opt.toUpperCase();
               prefStatus  = config.prefs[toggleId],
               checkStatus = (prefStatus) ? ' checked="checked"' : null;
-          nav += '<input type="checkbox" '+checkStatus+' id="'+labelId+'" name="'+opt+'"><label for="'+labelId+'">'+toggleId+'</label> ';
+          nav += '<input title='+sc+' type="checkbox" '+checkStatus+' id="'+labelId+'" name="'+opt+'"><label title='+sc+' for="'+labelId+'">'+toggleId+'</label> ';
         }
         nav += '</span>';
         $indicator = $('<div class="vis-commands"/>').html(nav);

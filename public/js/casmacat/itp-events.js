@@ -381,7 +381,6 @@ var Memento = require("module.memento");
           updateAlignments();
 
           $target.one('alignments', function() {
-            console.log("***alignments***");
             $target.editable('refreshCaret');
           });
         }
