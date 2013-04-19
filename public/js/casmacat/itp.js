@@ -138,7 +138,7 @@ $(function(){
       $target.editableItp('updateConfig', settings);
       // A button to toggle ITP mode
       $indicator = ('.buttons', UI.currentSegment).find('.itp-indicator');
-      if (config.itpserver && settings.mode == "ITP" && $indicator.length === 0) {
+      if (config.itpEnabled) {
         $indicator = $('<li/>').html('<a href="#" class="draft itp-indicator">'+settings.mode+'</a><p>ESC</p>');
         $indicator.click(function(e){
           e.preventDefault();
