@@ -61,7 +61,7 @@ Loader = {
 		for (var i = 0; i < c.length; i++) this.include(c[i] + '.js', '', this.basePath);
 
     // CASMACAT extension start
-    if (config.enable_logging) {
+    if (config.logEnabled) {
       if(this.detect('replay') != "true") {
                       this.include('debug.js', 'casmacat/logging/', this.basePath);
                       this.include('diff_match_patch.js', 'casmacat/logging/', this.basePath);

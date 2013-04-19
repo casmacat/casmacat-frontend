@@ -2,6 +2,7 @@
 
 include_once INIT::$MODEL_ROOT . "/casQueries.php";
 include_once INIT::$MODEL_ROOT . "/LogEvent.class.php";
+include_once INIT::$UTILS_ROOT . "/Tools.class.php";
 
 class saveLogChunkController extends ajaxcontroller {
 
@@ -9,14 +10,19 @@ class saveLogChunkController extends ajaxcontroller {
     private $fileId;
     private $logList;
 
+    private $startTime;
+
     public function __construct() {
         parent::__construct();
+
+        $this->startTime = Tools::getCurrentMillis();
 
 //        log::doLog("CASMACAT: saveLogChunkController->__construct():");
 
         $this->jobId = $this->get_from_get_post("jobId");
         $this->fileId = $this->get_from_get_post("fileId");
         $this->logList = json_decode($this->get_from_get_post("logList"));
+//        $this->logList = $this->get_from_get_post("logList");
 
 //        log::doLog("CASMACAT: saveLogChunkController->__construct(): Initialized: jobId: '$this->jobId', fileId: '$this->fileId', logList: '"
 //            . print_r($this->logList, true) . "'");
@@ -24,10 +30,12 @@ class saveLogChunkController extends ajaxcontroller {
 
     public function doAction() {
         try {
-            log::doLog("CASMACAT: saveLogChunkController->doAction(): Processing of logList containing '" . count($this->logList) . "' elements...");
+            $eventCount = count($this->logList);
+            log::doLog("CASMACAT: saveLogChunkController->doAction(): Processing of logList containing '" . $eventCount . "' elements...");
 
             // TODO how about transactions?
             foreach ($this->logList as $key => $value) {
+//                $value = (object) $value;
                 $logEvent = new LogEvent($this->jobId, $this->fileId, $value);
 
                 switch ($logEvent->type) {
@@ -134,6 +142,7 @@ class saveLogChunkController extends ajaxcontroller {
                         break;
 
                     default:
+//                        $this->result["executionTime"] = time() - $this->startTime;
                         $this->result["code"] = -1;
                         $this->result["errors"][] = array("code" => -1, "message" => "Unknown log event type: '$logEvent->type' at index: '$key'");
                         log::doLog("CASMACAT: saveLogChunkController->doAction(): '$logEvent->type' at index: '$key'");
@@ -142,11 +151,13 @@ class saveLogChunkController extends ajaxcontroller {
                 }
             }
 
+            $this->result["executionTime"] = Tools::getCurrentMillis() - $this->startTime;
             $this->result["code"] = 0;
             $this->result["data"] = "OK";
-            log::doLog("CASMACAT: saveLogChunkController->doAction(): Processing of logList containing '" . count($this->logList) . "' elements finished.");
+            log::doLog("CASMACAT: saveLogChunkController->doAction(): Processing of logList containing '" . $eventCount . "' elements finished, time used: '" . $this->result["executionTime"] . "' ms.");
         }
         catch (Exception $e) {
+//            $this->result["executionTime"] = time() - $this->startTime;
             $this->result["code"] = -1;
             $this->result["errors"][] = array("code" => -1, "message" => "Unexcpected error: '" . $e->GetMessage() . "'");
             log::doLog("CASMACAT: saveLogChunkController->doAction(): Unexcpected error: '" . $e->GetMessage() . "'");

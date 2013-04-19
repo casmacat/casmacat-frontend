@@ -61,7 +61,7 @@ class catController extends viewcontroller {
         }
 
         // CASMACAT extension start
-        if (INIT::$LOGGING) {
+        if (INIT::$LOG_ENABLED) {
             log::doLog("CASMACAT: Enabled.");
             include_once INIT::$MODEL_ROOT . "/casQueries.php";
 //error_log(print_r($_REQUEST, true));
@@ -125,12 +125,12 @@ class catController extends viewcontroller {
         $lang_handler=languages::getInstance("en");
 
          // CASMACAT extension start
-//        if ($this->casIsReplaying) {
-//            $data = getSegmentsInfoWithoutTranslation($this->jid, $this->password, $this->start_from, $this->step);
-//        }
-//        else {
+        if ($this->casIsReplaying) {
+            $data = getSegmentsInfoWithoutTranslation($this->jid, $this->password, $this->start_from, $this->step);
+        }
+        else {
             $data = getSegmentsInfo($this->jid, $this->password);
-//        }
+        }
         // CASMACAT extension end
 
 	if (empty($data) or $data<0){
@@ -305,7 +305,8 @@ class catController extends viewcontroller {
 		$this->template->target_code=$this->target_code;
 
         // CASMACAT extension start
-        $this->template->enableLogging = INIT::$LOGGING;
+        $this->template->logEnabled = INIT::$LOG_ENABLED;
+        $this->template->logMaxChunkSize = INIT::$LOG_MAXCHUNKSIZE;
         $this->template->casIsReplaying = $this->casIsReplaying;
         // do this always, otherwise an error will be thrown in PHPTAL
         // when accessing template variables
@@ -318,7 +319,7 @@ class catController extends viewcontroller {
         $this->template->srEnabled = INIT::$SR_ENABLED;
         log::doLog("CASMACAT: itpEnabled: " . INIT::$ITP_ENABLED);
         log::doLog("CASMACAT: etEnabled: " . INIT::$ET_ENABLED);
-        if (INIT::$LOGGING) {
+        if (INIT::$LOG_ENABLED) {
             log::doLog("CASMACAT: Correcting 'last_opened_segment'...");
             if ($this->casIsReplaying) {
                     $this->last_opened_segment = 0;

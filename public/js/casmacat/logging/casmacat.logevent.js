@@ -71,7 +71,7 @@ var LogEventFactory = function(elementIdMode) {
 LogEventFactory.prototype.newLogEvent = function(type, element) {
 
     var logEvent = new Object();
-    logEvent.type = type;                   // type of the event, 'event' is the base type
+    logEvent.type = type;                   // type of the event
     logEvent.time = (new Date()).getTime(); // exact time when the event occured (formerly: time offset in ms from the
                                             // start time of this logging session)
     logEvent.elementId = null;              // id of the element in the UI
@@ -105,6 +105,10 @@ LogEventFactory.prototype.newLogEvent = function(type, element) {
         logEvent.xPath = elementId.xPath;
     }
 
+    if (logEvent.xPath === null) {
+        logEvent.xPath = "";
+    }
+
     switch (type) {
         case this.START_SESSION:
             break;
@@ -112,9 +116,9 @@ LogEventFactory.prototype.newLogEvent = function(type, element) {
             break;
 
         case this.TEXT:    // cursorPosition, deleted, inserted
-            logEvent.cursorPosition = arguments[2];
-            logEvent.deleted = arguments[3];
-            logEvent.inserted = arguments[4];
+            logEvent.cp = arguments[2];
+            logEvent.d = arguments[3];
+            logEvent.i = arguments[4];
             break;
         case this.SELECTION:    // range
             var range = arguments[2];
@@ -128,25 +132,25 @@ LogEventFactory.prototype.newLogEvent = function(type, element) {
             break;
 
         case this.GAZE: // time, leftX, leftY, rightX, rightY, leftDilation, rightDilation
-            logEvent.tTime = arguments[2];
+            logEvent.tt = arguments[2];
             logEvent.lx = arguments[3];
             logEvent.ly = arguments[4];
             logEvent.rx = arguments[5];
             logEvent.ry = arguments[6];
-            logEvent.lDil = arguments[7];
-            logEvent.rDil = arguments[8];
-            logEvent.lChar = arguments[9];
-            logEvent.lOffset = arguments[10];
-            logEvent.rChar = arguments[11];
-            logEvent.rOffset = arguments[12];
+            logEvent.ld = arguments[7];
+            logEvent.rd = arguments[8];
+            logEvent.lc = arguments[9];
+            logEvent.lo = arguments[10];
+            logEvent.rc = arguments[11];
+            logEvent.ro = arguments[12];
             break;
         case this.FIXATION: // time, x, y, duration
-            logEvent.tTime = arguments[2];
+            logEvent.tt = arguments[2];
             logEvent.x = arguments[3];
             logEvent.y = arguments[4];
-            logEvent.duration = arguments[5];
-            logEvent.character = arguments[6];
-            logEvent.offset = arguments[7];
+            logEvent.d = arguments[5];
+            logEvent.c = arguments[6];
+            logEvent.o = arguments[7];
             break;
 
         case this.SCROLL:    // offset
