@@ -117,6 +117,7 @@
    'Ctrl+Shift+3': 'displayConfidences',
    'Ctrl+Shift+4': 'highlightValidated',
    'Ctrl+Shift+5': 'highlightPrefix',
+   'Ctrl+Shift+Y': 'highlightLastValidated',
   }
 
   function toggleOpt(optname) {

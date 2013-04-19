@@ -417,6 +417,11 @@ var Memento = require("module.memento");
         toggleOpt($source, "opt-validated", cfg.highlightValidated);
         $target.trigger('togglechange', ['highlightValidated', cfg.highlightValidated, cfg]);
       })
+      .on('highlightLastValidatedToggle' + nsClass, function(e, value) {
+        var cfg = userCfg();
+        cfg.highlightLastValidated = toggleOpt($target, "opt-last-validated", value);
+        $target.trigger('togglechange', ['highlightLastValidated', cfg.highlightLastValidated, cfg]);
+      })
       .on('highlightPrefixToggle' + nsClass, function(e, value) {
         var cfg = userCfg();
         cfg.highlightPrefix = toggleOpt($target, "opt-prefix", value);
