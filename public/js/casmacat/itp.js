@@ -156,6 +156,31 @@ $(function(){
         });
         $('.buttons', UI.currentSegment).prepend($indicator);
       }
+      // A series of buttons to toggle visualization options
+      $indicator = $('.text', UI.currentSegment).find('.vis-commands');
+      if ($indicator.length === 0) {
+        var nav = '<a class="vis-button">visualization &gt;&gt;</a> <span class="vis-options">', 
+            toogles = ["displayMouseAlign", "displayCaretAlign", "displayConfidences", "highlightValidated", "highlightPrefix"];
+        for (var opt in toogles) {
+          var labelId  = $(UI.currentSegment).attr("id") + "-" + toogles[opt], 
+              toggleId = toogles[opt],
+              prefStatus  = config.prefs[toggleId],
+              checkStatus = (prefStatus) ? ' checked="checked"' : null;
+          nav += '<input type="checkbox" '+checkStatus+' id="'+labelId+'" name="'+opt+'"><label for="'+labelId+'">'+toggleId+'</label> ';
+        }
+        nav += '</span>';
+        $indicator = $('<div class="vis-commands"/>').html(nav);
+        $indicator.find('label').click(function(e){
+          var fn = $(this).text();
+          $target.editableItp('toggle', fn);
+        });
+        $('.text', UI.currentSegment).prepend($indicator);
+        $('.vis-options').hide();
+        $('.text', UI.currentSegment).find('.vis-button').click(function(e){
+          e.preventDefault();
+          $(this).next().toggle("fast");
+        });
+      }
     })
     .editableItp({
       sourceSelector: "#segment-" + sid + "-source",
@@ -215,7 +240,8 @@ $(function(){
           $(window).trigger('hideAlignmentByMouse', ev.target);
         })
     });
-
+    
+    $('.text', UI.currentSegment).find('.vis-commands').show();
     addSearchReplaceEvents();
   };
 
@@ -231,6 +257,8 @@ $(function(){
         toogleEpenMode($target);
       }
     }
+    
+    $('.vis-commands').hide();
     original_closeSegment.call(UI, editarea);
   };
 
