@@ -448,12 +448,13 @@ var Memento = require("module.memento");
               }
             }
           }
+          if (!$token || !$token.length) gotoEnd = true; 
           // if this is the last token go to end
-          var $next = $token.next('.editable-token');
-          if ($token && $token.length && !$next.length) {
-            gotoEnd = true;
-          }
-          $token = $next;
+          //var $next = $token.next('.editable-token');
+          //if ($token && $token.length && !$next.length) {
+          //  gotoEnd = true;
+          //}
+          //$token = $next;
         }
         // find previous token 
         else {
