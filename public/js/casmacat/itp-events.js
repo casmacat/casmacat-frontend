@@ -384,12 +384,14 @@ var Memento = require("module.memento");
             $target.editable('refreshCaret');
           });
         }
+        $target.trigger('togglechange', ['displayCaretAlign', cfg.displayCaretAlign, cfg]);
       })
       .on('displayMouseAlignToggle' + nsClass, function(e, value) {
         var cfg = userCfg(), update = shouldUpdate($target, "opt-mouse-align", value);
         cfg.displayMouseAlign = toggleOpt($target, "opt-mouse-align", value);
         toggleOpt($source, "opt-mouse-align", cfg.displayMouseAlign);
         if (update) updateAlignments();
+        $target.trigger('togglechange', ['displayMouseAlign', cfg.displayMouseAlign, cfg]);
       })
       .on('displayConfidencesToggle' + nsClass, function(e, value) {
         var cfg = userCfg(), update = shouldUpdate($target, "opt-confidences", value);
@@ -407,16 +409,19 @@ var Memento = require("module.memento");
             });
           }
         }
+        $target.trigger('togglechange', ['displayConfidences', cfg.displayConfidences, cfg]);
       })
       .on('highlightValidatedToggle' + nsClass, function(e, value) {
         var cfg = userCfg();
         cfg.highlightValidated = toggleOpt($target, "opt-validated", value);
         toggleOpt($source, "opt-validated", cfg.highlightValidated);
+        $target.trigger('togglechange', ['highlightValidated', cfg.highlightValidated, cfg]);
       })
       .on('highlightPrefixToggle' + nsClass, function(e, value) {
         var cfg = userCfg();
         cfg.highlightPrefix = toggleOpt($target, "opt-prefix", value);
         toggleOpt($source, "opt-prefix", cfg.highlightPrefix);
+        $target.trigger('togglechange', ['highlightPrefix', cfg.highlightPrefix, cfg]);
       });
 
       function tabKeyHandler(e, mode) {

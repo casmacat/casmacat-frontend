@@ -165,13 +165,17 @@ $(function(){
               labelId  = $(UI.currentSegment).attr("id") + "-" + toggleId, 
               sc = opt.toUpperCase();
               prefStatus  = config.prefs[toggleId],
-              checkStatus = (prefStatus) ? ' checked="checked"' : null;
-          nav += '<input title='+sc+' type="checkbox" '+checkStatus+' id="'+labelId+'" name="'+opt+'"><label title='+sc+' for="'+labelId+'">'+toggleId+'</label> ';
+              checkStatus = (prefStatus) ? ' checked="checked"' : '';
+          nav += '<input title='+sc+' type="checkbox" '+checkStatus+' id="'+labelId+'" name="'+toggleId+'"><label title='+sc+'>'+toggleId+'</label> ';
         }
         nav += '</span>';
         $indicator = $('<div class="vis-commands"/>').html(nav);
         $indicator.find('label').click(function(e){
           var fn = $(this).text();
+          $target.editableItp('toggle', fn);
+        });
+        $indicator.find('input').click(function(e){
+          var fn = $(this).attr('name');
           $target.editableItp('toggle', fn);
         });
         $('.text', UI.currentSegment).prepend($indicator);
@@ -188,6 +192,11 @@ $(function(){
       debug:          config.debug,
       replay:         config.replay
     }, config.prefs)
+    .on('togglechange.matecat', function (ev, toggle, value, cfg) {
+      var $indicator = $('.text', UI.currentSegment).find('.vis-commands'),
+          name = '#segment-' + sid + '-' + toggle;
+      $indicator.find(name).attr('checked', value);
+    })
     .on('decode.matecat', function (ev, data, err) {
         $(window).trigger('translationChange', {element: $target[0], type: "decode", data: data});
     })
