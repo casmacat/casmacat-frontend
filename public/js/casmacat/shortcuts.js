@@ -80,18 +80,21 @@
   // Expose this function to other modules
   UI.toggleItp = function(e) {
     e.preventDefault();
-    var $ea = getEditArea();
-    if ($ea.editableItp('getConfig').mode == "manual") {
+    var $ea = getEditArea(),
+        currentMode = $ea.editableItp('getConfig').mode;
+
+    if (currentMode == "manual") {
       return false;
     }
-    var currentMode = $ea.editableItp('getConfig').mode,
-        newMode = currentMode == "ITP" ? "PE" : "ITP";
+    var newMode = currentMode == "ITP" ? "PE" : "ITP";
     $ea.editableItp('updateConfig', {
       mode: newMode
     });
+    // start session with new ITP mode
+    $ea.editableItp('startSession');
     // Inform user via UI
     // FIXME: Selecting by ID doesn't work (!?) We must specify also the node type: a#id
-    $('a#itp-indicator').text(newMode);
+    $('.itp-indicator').text(newMode);
   };
   
   // Define key bindings here
@@ -117,6 +120,7 @@
    'Ctrl+Shift+3': 'displayConfidences',
    'Ctrl+Shift+4': 'highlightValidated',
    'Ctrl+Shift+5': 'highlightPrefix',
+   'Ctrl+Shift+Y': 'highlightLastValidated',
   }
 
   function toggleOpt(optname) {

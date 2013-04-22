@@ -93,6 +93,7 @@
                 displayMouseAlign: false,
                 displayConfidences: false,
                 highlightValidated: false,
+                highlightLastValidated: false,
                 highlightPrefix: false,
               })
             };

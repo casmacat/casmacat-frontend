@@ -398,16 +398,14 @@ var Memento = require("module.memento");
         if (value === true && cfg.displayConfidences === false) update = true;
         cfg.displayConfidences = toggleOpt($target, "opt-confidences", value);
         toggleOpt($source, "opt-confidences", cfg.displayConfidences);
-        if ($target.options.debug) {
-          if (cfg.displayConfidences) { 
-            if (update) updateConfidences();
-          }
-          else {
-            $('.editable-token', $target).each(function(){
-              var $this = $(this);
-              $this.attr('title', '');
-            });
-          }
+        if (cfg.displayConfidences) { 
+          if (update) updateConfidences();
+        }
+        else {
+          $('.editable-token', $target).each(function(){
+            var $this = $(this);
+            $this.attr('title', '');
+          });
         }
         $target.trigger('togglechange', ['displayConfidences', cfg.displayConfidences, cfg]);
       })
@@ -416,6 +414,11 @@ var Memento = require("module.memento");
         cfg.highlightValidated = toggleOpt($target, "opt-validated", value);
         toggleOpt($source, "opt-validated", cfg.highlightValidated);
         $target.trigger('togglechange', ['highlightValidated', cfg.highlightValidated, cfg]);
+      })
+      .on('highlightLastValidatedToggle' + nsClass, function(e, value) {
+        var cfg = userCfg();
+        cfg.highlightLastValidated = toggleOpt($target, "opt-last-validated", value);
+        $target.trigger('togglechange', ['highlightLastValidated', cfg.highlightLastValidated, cfg]);
       })
       .on('highlightPrefixToggle' + nsClass, function(e, value) {
         var cfg = userCfg();
@@ -504,7 +507,7 @@ var Memento = require("module.memento");
        
           if (isPrintableChar(e)) {
             throttle(function() {
-              if (data.str != source) {
+              if (data.str !== source) {
                 var query = {
                   source: source,
                   //num_results: 2,
@@ -573,7 +576,7 @@ var Memento = require("module.memento");
           
           if (isPrintableChar(e)) {
             throttle(function () {
-              if (data.str != target) {
+              if (data.str !== target) {
                 // Predict from last edited token onwards
                 $target.find('span').each(function(i, elem){
                   // TODO

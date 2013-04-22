@@ -4,8 +4,11 @@ $_INI_FILE = parse_ini_file(dirname(__FILE__).'/config.ini', true);
 // TODO: This INI should be parsed *only once*.
 // Probably we should cache config vars in $_SESSION or something similar.
 
-ini_set("display_errors", (bool) $_INI_FILE['debug']['displayerrors']);
-ini_set("error_reporting", eval("return ".$_INI_FILE['debug']['errorreporting'].";"));
+$displayerrors = $_INI_FILE['debug']['displayerrors'];
+ini_set("display_errors", $display_errors);
+if ($display_errors) {
+  ini_set("error_reporting", eval("return ".$_INI_FILE['debug']['errorreporting'].";"));
+}
 
 class INIT {
     private static $instance;

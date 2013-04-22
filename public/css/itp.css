@@ -10,6 +10,8 @@
 .source[data-opt-caret-align=true]   > .caret-align { background-color: aquamarine !important; }
 .editarea[data-opt-caret-align=true] > .caret-align { background-color: aquamarine !important; }
 
+.editarea[data-opt-last-validated=true] > .editable-token[data-last-validated=true]:after { content: "‸"; position: absolute; color: brown; } 
+
 .vis-commands { text-align:right; margin-right:45px; margin-bottom:0.5em; }
   .vis-commands label { font-size:80%; }
   /* .vis-commands * { vertical-align:middle; } */

@@ -42,11 +42,14 @@
             lastEditedToken.dataset.prefix = true;
             $(lastEditedToken).prevAll(".editable-token").each(function(i, elem) {
               elem.dataset.prefix = true;
+              elem.setAttribute('data-last-validated', false);
               // if the element in the prefix has been inserted, then it must have been introduced by the user 
               if ($(elem).data('merge-type') !== 'N') {
                 elem.dataset.validated = true;
               }
             });
+            var $lastValidated = $(lastEditedToken).nextAll(".editable-token[data-last-validated=true]");
+            lastEditedToken.setAttribute('data-last-validated', ($lastValidated.length === 0));
           }
         }
       }
