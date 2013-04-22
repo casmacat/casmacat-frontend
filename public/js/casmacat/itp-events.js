@@ -425,6 +425,12 @@ var Memento = require("module.memento");
         cfg.highlightPrefix = toggleOpt($target, "opt-prefix", value);
         toggleOpt($source, "opt-prefix", cfg.highlightPrefix);
         $target.trigger('togglechange', ['highlightPrefix', cfg.highlightPrefix, cfg]);
+      })
+      .on('limitSuffixLengthToggle' + nsClass, function(e, value) {
+        var cfg = userCfg();
+        cfg.limitSuffixLength = toggleOpt($target, "opt-limit-suffix-length", value);
+        toggleOpt($source, "opt-limit-suffix-length", cfg.limitSuffixLength);
+        $target.trigger('togglechange', ['limitSuffixLength', cfg.limitSuffixLength, cfg]);
       });
 
       function tabKeyHandler(e, mode) {
@@ -434,7 +440,7 @@ var Memento = require("module.memento");
         if (mode == 'fwd') {
           // if we have a prioritizer, we rely on the representation and find the first greyed out token 
           if (ui.prioritizer != 'none') {
-            $token = $('.editable-token', $target).filter(function(e){ return $(this).css('opacity') < 1.0}).first();
+            $token = $('.editable-token', $target).filter(function(e){ return this.dataset.limited}).first();
           }
           // if we don't have prioritizer, we find the token next to the caret position 
           else {

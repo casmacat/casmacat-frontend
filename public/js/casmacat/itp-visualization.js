@@ -271,12 +271,7 @@
       var currentPriority = $token.data('priority');
       spans.each(function() {
         var $span = $(this), scale = 2.0;
-        if ($span.data('priority') >= currentPriority + userPriorityLength) {
-          opacity = 0.3; //Math.pow(2, (-priorities[c] + 2) * scale);
-        } else {
-          opacity = 1.0;
-        }
-        $span.css('opacity', opacity);
+        this.dataset.limited = ($span.data('priority') >= currentPriority + userPriorityLength);
       });
     }
  

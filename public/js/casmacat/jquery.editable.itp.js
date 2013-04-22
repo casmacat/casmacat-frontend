@@ -95,6 +95,7 @@
                 highlightValidated: false,
                 highlightLastValidated: false,
                 highlightPrefix: false,
+                limitSuffixLength: false,
               })
             };
 

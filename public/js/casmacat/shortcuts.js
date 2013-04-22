@@ -95,6 +95,12 @@
     // Inform user via UI
     // FIXME: Selecting by ID doesn't work (!?) We must specify also the node type: a#id
     $('.itp-indicator').text(newMode);
+    if (newMode === "PE") {
+      getEditArea().editableItp('toggle', 'limitSuffixLength', false);
+    }
+    else {
+      getEditArea().editableItp('toggle', 'limitSuffixLength', true);
+    }
   };
   
   // Define key bindings here
@@ -121,11 +127,12 @@
    'Ctrl+Shift+4': 'highlightValidated',
    'Ctrl+Shift+5': 'highlightPrefix',
    'Ctrl+Shift+Y': 'highlightLastValidated',
+   'Ctrl+Shift+S': 'limitSuffixLength',
   }
 
-  function toggleOpt(optname) {
+  function toggleOpt(optname, value) {
     return function(e) {
-      getEditArea().editableItp('toggle', optname);
+      getEditArea().editableItp('toggle', optname, value);
     }
   }
 
