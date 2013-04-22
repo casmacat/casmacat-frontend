@@ -212,7 +212,12 @@
 
                     if (logList.length > 0) {
                         debug(pluginName + ": Uploading remaining 'logList'...");
-                        uploadLogChunk(true);
+                        if (chunksUploading > 0) {
+                            uploadLogChunk(true);
+                        }
+                        else {
+                            uploadLogChunk(false);
+                        }
 //                        uploadLogChunk(logList, false);
                     }
 
