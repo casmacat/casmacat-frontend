@@ -7,6 +7,8 @@
 
   var itpServerCache = {};
 
+  var itpCount = 0;
+
   // from jQuery.extend
   function setDefaults(target, defs) {
     if (!target) return defs;
@@ -116,6 +118,8 @@
 
         if (itpRes.doTriggerConnect) itpServer.trigger('connect');
 
+        itpCount++;
+        //console.log("**** CREATE ****", itpCount);
       });
     },
 
@@ -130,6 +134,9 @@
           $this.removeData(namespace);
           $source.editable('destroy');
           $this.editable('destroy');
+
+          itpCount--;
+          //console.log("**** DESTROY ****", itpCount);
         }
       })
     },

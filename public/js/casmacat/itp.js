@@ -1,5 +1,14 @@
 $(function(){
 
+  function trace() {
+    try {
+      throw new Error("myError");
+    }
+    catch(e) {
+      return e.stack;
+    }
+  }
+
   function insertScript(url, nodeName) {
     var script = document.createElement('script');
     script.type = 'text/javascript';
@@ -123,135 +132,141 @@ $(function(){
   UI.openSegment = function(editarea) {
     original_openSegment.call(UI, editarea);
     var $target = $(editarea), sid = $target.data('sid'), $source = $("#segment-" + sid + "-source");
+    if (!$target.data('itp')) {
+      //console.log("***OPEN SEGMENT***", $target[0], trace())
 
-    $target.on('ready.matecat', function() {
-      var settings, $indicator;
-      if (config.catsetting) {
-        settings = require(config.basepath + '/' + config.catsetting);
-      } else {
-        settings = $target.editableItp('getConfig');
-      }
-      if ($target.text().length === 0 && settings.mode != "manual") {
-        $target.editableItp('decode');
-      }
-      $target.editableItp('startSession');
-      $target.editableItp('updateConfig', settings);
-      // A button to toggle ITP mode
-      $indicator = ('.buttons', UI.currentSegment).find('.itp-indicator');
-      if (config.itpEnabled) {
-        $indicator = $('<li/>').html('<a href="#" class="draft itp-indicator">'+settings.mode+'</a><p>ESC</p>');
-        $indicator.click(function(e){
-          e.preventDefault();
-          UI.toggleItp(e);
-        });
-        $('.buttons', UI.currentSegment).prepend($indicator);
-      }
-      // A button to toggle e-pen mode
-      $indicator = $('.buttons', UI.currentSegment).find('.pen-indicator');
-      if (config.htrserver && config.penEnabled && $indicator.length === 0) {
-        $indicator = $('<li/>').html('<a href="#" class="draft pen-indicator" title="Toggle e-pen input">&#9997;</a>');
-        $indicator.click(function(e){ 
-          e.preventDefault();
-          toogleEpenMode(editarea);
-        });
-        $('.buttons', UI.currentSegment).prepend($indicator);
-      }
-      // A series of buttons to toggle visualization options
-      $indicator = $('.text', UI.currentSegment).find('.vis-commands');
-      if ($indicator.length === 0) {
-        var nav = '<a class="vis-button">visualization &gt;&gt;</a> <span class="vis-options">'; 
-        for (var opt in shortcuts.toggles) {
-          var toggleId = shortcuts.toggles[opt],
-              labelId  = $(UI.currentSegment).attr("id") + "-" + toggleId, 
-              sc = opt.toUpperCase();
-              prefStatus  = config.prefs[toggleId],
-              checkStatus = (prefStatus) ? ' checked="checked"' : '';
-          nav += '<input title='+sc+' type="checkbox" '+checkStatus+' id="'+labelId+'" name="'+toggleId+'"><label title='+sc+'>'+toggleId+'</label> ';
+      $target.on('ready.matecat', function() {
+        var settings, $indicator;
+        if (config.catsetting) {
+          settings = require(config.basepath + '/' + config.catsetting);
+        } else {
+          settings = $target.editableItp('getConfig');
         }
-        nav += '</span>';
-        $indicator = $('<div class="vis-commands"/>').html(nav);
-        $indicator.find('label').click(function(e){
-          var fn = $(this).text();
-          $target.editableItp('toggle', fn);
-        });
-        $indicator.find('input').click(function(e){
-          var fn = $(this).attr('name');
-          $target.editableItp('toggle', fn);
-        });
-        $('.text', UI.currentSegment).prepend($indicator);
-        $('.vis-options').hide();
-        $('.text', UI.currentSegment).find('.vis-button').click(function(e){
-          e.preventDefault();
-          $(this).next().toggle("fast");
-        });
-      }
-    })
-    .editableItp({
-      sourceSelector: "#segment-" + sid + "-source",
-      itpServerUrl:   config.itpserver,
-      debug:          config.debug,
-      replay:         config.replay
-    }, config.prefs)
-    .on('togglechange.matecat', function (ev, toggle, value, cfg) {
-      var $indicator = $('.text', UI.currentSegment).find('.vis-commands'),
-          name = '#segment-' + sid + '-' + toggle;
-      $indicator.find(name).attr('checked', value);
-    })
-    .on('decode.matecat', function (ev, data, err) {
-        $(window).trigger('translationChange', {element: $target[0], type: "decode", data: data});
-    })
-    .on('suffixchange.matecat', function (ev, data, err) {
-        $(window).trigger('translationChange', {element: $target[0], type: "suffixchange", data: data});
-    })
-    .on('confidences.matecat', function (ev, data, err) {
-        $(window).trigger('translationChange', {element: $target[0], type: "confidences", data: data});
-    })
-    .on('tokens.matecat', function (ev, data, err) {
-        $(window).trigger('translationChange', {element: $target[0], type: "tokens", data: data});
-    })
-    .on('alignments.matecat', function (ev, data, err) {
-        $(window).trigger('translationChange', {element: $target[0], type: "alignments", data: data});
+        if ($target.text().length === 0 && settings.mode != "manual") {
+          $target.editableItp('decode');
+        }
+        $target.editableItp('startSession');
+        $target.editableItp('updateConfig', settings);
+        // A button to toggle ITP mode
+        $indicator = ('.buttons', UI.currentSegment).find('.itp-indicator');
+        if (config.itpEnabled) {
+          $indicator = $('<li/>').html('<a href="#" class="draft itp-indicator">'+settings.mode+'</a><p>ESC</p>');
+          $indicator.click(function(e){
+            e.preventDefault();
+            UI.toggleItp(e);
+          });
+          $('.buttons', UI.currentSegment).prepend($indicator);
+        }
+        // A button to toggle e-pen mode
+        $indicator = $('.buttons', UI.currentSegment).find('.pen-indicator');
+        if (config.htrserver && config.penEnabled && $indicator.length === 0) {
+          $indicator = $('<li/>').html('<a href="#" class="draft pen-indicator" title="Toggle e-pen input">&#9997;</a>');
+          $indicator.click(function(e){ 
+            e.preventDefault();
+            toogleEpenMode(editarea);
+          });
+          $('.buttons', UI.currentSegment).prepend($indicator);
+        }
+        // A series of buttons to toggle visualization options
+        $indicator = $('.text', UI.currentSegment).find('.vis-commands');
+        if ($indicator.length === 0) {
+          var nav = '<a class="vis-button">visualization &gt;&gt;</a> <span class="vis-options">'; 
+          for (var opt in shortcuts.toggles) {
+            var toggleId = shortcuts.toggles[opt],
+                labelId  = $(UI.currentSegment).attr("id") + "-" + toggleId, 
+                sc = opt.toUpperCase();
+                prefStatus  = config.prefs[toggleId],
+                checkStatus = (prefStatus) ? ' checked="checked"' : '';
+            nav += '<input title='+sc+' type="checkbox" '+checkStatus+' id="'+labelId+'" name="'+toggleId+'"><label title='+sc+'>'+toggleId+'</label> ';
+          }
+          nav += '</span>';
+          $indicator = $('<div class="vis-commands"/>').html(nav);
+          $indicator.find('label').click(function(e){
+            var fn = $(this).text();
+            $target.editableItp('toggle', fn);
+          });
+          $indicator.find('input').click(function(e){
+            var fn = $(this).attr('name');
+            $target.editableItp('toggle', fn);
+          });
+          $('.text', UI.currentSegment).prepend($indicator);
+          $('.vis-options').hide();
+          $('.text', UI.currentSegment).find('.vis-button').click(function(e){
+            e.preventDefault();
+            $(this).next().toggle("fast");
+          });
+        }
+      })
+      .editableItp({
+        sourceSelector: "#segment-" + sid + "-source",
+        itpServerUrl:   config.itpserver,
+        debug:          config.debug,
+        replay:         config.replay
+      }, config.prefs)
+      .on('togglechange.matecat', function (ev, toggle, value, cfg) {
+        var $indicator = $('.text', UI.currentSegment).find('.vis-commands'),
+            name = '#segment-' + sid + '-' + toggle;
+        $indicator.find(name).attr('checked', value);
+      })
+      .on('decode.matecat', function (ev, data, err) {
+          $(window).trigger('translationChange', {element: $target[0], type: "decode", data: data});
+      })
+      .on('suffixchange.matecat', function (ev, data, err) {
+          $(window).trigger('translationChange', {element: $target[0], type: "suffixchange", data: data});
+      })
+      .on('confidences.matecat', function (ev, data, err) {
+          $(window).trigger('translationChange', {element: $target[0], type: "confidences", data: data});
+      })
+      .on('tokens.matecat', function (ev, data, err) {
+          $(window).trigger('translationChange', {element: $target[0], type: "tokens", data: data});
+      })
+      .on('alignments.matecat', function (ev, data, err) {
+          $(window).trigger('translationChange', {element: $target[0], type: "alignments", data: data});
 
-        $target.find('span.editable-token')
-        .off('mouseenter.matecat mouseleave.matecat caretenter.matecat caretleave.matecat')
-        .on('mouseenter.matecat', function (ev) {
-            var data = {
-                target: ev.target,
-                x: ev.clientX,
-                y: ev.clientY
-            };
-          $(window).trigger('showAlignmentByMouse', data);
-        })
-        .on('mouseleave.matecat', function (ev) {
-          $(window).trigger('hideAlignmentByMouse', ev.target);
-        })
-        .on('caretenter.matecat', function (ev, data) {
-          // change dom node in data by its id to avoid circular problem when converting to JSON
-          var d = jQuery.extend({}, data); d.token = '#'+d.token.id;
-          $(window).trigger('showAlignmentByKey', {element: $target[0], type: "caretenter", data: d});
-        })
-        .on('caretleave.matecat', function (ev, data) {
-          // change dom node in data by its id to avoid circular problem when converting to JSON
-          var d = jQuery.extend({}, data); d.token = '#'+d.token.id;
-          $(window).trigger('hideAlignmentByKey', {element: $target[0], type: "caretleave", data: d});
-        })
+          $target.find('span.editable-token')
+          .off('mouseenter.matecat mouseleave.matecat caretenter.matecat caretleave.matecat')
+          .on('mouseenter.matecat', function (ev) {
+              var data = {
+                  target: ev.target,
+                  x: ev.clientX,
+                  y: ev.clientY
+              };
+            $(window).trigger('showAlignmentByMouse', data);
+          })
+          .on('mouseleave.matecat', function (ev) {
+            $(window).trigger('hideAlignmentByMouse', ev.target);
+          })
+          .on('caretenter.matecat', function (ev, data) {
+            // change dom node in data by its id to avoid circular problem when converting to JSON
+            var d = jQuery.extend({}, data); d.token = '#'+d.token.id;
+            $(window).trigger('showAlignmentByKey', {element: $target[0], type: "caretenter", data: d});
+          })
+          .on('caretleave.matecat', function (ev, data) {
+            // change dom node in data by its id to avoid circular problem when converting to JSON
+            var d = jQuery.extend({}, data); d.token = '#'+d.token.id;
+            $(window).trigger('hideAlignmentByKey', {element: $target[0], type: "caretleave", data: d});
+          })
 
-        $source.find('span.editable-token').off('mouseenter.matecat mouseleave.matecat')
-        .on('mouseenter.matecat', function (ev) {
-            var data = {
-                target: ev.target,
-                x: ev.clientX,
-                y: ev.clientY
-            };
-          $(window).trigger('showAlignmentByMouse', data);
-        })
-        .on('mouseleave.matecat', function (ev) {
-          $(window).trigger('hideAlignmentByMouse', ev.target);
-        })
-    });
-    
-    $('.text', UI.currentSegment).find('.vis-commands').show();
-    addSearchReplaceEvents();
+          $source.find('span.editable-token').off('mouseenter.matecat mouseleave.matecat')
+          .on('mouseenter.matecat', function (ev) {
+              var data = {
+                  target: ev.target,
+                  x: ev.clientX,
+                  y: ev.clientY
+              };
+            $(window).trigger('showAlignmentByMouse', data);
+          })
+          .on('mouseleave.matecat', function (ev) {
+            $(window).trigger('hideAlignmentByMouse', ev.target);
+          })
+      });
+      
+      $('.text', UI.currentSegment).find('.vis-commands').show();
+      addSearchReplaceEvents();
+    }
+    else {
+      //console.log("***ALREADY OPENED SEGMENT***", $target[0], trace())
+    }
   };
 
   UI.closeSegment = function(editarea) {
@@ -259,6 +274,7 @@ $(function(){
     if (editarea) {
       var sid = $(editarea).attr('id');
       var $target = $('#'+sid+'-editarea'), $source = $('#'+sid+'-editarea');
+      //console.log("***CLOSE SEGMENT***", $target[0], trace())
       $target.find('*').andSelf().off('.matecat');
       $source.find('*').andSelf().off('.matecat');
       $target.editableItp('destroy');
