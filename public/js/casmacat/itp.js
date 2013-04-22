@@ -130,7 +130,7 @@ $(function(){
   var original_doRequest = UI.doRequest;
   var original_copySuggestionInEditarea = UI.copySuggestionInEditarea;
 
-  // Fix buttons being created more than once
+  // XXX: Fix buttons being created more than once
   UI.createButtons = function() {
     var $button = $('#segment-'+this.currentSegmentId+'-button-translated');
     if ($button.length === 0) original_createButtons.apply(UI);
@@ -138,6 +138,8 @@ $(function(){
 
   UI.openSegment = function(editarea) {
     original_openSegment.call(UI, editarea);
+    // XXX: in ITP mode Matecat does not clear blockButtons
+    UI.blockButtons = false;
     var $target = $(editarea), sid = $target.data('sid'), $source = $("#segment-" + sid + "-source");
     if (!$target.data('itp')) {
       //console.log("***OPEN SEGMENT***", $target[0], trace())
