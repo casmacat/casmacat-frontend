@@ -29,6 +29,11 @@ class saveLogChunkController extends ajaxcontroller {
     }
 
     public function doAction() {
+
+        $db = Database::obtain();
+        $db->query("SET AUTOCOMMIT=0");
+        $db->query("START TRANSACTION");
+
         try {
             $eventCount = count($this->logList);
             log::doLog("CASMACAT: saveLogChunkController->doAction(): Processing of logList containing '" . $eventCount . "' elements...");
@@ -142,6 +147,9 @@ class saveLogChunkController extends ajaxcontroller {
                         break;
 
                     default:
+                        $db->query("COMMIT");   // at least, store what was ok
+                        $db->query("SET AUTOCOMMIT=1");
+
 //                        $this->result["executionTime"] = time() - $this->startTime;
                         $this->result["code"] = -1;
                         $this->result["errors"][] = array("code" => -1, "message" => "Unknown log event type: '$logEvent->type' at index: '$key'");
@@ -150,6 +158,8 @@ class saveLogChunkController extends ajaxcontroller {
                         return -1;
                 }
             }
+            $db->query("COMMIT");
+            $db->query("SET AUTOCOMMIT=1");
 
             $this->result["executionTime"] = Tools::getCurrentMillis() - $this->startTime;
             $this->result["code"] = 0;
@@ -157,6 +167,9 @@ class saveLogChunkController extends ajaxcontroller {
             log::doLog("CASMACAT: saveLogChunkController->doAction(): Processing of logList containing '" . $eventCount . "' elements finished, time used: '" . $this->result["executionTime"] . "' ms.");
         }
         catch (Exception $e) {
+            $db->query("COMMIT");   // at least, store what was ok
+            $db->query("SET AUTOCOMMIT=1");
+
 //            $this->result["executionTime"] = time() - $this->startTime;
             $this->result["code"] = -1;
             $this->result["errors"][] = array("code" => -1, "message" => "Unexcpected error: '" . $e->GetMessage() . "'");
