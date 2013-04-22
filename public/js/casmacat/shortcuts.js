@@ -90,6 +90,8 @@
     $ea.editableItp('updateConfig', {
       mode: newMode
     });
+    // start session with new ITP mode
+    $ea.editableItp('startSession');
     // Inform user via UI
     // FIXME: Selecting by ID doesn't work (!?) We must specify also the node type: a#id
     $('.itp-indicator').text(newMode);

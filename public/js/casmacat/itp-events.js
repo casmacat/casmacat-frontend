@@ -507,7 +507,7 @@ var Memento = require("module.memento");
        
           if (isPrintableChar(e)) {
             throttle(function() {
-              if (data.str != source) {
+              if (data.str !== source) {
                 var query = {
                   source: source,
                   //num_results: 2,
@@ -576,7 +576,7 @@ var Memento = require("module.memento");
           
           if (isPrintableChar(e)) {
             throttle(function () {
-              if (data.str != target) {
+              if (data.str !== target) {
                 // Predict from last edited token onwards
                 $target.find('span').each(function(i, elem){
                   // TODO
