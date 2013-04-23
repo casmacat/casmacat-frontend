@@ -158,12 +158,20 @@ var Memento = require("module.memento");
       //itp.on('receiveLog', function(msg) { console.log('server says:', msg); });
     
       itp.on('resetResult', function(data, err) {
+        if (err.length > 0) {
+          return
+        }
+
         itp.configure(userCfg());
         $target.trigger('ready', 'reset');
       });
       
       // Handle translation responses
       itp.on('decodeResult', function(data, err) {
+        if (err.length > 0) {
+          return
+        }
+
         // make sure new data still applies to current source
         if (data.source !== $source().editable('getText')) {
           console.warn("Current source and received source do not match");
@@ -193,6 +201,10 @@ var Memento = require("module.memento");
       });
     
       itp.on('startSessionResult', function(data, err) {
+        if (err.length > 0) {
+          return
+        }
+
         var query = {
           source: $source().editable('getText'),
           target: $target.editable('getText'),
@@ -203,6 +215,10 @@ var Memento = require("module.memento");
 
       // Handle post-editing (target has changed but not source)
       itp.on('applyReplacementRulesResult', function(data, err) {
+        if (err.length > 0) {
+          return
+        }
+
         if (data.source !== $source().editable('getText')) return;
         
       	self.vis.updateTranslationDisplay(data);
@@ -216,10 +232,15 @@ var Memento = require("module.memento");
  
       // Handle post-editing (target has changed but not source)
       itp.on('getTokensResult', function(data, err) {
+        if (err.length > 0) {
+          return
+        }
+
         // make sure new data still applies to current source and target texts
         if (data.source !== $source().editable('getText')) return;
         if (data.target !== $target.editable('getText')) return;
-    
+
+
       	self.vis.updateTranslationDisplay(data);
 
 
@@ -250,6 +271,10 @@ var Memento = require("module.memento");
     
       // Handle alignment changes (updates highlighting and alignment matrix) 
       itp.on('getAlignmentsResult', function(data, err) {
+        if (err.length > 0) {
+          return
+        }
+
         self.vis.updateAlignmentDisplay(data);
         $target.trigger('alignments', [data, err]);
         $target.trigger('editabledomchange', [data, err]);
@@ -257,6 +282,10 @@ var Memento = require("module.memento");
     
       // Handle confidence changes (updates highlighting) 
       itp.on('getConfidencesResult', function(data, err) {
+        if (err.length > 0) {
+          return
+        }
+
         //var start_time = new Date().getTime();
         self.vis.updateWordConfidencesDisplay(data);
         //console.log("update_word_confidences_display:", new Date().getTime() - start_time, obj.data.elapsed_time);
@@ -266,6 +295,10 @@ var Memento = require("module.memento");
     
       // Handle confidence changes (updates highlighting) 
       itp.on(['setPrefixResult', 'rejectSuffixResult'], function(data, err) {
+        if (err.length > 0) {
+          return
+        }
+
         // make sure new data still applies to current source
         if (data.source !== $source().editable('getText')) {
           console.warn("Current source and received source do not match");
