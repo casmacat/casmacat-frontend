@@ -230,10 +230,10 @@ UI = {
             UI.blockButtons = true;
 
             UI.setStatusButtons(this);
-            $(".editarea", UI.nextSegment).click();
             UI.changeStatus(this,'translated',0);
             UI.changeStatusStop = new Date();
             UI.changeStatusOperations = UI.changeStatusStop - UI.buttonClickStop;
+            $(".editarea", UI.nextSegment).click();
             if(UI.segmentIsLoaded(UI.nextSegmentId) || UI.nextSegmentId=='' ) {
                 if(UI.debug) console.log('next segment is loaded');
             } else {
