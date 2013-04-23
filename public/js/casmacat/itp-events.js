@@ -332,7 +332,7 @@ var Memento = require("module.memento");
         var conf = userCfg();
         if (conf.useAlignments) {
           if (conf.displayCaretAlign || conf.displayMouseAlign) {
-            var validated_words = $('.editable-token', $target).map(function() { return (this.dataset.validated)?true:false; }).get();
+            var validated_words = $('.editable-token', $target).map(function() { return this.dataset.validated === "true"; }).get();
             var query = {
               source: $source.editable('getText'),
               target: $target.editable('getText'),
@@ -347,7 +347,7 @@ var Memento = require("module.memento");
         var conf = userCfg();
         if (conf.useAlignments) {
           if (conf.displayConfidences) {
-            var validated_words = $('.editable-token', $target).map(function() { return (this.dataset.validated)?true:false; }).get();
+            var validated_words = $('.editable-token', $target).map(function() { return this.dataset.validated === "true"; }).get();
             var query = {
               source: $source.editable('getText'),
               target: $target.editable('getText'),
@@ -443,7 +443,7 @@ var Memento = require("module.memento");
             $token = $('.editable-token', $target).filter(function(e){ return this.dataset.limited === "true" && this.dataset.prefix !== "true";}).first();
           }
           // if we don't have prioritizer, we find the token next to the caret position 
-          if (ui.prioritizer === 'none' || $token.length === 0) {
+          if (ui.prioritizer === 'none' || !$token || $token.length === 0) {
           //else {
             //if (self.currentCaretPos && self.currentCaretPos.token) {
             //$token = $(self.currentCaretPos.token.elem);
@@ -562,7 +562,7 @@ var Memento = require("module.memento");
       // on keyup throttle a new translation
       .bind('keyup' + nsClass, function(e) {
         var conf = userCfg();
-        if (conf.mode != 'PE') {
+        if (true) { // also update in PE to update tokenization and validated tokens || conf.mode != 'PE') {
           var $this = $(this),
               data = $this.data('editable'),
               target = $this.editable('getText'),
@@ -573,7 +573,7 @@ var Memento = require("module.memento");
           if (spanElem && spanElem.parentNode && $(spanElem.parentNode).is('.editable-token')) {
             spanElem = spanElem.parentNode;
           }
-          var suffixHasUserCorrections = $(spanElem).nextAll('.editable-token').filter(function(index, elem){ return elem.dataset.validated; });
+          var suffixHasUserCorrections = $(spanElem).nextAll('.editable-token').filter(function(index, elem){ return elem.dataset.validated === "true"; });
  
           var targetId = $(spanElem).attr('id');
           // Remember interacted words only when the user types in the right span
@@ -596,7 +596,7 @@ var Memento = require("module.memento");
                   numResults: 1
                 }
                 var itpCfg = cfg(), itp = itpCfg.itpServer;
-                if (suffixHasUserCorrections.length === 0) {
+                if (suffixHasUserCorrections.length === 0 && conf.mode != 'PE') {
                   itp.setPrefix(query);
                 }
                 else {
