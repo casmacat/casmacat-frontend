@@ -124,17 +124,10 @@ $(function(){
   UI.reinitMMShortcuts    = function(){}; // Use shortcuts.js instead
   var shortcuts = require('shortcuts');
 
-  var original_createButtons = UI.createButtons;
   var original_openSegment = UI.openSegment;
   var original_closeSegment = UI.closeSegment;
   var original_doRequest = UI.doRequest;
   var original_copySuggestionInEditarea = UI.copySuggestionInEditarea;
-
-  // XXX: Fix buttons being created more than once
-  UI.createButtons = function() {
-    var $button = $('#segment-'+this.currentSegmentId+'-button-translated');
-    if ($button.length === 0) original_createButtons.apply(UI);
-  }
 
   UI.openSegment = function(editarea) {
     original_openSegment.call(UI, editarea);
