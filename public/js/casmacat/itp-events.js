@@ -222,6 +222,26 @@ var Memento = require("module.memento");
     
       	self.vis.updateTranslationDisplay(data);
 
+
+        // simulate decode event
+        decodedResult = { 
+          elapseTime:         data.elapsedTime,
+          source:             data.source,
+          sourceSegmentation: data.sourceSegmentation,
+          nbest: [{
+            elapsedTime: data.elapsedTime,
+            target: data.target,
+            targetSegmentation: data.targetSegmentation,
+            quality: 1.0,
+          }]
+        }
+        // Clean previous states
+        self.mousewheel.invalidate();
+        // First-time use of the mousewheel
+        self.mousewheel.addElement(decodedResult);
+        console.log('***ADD WHEEL***', decodedResult); 
+
+
         // resizes the alignment matrix in a smoothed manner but it does not fill missing alignments 
         // (makes a diff between previous and current tokens and inserts/replaces/deletes columns and rows)
         $target.trigger('tokens', [data, err]);

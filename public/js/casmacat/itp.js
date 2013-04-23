@@ -144,7 +144,7 @@ $(function(){
         } else {
           settings = $target.editableItp('getConfig');
         }
-        if ($target.text().length === 0 && settings.mode != "manual") {
+        if ($.trim($target.text()).length === 0 && settings.mode != "manual") {
           $target.editableItp('decode');
         }
         $target.editableItp('startSession');

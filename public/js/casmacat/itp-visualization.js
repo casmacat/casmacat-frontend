@@ -98,7 +98,7 @@
         // sentence is not updated; since the following condition does not match:
         // The prefix in the sentence does not match the prefix in the prediction.
         var matchPrefix = match.target.substr(0, d.pos);
-        if (targetPrefix === matchPrefix && conf.mode === match.author) {
+        if (targetPrefix === matchPrefix && (!match.author || conf.mode === match.author)) {
           $target.editable('setText', match.target, match.targetSegmentation);
 
           self.updateValidated(data.caretPos);
