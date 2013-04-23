@@ -260,7 +260,6 @@ var Memento = require("module.memento");
         self.mousewheel.invalidate();
         // First-time use of the mousewheel
         self.mousewheel.addElement(decodedResult);
-        console.log('***ADD WHEEL***', decodedResult); 
 
 
         // resizes the alignment matrix in a smoothed manner but it does not fill missing alignments 
