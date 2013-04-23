@@ -439,11 +439,12 @@ var Memento = require("module.memento");
         // find next token 
         if (mode == 'fwd') {
           // if we have a prioritizer, we rely on the representation and find the first greyed out token 
-          if (ui.prioritizer != 'none') {
-            $token = $('.editable-token', $target).filter(function(e){ return this.dataset.limited}).first();
+          if (ui.prioritizer != 'none' && ui.limitSuffixLength) {
+            $token = $('.editable-token', $target).filter(function(e){ return this.dataset.limited === "true";}).first();
           }
           // if we don't have prioritizer, we find the token next to the caret position 
-          else {
+          if (ui.prioritizer === 'none' || $token.length === 0) {
+          //else {
             //if (self.currentCaretPos && self.currentCaretPos.token) {
             //$token = $(self.currentCaretPos.token.elem);
             var tokenPos = $target.editable('getTokenAtCaret');
@@ -452,6 +453,7 @@ var Memento = require("module.memento");
               if ($token.parent().is('.editable-token')) {
                 $token = $token.parent();
               }
+              $token = $token.next('.editable-token');
               // move to the next token editable if we are at the end of a token and the next token is pasted
               // since we assume we are already at the beginning of the next token 
               if (tokenPos.elem.nodeValue.length - tokenPos.pos === 0 &&
