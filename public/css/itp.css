@@ -9,7 +9,7 @@
 .editarea[data-opt-mouse-align=true] > .mouse-align { background-color: yellow !important; }
 .source[data-opt-caret-align=true]   > .caret-align { background-color: aquamarine !important; }
 .editarea[data-opt-caret-align=true] > .caret-align { background-color: aquamarine !important; }
-.editarea[data-opt-limit-suffix-length=true] > .editable-token[data-limited=true] { opacity: 0.3; }
+.editarea[data-opt-limit-suffix-length=true] > .editable-token:not([data-prefix=true])[data-limited=true] { opacity: 0.3; }
 
 .editarea[data-opt-last-validated=true] > .editable-token[data-last-validated=true]:after { content: "‸"; position: absolute; color: brown; } 
 
