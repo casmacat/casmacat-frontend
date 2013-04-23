@@ -88,7 +88,7 @@ $(function(){
 
         // A button to clear canvas (see http://ikwebdesigner.com/special-characters/)
         if ($clearBtn.length === 0) {
-          $clearBtn = $('<li/>').html('<a href="#" class="draft pen-clear-indicator" title="Clear drawing area">&#10227;</a>');
+          $clearBtn = $('<li/>').html('<a href="#" class="itp-btn pen-clear-indicator" title="Clear drawing area">&#10227;</a>');
           $clearBtn.click(function(e){
             e.preventDefault();
             $canvas.sketchable('clear');
@@ -152,7 +152,7 @@ $(function(){
         // A button to toggle ITP mode
         $indicator = ('.buttons', UI.currentSegment).find('.itp-indicator');
         if (config.itpEnabled && $indicator.length === 0) {
-          $indicator = $('<li/>').html('<a href="#" class="draft itp-indicator">'+settings.mode+'</a><p>ESC</p>');
+          $indicator = $('<li/>').html('<a href="#" class="itp-btn itp-indicator">'+settings.mode+'</a><p>ESC</p>');
           $indicator.click(function(e){
             e.preventDefault();
             UI.toggleItp(e);
@@ -162,7 +162,7 @@ $(function(){
         // A button to toggle e-pen mode
         $indicator = $('.buttons', UI.currentSegment).find('.pen-indicator');
         if (config.htrserver && config.penEnabled && $indicator.length === 0) {
-          $indicator = $('<li/>').html('<a href="#" class="draft pen-indicator" title="Toggle e-pen input">&#9997;</a>');
+          $indicator = $('<li/>').html('<a href="#" class="itp-btn pen-indicator" title="Toggle e-pen input">&#9997;</a>');
           $indicator.click(function(e){ 
             e.preventDefault();
             toogleEpenMode(editarea);
