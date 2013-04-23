@@ -116,9 +116,9 @@ $(function(){
     });
   };
 
-  if (config.debug) {
+  //if (config.debug) {
     $('header .breadcrumbs').prepend($('<span style="float:left"><a href="'+config.basepath+'?action=listDocuments">Document list</a> &gt;</span>'))
-  }
+  //}
 
   // Overwrite UI methods ------------------------------------------------------
 
