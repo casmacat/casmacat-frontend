@@ -106,35 +106,35 @@
   // Define key bindings here
   
   var keyBindings = {
-        'Ctrl+up': loadPrevSegment,
-      'Ctrl+down': loadNextSegment,
-    'Ctrl+insert': copySourceToTarget,
-    'Ctrl+return': validateTranslation,
-         'Ctrl+1': chooseSuggestion,
-         'Ctrl+2': chooseSuggestion,
-         'Ctrl+3': chooseSuggestion,
-         'Ctrl+4': chooseSuggestion,
-         'Ctrl+5': chooseSuggestion,
-       'Ctrl+del': clearTarget,
+        'ctrl+up': loadPrevSegment,
+      'ctrl+down': loadNextSegment,
+    'ctrl+insert': copySourceToTarget,
+    'ctrl+return': validateTranslation,
+         'ctrl+1': chooseSuggestion,
+         'ctrl+2': chooseSuggestion,
+         'ctrl+3': chooseSuggestion,
+         'ctrl+4': chooseSuggestion,
+         'ctrl+5': chooseSuggestion,
+       'ctrl+del': clearTarget,
             'esc': UI.toggleItp,
          'return': saveDraft,
   };
   
   var toggleKeyBindings = {
-   'Ctrl+Shift+1': 'displayMouseAlign',
-         'Ctrl+Y': 'displayCaretAlign',
-   'Ctrl+Shift+3': 'displayConfidences',
-   'Ctrl+Shift+4': 'highlightValidated',
-   'Ctrl+Shift+5': 'highlightPrefix',
-   'Ctrl+Shift+Y': 'highlightLastValidated',
-   'Ctrl+Shift+S': 'limitSuffixLength',
-  }
+   'ctrl+shift+1': 'displayMouseAlign',
+         'ctrl+m': 'displayCaretAlign',
+   'ctrl+shift+3': 'displayConfidences',
+   'ctrl+shift+4': 'highlightValidated',
+   'ctrl+shift+5': 'highlightPrefix',
+   'ctrl+shift+m': 'highlightLastValidated',
+   'ctrl+shift+s': 'limitSuffixLength',
+  };
 
   function toggleOpt(optname, value) {
     return function(e) {
       getEditArea().editableItp('toggle', optname, value);
     }
-  }
+  };
 
   for (var k in keyBindings) {
     if (keyBindings.hasOwnProperty(k)) {
@@ -142,14 +142,15 @@
     }
   }
 
-  for (var k in toggleKeyBindings) {
-    if (toggleKeyBindings.hasOwnProperty(k)) {
-      UI.addKeyboardShortcut(k, toggleOpt(toggleKeyBindings[k]));
+  for (var t in toggleKeyBindings) {
+    if (toggleKeyBindings.hasOwnProperty(t)) {
+      UI.addKeyboardShortcut(t, toggleOpt(toggleKeyBindings[t]));
     }
   }
 
  
   module.exports = {
     toggles: toggleKeyBindings,
-  }
+  };
+  
 })('object' === typeof module ? module : {}, this);
