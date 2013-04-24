@@ -36,20 +36,32 @@
             }
           }
 
+          var $lastEditedToken = $(lastEditedToken);
           if (lastEditedToken) {
             // XXX: do not use jquery data if you want css selectors to work
             lastEditedToken.dataset.validated = true;
-            lastEditedToken.dataset.prefix = true;
-            $(lastEditedToken).prevAll(".editable-token").each(function(i, elem) {
-              elem.dataset.prefix = true;
-              elem.setAttribute('data-last-validated', false);
+            $lastEditedToken.prevAll(".editable-token").each(function(i, elem) {
               // if the element in the prefix has been inserted, then it must have been introduced by the user 
               if ($(elem).data('merge-type') !== 'N') {
                 elem.dataset.validated = true;
               }
             });
-            var $lastValidated = $(lastEditedToken).nextAll(".editable-token[data-last-validated=true]");
-            lastEditedToken.setAttribute('data-last-validated', ($lastValidated.length === 0));
+            
+            var $lastValidated = $lastEditedToken.nextAll('.editable-token[data-validated=true]').last();
+            if (!$lastValidated || $lastValidated.length === 0)  {
+              $lastValidated = $lastEditedToken;
+            }
+            $lastValidated.attr('data-last-validated', true);
+
+            $lastValidated.prevAll(".editable-token").each(function(i, elem) {
+              elem.removeAttribute('data-last-validated');
+            });
+            $lastValidated.prevAll(".editable-token").andSelf().each(function(i, elem) {
+              elem.dataset.prefix = true;
+            });
+            $lastValidated.nextAll(".editable-token").each(function(i, elem) {
+              delete elem.dataset.prefix;
+            });
           }
         }
       }
@@ -247,8 +259,11 @@
         $(this).data('priority', priorities[index]);
       });
 
-      var $currentToken = $($target.editable('getTokenAtCaret').elem);
-      self.updateWordPriorityDisplay($target, $currentToken);
+      var caretTok = $target.editable('getTokenAtCaret');
+      if (caretTok.elem) {
+        var $currentToken = $(caretTok.elem);
+        self.updateWordPriorityDisplay($target, $currentToken);
+      }
     }
 
     self.updateWordPriorityDisplay = function($target, $token) {
@@ -267,17 +282,18 @@
       }
 
       var currentPriority = $token.data('priority');
-      var $firstLimited = $spans.filter(function() { 
+      var $firstLimited = $token.nextAll('.editable-token').filter(function() { 
         var priority = $(this).data('priority');
         return priority > 0 && priority >= currentPriority + userPriorityLength; 
       }).first();
       if ($firstLimited && $firstLimited.length) { 
-        $firstLimited.nextAll().andSelf().each(function() {
+        $firstLimited.prevAll('.editable-token').each(function() {
+          delete this.dataset.limited;
+        });
+        $firstLimited.nextAll('.editable-token').andSelf().each(function() {
           this.dataset.limited = true;
         });
       }
-      var priors = $spans.map(function() { return [$(this).data('priority'), this.dataset.limited]; });
-      console.log('***PRIORITIES***', $token[0], currentPriority, priors);
     }
  
     // updates the confidence display with new confidence info      
