@@ -481,7 +481,7 @@ UI = {
         this.editarea = $(editarea);
         // current and last opened object reference caching
         this.lastOpenedSegment = this.currentSegment;
-        this.lastOpenedEditarea = $('.editarea',this.currentSegment);
+//        this.lastOpenedEditarea = $('.editarea',this.currentSegment);
         this.currentSegmentId = this.lastOpenedSegmentId = this.editarea.data('sid');
         this.currentSegment = segment = $('#segment-'+this.currentSegmentId);
         this.currentArticle = segment.parent();
@@ -531,7 +531,8 @@ UI = {
         var closeStart = new Date();
         this.deActivateSegment(byButton);
 
-        this.lastOpenedEditarea.attr('contenteditable','false');
+//        this.lastOpenedEditarea.attr('contenteditable','false');
+        this.editarea.attr('contenteditable','false');
         this.body.removeClass('editing');
         $(segment).removeClass("editor");
         //		$('#downloadProject').focus();
@@ -584,7 +585,7 @@ UI = {
     createButtons: function() {
         // XXX: Fix buttons being created more than once
         var $button = $('#segment-'+this.currentSegmentId+'-button-translated');
-        if (!$button || $button.length === 0) { 
+        if (!$button || $button.length === 0) {
           var disabled = (this.currentSegment.hasClass('loaded'))? '' : ' disabled="disabled"';
           var buttons  = '<li><a id="segment-'+this.currentSegmentId+'-copysource" ';
               buttons += 'href="#" class="btn copysource" data-segmentid="segment-'+this.currentSegmentId+'" ';
@@ -992,8 +993,6 @@ UI = {
         this.opening = true;
 //----------------------------------------Here gehts weiter
         // CASMACAT extension start
-//        if (config.replay != 1) { // TODO check this!!! two buttons may be added when
-//        click tranlsate segment x, close segment x+1, open x+1
 //        AND sanitize problem
 //if (config.enable_itp)
             if(!(this.currentSegment.is(this.lastOpenedSegment))) this.closeSegment(this.lastOpenedSegment,0);
@@ -1004,6 +1003,7 @@ UI = {
         this.body.addClass('editing');
 
         segment.addClass("editor");
+
         this.editarea.attr('contenteditable','true');
         this.editStart = new Date();
         $(editarea).removeClass("indent");
