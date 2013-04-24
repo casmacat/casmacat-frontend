@@ -256,9 +256,8 @@
                 }
                 else {
                     debug(pluginName + ": Stopped (normal).");
+                    closeWindow();
                 }
-//                window.close();
-                closeWindow();
             }
         }
     };
@@ -680,7 +679,7 @@
     };
 
     var closeWindow = function() {
-        window.open('', '_self', '');
+        window.open("", "_self", "");
         window.close();
     };
 

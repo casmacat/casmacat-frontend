@@ -7,7 +7,7 @@ $(function() {
 //debug("Article loaded");
     if (!config.replay) {
         if (config.debug) { // enable reset document button
-            $("#resetDocument").on("click", function(e) {
+            $("#resetDocument").text('Reset Document').on("click", function(e) {
                 e.preventDefault();
 
                 $(window).logging("stop", true);
