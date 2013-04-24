@@ -117,7 +117,15 @@ $(function(){
   };
 
   //if (config.debug) {
-    $('header .breadcrumbs').prepend($('<span style="float:left"><a href="'+config.basepath+'?action=listDocuments">Document list</a> &gt;</span>'))
+    var $listDocs = $('<span style="float:left"><a href="'+config.basepath+'listdocuments/">Document list</a> &gt;</span>');
+    var $shortCut = $('<div><a href="'+config.basepath+'listshortcuts/"><strong>Shortcuts</strong></a></div>');
+    $shortCut.find("a").click(function(e){
+      e.preventDefault();
+      var url = $(this).attr("href");
+      //window.open(url, "shortcuts-popup", "width=600,height=300,resizable=no,location=no,status=no,titlebar=no,toolbar=no,directories=no");
+      window.open(url); // Just open in a new tab
+    });
+    $('header .breadcrumbs').prepend($listDocs).append($shortCut);
   //}
 
   // Overwrite UI methods ------------------------------------------------------
@@ -180,7 +188,7 @@ $(function(){
           for (var opt in shortcuts.toggles) {
             var toggleId = shortcuts.toggles[opt],
                 labelId  = $(UI.currentSegment).attr("id") + "-" + toggleId, 
-                sc = opt.toUpperCase();
+                sc = opt.toUpperCase(),
                 prefStatus  = config.prefs[toggleId],
                 checkStatus = (prefStatus) ? ' checked="checked"' : '';
             nav += '<input title='+sc+' type="checkbox" '+checkStatus+' id="'+labelId+'" name="'+toggleId+'"><label title='+sc+'>'+toggleId+'</label> ';
