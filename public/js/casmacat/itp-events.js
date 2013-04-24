@@ -25,9 +25,6 @@ var Memento = require("module.memento");
     return false;
   };
 
-  // This is needed for the MouseWheel to remember the state before committing a reject
-  var decodedResult;
-  
   var ItpEvents = function($target, namespace, nsClass) {
     var self = this;
 
@@ -56,6 +53,9 @@ var Memento = require("module.memento");
     
     self.mousewheel = new MouseWheel();
     self.mousewheel.init($target, {
+      equal: function(data1, data2) {
+        return !data1 || (data2 && (data1.nbest.length === 0 || data1.nbest[0].target === data2.nbest[0].target));
+      },
       change: function(data) {
         if (!Boolean($target.editable('getText'))) {
           return false;
@@ -64,7 +64,7 @@ var Memento = require("module.memento");
           console.log("Loading previous data...", data);
           self.vis.updateSuggestions(data);
         } else {
-          console.log("Rejecting...", decodedResult);
+          console.log("Rejecting...");
           reject();
         }
       }
@@ -88,6 +88,9 @@ var Memento = require("module.memento");
 //            self.memento.replaceElement(pos, clonedNode);
 //          }
         });
+      },
+      equal: function(data1, data2) {
+        return !data1 || (data2 && data1.text === data2.text);
       },
       change: function(data) {
         $target.editable('setText', data.text);
@@ -188,7 +191,6 @@ var Memento = require("module.memento");
         //  itp.startSession({source: data.source});
         //}
 
-        decodedResult = data;
         // Clean previous states
         self.mousewheel.invalidate();
         self.memento.invalidate();
@@ -245,7 +247,7 @@ var Memento = require("module.memento");
 
 
         // simulate decode event
-        decodedResult = { 
+        var decodedResult = { 
           elapseTime:         data.elapsedTime,
           source:             data.source,
           sourceSegmentation: data.sourceSegmentation,
@@ -589,8 +591,7 @@ var Memento = require("module.memento");
       function forgetState(caretPos) {
         // IF "implicit reject on click" AND "cursor pos has chaged": invalidate previous states
         if (typeof self.currentCaretPos != 'undefined' && caretPos !== self.currentCaretPos.pos) {
-          self.mousewheel.invalidate();
-          self.mousewheel.addElement(decodedResult);
+          self.mousewheel.invalidate(true);
         }
       };
             

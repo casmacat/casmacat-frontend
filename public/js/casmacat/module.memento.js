@@ -45,12 +45,18 @@ require("jquery.hotkeys");
     self.version = "0.2";
     
     self.addElement = function(elem) {
-      stack.length = pos + 1;
-      saveState(elem);
+      if (!self.equal(elem, stack[pos])) {
+        stack.length = pos + 1;
+        saveState(elem);
+      }
     };
 
-    self.invalidate = function() {
+    self.invalidate = function(keepCurrentState) {
+      var last = stack[pos];
       resetState();
+      if (keepCurrentState) {
+        saveState(last);
+      }
     };
 
     self.getState = function() {
@@ -85,6 +91,9 @@ require("jquery.hotkeys");
       return data;
     };
         
+    self.equal = function(data1, data2) {
+      return data1 === data2;
+    };
   };
   
   // Expose module
