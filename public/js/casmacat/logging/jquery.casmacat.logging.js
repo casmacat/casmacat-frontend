@@ -150,9 +150,7 @@
 //                return methods.init.apply( this, arguments );
 //            }
             else {
-                $.error("Method '" + optionsOrMethod + "' does not exist on '" + pluginName + "'"); // TODO what is the
-                                                                                                    // functionality of
-                                                                                                    // the '$.error()'?
+                $.error("Method '" + optionsOrMethod + "' does not exist on '" + pluginName + "'");
                 return null;    // just to satisfy the parser/compiler
             }
         });
@@ -177,7 +175,7 @@
                 debug(pluginName + ": Running in elementIdMode: '" + settings.elementIdMode + "'.");
 
                 if (!bindToEvents()) {  // this is necessary for 'window' position calibration
-//                    return;
+//                    return;   // TODO not necessary any more, remove this whole 'if' someday
                 };
                 logList = [];
                 storeLogEvent(logEventFactory.newLogEvent(logEventFactory.START_SESSION, "window"));   // initialise with 'start session'
@@ -193,15 +191,13 @@
 //            debug(pluginName + ": Pausing...");
 //        },
 
-        stop: function(force) {
+        stop: function(force, close) {
             debug(pluginName + ": Stopping...");
             if (!isLogging) {
                 alert("Log has not been started!");
                 $.error("Log has not been started");
             }
             else {
-//                $.fn.showOverlay();
-
                 unbindFromEvents();
 
                 if (!force) {
@@ -218,7 +214,6 @@
                         else {
                             uploadLogChunk(false);
                         }
-//                        uploadLogChunk(logList, false);
                     }
 
                     // wait for uploads to complete
@@ -237,8 +232,9 @@
                                 isLogging = false;
 //                                $.fn.hideOverlay("chunksUpload");
                                 debug(pluginName + ": Stopped (upload).");
-//                                window.close();
-                                closeWindow();
+                                if (close) {
+                                    closeWindow();
+                                }
                             }
                         }, chunkUploadCompletedInterval);
 
@@ -250,13 +246,11 @@
                 logList = [];
                 isLogging = false;
 
-//                $.fn.hideOverlay();
                 if (force) {
                     debug(pluginName + ": Stopped (force).");
                 }
                 else {
                     debug(pluginName + ": Stopped (normal).");
-                    closeWindow();
                 }
             }
         }
@@ -759,25 +753,19 @@
 
     var windowClose = function(e) {
         debug(pluginName + ": Window closed.");
-//        unbindFromEvents();
-//        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.STOP_SESSION, window));
-//        uploadLogChunk(false);
-//
-//        debug(pluginName + ": Window closed, logging finished.");
-//        return "Window closed, logging finished.";    // will display a dialog whether to leave the page
 
         var msg = "Upload of log data is still in progress. Please CANCEL this dialog now and wait until the upload is finished."
             + "The page will then close automatically.\n\nDo you really want to abort the upload and loose the data?";
 
         if (!isLogging && chunksUploading > 0) {
             debug(pluginName + ": Window close called while still uploading, notifying user again...");
-            return msg; // let use cancel
+            return msg; // let user cancel
         }
 
-        methods["stop"]();
+        methods["stop"](false, true);
 
         if (chunksUploading > 0) {
-            return msg; // let use cancel
+            return msg; // let user cancel
         }
     };
 
