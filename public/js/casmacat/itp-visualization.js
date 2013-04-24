@@ -243,8 +243,6 @@
 
 
     self.updateWordPriorities = function($target, priorities) {
-      // get target span tokens 
-
       $('.editable-token', $target).each(function(index) {
         $(this).data('priority', priorities[index]);
       });
@@ -255,7 +253,7 @@
 
     self.updateWordPriorityDisplay = function($target, $token) {
       // get target span tokens 
-      var spans = $('.editable-token', $target)
+      var $spans = $('.editable-token', $target)
         , userPriorityLength = userCfg().priorityLength
         ;
 
@@ -269,10 +267,17 @@
       }
 
       var currentPriority = $token.data('priority');
-      spans.each(function() {
-        var $span = $(this), scale = 2.0;
-        this.dataset.limited = ($span.data('priority') >= currentPriority + userPriorityLength);
-      });
+      var $firstLimited = $spans.filter(function() { 
+        var priority = $(this).data('priority');
+        return priority > 0 && priority >= currentPriority + userPriorityLength; 
+      }).first();
+      if ($firstLimited && $firstLimited.length) { 
+        $firstLimited.nextAll().andSelf().each(function() {
+          this.dataset.limited = true;
+        });
+      }
+      var priors = $spans.map(function() { return [$(this).data('priority'), this.dataset.limited]; });
+      console.log('***PRIORITIES***', $token[0], currentPriority, priors);
     }
  
     // updates the confidence display with new confidence info      
