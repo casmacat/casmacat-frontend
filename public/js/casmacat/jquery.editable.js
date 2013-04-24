@@ -371,18 +371,6 @@
           $this.empty();
           $this.append(tokens.contents()); 
           $this.editable('setCaretPos', pos);
-          var tokenAtPos = $this.editable('getTokenAtCaretPos', pos);
-          if (tokenAtPos.pos > 0) {
-            var lastEditedToken = tokenAtPos.elem;
-            if (lastEditedToken.parentNode && $(lastEditedToken.parentNode).is('.editable-token')) {
-              lastEditedToken = lastEditedToken.parentNode;
-            }
-            // XXX: do not use jquery data if you want css selectors to work
-            lastEditedToken.dataset.validated = true;
-          }
-          $(lastEditedToken).prevAll(".editable-token").andSelf().each(function(i, elem){
-            elem.dataset.prefix = true;
-          });
         }
         else {
           $this.empty();

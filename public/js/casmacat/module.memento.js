@@ -42,7 +42,7 @@ require("jquery.hotkeys");
     
     // Public API --------------------------------------------------------------
     self.id = "Memento";
-    self.version = "0.1";
+    self.version = "0.2";
     
     self.addElement = function(elem) {
       stack.length = pos + 1;
@@ -59,9 +59,11 @@ require("jquery.hotkeys");
     
     // Mandatory intialization method ------------------------------------------
     self.init = function(elem, options) {
-      $(elem).bind('keydown', 'Ctrl+z', function(e){
+      $(elem).bind('keydown', 'ctrl+z', function(e){
         onUndo(e);
-      }).bind('keydown', 'Ctrl+y', function(e){ 
+      }).bind('keydown', 'ctrl+y', function(e){
+        onRedo(e);
+      }).bind('keydown', 'ctrl+shift+z', function(e){
         onRedo(e);
       });
       // Attach other listeners, if any
