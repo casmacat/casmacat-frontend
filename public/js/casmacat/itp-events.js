@@ -30,15 +30,17 @@ var Memento = require("module.memento");
 
     self.vis = new ItpVisulization($target, namespace, nsClass);
 
+    var lockReject = false;
     function cfg()     { return $target.data(namespace); }
     function userCfg() { return cfg().config; }
     function $source() { return $target.data(namespace).$source; }
     function reject() {
       var conf = cfg();
-      if (conf.config.mode != 'PE') {
+      if (conf.config.mode != 'PE' && !lockReject) {
         var target = $target.editable('getText'),
             pos    = $target.editable('getCaretPos');
 
+        lockReject = true;
         conf.itpServer.rejectSuffix({
           target: target,
           caretPos: pos,
@@ -295,6 +297,10 @@ var Memento = require("module.memento");
       });
     
       // Handle confidence changes (updates highlighting) 
+      itp.on('rejectSuffixResult', function(data, err) {
+        lockReject = false;
+      });
+
       itp.on(['setPrefixResult', 'rejectSuffixResult'], function(data, err) {
         if (err.length > 0) {
           return
