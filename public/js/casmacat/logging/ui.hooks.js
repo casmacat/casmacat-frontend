@@ -74,11 +74,25 @@ $(function(){
         }
     }
 
+    var lastSegmentClosed = null;
     var original_closeSegment = UI.closeSegment;
-    UI.closeSegment = function(segment,byButton) {
+    UI.closeSegment = function(segment, byButton) {
 //        debug("ui.hooks: closeSegment()...");
 
-        original_closeSegment.call(UI, segment,byButton);
+        if (lastSegmentClosed === null && byButton === 1) {
+            lastSegmentClosed = segment.id;
+        }
+        original_closeSegment.call(UI, segment, byButton);
+        if (lastSegmentClosed !== null && byButton === 0) {
+            if (lastSegmentClosed === segment.id) {
+                debug("cat.js: Ignoring second closeSegment() call...");
+                lastSegmentClosed = null;
+                return;
+            }
+            else {
+                lastSegmentClosed = null;
+            }
+        }
 
         if (segment && config.replay != 1) {
             // when using the url:

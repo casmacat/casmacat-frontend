@@ -584,7 +584,7 @@ UI = {
     createButtons: function() {
         // XXX: Fix buttons being created more than once
         var $button = $('#segment-'+this.currentSegmentId+'-button-translated');
-        if (!$button || $button.length === 0) { 
+        if (!$button || $button.length === 0) {
           var disabled = (this.currentSegment.hasClass('loaded'))? '' : ' disabled="disabled"';
           var buttons  = '<li><a id="segment-'+this.currentSegmentId+'-copysource" ';
               buttons += 'href="#" class="btn copysource" data-segmentid="segment-'+this.currentSegmentId+'" ';
@@ -992,8 +992,6 @@ UI = {
         this.opening = true;
 //----------------------------------------Here gehts weiter
         // CASMACAT extension start
-//        if (config.replay != 1) { // TODO check this!!! two buttons may be added when
-//        click tranlsate segment x, close segment x+1, open x+1
 //        AND sanitize problem
 //if (config.enable_itp)
             if(!(this.currentSegment.is(this.lastOpenedSegment))) this.closeSegment(this.lastOpenedSegment,0);
