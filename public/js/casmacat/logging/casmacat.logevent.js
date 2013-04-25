@@ -41,6 +41,7 @@ var LogEventFactory = function(elementIdMode) {
     this.LOADING_SUGGESTIONS = "loadingSuggestions";
     this.SUGGESTIONS_LOADED = "suggestionsLoaded";
     this.SUGGESTION_CHOSEN = "suggestionChosen";
+    this.STATS_UPDATED = "statsUpdated";
 
     this.DECODE = "decode";
     this.ALIGNMENTS = "alignments";
@@ -187,6 +188,10 @@ LogEventFactory.prototype.newLogEvent = function(type, element) {
         case this.SUGGESTION_CHOSEN:    // which, translation
             logEvent.which = arguments[2];
             logEvent.translation = arguments[3];
+            break;
+
+        case this.STATS_UPDATED:
+            logEvent.stats = arguments[2];
             break;
 
         case this.DECODE:    // data

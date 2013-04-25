@@ -32,6 +32,15 @@ $(function(){
         original_setTranslation.call(UI, segment,status);
     };
 
+    var original_setTranslationSuccess = UI.setTranslationSuccess;
+    UI.setTranslationSuccess = function(d, segment, status) {
+        original_setTranslationSuccess.call(UI, d, segment, status);
+        var event = $.Event("statsUpdated");
+        event.segment = segment[0];
+        event.stats = d.stats;
+        $(window).trigger("statsUpdated", event);
+    };
+
     var original_changeStatus = UI.changeStatus;
     UI.changeStatus = function(ob,status,byStatus) {
         if (config.replay !== 1) {

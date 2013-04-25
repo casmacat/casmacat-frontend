@@ -116,6 +116,10 @@ function resetDocument($jobId, $fileId) {
                 deleteEventRow($logEvent->id, "suggestion_chosen_event");
                 break;
 
+            case LogEvent::STATS_UPDATED:
+                deleteEventRow($logEvent->id, "stats_event");
+                break;
+
             case LogEvent::DECODE:
             case LogEvent::ALIGNMENTS:
             case LogEvent::SUFFIX_CHANGE:
@@ -295,6 +299,11 @@ log::doLog($endOffset);
             case LogEvent::SUGGESTION_CHOSEN:
                 $eventRow = fetchEventRow($logEvent->id, "suggestion_chosen_event");
                 $logEvent->suggestionChosenData($eventRow);
+                break;
+
+            case LogEvent::STATS_UPDATED:
+                $eventRow = fetchEventRow($logEvent->id, "stats_event");
+                $logEvent->statsUpdatedData($eventRow);
                 break;
 
             case LogEvent::DECODE:
@@ -595,6 +604,30 @@ function insertSuggestionChosenEvent($event) {
     if ($errno != 0) {
         log::doLog("CASMACAT: insertSuggestionChosenEvent(): " . print_r($err, true));
         throw new Exception("CASMACAT: insertSuggestionChosenEvent(): " . print_r($err, true));
+//        return $errno * -1;
+    }
+}
+
+/**
+ * Inserts an entry into the stats_event and log_event_header table.
+ *
+ */
+function insertStatsUpdatedEvent($event) {
+    $headerId = insertLogEventHeader($event);
+
+    $data = array();
+    $data["id"] = "NULL";
+    $data["header_id"] = $headerId;
+    $data["stats"] = json_encode($event->stats);
+
+    $db = Database::obtain();
+    $db->insert("stats_event", $data);
+
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: insertStatsUpdatedEvent(): " . print_r($err, true));
+        throw new Exception("CASMACAT: insertStatsUpdatedEvent(): " . print_r($err, true));
 //        return $errno * -1;
     }
 }

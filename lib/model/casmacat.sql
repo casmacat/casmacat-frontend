@@ -54,14 +54,14 @@ CREATE TABLE `suggestion_chosen_event` (
   `which` varchar(2) NOT NULL COMMENT 'Stores the index of the translation chosen',
   `translation` text NOT NULL COMMENT 'Stores the translation chosen',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores segment changes.';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores choice of a suggestions.';
 
 CREATE TABLE `suggestions_loaded_event` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary key',
   `header_id` int(11) NOT NULL COMMENT 'Reference to log_event_header table',
   `matches` text NOT NULL COMMENT 'Stores all the matches found',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores suggestion changes.';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores successful load of suggestion array.';
 
 CREATE TABLE IF NOT EXISTS `itp_event` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary key',
@@ -131,3 +131,10 @@ CREATE TABLE `gaze_event` (
   `r_offset` INT(5) NOT NULL COMMENT 'The offset of the character within the HTML element',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores gaze events.';
+
+CREATE TABLE `stats_event` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary key',
+  `header_id` int(11) NOT NULL COMMENT 'Reference to log_event_header table',
+  `stats` text NOT NULL COMMENT 'Stores the stastic (progress/status) information',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores stastic (progress/status) information.';

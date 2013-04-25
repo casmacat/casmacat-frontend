@@ -20,6 +20,7 @@ class LogEvent {
     const LOADING_SUGGESTIONS = "loadingSuggestions";
     const SUGGESTIONS_LOADED = "suggestionsLoaded";
     const SUGGESTION_CHOSEN = "suggestionChosen";
+    const STATS_UPDATED = "statsUpdated";
 
     const DECODE = "decode";
     const ALIGNMENTS = "alignments";
@@ -130,6 +131,10 @@ class LogEvent {
     public function suggestionChosenData($object) {
         $this->which = $object->which;
         $this->translation = $object->translation;
+    }
+
+    public function statsUpdatedData($object) {
+        $this->stats = $object->stats;
     }
 
     public function itpData($object) {

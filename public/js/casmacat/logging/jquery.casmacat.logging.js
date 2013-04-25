@@ -529,6 +529,9 @@
 //            debugAttachedTo("suggestionChosen", window);
         }
 
+        // Monitor statistic changes
+        $(window).on("statsUpdated." + pluginName, statsUpdated);
+
         if (settings.logItp) {
 
           $(window).on("translationChange." + pluginName, itp);
@@ -1111,6 +1114,13 @@
 //                setFieldContents(inputField, $(inputField).val());
 //            }
 //        }
+    };
+
+    var statsUpdated = function(e, data) {
+        debug(pluginName + ": Statistics updated.");
+
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.STATS_UPDATED, data.segment,
+            data.stats));
     };
 
     // store translationChange event

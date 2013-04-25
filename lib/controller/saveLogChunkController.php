@@ -100,10 +100,14 @@ class saveLogChunkController extends ajaxcontroller {
                     case LogEvent::LOADING_SUGGESTIONS:
                         insertLogEventHeader($logEvent);
                         break;
-
                     case LogEvent::SUGGESTIONS_LOADED:
                         $logEvent->suggestionsLoadedData($value);
                         insertSuggestionsLoadedEvent($logEvent);
+                        break;
+
+                    case LogEvent::STATS_UPDATED:
+                        $logEvent->statsUpdatedData($value);
+                        insertStatsUpdatedEvent($logEvent);
                         break;
 
                     case LogEvent::DECODE:
