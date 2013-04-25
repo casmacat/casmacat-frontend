@@ -963,11 +963,11 @@
             if (getFieldContents(e.target) != $(e.target).text()) {
                 changes = $.fn.getChanges( getFieldContents(e.target), $(e.target).text() );
 
-//                debug(pluginName + ": Text changed: "
-//                    + "\n\told text: '" + getFieldContents(e.target) + "', "
-//                    + "\n\tnew text: '" + $(e.target).text() + "', "
-//                    + "\n\tdiff: (cursorPosition: '" + changes.cursorPosition + "', deleted: '" + changes.deleted
-//                        + "', inserted: '" + changes.inserted + "').");
+                debug(pluginName + ": Text changed: "
+                    + "\n\told text: '" + getFieldContents(e.target) + "', "
+                    + "\n\tnew text: '" + $(e.target).text() + "', "
+                    + "\n\tdiff: (cursorPosition: '" + changes.cursorPosition + "', deleted: '" + changes.deleted
+                        + "', inserted: '" + changes.inserted + "').");
 
                 setFieldContents(e.target, $(e.target).text());
             }
