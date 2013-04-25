@@ -236,6 +236,9 @@ $(function(){
             name = '#segment-' + sid + '-' + toggle;
         $indicator.find(name).attr('checked', value);
       })
+      .on('itptogglechange.matecat', function (ev, pos, stack) {
+        console.log('++logging itptogglechange', arguments);
+      })
       .on('mousewheelup.matecat', function (ev, pos, stack) {
         console.log('++logging mousewheelup', arguments);
       })

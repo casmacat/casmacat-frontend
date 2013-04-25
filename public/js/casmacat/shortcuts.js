@@ -101,6 +101,7 @@
     else {
       getEditArea().editableItp('toggle', 'limitSuffixLength', true);
     }
+    $ea.trigger('itptogglechange', [newMode]);
   };
   
   // Define key bindings here
