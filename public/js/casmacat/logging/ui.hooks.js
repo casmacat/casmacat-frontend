@@ -147,6 +147,14 @@ $(function(){
         }
     };
 
+    var original_setDeleteSuggestionSuccess = UI.setDeleteSuggestionSuccess;
+    UI.setDeleteSuggestionSuccess = function(d) {
+        original_setDeleteSuggestionSuccess.call(UI, d);
+        var event = $.Event("suggestionDeleted");
+        event.segment = segment[0];
+        $(window).trigger("suggestionDeleted", event);
+    };
+
     var original_topReached = UI.topReached;
     UI.topReached = function() {
         if (config.replay === 1) {

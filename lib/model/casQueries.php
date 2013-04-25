@@ -115,6 +115,11 @@ function resetDocument($jobId, $fileId) {
             case LogEvent::SUGGESTION_CHOSEN:
                 deleteEventRow($logEvent->id, "suggestion_chosen_event");
                 break;
+            case LogEvent::DELETING_SUGGESTION:
+                deleteEventRow($logEvent->id, "deleting_suggestion_event");
+                break;
+            case LogEvent::SUGGESTION_DELETED:
+                break;
 
             case LogEvent::STATS_UPDATED:
                 deleteEventRow($logEvent->id, "stats_event");
@@ -299,6 +304,12 @@ log::doLog($endOffset);
             case LogEvent::SUGGESTION_CHOSEN:
                 $eventRow = fetchEventRow($logEvent->id, "suggestion_chosen_event");
                 $logEvent->suggestionChosenData($eventRow);
+                break;
+            case LogEvent::DELETING_SUGGESTION:
+                $eventRow = fetchEventRow($logEvent->id, "deleting_suggestion_event");
+                $logEvent->deletingSuggestionData($eventRow);
+                break;
+            case LogEvent::SUGGESTION_DELETED:
                 break;
 
             case LogEvent::STATS_UPDATED:
@@ -604,6 +615,30 @@ function insertSuggestionChosenEvent($event) {
     if ($errno != 0) {
         log::doLog("CASMACAT: insertSuggestionChosenEvent(): " . print_r($err, true));
         throw new Exception("CASMACAT: insertSuggestionChosenEvent(): " . print_r($err, true));
+//        return $errno * -1;
+    }
+}
+
+/**
+ * Inserts an entry into the deleting_suggestion_event and log_event_header table.
+ *
+ */
+function insertDeletingSuggestionEvent($event) {
+    $headerId = insertLogEventHeader($event);
+
+    $data = array();
+    $data["id"] = "NULL";
+    $data["header_id"] = $headerId;
+    $data["which"] = $event->which;
+
+    $db = Database::obtain();
+    $db->insert("deleting_suggestion_event", $data);
+
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: insertDeletingSuggestionEvent(): " . print_r($err, true));
+        throw new Exception("CASMACAT: insertDeletingSuggestionEvent(): " . print_r($err, true));
 //        return $errno * -1;
     }
 }

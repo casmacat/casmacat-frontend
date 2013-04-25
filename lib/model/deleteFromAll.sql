@@ -22,3 +22,5 @@ DELETE FROM `key_event` WHERE 1;
 DELETE FROM `mouse_event` WHERE 1;
 DELETE FROM `gaze_event` WHERE 1;
 DELETE FROM `fixation_event` WHERE 1;
+DELETE FROM `stats_event` WHERE 1;
+DELETE FROM `deleting_suggestion_event` WHERE 1;

@@ -138,3 +138,10 @@ CREATE TABLE `stats_event` (
   `stats` text NOT NULL COMMENT 'Stores the stastic (progress/status) information',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores stastic (progress/status) information.';
+
+CREATE TABLE `deleting_suggestion_event` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary key',
+  `header_id` int(11) NOT NULL COMMENT 'Reference to log_event_header table',
+  `which` varchar(2) NOT NULL COMMENT 'Stores the index of the suggestion deleted',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores deletion of a suggestions.';

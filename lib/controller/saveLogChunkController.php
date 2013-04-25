@@ -104,6 +104,17 @@ class saveLogChunkController extends ajaxcontroller {
                         $logEvent->suggestionsLoadedData($value);
                         insertSuggestionsLoadedEvent($logEvent);
                         break;
+                    case LogEvent::SUGGESTION_CHOSEN:
+                        $logEvent->suggestionChosenData($value);
+                        insertSuggestionChosenEvent($logEvent);
+                        break;
+                    case LogEvent::DELETING_SUGGESTION:
+                        $logEvent->deletingSuggestionData($value);
+                        insertDeletingSuggestionEvent($logEvent);
+                        break;
+                    case LogEvent::SUGGESTION_DELETED:
+                        insertLogEventHeader($logEvent);
+                        break;
 
                     case LogEvent::STATS_UPDATED:
                         $logEvent->statsUpdatedData($value);
@@ -123,11 +134,6 @@ class saveLogChunkController extends ajaxcontroller {
                     case LogEvent::SHOW_ALIGNMENT_BY_MOUSE:
                     case LogEvent::HIDE_ALIGNMENT_BY_MOUSE:
                         insertLogEventHeader($logEvent);
-                        break;
-
-                    case LogEvent::SUGGESTION_CHOSEN:
-                        $logEvent->suggestionChosenData($value);
-                        insertSuggestionChosenEvent($logEvent);
                         break;
 
                     case LogEvent::KEY_DOWN:

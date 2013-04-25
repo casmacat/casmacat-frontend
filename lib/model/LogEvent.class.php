@@ -20,6 +20,8 @@ class LogEvent {
     const LOADING_SUGGESTIONS = "loadingSuggestions";
     const SUGGESTIONS_LOADED = "suggestionsLoaded";
     const SUGGESTION_CHOSEN = "suggestionChosen";
+    const DELETING_SUGGESTION = "deletingSuggestion";
+    const SUGGESTION_DELETED = "suggestionDeleted";
     const STATS_UPDATED = "statsUpdated";
 
     const DECODE = "decode";
@@ -131,6 +133,10 @@ class LogEvent {
     public function suggestionChosenData($object) {
         $this->which = $object->which;
         $this->translation = $object->translation;
+    }
+
+    public function deletingSuggestionData($object) {
+        $this->which = $object->which;
     }
 
     public function statsUpdatedData($object) {

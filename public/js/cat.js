@@ -1455,6 +1455,18 @@ UI = {
             target=view2rawxliff(target);
             ul.remove();
 
+        // CASMACAT extension start
+        if (config.replay === 1) {
+            debug("cat.js: Skipping deletion of suggestion in setDeleteSuggestion()...");
+            return;
+        }
+
+        var event = $.Event("deletingSuggestion");
+        event.segment = segment[0];
+        event.which = ul.attr("data-item");
+        $(window).trigger("deletingSuggestion", event);
+        // CASMACAT extension end
+
 			UI.doRequest({
 				data: {
                     action: 'deleteContribution',
@@ -1465,15 +1477,19 @@ UI = {
                     id_translator : config.id_translator
 				},
 				success: function(d){
-                    if(UI.debug) console.log('match deleted');
-
-                    $(".editor .matches .graysmall").each(function(index){
-                        $(this).find('.graysmall-message').text('Ctrl+'+(index+1));
-                        $(this).attr('data-item',index+1);
-                        UI.reinitMMShortcuts();
-                    })
+                                    UI.setDeleteSuggestionSuccess(d);
 				}
 			});
+        });
+    },
+
+    setDeleteSuggestionSuccess: function(d) {
+        if(UI.debug) console.log('match deleted');
+
+        $(".editor .matches .graysmall").each(function(index){
+            $(this).find('.graysmall-message').text('Ctrl+'+(index+1));
+            $(this).attr('data-item',index+1);
+            UI.reinitMMShortcuts();
         });
     },
 

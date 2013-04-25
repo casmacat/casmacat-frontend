@@ -527,6 +527,12 @@
 
             $(window).on("suggestionChosen." + pluginName, suggestionChosen);
 //            debugAttachedTo("suggestionChosen", window);
+
+            $(window).on("deletingSuggestion." + pluginName, deletingSuggestion);
+//            debugAttachedTo("deletingSuggestion", window);
+
+            $(window).on("suggestionDeleted." + pluginName, suggestionDeleted);
+//            debugAttachedTo("suggestionDeleted", window);
         }
 
         // Monitor statistic changes
@@ -1114,6 +1120,18 @@
 //                setFieldContents(inputField, $(inputField).val());
 //            }
 //        }
+    };
+
+    var deletingSuggestion = function(e, data) {
+        debug(pluginName + ": Deleting suggestion: '" + data.which + "'.");
+
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.DELETING_SUGGESTION, data.segment, data.which));
+    };
+
+    var suggestionDeleted = function(e, data) {
+        debug(pluginName + ": Suggestion deleted.");
+
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SUGGESTION_DELETED, data.segment));
     };
 
     var statsUpdated = function(e, data) {

@@ -41,6 +41,8 @@ var LogEventFactory = function(elementIdMode) {
     this.LOADING_SUGGESTIONS = "loadingSuggestions";
     this.SUGGESTIONS_LOADED = "suggestionsLoaded";
     this.SUGGESTION_CHOSEN = "suggestionChosen";
+    this.DELETING_SUGGESTION = "deletingSuggestion";
+    this.SUGGESTION_DELETED = "suggestionDeleted";
     this.STATS_UPDATED = "statsUpdated";
 
     this.DECODE = "decode";
@@ -188,6 +190,11 @@ LogEventFactory.prototype.newLogEvent = function(type, element) {
         case this.SUGGESTION_CHOSEN:    // which, translation
             logEvent.which = arguments[2];
             logEvent.translation = arguments[3];
+            break;
+        case this.DELETING_SUGGESTION:
+            logEvent.which = arguments[2];
+            break;
+        case this.SUGGESTION_DELETED:    // matches
             break;
 
         case this.STATS_UPDATED:
