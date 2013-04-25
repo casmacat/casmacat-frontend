@@ -350,9 +350,12 @@ var Memento = require("module.memento");
 
       function onCaretChange(e, d, callback) {
         if (!itp.replay || e.isTrigger) {
-          var alignments = $(d.token).data('alignments');
-          if (alignments && alignments.alignedIds) {
-            callback(alignments.alignedIds, 'caret-align');
+          var $token = $(d.token).parent();
+          if ($token.is('.editable-token')) {
+            var alignments = $token.data('alignments');
+            if (alignments && alignments.alignedIds) {
+              callback(alignments.alignedIds, 'caret-align');
+            }
           }
         }
       };

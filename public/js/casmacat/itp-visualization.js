@@ -169,8 +169,8 @@
 
             var s = $('#' + sourcespans[c].id).get(0);
             var t = $('#' + targetspans[v].id).get(0);
-            if (t.dataset.prefix) s.dataset.prefix = true;
-            if (t.dataset.validated) s.dataset.validated = true;
+            if (s && t && t.dataset.prefix) s.dataset.prefix = true;
+            if (s && t && t.dataset.validated) s.dataset.validated = true;
           }
         }
       }

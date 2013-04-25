@@ -119,9 +119,9 @@
       var oldSpan = data.currentElement;
       data.currentElement = undefined;
       data.lastPos = undefined;
-      if (oldSpan) {
+      if (oldSpan && oldSpan.parentNode && $(oldSpan).parent().is('.editable-token')) {
         var ev = { token: oldSpan }
-        $(oldSpan).trigger('caretleave', ev);
+        $(oldSpan).parent().trigger('caretleave', ev);
       }
     },
 
