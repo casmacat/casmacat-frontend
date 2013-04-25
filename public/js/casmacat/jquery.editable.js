@@ -127,6 +127,9 @@
 
 
     guessToken: function(elem, pos) {
+      if (!elem) {
+        return {isToken: false, node: elem, pos: pos};
+      }
       if (elem.parentNode && $(elem.parentNode).is('.editable-token')) {
         return {isToken: true, node: elem, pos: pos};
       }
@@ -159,7 +162,7 @@
     refreshCaret: function() {
       var absoluteCaretPos = $(this).editable('getCaretPos');
       var token = $(this).editable('getTokenAtCaretPos', absoluteCaretPos);
-      var tok = $(this).editable('guessToken', token.token, token.pos);
+      var tok = $(this).editable('guessToken', token.elem, token.pos);
 
       $(this).editable('storeCaret', tok, absoluteCaretPos);
     },
