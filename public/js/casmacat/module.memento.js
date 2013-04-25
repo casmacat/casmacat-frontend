@@ -4,6 +4,7 @@ require("jquery.hotkeys");
 (function(module, global){
 
   function Memento(elem, options) {
+    var self = this, $elem;
     
     // Private -----------------------------------------------------------------
     var stack = [], pos = -1;
@@ -26,6 +27,7 @@ require("jquery.hotkeys");
         return;
       }
       self.change(stack[pos]);
+      self.$elem.trigger('mementoredo', [pos, stack]);
     };
     
     function onUndo(e) {
@@ -36,6 +38,7 @@ require("jquery.hotkeys");
         return;
       }            
       self.change(stack[pos]);
+      self.$elem.trigger('mementoundo', [pos, stack]);
     };
 
     var self = this;
@@ -57,6 +60,7 @@ require("jquery.hotkeys");
       if (keepCurrentState) {
         saveState(last);
       }
+      self.$elem.trigger('mementoinvalidate');
     };
 
     self.getState = function() {
@@ -65,7 +69,8 @@ require("jquery.hotkeys");
     
     // Mandatory intialization method ------------------------------------------
     self.init = function(elem, options) {
-      $(elem).bind('keydown', 'ctrl+z', function(e){
+      self.$elem = $(elem);
+      self.$elem.bind('keydown', 'ctrl+z', function(e){
         onUndo(e);
       }).bind('keydown', 'ctrl+y', function(e){
         onRedo(e);
