@@ -21,11 +21,13 @@ require("jquery.hotkeys");
     };
         
     function onMoveUp(e) {
+      if (!stack.length) return;
       pos++;
       //dump("onMoveUp");
       self.change(stack[pos]);
-      if (pos > stack.length - 1) {
+      if (pos >= stack.length) {
         pos = stack.length - 1;
+        return;
       }      
       self.$elem.trigger('mousewheelup', [pos, stack]);
     };

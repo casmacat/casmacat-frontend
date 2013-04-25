@@ -22,7 +22,7 @@ require("jquery.hotkeys");
     function onRedo(e) {
       if (!stack.length) return;
       pos++;
-      if (pos > stack.length - 1) {
+      if (pos >= stack.length) {
         pos = stack.length - 1;
         return;
       }
