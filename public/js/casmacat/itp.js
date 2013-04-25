@@ -59,7 +59,7 @@ $(function(){
     if (!config.penEnabled) {
       return false;
     }
-    
+
     var $target = $(editarea), sid = $target.data('sid'), prefix = "#segment-" + sid;
     var $source = $(prefix + "-source"), $section = $(prefix), animMs = 300;
     var $targetParent = $(prefix + "-target");
@@ -175,7 +175,7 @@ $(function(){
         $indicator = $('.buttons', UI.currentSegment).find('.pen-indicator');
         if (config.htrserver && config.penEnabled && $indicator.length === 0) {
           $indicator = $('<li/>').html('<a href="#" class="itp-btn pen-indicator" title="Toggle e-pen input">&#9997;</a>');
-          $indicator.click(function(e){ 
+          $indicator.click(function(e){
             e.preventDefault();
             toogleEpenMode(editarea);
           });
@@ -184,10 +184,10 @@ $(function(){
         // A series of buttons to toggle visualization options
         $indicator = $('.text', UI.currentSegment).find('.vis-commands');
         if ($indicator.length === 0) {
-          var nav = '<a class="vis-button">visualization &gt;&gt;</a> <span class="vis-options">'; 
+          var nav = '<a class="vis-button">visualization &gt;&gt;</a> <span class="vis-options">';
           for (var opt in shortcuts.toggles) {
             var toggleId = shortcuts.toggles[opt],
-                labelId  = $(UI.currentSegment).attr("id") + "-" + toggleId, 
+                labelId  = $(UI.currentSegment).attr("id") + "-" + toggleId,
                 sc = opt.toUpperCase(),
                 prefStatus  = config.prefs[toggleId],
                 checkStatus = (prefStatus) ? ' checked="checked"' : '';
@@ -207,6 +207,20 @@ $(function(){
           $('.vis-options').hide();
           $('.text', UI.currentSegment).find('.vis-button').click(function(e){
             e.preventDefault();
+
+            // logging
+            if ($(".vis-options").is(":hidden")) {
+                var event = $.Event("visualizationMenuDisplayed");
+                event.segment = UI.currentSegment[0];
+                $(window).trigger("visualizationMenuDisplayed", event);
+            }
+            else {
+                var event = $.Event("visualizationMenuHidden");
+                event.segment = UI.currentSegment[0];
+                $(window).trigger("visualizationMenuHidden", event);
+            }
+            // logging
+
             $(this).next().toggle("fast");
           });
         }
@@ -240,7 +254,7 @@ $(function(){
           $target.find('span.editable-token')
           .off('mouseenter.matecat mouseleave.matecat caretenter.matecat caretleave.matecat')
           .on('mouseenter.matecat', function (ev) {
-            if (!config.prefs.displayMouseAlign) return; 
+            if (!config.prefs.displayMouseAlign) return;
             var data = {
                 target: ev.target,
                 x: ev.clientX,
@@ -249,17 +263,17 @@ $(function(){
             $(window).trigger('showAlignmentByMouse', data);
           })
           .on('mouseleave.matecat', function (ev) {
-            if (!config.prefs.displayMouseAlign) return; 
+            if (!config.prefs.displayMouseAlign) return;
             $(window).trigger('hideAlignmentByMouse', ev.target);
           })
           .on('caretenter.matecat', function (ev, data) {
-            if (!config.prefs.displayCaretAlign) return; 
+            if (!config.prefs.displayCaretAlign) return;
             // change dom node in data by its id to avoid circular problem when converting to JSON
             var d = jQuery.extend({}, data); d.token = '#'+d.token.id;
             $(window).trigger('showAlignmentByKey', {element: $target[0], type: "caretenter", data: d});
           })
           .on('caretleave.matecat', function (ev, data) {
-            if (!config.prefs.displayCaretAlign) return; 
+            if (!config.prefs.displayCaretAlign) return;
             // change dom node in data by its id to avoid circular problem when converting to JSON
             var d = jQuery.extend({}, data); d.token = '#'+d.token.id;
             if (config.displayCaretAlign) $(window).trigger('hideAlignmentByKey', {element: $target[0], type: "caretleave", data: d});
@@ -267,7 +281,7 @@ $(function(){
 
           $source.find('span.editable-token').off('mouseenter.matecat mouseleave.matecat')
           .on('mouseenter.matecat', function (ev) {
-            if (!config.prefs.displayMouseAlign) return; 
+            if (!config.prefs.displayMouseAlign) return;
             var data = {
                 target: ev.target,
                 x: ev.clientX,
@@ -276,11 +290,11 @@ $(function(){
             $(window).trigger('showAlignmentByMouse', data);
           })
           .on('mouseleave.matecat', function (ev) {
-            if (!config.prefs.displayMouseAlign) return; 
+            if (!config.prefs.displayMouseAlign) return;
             $(window).trigger('hideAlignmentByMouse', ev.target);
           })
       });
-      
+
       $('.text', UI.currentSegment).find('.vis-commands').show();
       addSearchReplaceEvents();
     }
@@ -302,7 +316,7 @@ $(function(){
         toogleEpenMode($target);
       }
     }
-    
+
     $('.vis-commands').hide();
     original_closeSegment.call(UI, editarea);
   };
@@ -396,7 +410,7 @@ $(function(){
 
     itpServer.on('applyReplacementRulesResult', function(data, err) {
     });
-    
+
     itpServer.on('getReplacementRulesResult', function(data, err) {
       $('#sr-rules').empty();
       for (var i = 0; i < data.rules.length; ++i) {
