@@ -11,7 +11,10 @@
 .editarea[data-opt-caret-align=true] > .caret-align { background-color: aquamarine !important; }
 .editarea[data-opt-limit-suffix-length=true] > .editable-token:not([data-prefix=true])[data-limited=true] { opacity: 0.3; }
 
-.editarea[data-opt-last-validated=true] > .editable-token[data-last-validated=true]:after { content: "‸"; position: absolute; color: brown; } 
+.editarea[data-opt-last-validated=true] > .editable-token[data-last-validated=true]       { /* XXX: hack to make chrome work with attribute selectors and :after (http://code.google.com/p/chromium/issues/detail?id=125719) */ }
+.editarea[data-opt-last-validated=true] > .editable-token[data-last-validated=true]:after { content: "‸"; position: absolute; color: brown; }
+
+
 
 .vis-commands { text-align:right; margin-right:45px; margin-bottom:0.5em; }
   .vis-commands label { font-size:80%; }
