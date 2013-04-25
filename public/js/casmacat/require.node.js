@@ -76,7 +76,7 @@
         var str;
         if (!refusePadding) {
           var source = this.responseText.match(/^\s*(?:(['"]use strict['"])(?:;\r?\n?|\r?\n))?\s*((?:.*\r?\n?)*)/);
-          str = '/* Require (with padding) */(function(){'+source[1]+';var undefined,exports,module={exports:exports};\n\n'+source[2]+'\n\nreturn module.exports;})();';
+          str = '/* Require (with padding) */(function(){'+source[1]+';var undefined,exports,module={exports:exports};'+source[2]+'\n\nreturn module.exports;})();';
         }
         else {
           str = "/* Require (without padding) */var exports;" + this.responseText + "\n\ntrue;";
