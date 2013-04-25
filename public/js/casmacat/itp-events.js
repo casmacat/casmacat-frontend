@@ -517,7 +517,7 @@ var Memento = require("module.memento");
               // move to the next token editable if we are at the end of a token and the next token is pasted
               // since we assume we are already at the beginning of the next token 
               if (tokenPos.elem.nodeValue.length - tokenPos.pos === 0 &&
-                  $token[0].nextSibling && $token[0].nextSibling.nodeType === 3 && $token[0].nextSibling.nodeValue.length === 0)
+                  tokenPos.elem.nextSibling && tokenPos.elem.nextSibling.nodeType === 3 && tokenPos.elem.nextSibling.nodeValue.length === 0)
               {
                 $token = $token.next('.editable-token');
               }

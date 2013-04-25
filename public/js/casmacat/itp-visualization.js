@@ -276,8 +276,8 @@
         $token = $token.parent();
       }
       else {
-        while (!$token.is('.editable-token') && $token[0].nextSibling) {
-          $token = $($token[0].nextSibling);
+        while (!$token.is('.editable-token') && $token[0].previousSibling) {
+          $token = $($token[0].previousSibling);
         }
       }
 
@@ -292,6 +292,11 @@
         });
         $firstLimited.nextAll('.editable-token').andSelf().each(function() {
           this.dataset.limited = true;
+        });
+      }
+      else {
+        $token.prevAll('.editable-token').nextAll('.editable-token').each(function() {
+          delete this.dataset.limited;
         });
       }
     }

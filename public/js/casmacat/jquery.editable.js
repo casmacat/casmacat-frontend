@@ -125,29 +125,54 @@
       }
     },
 
-    refreshCaret: function() {
-      var data = $(this).data('editable');
-      var absoluteCaretPos = $(this).editable('getCaretPos');
-      var token = $(this).editable('getTokenAtCaretPos', absoluteCaretPos);
-      var $span = $(token.token);
-      var ev = {
-        token: $span,
-        caretPos: token.pos,
-        absoluteCaretPos: absoluteCaretPos
-      };
-      data.currentElement = token.token;
-      $span.trigger('caretenter', ev);
+
+    guessToken: function(elem, pos) {
+      if (elem.parentNode && $(elem.parentNode).is('.editable-token')) {
+        return {isToken: true, node: elem, pos: pos};
+      }
+      else {
+        var adj = elem, newPos = pos;;
+        if (pos === 0) {
+          do {
+            adj = adj.previousSibling;
+          } while (adj && adj.nodeType === 3 && adj.length === 0); 
+          if (adj) {
+            adj = adj.firstChild;
+            newPos = adj.length;
+          }
+        }
+        else if (pos === elem.length) {
+          do {
+            adj = adj.nextSibling;
+          } while (adj && adj.nodeType === 3 && adj.length === 0); 
+          if (adj) adj = adj.firstChild;
+          newPos = 0;
+        }
+        if (adj && adj.parentNode && $(adj.parentNode).is('.editable-token')) {
+          return {isToken: true, node: adj, pos: newPos};
+        }
+      }
+      return {isToken: false, node: elem, pos: pos};
     },
 
-    storeCaret: function(span, pos, absoluteCaretPos) {
+
+    refreshCaret: function() {
+      var absoluteCaretPos = $(this).editable('getCaretPos');
+      var token = $(this).editable('getTokenAtCaretPos', absoluteCaretPos);
+      var tok = $(this).editable('guessToken', token.token, token.pos);
+
+      $(this).editable('storeCaret', tok, absoluteCaretPos);
+    },
+
+    storeCaret: function(tok, absoluteCaretPos) {
       var data = $(this).data('editable');
       var ev = {
-        token: span,
-        caretPos: pos,
+        token: tok.node,
+        caretPos: tok.pos,
         absoluteCaretPos: absoluteCaretPos
       };
-      data.currentElement = span;
-      $(span).trigger('caretenter', ev);
+      data.currentElement = tok.node;
+      if (tok.isToken) $(tok.node.parentNode).trigger('caretenter', ev);
     },
 
 
@@ -173,18 +198,10 @@
       }
 
       // emmit caretenter and caretleave events
-      var isToken = false;
-      var span = elem;
-      if (elem.parentNode && $(elem.parentNode).is('.editable-token')) {
-        span = elem.parentNode;
-        isToken = true;
-      }
-
-      if (data.currentElement !== span) {
+      var tok = $(this).editable('guessToken', elem, pos);
+      if (data.currentElement !== tok.node) {
         $this.editable('forgetCaret');
-        if (isToken) {
-          $this.editable('storeCaret', span, pos, absoluteCaretPos);
-        }
+        $this.editable('storeCaret', tok, absoluteCaretPos);
       }
 
        // place the cursor in the current element
