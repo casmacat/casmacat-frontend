@@ -240,37 +240,43 @@ $(function(){
           $target.find('span.editable-token')
           .off('mouseenter.matecat mouseleave.matecat caretenter.matecat caretleave.matecat')
           .on('mouseenter.matecat', function (ev) {
-              var data = {
-                  target: ev.target,
-                  x: ev.clientX,
-                  y: ev.clientY
-              };
+            if (!config.prefs.displayMouseAlign) return; 
+            var data = {
+                target: ev.target,
+                x: ev.clientX,
+                y: ev.clientY
+            };
             $(window).trigger('showAlignmentByMouse', data);
           })
           .on('mouseleave.matecat', function (ev) {
+            if (!config.prefs.displayMouseAlign) return; 
             $(window).trigger('hideAlignmentByMouse', ev.target);
           })
           .on('caretenter.matecat', function (ev, data) {
+            if (!config.prefs.displayCaretAlign) return; 
             // change dom node in data by its id to avoid circular problem when converting to JSON
             var d = jQuery.extend({}, data); d.token = '#'+d.token.id;
             $(window).trigger('showAlignmentByKey', {element: $target[0], type: "caretenter", data: d});
           })
           .on('caretleave.matecat', function (ev, data) {
+            if (!config.prefs.displayCaretAlign) return; 
             // change dom node in data by its id to avoid circular problem when converting to JSON
             var d = jQuery.extend({}, data); d.token = '#'+d.token.id;
-            $(window).trigger('hideAlignmentByKey', {element: $target[0], type: "caretleave", data: d});
+            if (config.displayCaretAlign) $(window).trigger('hideAlignmentByKey', {element: $target[0], type: "caretleave", data: d});
           })
 
           $source.find('span.editable-token').off('mouseenter.matecat mouseleave.matecat')
           .on('mouseenter.matecat', function (ev) {
-              var data = {
-                  target: ev.target,
-                  x: ev.clientX,
-                  y: ev.clientY
-              };
+            if (!config.prefs.displayMouseAlign) return; 
+            var data = {
+                target: ev.target,
+                x: ev.clientX,
+                y: ev.clientY
+            };
             $(window).trigger('showAlignmentByMouse', data);
           })
           .on('mouseleave.matecat', function (ev) {
+            if (!config.prefs.displayMouseAlign) return; 
             $(window).trigger('hideAlignmentByMouse', ev.target);
           })
       });

@@ -25,23 +25,22 @@ var Memento = require("module.memento");
     return false;
   };
 
-  // This is needed for the MouseWheel to remember the state before committing a reject
-  var decodedResult;
-  
   var ItpEvents = function($target, namespace, nsClass) {
     var self = this;
 
     self.vis = new ItpVisulization($target, namespace, nsClass);
 
+    var lockReject = false;
     function cfg()     { return $target.data(namespace); }
     function userCfg() { return cfg().config; }
     function $source() { return $target.data(namespace).$source; }
     function reject() {
       var conf = cfg();
-      if (conf.config.mode != 'PE') {
+      if (conf.config.mode != 'PE' && !lockReject) {
         var target = $target.editable('getText'),
             pos    = $target.editable('getCaretPos');
 
+        lockReject = true;
         conf.itpServer.rejectSuffix({
           target: target,
           caretPos: pos,
@@ -56,6 +55,9 @@ var Memento = require("module.memento");
     
     self.mousewheel = new MouseWheel();
     self.mousewheel.init($target, {
+      equal: function(data1, data2) {
+        return !data1 || (data2 && (data1.nbest.length === 0 || data1.nbest[0].target === data2.nbest[0].target));
+      },
       change: function(data) {
         if (!Boolean($target.editable('getText'))) {
           return false;
@@ -64,7 +66,7 @@ var Memento = require("module.memento");
           console.log("Loading previous data...", data);
           self.vis.updateSuggestions(data);
         } else {
-          console.log("Rejecting...", decodedResult);
+          console.log("Rejecting...");
           reject();
         }
       }
@@ -88,6 +90,9 @@ var Memento = require("module.memento");
 //            self.memento.replaceElement(pos, clonedNode);
 //          }
         });
+      },
+      equal: function(data1, data2) {
+        return !data1 || (data2 && data1.text === data2.text);
       },
       change: function(data) {
         $target.editable('setText', data.text);
@@ -188,7 +193,6 @@ var Memento = require("module.memento");
         //  itp.startSession({source: data.source});
         //}
 
-        decodedResult = data;
         // Clean previous states
         self.mousewheel.invalidate();
         self.memento.invalidate();
@@ -245,7 +249,7 @@ var Memento = require("module.memento");
 
 
         // simulate decode event
-        decodedResult = { 
+        var decodedResult = { 
           elapseTime:         data.elapsedTime,
           source:             data.source,
           sourceSegmentation: data.sourceSegmentation,
@@ -293,6 +297,10 @@ var Memento = require("module.memento");
       });
     
       // Handle confidence changes (updates highlighting) 
+      itp.on('rejectSuffixResult', function(data, err) {
+        lockReject = false;
+      });
+
       itp.on(['setPrefixResult', 'rejectSuffixResult'], function(data, err) {
         if (err.length > 0) {
           return
@@ -342,9 +350,12 @@ var Memento = require("module.memento");
 
       function onCaretChange(e, d, callback) {
         if (!itp.replay || e.isTrigger) {
-          var alignments = $(d.token).data('alignments');
-          if (alignments && alignments.alignedIds) {
-            callback(alignments.alignedIds, 'caret-align');
+          var $token = $(d.token).parent();
+          if ($token.is('.editable-token')) {
+            var alignments = $token.data('alignments');
+            if (alignments && alignments.alignedIds) {
+              callback(alignments.alignedIds, 'caret-align');
+            }
           }
         }
       };
@@ -509,7 +520,7 @@ var Memento = require("module.memento");
               // move to the next token editable if we are at the end of a token and the next token is pasted
               // since we assume we are already at the beginning of the next token 
               if (tokenPos.elem.nodeValue.length - tokenPos.pos === 0 &&
-                  $token[0].nextSibling && $token[0].nextSibling.nodeType === 3 && $token[0].nextSibling.nodeValue.length === 0)
+                  tokenPos.elem.nextSibling && tokenPos.elem.nextSibling.nodeType === 3 && tokenPos.elem.nextSibling.nodeValue.length === 0)
               {
                 $token = $token.next('.editable-token');
               }
@@ -589,8 +600,7 @@ var Memento = require("module.memento");
       function forgetState(caretPos) {
         // IF "implicit reject on click" AND "cursor pos has chaged": invalidate previous states
         if (typeof self.currentCaretPos != 'undefined' && caretPos !== self.currentCaretPos.pos) {
-          self.mousewheel.invalidate();
-          self.mousewheel.addElement(decodedResult);
+          self.mousewheel.invalidate(true);
         }
       };
             

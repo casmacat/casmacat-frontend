@@ -40,8 +40,8 @@ require("jquery.hotkeys");
     };
 
     function dump(fn) {
-//      console.log( "["+self.id+"]", fn, "| size:", stack.length, "pos:", pos);
-//      for (var i=0; i<stack.length; ++i) console.log( stack[i].nbest[0].target );
+      //console.log( "["+self.id+"]", fn, "| size:", stack.length, "pos:", pos);
+      //for (var i=0; i<stack.length; ++i) console.log( stack[i].nbest[0].target );
     }
 
     var self = this;
@@ -52,12 +52,18 @@ require("jquery.hotkeys");
     self.version = "0.1";
     
     self.addElement = function(elem) {
-      saveState(elem);
+      if (!self.equal(elem, stack[pos])) {
+        saveState(elem);
+      }
       dump("add");
     };
     
-    self.invalidate = function() {
+    self.invalidate = function(keepCurrentState) {
+      var last = stack[pos];
       resetState();
+      if (keepCurrentState) {
+        saveState(last);
+      }
       dump("invalidate");
     };
     
@@ -91,6 +97,9 @@ require("jquery.hotkeys");
     // Listeners ---------------------------------------------------------------
     self.change = function(data) {
       return data;
+    };
+    self.equal = function(data1, data2) {
+      return data1 === data2;
     };
     
   };
