@@ -281,6 +281,11 @@
         }
       }
 
+      var $lastValidated = $token.nextAll('.editable-token[data-last-validated=true]').first();
+      if ($lastValidated.length) {
+        $token = $lastValidated;
+      }
+
       var currentPriority = $token.data('priority');
       var $firstLimited = $token.nextAll('.editable-token').filter(function() { 
         var priority = $(this).data('priority');
