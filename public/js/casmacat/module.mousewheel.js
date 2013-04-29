@@ -5,6 +5,7 @@ require("jquery.hotkeys");
 (function(module, global){
 
   function MouseWheel(elem, options) {
+    var self = this, $elem;
     
     // Private -----------------------------------------------------------------
     var stack = [], pos = -1;
@@ -20,12 +21,15 @@ require("jquery.hotkeys");
     };
         
     function onMoveUp(e) {
+      if (!stack.length) return;
       pos++;
       //dump("onMoveUp");
       self.change(stack[pos]);
-      if (pos > stack.length - 1) {
+      if (pos >= stack.length) {
         pos = stack.length - 1;
+        return;
       }      
+      self.$elem.trigger('mousewheelup', [pos, stack]);
     };
     
     function onMoveDown(e) {
@@ -37,6 +41,7 @@ require("jquery.hotkeys");
       }
       //dump("onMoveDown");
       self.change(stack[pos]);
+      self.$elem.trigger('mousewheeldown', [pos, stack]);
     };
 
     function dump(fn) {
@@ -44,7 +49,6 @@ require("jquery.hotkeys");
       //for (var i=0; i<stack.length; ++i) console.log( stack[i].nbest[0].target );
     }
 
-    var self = this;
     
     
     // Public API --------------------------------------------------------------
@@ -65,12 +69,14 @@ require("jquery.hotkeys");
         saveState(last);
       }
       dump("invalidate");
+      self.$elem.trigger('mousewheelinvalidate');
     };
     
     // Mandatory intialization method ------------------------------------------
     self.init = function(elem, options) {
+      self.$elem = $(elem);
       // Mandatory(?) listeners: mouse + keyboard
-      $(elem).mousewheel(function(e,delta){
+      self.$elem.mousewheel(function(e,delta){
         if (delta > 0) {
           onMoveUp(e);
         } else if (delta < 0) { 

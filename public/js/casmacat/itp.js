@@ -2,7 +2,7 @@ $(function(){
 
   function trace() {
     try {
-      throw new Error("myError");
+      throw new Error("stacktrace");
     }
     catch(e) {
       return e.stack;
@@ -235,6 +235,27 @@ $(function(){
         var $indicator = $('.text', UI.currentSegment).find('.vis-commands'),
             name = '#segment-' + sid + '-' + toggle;
         $indicator.find(name).attr('checked', value);
+      })
+      .on('itptogglechange.matecat', function (ev, pos, stack) {
+        console.log('++logging itptogglechange', arguments);
+      })
+      .on('mousewheelup.matecat', function (ev, pos, stack) {
+        console.log('++logging mousewheelup', arguments);
+      })
+      .on('mousewheeldown.matecat', function (ev, pos, stack) {
+        console.log('++logging mousewheeldown', arguments);
+      })
+      .on('mousewheelinvalidate.matecat', function (ev) {
+        console.log('++logging mousewheelinvalidate', arguments);
+      })
+      .on('mementoundo.matecat', function (ev, pos, stack) {
+        console.log('++logging mementoundo', arguments);
+      })
+      .on('mementoredo.matecat', function (ev, pos, stack) {
+        console.log('++logging mementoredo', arguments);
+      })
+      .on('mementoinvalidate.matecat', function (ev) {
+        console.log('++logging mementoinvalidate', arguments);
       })
       .on('decode.matecat', function (ev, data, err) {
           $(window).trigger('translationChange', {element: $target[0], type: "decode", data: data});

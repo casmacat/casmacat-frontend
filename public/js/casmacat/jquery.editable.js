@@ -140,7 +140,7 @@
             adj = adj.previousSibling;
           } while (adj && adj.nodeType === 3 && adj.length === 0); 
           if (adj) {
-            adj = adj.firstChild;
+            if (adj.firstChild) adj = adj.firstChild;
             newPos = adj.length;
           }
         }
