@@ -179,6 +179,7 @@
                 };
                 logList = [];
                 storeLogEvent(logEventFactory.newLogEvent(logEventFactory.START_SESSION, "window"));   // initialise with 'start session'
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.INITIAL_CONFIG, "window", config));   // initialise with initial configuration from config object
                 windowResized();   // ... and window size
                 isLogging = true;
 
@@ -539,22 +540,27 @@
         $(window).on("statsUpdated." + pluginName, statsUpdated);
 
         if (settings.logItp) {
+            $(window).on("translationChanged." + pluginName, translationChanged);
 
-          $(window).on("translationChange." + pluginName, itp);
-//            debugAttachedTo("translationchange", window);
+            $(window).on("showAlignmentByMouse." + pluginName, alignmentShownByMouse);
+            $(window).on("hideAlignmentByMouse." + pluginName, alignmentHiddenByMouse);
+            $(window).on("showAlignmentByKey." + pluginName, alignmentShownByKey);
+            $(window).on("hideAlignmentByKey." + pluginName, alignmentHiddenByKey);
 
-          $(window).on("showAlignmentByMouse." + pluginName, alignmentShownByMouse);
-//            debugAttachedTo("showalignment", window);
+            $(window).on("visMenuDisplayed." + pluginName, visMenuDisplayed);
+            $(window).on("visMenuHidden." + pluginName, visMenuHidden);
+            $(window).on("configChanged." + pluginName, configChanged);
 
-          $(window).on("hideAlignmentByMouse." + pluginName, alignmentHiddenByMouse);
-//            debugAttachedTo("hidealignment", window);
+            $(window).on("mouseWheelUp." + pluginName, mouseWheelCommon);
+            $(window).on("mouseWheelDown." + pluginName, mouseWheelCommon);
+            $(window).on("mouseWheelInvalidate." + pluginName, mouseWheelCommon);
 
-          $(window).on("showAlignmentByKey." + pluginName, alignmentShownByKey);
-//            debugAttachedTo("showalignment", window);
-
-          $(window).on("hideAlignmentByKey." + pluginName, alignmentHiddenByKey);
-//            debugAttachedTo("hidealignment", window);
+            $(window).on("mementoUndo." + pluginName, mementoCommon);
+            $(window).on("mementoRedo." + pluginName, mementoCommon);
+            $(window).on("mementoInvalidate." + pluginName, mementoCommon);
         }
+
+        $(window).on("statsUpdated." + pluginName, statsUpdated);
 
         debug(pluginName + ": Bound to events.");
         return true;    // this is necessary for 'window' position calibration
@@ -1141,8 +1147,8 @@
             data.stats));
     };
 
-    // store translationChange event
-    var itp = function(e, data) {
+    // store translationChanged event
+    var translationChanged = function(e, data) {
         var t;
         switch (data.type) {
             case "decode":
@@ -1197,6 +1203,63 @@
     var alignmentHiddenByKey = function(e, data) {
         debug(pluginName + ": Alignment hidden by key.");
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HIDE_ALIGNMENT_BY_KEY, data.element, data.data));
+    };
+
+    var visMenuDisplayed = function(e, data) {
+        debug(pluginName + ": Visualization menu displayed.");
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.VIS_MENU_DISPLAYED, data.segment));
+    };
+
+    var visMenuHidden = function(e, data) {
+        debug(pluginName + ": Visualization menu hidden.");
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.VIS_MENU_HIDDEN, data.segment));
+    };
+
+    var configChanged = function(e, data) {
+        // TODO ignore events when nothing changed? (especially when initializing...)
+        debug(pluginName + ": Configuration changed: '" + JSON.stringify(data.config) + "'.");
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.CONFIG_CHANGED, data.segment, data.config));
+    };
+
+    var mouseWheelCommon = function(e, data) {
+        debug(pluginName + ": Mouse wheel event: type: '" + e.type + "'.");
+
+        switch (e.type) {
+            case logEventFactory.MOUSE_WHEEL_UP:
+                if (getFieldContents($(".editarea", data.segment)[0]) != $(".editarea", data.segment)[0].text()) {
+                    debug(pluginName + ": Mouse wheel up event: Changes detected.");
+                    storeLogEvent(logEventFactory.newLogEvent(logEventFactory.MOUSE_WHEEL_UP, data.segment));
+                    textChanged({
+                        target: $(".editarea", data.segment)[0]
+                    });
+                }
+                break;
+            case logEventFactory.MOUSE_WHEEL_DOWN:
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.MOUSE_WHEEL_DOWN, data.segment));
+                textChanged({
+                     target: $(".editarea", data.segment)[0]
+                });
+                break;
+            case logEventFactory.MOUSE_WHEEL_INVALIDATE:    // TODO seems not really needed
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.MOUSE_WHEEL_INVALIDATE, data.segment));
+                break;
+        }
+    };
+
+    var mementoCommon = function(e, data) {
+        debug(pluginName + ": Memento event: type: '" + e.type + "'.");
+
+        switch (e.type) {
+            case logEventFactory.MEMENTO_UNDO:
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.MEMENTO_UNDO, data.segment));
+                break;
+            case logEventFactory.MEMENTO_REDO:
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.MEMENTO_REDO, data.segment));
+                break;
+            case logEventFactory.MEMENTO_INVALIDATE:    // TODO seems not really needed
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.MEMENTO_INVALIDATE, data.segment));
+                break;
+        }
     };
 
     var state = function(s) {

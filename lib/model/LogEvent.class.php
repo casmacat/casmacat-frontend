@@ -47,6 +47,17 @@ class LogEvent {
     const BEFORE_COPY = "beforeCopy";
     const BEFORE_PASTE = "beforePaste";
 
+    const VIS_MENU_DISPLAYED = "visMenuDisplayed";
+    const VIS_MENU_HIDDEN = "visMenuHidden";
+    const INITIAL_CONFIG = "initialConfig";
+    const CONFIG_CHANGED = "configChanged";
+    const MOUSE_WHEEL_UP = "mouseWheelUp";
+    const MOUSE_WHEEL_DOWN = "mouseWheelDown";
+    const MOUSE_WHEEL_INVALIDATE = "mouseWheelInvalidate";
+    const MEMENTO_UNDO = "mementoUndo";
+    const MEMENTO_REDO = "mementoRedo";
+    const MEMENTO_INVALIDATE = "mementoInvalidate";
+
     public $id;
     public $jobId;
     public $fileId;
@@ -165,6 +176,10 @@ class LogEvent {
         $this->ctrl = $object->ctrl;
         $this->alt = $object->alt;
         $this->cursorPosition = $object->cursorPosition;
+    }
+
+    public function configData($object) {
+        $this->config = $object->config;
     }
 
     public function toString() {

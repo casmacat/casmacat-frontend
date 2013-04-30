@@ -210,14 +210,14 @@ $(function(){
 
             // logging
             if ($(".vis-options").is(":hidden")) {
-                var event = $.Event("visualizationMenuDisplayed");
+                var event = $.Event("visMenuDisplayed");
                 event.segment = UI.currentSegment[0];
-                $(window).trigger("visualizationMenuDisplayed", event);
+                $(window).trigger("visMenuDisplayed", event);
             }
             else {
-                var event = $.Event("visualizationMenuHidden");
+                var event = $.Event("visMenuHidden");
                 event.segment = UI.currentSegment[0];
-                $(window).trigger("visualizationMenuHidden", event);
+                $(window).trigger("visMenuHidden", event);
             }
             // logging
 
@@ -235,42 +235,71 @@ $(function(){
         var $indicator = $('.text', UI.currentSegment).find('.vis-commands'),
             name = '#segment-' + sid + '-' + toggle;
         $indicator.find(name).attr('checked', value);
+
+        var event = $.Event("configChanged");
+        event.segment = UI.currentSegment[0];
+        event.config = JSON.parse("{ \"prefs\": { \"" + toggle + "\": \"" + value + "\" } }");
+        $(window).trigger("configChanged", event);
       })
       .on('itptogglechange.matecat', function (ev, pos, stack) {
-        console.log('++logging itptogglechange', arguments);
+
+        var event = $.Event("configChanged");
+        event.segment = UI.currentSegment[0];
+        event.config = JSON.parse("{ \"prefs\": { \"mode\": \"" + arguments[1] + "\" } }");
+        $(window).trigger("configChanged", event);
       })
       .on('mousewheelup.matecat', function (ev, pos, stack) {
-        console.log('++logging mousewheelup', arguments);
+debug("*** MOUSEWUP");
+debug(arguments);
+        var event = $.Event("mouseWheelUp");
+        event.segment = UI.currentSegment[0];
+        $(window).trigger("mouseWheelUp", event);
       })
       .on('mousewheeldown.matecat', function (ev, pos, stack) {
-        console.log('++logging mousewheeldown', arguments);
+debug("*** MOUSEWDOWN");
+debug(arguments);
+        var event = $.Event("mouseWheelDown");
+        event.segment = UI.currentSegment[0];
+        $(window).trigger("mouseWheelDown", event);
       })
       .on('mousewheelinvalidate.matecat', function (ev) {
-        console.log('++logging mousewheelinvalidate', arguments);
+        // TODO What is this?
+        var event = $.Event("mouseWheelInvalidate");
+        event.segment = UI.currentSegment[0];
+        $(window).trigger("mouseWheelInvalidate", event);
       })
       .on('mementoundo.matecat', function (ev, pos, stack) {
-        console.log('++logging mementoundo', arguments);
+
+        var event = $.Event("mementoUndo");
+        event.segment = UI.currentSegment[0];
+        $(window).trigger("mementoUndo", event);
       })
       .on('mementoredo.matecat', function (ev, pos, stack) {
-        console.log('++logging mementoredo', arguments);
+
+        var event = $.Event("mementoRedo");
+        event.segment = UI.currentSegment[0];
+        $(window).trigger("mementoRedo", event);
       })
       .on('mementoinvalidate.matecat', function (ev) {
-        console.log('++logging mementoinvalidate', arguments);
+        // TODO What is this?
+        var event = $.Event("mementoInvalidate");
+        event.segment = UI.currentSegment[0];
+        $(window).trigger("mementoInvalidate", event);
       })
       .on('decode.matecat', function (ev, data, err) {
-          $(window).trigger('translationChange', {element: $target[0], type: "decode", data: data});
+          $(window).trigger('translationChanged', {element: $target[0], type: "decode", data: data});
       })
       .on('suffixchange.matecat', function (ev, data, err) {
-          $(window).trigger('translationChange', {element: $target[0], type: "suffixchange", data: data});
+          $(window).trigger('translationChanged', {element: $target[0], type: "suffixchange", data: data});
       })
       .on('confidences.matecat', function (ev, data, err) {
-          $(window).trigger('translationChange', {element: $target[0], type: "confidences", data: data});
+          $(window).trigger('translationChanged', {element: $target[0], type: "confidences", data: data});
       })
       .on('tokens.matecat', function (ev, data, err) {
-          $(window).trigger('translationChange', {element: $target[0], type: "tokens", data: data});
+          $(window).trigger('translationChanged', {element: $target[0], type: "tokens", data: data});
       })
       .on('alignments.matecat', function (ev, data, err) {
-          $(window).trigger('translationChange', {element: $target[0], type: "alignments", data: data});
+          $(window).trigger('translationChanged', {element: $target[0], type: "alignments", data: data});
 
           $target.find('span.editable-token')
           .off('mouseenter.matecat mouseleave.matecat caretenter.matecat caretleave.matecat')

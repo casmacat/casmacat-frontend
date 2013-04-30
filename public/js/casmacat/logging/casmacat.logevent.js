@@ -66,6 +66,17 @@ var LogEventFactory = function(elementIdMode) {
     this.BEFORE_CUT = "beforeCut";
     this.BEFORE_COPY = "beforeCopy";
     this.BEFORE_PASTE = "beforePaste";
+
+    this.VIS_MENU_DISPLAYED = "visMenuDisplayed";
+    this.VIS_MENU_HIDDEN = "visMenuHidden";
+    this.INITIAL_CONFIG = "initialConfig";
+    this.CONFIG_CHANGED = "configChanged";
+    this.MOUSE_WHEEL_UP = "mouseWheelUp";
+    this.MOUSE_WHEEL_DOWN = "mouseWheelDown";
+    this.MOUSE_WHEEL_INVALIDATE = "mouseWheelInvalidate";
+    this.MEMENTO_UNDO = "mementoUndo";
+    this.MEMENTO_REDO = "mementoRedo";
+    this.MEMENTO_INVALIDATE = "mementoInvalidate";
 };
 
 /**
@@ -241,6 +252,22 @@ LogEventFactory.prototype.newLogEvent = function(type, element) {
         case this.BEFORE_CUT:
         case this.BEFORE_COPY:
         case this.BEFORE_PASTE:
+            break;
+
+        case this.VIS_MENU_DISPLAYED:
+        case this.VIS_MENU_HIDDEN:
+            break;
+        case this.INITIAL_CONFIG:
+        case this.CONFIG_CHANGED:
+            logEvent.config = arguments[2];
+            break;
+        case this.MOUSE_WHEEL_UP:
+        case this.MOUSE_WHEEL_DOWN:
+        case this.MOUSE_WHEEL_INVALIDATE:
+            break;
+        case this.MEMENTO_UNDO:
+        case this.MEMENTO_REDO:
+        case this.MEMENTO_INVALIDATE:
             break;
 
         default:
