@@ -558,12 +558,13 @@
             $(window).on("mementoUndo." + pluginName, mementoCommon);
             $(window).on("mementoRedo." + pluginName, mementoCommon);
             $(window).on("mementoInvalidate." + pluginName, mementoCommon);
+
         }
 
         $(window).on("statsUpdated." + pluginName, statsUpdated);
 
         debug(pluginName + ": Bound to events.");
-        return true;    // this is necessary for 'window' position calibration
+        return true;    // TODO is this still necessary for 'window' position calibration?
     };
 
     var unbindFromEvents = function() {
@@ -640,14 +641,19 @@
         var startTime = new Date().getTime();
 //        debug(pluginName + ": 'logList' refers to: jobId: '" + jobId + "', settings.fileId: '" + settings.jobId + "'.");
 
-//        debug(pluginName + ": 'logList' content dump:");
-//        debug(logList);
+        var internalLogList = logList;
+//        debug(pluginName + ": 'internalLogList' content dump:");
+//        for (var key in internalLogList) {
+//            if (internalLogList.hasOwnProperty(key)) {
+//                debug(internalLogList[key]);
+//            }
+//        }
 
         var data = {
             action: "saveLogChunk",
             fileId: settings.fileId,
             jobId: settings.jobId,
-            logList: JSON.stringify(logList)
+            logList: JSON.stringify(internalLogList)
 //            logList: logList
         };
 
@@ -679,8 +685,13 @@
                 debug(request);
                 debug(status);
                 debug(error);
-                debug(pluginName + ": 'logList' content dump:");
-                debug(data.logList);
+                debug(pluginName + ": 'internalLogList' content dump:");
+                for (var key in internalLogList) {
+                    if (internalLogList.hasOwnProperty(key)) {
+                        debug(internalLogList[key]);
+                    }
+                }
+//                debug(data.logList);
                 alert("Error uploading 'logList': '" + error + "'");
                 $.error("Error uploading 'logList': '" + error + "'");
             }
@@ -981,11 +992,11 @@
         else {
             // textarea needs no sanitize
             changes = $.fn.getChanges( getFieldContents(e.target), $(e.target).val() );
-//            debug(pluginName + ": Text changed: "
-//                + "\n\told text: '" + getFieldContents(e.target) + "', "
-//                + "\n\tnew text: '" + $(e.target).val() + "', "
-//                + "\n\tdiff: (cursorPosition: '" + changes.cursorPosition + "', deleted: '" + changes.deleted
-//                    + "', inserted: '" + changes.inserted + "').");
+            debug(pluginName + ": Text changed: "
+                + "\n\told text: '" + getFieldContents(e.target) + "', "
+                + "\n\tnew text: '" + $(e.target).val() + "', "
+                + "\n\tdiff: (cursorPosition: '" + changes.cursorPosition + "', deleted: '" + changes.deleted
+                    + "', inserted: '" + changes.inserted + "').");
             setFieldContents(e.target, $(e.target).val());
         }
 
@@ -1016,7 +1027,7 @@
     };
 
     var scrollableMoved = function(e) {
-//        debug(pluginName + ": Scroll moved.");
+        debug(pluginName + ": Scroll moved.");
 
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SCROLL, e.target, $(e.target).scrollTop()));
     };

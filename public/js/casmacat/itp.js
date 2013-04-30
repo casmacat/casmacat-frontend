@@ -261,7 +261,7 @@ $(function(){
         $(window).trigger("mouseWheelDown", event);
       })
       .on('mousewheelinvalidate.matecat', function (ev) {
-        // TODO What is this?
+
         var event = $.Event("mouseWheelInvalidate");
         event.segment = UI.currentSegment[0];
         $(window).trigger("mouseWheelInvalidate", event);
