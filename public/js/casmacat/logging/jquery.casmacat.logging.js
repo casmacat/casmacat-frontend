@@ -1226,12 +1226,15 @@
 
         switch (e.type) {
             case logEventFactory.MOUSE_WHEEL_UP:
-                if (getFieldContents($(".editarea", data.segment)[0]) != $(".editarea", data.segment)[0].text()) {
+                if (getFieldContents($(".editarea", data.segment)[0]) != $(".editarea", data.segment).text()) {
                     debug(pluginName + ": Mouse wheel up event: Changes detected.");
                     storeLogEvent(logEventFactory.newLogEvent(logEventFactory.MOUSE_WHEEL_UP, data.segment));
                     textChanged({
                         target: $(".editarea", data.segment)[0]
                     });
+                }
+                else {    // TODO that is unsatisfying: one doesn't know if the user tried to use the option...
+                    debug(pluginName + ": Mouse wheel up event: No changes detected.");
                 }
                 break;
             case logEventFactory.MOUSE_WHEEL_DOWN:
