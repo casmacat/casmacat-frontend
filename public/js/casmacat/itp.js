@@ -249,15 +249,13 @@ $(function(){
         $(window).trigger("configChanged", event);
       })
       .on('mousewheelup.matecat', function (ev, pos, stack) {
-debug("*** MOUSEWUP");
-debug(arguments);
+
         var event = $.Event("mouseWheelUp");
         event.segment = UI.currentSegment[0];
         $(window).trigger("mouseWheelUp", event);
       })
       .on('mousewheeldown.matecat', function (ev, pos, stack) {
-debug("*** MOUSEWDOWN");
-debug(arguments);
+
         var event = $.Event("mouseWheelDown");
         event.segment = UI.currentSegment[0];
         $(window).trigger("mouseWheelDown", event);
