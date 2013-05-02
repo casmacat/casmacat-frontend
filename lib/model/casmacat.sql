@@ -170,3 +170,10 @@ CREATE TABLE `config_event` (
   `config` text NOT NULL COMMENT 'JSON array of UI config used',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores configuration change events.';
+
+CREATE TABLE `sr_event` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary key',
+  `header_id` int(11) NOT NULL COMMENT 'Reference to log_event_header table',
+  `rules` text NOT NULL COMMENT 'JSON array of rules set for sr',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores sr rules events.';

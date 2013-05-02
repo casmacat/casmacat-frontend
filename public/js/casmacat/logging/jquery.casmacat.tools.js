@@ -328,7 +328,7 @@ catch (e) {
             endNodeId: null,
             endNodeXPath: null,
             eCursorPosition: null,  // cursor position in end node
-            selectedText: null  // TODO can this be empty or null?
+            selectedText: ""  // seems this should be the empty string and not null
         };
 
         if ($(this).is("input:text") || $(this).is("textarea")) {
@@ -350,8 +350,9 @@ catch (e) {
                 var selection = window.getSelection();  // TODO check cross browser compatibility of this
                 var r = selection.getRangeAt(0);
             }
-            catch(err) {
-                return false;
+            catch (err) {
+//                debug("$.fn.getSelection: 'window.getSelection()' failed, no selection available.");
+                return null;
             }
 
 //            debug("$.fn.getSelection: Text range dump:");
@@ -376,6 +377,9 @@ catch (e) {
 //            + range.endNodeId + "', endNodeXPath: '" + range.endNodeXPath + "', eCursorPosition: '"
 //            + range.eCursorPosition + "', selectedText: '" + range.selectedText + "'.");
 
+        if (range.selectedText === "") {
+            range = null;
+        }
 
         // breaking the chain ;-)
         return range;

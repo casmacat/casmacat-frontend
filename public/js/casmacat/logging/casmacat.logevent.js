@@ -77,6 +77,17 @@ var LogEventFactory = function(elementIdMode) {
     this.MEMENTO_UNDO = "mementoUndo";
     this.MEMENTO_REDO = "mementoRedo";
     this.MEMENTO_INVALIDATE = "mementoInvalidate";
+
+    this.SR_MENU_DISPLAYED = "srMenuDisplayed";
+    this.SR_MENU_HIDDEN = "srMenuHidden";
+    this.SR_MATCH_CASE_ON = "srMatchCaseOn";
+    this.SR_MATCH_CASE_OFF = "srMatchCaseOff";
+    this.SR_REG_EXP_ON = "srRegExpOn";
+    this.SR_REG_EXP_OFF = "srRegExpOff";
+    this.SR_RULES_SETTING = "srRulesSetting";
+    this.SR_RULES_SET = "srRulesSet";
+    this.SR_RULES_APPLIED = "srRulesApplied";
+    this.SR_RULE_DELETED = "srRuleDeleted";
 };
 
 /**
@@ -268,6 +279,21 @@ LogEventFactory.prototype.newLogEvent = function(type, element) {
         case this.MEMENTO_UNDO:
         case this.MEMENTO_REDO:
         case this.MEMENTO_INVALIDATE:
+            break;
+
+        case this.SR_MENU_DISPLAYED:
+        case this.SR_MENU_HIDDEN:
+        case this.SR_MATCH_CASE_ON:
+        case this.SR_MATCH_CASE_OFF:
+        case this.SR_REG_EXP_ON:
+        case this.SR_REG_EXP_OFF:
+        case this.SR_RULES_SETTING:
+            break;
+        case this.SR_RULES_SET:
+            logEvent.rules = arguments[2];
+            break;
+        case this.SR_RULES_APPLIED:
+        case this.SR_RULE_DELETED:
             break;
 
         default:

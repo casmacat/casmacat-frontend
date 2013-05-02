@@ -72,6 +72,7 @@
                                         // events are bound to input/contenteditable), jQuery selectors maybe used
             logShortcuts: true,
             logItp: true,
+            logSearchAndReplace: false,
             doSanitize: true,   // TODO check how this could be done generally (which events fires first, when multiple
                                 // listeners are attached to the same event source??)
             maxChunkSize: 5000  // maximum size of the log list before the automatic upload is triggered
@@ -385,19 +386,27 @@
         if (settings.logMouseMove) { // log mouse movements only if desired
             $(settings.logRootElement).on("mousemove." + pluginName, mouseMove);
         }
-        $(settings.logRootElement).on("mouseleave." + pluginName, mouseLeave);
-        $(settings.logRootElement).on("mousedown." + pluginName, mouseDown); // fires first
-        $(settings.logRootElement).on("mouseup." + pluginName, mouseUp); // fires second
-        $(settings.logRootElement).on("click." + pluginName, mouseClick); // fires last
+//        $(settings.logRootElement).on("mouseleave." + pluginName, mouseLeave);
+//        $(settings.logRootElement).on("mousedown." + pluginName, mouseDown); // fires first
+//        $(settings.logRootElement).on("mouseup." + pluginName, mouseUp); // fires second
+//        $(settings.logRootElement).on("click." + pluginName, mouseClick); // fires last
+        $(settings.logRootElement).each(function(index, value) {
+            $(this).on("mouseleave." + pluginName, mouseLeave);
+            $(this).on("mousedown." + pluginName, mouseDown); // fires first
+            $(this).on("mouseup." + pluginName, mouseUp); // fires second
+            $(this).on("click." + pluginName, mouseClick); // fires last
+        });
 
         // attach to key events
         // attach even, if settings.logKeys is false due to logging selections and removing
         // multiple selection stuff of FF
-        $(settings.logRootElement).on("keydown." + pluginName, keyDown); // fires first
+        $(settings.logRootElement).each(function(index, value) {
+            $(this).on("keydown." + pluginName, keyDown); // fires first
         //$(document).keypress(keyPress);   // fires second and may repeat, not covered by any official
                                             // specification, cross browser behavior differs, but luckily it seems
                                             // not to be needed :-)
-        $(settings.logRootElement).on("keyup." + pluginName, keyUp); // fires last
+            $(this).on("keyup." + pluginName, keyUp); // fires last
+        });
 
         // TODO problems with opera with on{paste, cut, copy}
         // attach to cut
@@ -420,6 +429,11 @@
         $(settings.logRootElement).find("input:text").each(function(index, value) {
             setFieldContents(this, $(this).val());
             $(this).on("input." + pluginName, textChanged);
+
+            // this is needed in order to track selections properly
+            $(this).on("mouseleave." + pluginName, mouseLeave);
+            $(this).on("mousedown." + pluginName, mouseDown); // fires first
+            $(this).on("mouseup." + pluginName, mouseUp); // fires second
 
 //            debugAttachedTo("input:text", this);
         });
@@ -558,7 +572,20 @@
             $(window).on("mementoUndo." + pluginName, mementoCommon);
             $(window).on("mementoRedo." + pluginName, mementoCommon);
             $(window).on("mementoInvalidate." + pluginName, mementoCommon);
+        }
 
+        if (settings.logSearchAndReplace) {
+            $(window).on("srMenuDisplayed." + pluginName, srCommon);
+            $(window).on("srMenuHidden." + pluginName, srCommon);
+            $(window).on("matchCaseOn." + pluginName, srCommon);
+            $(window).on("matchCaseOff." + pluginName, srCommon);
+            $(window).on("isRegExpOn." + pluginName, srCommon);
+            $(window).on("isRegExpOff." + pluginName, srCommon);
+
+            $(window).on("srRulesSetting." + pluginName, srCommon);
+            $(window).on("srRulesSet." + pluginName, srCommon);
+            $(window).on("srRulesApplied." + pluginName, srCommon);
+            $(window).on("srRuleDeleted." + pluginName, srCommon);
         }
 
         $(window).on("statsUpdated." + pluginName, statsUpdated);
@@ -731,8 +758,10 @@
      */
     var logSelectionEvent = function(element) {
         var range = $(element).getSelection();
-        if (range.selectedText != "") {
-//            debug(pluginName + ": Logging selection...");
+
+        if (range !== null) {
+//        if (range.selectedText !== "") {
+            debug(pluginName + ": Logging selection...");
             storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SELECTION, element, range));
         }
         else {
@@ -1197,22 +1226,22 @@
     };
 
     var alignmentShownByMouse = function(e, data) {
-        debug(pluginName + ": Alignment shown by mouse.");
+//        debug(pluginName + ": Alignment shown by mouse.");
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SHOW_ALIGNMENT_BY_MOUSE, data.target));
     };
 
     var alignmentHiddenByMouse = function(e, data) {
-        debug(pluginName + ": Alignment hidden by mouse.");
+//        debug(pluginName + ": Alignment hidden by mouse.");
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HIDE_ALIGNMENT_BY_MOUSE, data));
     };
 
     var alignmentShownByKey = function(e, data) {
-        debug(pluginName + ": Alignment shown by key.");
+//        debug(pluginName + ": Alignment shown by key.");
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SHOW_ALIGNMENT_BY_KEY, data.element, data.data));
     };
 
     var alignmentHiddenByKey = function(e, data) {
-        debug(pluginName + ": Alignment hidden by key.");
+//        debug(pluginName + ": Alignment hidden by key.");
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HIDE_ALIGNMENT_BY_KEY, data.element, data.data));
     };
 
@@ -1272,6 +1301,52 @@
                 break;
             case logEventFactory.MEMENTO_INVALIDATE:    // TODO seems not really needed
                 storeLogEvent(logEventFactory.newLogEvent(logEventFactory.MEMENTO_INVALIDATE, data.segment));
+                break;
+        }
+    };
+
+    var srCommon = function(e, data) {
+        debug(pluginName + ": SR event: type: '" + e.type + "'.");
+
+        switch (e.type) {
+            case logEventFactory.SR_MENU_DISPLAYED:
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_MENU_DISPLAYED, data.segment));
+                break;
+            case logEventFactory.SR_MENU_HIDDEN:
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_MENU_HIDDEN, data.segment));
+                break;
+            case logEventFactory.SR_MATCH_CASE_ON:
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_MATCH_CASE_ON, data.segment));
+                break;
+            case logEventFactory.SR_MATCH_CASE_OFF:
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_MATCH_CASE_OFF, data.segment));
+                break;
+            case logEventFactory.SR_REG_EXP_ON:
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_REG_EXP_ON, data.segment));
+                break;
+            case logEventFactory.SR_REG_EXP_OFF:
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_REG_EXP_OFF, data.segment));
+                break;
+
+            case logEventFactory.SR_RULES_SETTING:
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_RULES_SETTING, data.segment));
+                break;
+            case logEventFactory.SR_RULES_SET:
+                debug(pluginName + ": SR rules set to:");
+                debug(data.rules);
+//                if (data.rules === null) {
+//                    data.rules = "";
+//                }
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_RULES_SET, data.segment, data.rules));
+                break;
+            case logEventFactory.SR_RULES_APPLIED:
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_RULES_APPLIED, data.segment));
+                textChanged({
+                     target: $(".editarea", data.segment)[0]
+                });
+                break;
+            case logEventFactory.SR_RULE_DELETED:
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_RULE_DELETED, data.segment));
                 break;
         }
     };

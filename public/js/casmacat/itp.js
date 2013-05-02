@@ -450,20 +450,38 @@ $(function(){
 
     itpServer.on('setReplacementRuleResult', function(data, err) {
       itpServer.getReplacementRules();
+
+        var event = $.Event("srRulesSetting");
+        event.segment = UI.currentSegment[0];
+        $(window).trigger("srRulesSetting", event);
     });
 
     itpServer.on('delReplacementRuleResult', function(data, err) {
-      itpServer.getReplacementRules();
+        itpServer.getReplacementRules();
+
+        var event = $.Event("srRuleDeleted");
+        event.segment = UI.currentSegment[0];
+        $(window).trigger("srRuleDeleted", event);
     });
 
     itpServer.on('applyReplacementRulesResult', function(data, err) {
+
+        var event = $.Event("srRulesApplied");
+        event.segment = UI.currentSegment[0];
+        $(window).trigger("srRulesApplied", event);
     });
 
     itpServer.on('getReplacementRulesResult', function(data, err) {
+
       $('#sr-rules').empty();
       for (var i = 0; i < data.rules.length; ++i) {
         processRule(data.rules[i]);
       }
+
+        var event = $.Event("srRulesSet");
+        event.segment = UI.currentSegment[0];
+        event.rules = data.rules;
+        $(window).trigger("srRulesSet", event);
     });
   };
 
@@ -503,8 +521,38 @@ $(function(){
 
   function setupSearchReplace() {
     $('#sr-viewreplaceBtn').click(function(e){
+
+        // logging
+        if ($("#sr-rules").is(":hidden")) {
+            var event = $.Event("srMenuDisplayed");
+            event.segment = UI.currentSegment[0];
+            $(window).trigger("srMenuDisplayed", event);
+        }
+        else {
+            var event = $.Event("srMenuHidden");
+            event.segment = UI.currentSegment[0];
+            $(window).trigger("srMenuHidden", event);
+        }
+        // logging
+
       $('#sr-rules').toggle("fast");
     });
+
+    // logging
+    $("#sr-matchCase, #sr-isRegExp").click(function(e) {
+
+        if ($(this).prop("checked")) {
+            var event = $.Event(this.name + "On");
+            event.segment = UI.currentSegment[0];
+            $(window).trigger(this.name + "On", event);
+        }
+        else {
+            var event = $.Event(this.name + "Off");
+            event.segment = UI.currentSegment[0];
+            $(window).trigger(this.name + "Off", event);
+        }
+    });
+    // logging
 
     $('#sr-addreplaceBtn').click(function(e){
       var rule = {};

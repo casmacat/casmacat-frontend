@@ -176,6 +176,24 @@ class saveLogChunkController extends ajaxcontroller {
                         insertLogEventHeader($logEvent);
                         break;
 
+                    case LogEvent::SR_MENU_DISPLAYED:
+                    case LogEvent::SR_MENU_HIDDEN:
+                    case LogEvent::SR_MATCH_CASE_ON:
+                    case LogEvent::SR_MATCH_CASE_OFF:
+                    case LogEvent::SR_REG_EXP_ON:
+                    case LogEvent::SR_REG_EXP_OFF:
+                    case LogEvent::SR_RULES_SETTING:
+                        insertLogEventHeader($logEvent);
+                        break;
+                    case LogEvent::SR_RULES_SET:
+                        $logEvent->srRulesSetData($value);
+                        insertSrEvent($logEvent);
+                        break;
+                    case LogEvent::SR_RULES_APPLIED:
+                    case LogEvent::SR_RULE_DELETED:
+                        insertLogEventHeader($logEvent);
+                        break;
+
                     default:
                         $db->query("COMMIT");   // at least, store what was ok
                         $db->query("SET AUTOCOMMIT=1");

@@ -171,6 +171,21 @@ function resetDocument($jobId, $fileId) {
             case LogEvent::MEMENTO_INVALIDATE:
                 break;
 
+            case LogEvent::SR_MENU_DISPLAYED:
+            case LogEvent::SR_MENU_HIDDEN:
+            case LogEvent::SR_MATCH_CASE_ON:
+            case LogEvent::SR_MATCH_CASE_OFF:
+            case LogEvent::SR_REG_EXP_ON:
+            case LogEvent::SR_REG_EXP_OFF:
+            case LogEvent::SR_RULES_SETTING:
+                break;
+            case LogEvent::SR_RULES_SET:
+                deleteEventRow($logEvent->id, "sr_event");
+                break;
+            case LogEvent::SR_RULES_APPLIED:
+            case LogEvent::SR_RULE_DELETED:
+                break;
+
             default:
                 log::doLog("CASMACAT: resetDocument(): Unknown log event type: '$logEvent->type', header id: '$logEvent->id'");
                 throw new Exception("CASMACAT: resetDocument(): Unknown log event type: '$logEvent->type', header id: '$logEvent->id'");
@@ -381,6 +396,22 @@ log::doLog($endOffset);
             case LogEvent::MEMENTO_UNDO:
             case LogEvent::MEMENTO_REDO:
             case LogEvent::MEMENTO_INVALIDATE:
+                break;
+
+            case LogEvent::SR_MENU_DISPLAYED:
+            case LogEvent::SR_MENU_HIDDEN:
+            case LogEvent::SR_MATCH_CASE_ON:
+            case LogEvent::SR_MATCH_CASE_OFF:
+            case LogEvent::SR_REG_EXP_ON:
+            case LogEvent::SR_REG_EXP_OFF:
+            case LogEvent::SR_RULES_SETTING:
+                break;
+            case LogEvent::SR_RULES_SET:
+                $eventRow = fetchEventRow($logEvent->id, "sr_event");
+                $logEvent->srRulesSetData($eventRow);
+                break;
+            case LogEvent::SR_RULES_APPLIED:
+            case LogEvent::SR_RULE_DELETED:
                 break;
 
             default:
@@ -854,6 +885,30 @@ function insertConfigEvent($event) {
     if ($errno != 0) {
         log::doLog("CASMACAT: insertConfigEvent(): " . print_r($err, true));
         throw new Exception("CASMACAT: insertConfigEvent(): " . print_r($err, true));
+//        return $errno * -1;
+    }
+}
+
+/**
+ * Inserts an entry into the sr_event and log_event_header table.
+ *
+ */
+function insertSrEvent($event) {
+    $headerId = insertLogEventHeader($event);
+
+    $data = array();
+    $data["id"] = "NULL";
+    $data["header_id"] = $headerId;
+    $data["rules"] = json_encode($event->rules);
+
+    $db = Database::obtain();
+    $db->insert("sr_event", $data);
+
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: insertSrEvent(): " . print_r($err, true));
+        throw new Exception("CASMACAT: insertSrEvent(): " . print_r($err, true));
 //        return $errno * -1;
     }
 }
