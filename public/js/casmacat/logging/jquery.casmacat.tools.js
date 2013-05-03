@@ -550,7 +550,7 @@ catch (e) {
                 }
             };
 
-//            debug("$.expr[:scrollable]: Found scrollable '" + element.tagName + "'.");
+            debug("$.expr[:scrollable]: Found scrollable '" + element.tagName + "'.");
             return direction.y && size.scrollableY() || direction.x && size.scrollableX();
         }
     });

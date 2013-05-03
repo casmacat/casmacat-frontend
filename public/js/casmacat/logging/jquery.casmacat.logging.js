@@ -586,6 +586,9 @@
             $(window).on("srRulesSet." + pluginName, srCommon);
             $(window).on("srRulesApplied." + pluginName, srCommon);
             $(window).on("srRuleDeleted." + pluginName, srCommon);
+
+            // TODO this one is found by find(scrollable(vertical) but no event is attached. why?
+            $("#sr-rules").on("scroll." + pluginName, scrollableMoved);
         }
 
         $(window).on("statsUpdated." + pluginName, statsUpdated);
