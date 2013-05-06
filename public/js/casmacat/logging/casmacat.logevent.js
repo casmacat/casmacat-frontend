@@ -66,6 +66,28 @@ var LogEventFactory = function(elementIdMode) {
     this.BEFORE_CUT = "beforeCut";
     this.BEFORE_COPY = "beforeCopy";
     this.BEFORE_PASTE = "beforePaste";
+
+    this.VIS_MENU_DISPLAYED = "visMenuDisplayed";
+    this.VIS_MENU_HIDDEN = "visMenuHidden";
+    this.INITIAL_CONFIG = "initialConfig";
+    this.CONFIG_CHANGED = "configChanged";
+    this.MOUSE_WHEEL_UP = "mouseWheelUp";
+    this.MOUSE_WHEEL_DOWN = "mouseWheelDown";
+    this.MOUSE_WHEEL_INVALIDATE = "mouseWheelInvalidate";
+    this.MEMENTO_UNDO = "mementoUndo";
+    this.MEMENTO_REDO = "mementoRedo";
+    this.MEMENTO_INVALIDATE = "mementoInvalidate";
+
+    this.SR_MENU_DISPLAYED = "srMenuDisplayed";
+    this.SR_MENU_HIDDEN = "srMenuHidden";
+    this.SR_MATCH_CASE_ON = "srMatchCaseOn";
+    this.SR_MATCH_CASE_OFF = "srMatchCaseOff";
+    this.SR_REG_EXP_ON = "srRegExpOn";
+    this.SR_REG_EXP_OFF = "srRegExpOff";
+    this.SR_RULES_SETTING = "srRulesSetting";
+    this.SR_RULES_SET = "srRulesSet";
+    this.SR_RULES_APPLIED = "srRulesApplied";
+    this.SR_RULE_DELETED = "srRuleDeleted";
 };
 
 /**
@@ -241,6 +263,37 @@ LogEventFactory.prototype.newLogEvent = function(type, element) {
         case this.BEFORE_CUT:
         case this.BEFORE_COPY:
         case this.BEFORE_PASTE:
+            break;
+
+        case this.VIS_MENU_DISPLAYED:
+        case this.VIS_MENU_HIDDEN:
+            break;
+        case this.INITIAL_CONFIG:
+        case this.CONFIG_CHANGED:
+            logEvent.config = arguments[2];
+            break;
+        case this.MOUSE_WHEEL_UP:
+        case this.MOUSE_WHEEL_DOWN:
+        case this.MOUSE_WHEEL_INVALIDATE:
+            break;
+        case this.MEMENTO_UNDO:
+        case this.MEMENTO_REDO:
+        case this.MEMENTO_INVALIDATE:
+            break;
+
+        case this.SR_MENU_DISPLAYED:
+        case this.SR_MENU_HIDDEN:
+        case this.SR_MATCH_CASE_ON:
+        case this.SR_MATCH_CASE_OFF:
+        case this.SR_REG_EXP_ON:
+        case this.SR_REG_EXP_OFF:
+        case this.SR_RULES_SETTING:
+            break;
+        case this.SR_RULES_SET:
+            logEvent.rules = arguments[2];
+            break;
+        case this.SR_RULES_APPLIED:
+        case this.SR_RULE_DELETED:
             break;
 
         default:

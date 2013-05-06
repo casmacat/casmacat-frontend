@@ -156,6 +156,44 @@ class saveLogChunkController extends ajaxcontroller {
                         insertLogEventHeader($logEvent);
                         break;
 
+                    case LogEvent::VIS_MENU_DISPLAYED:
+                    case LogEvent::VIS_MENU_HIDDEN:
+                        insertLogEventHeader($logEvent);
+                        break;
+                    case LogEvent::INITIAL_CONFIG:
+                    case LogEvent::CONFIG_CHANGED:
+                        $logEvent->configData($value);
+                        insertConfigEvent($logEvent);
+                        break;
+                    case LogEvent::MOUSE_WHEEL_DOWN:
+                    case LogEvent::MOUSE_WHEEL_UP:
+                    case LogEvent::MOUSE_WHEEL_INVALIDATE:
+                        insertLogEventHeader($logEvent);
+                        break;
+                    case LogEvent::MEMENTO_UNDO:
+                    case LogEvent::MEMENTO_REDO:
+                    case LogEvent::MEMENTO_INVALIDATE:
+                        insertLogEventHeader($logEvent);
+                        break;
+
+                    case LogEvent::SR_MENU_DISPLAYED:
+                    case LogEvent::SR_MENU_HIDDEN:
+                    case LogEvent::SR_MATCH_CASE_ON:
+                    case LogEvent::SR_MATCH_CASE_OFF:
+                    case LogEvent::SR_REG_EXP_ON:
+                    case LogEvent::SR_REG_EXP_OFF:
+                    case LogEvent::SR_RULES_SETTING:
+                        insertLogEventHeader($logEvent);
+                        break;
+                    case LogEvent::SR_RULES_SET:
+                        $logEvent->srRulesSetData($value);
+                        insertSrEvent($logEvent);
+                        break;
+                    case LogEvent::SR_RULES_APPLIED:
+                    case LogEvent::SR_RULE_DELETED:
+                        insertLogEventHeader($logEvent);
+                        break;
+
                     default:
                         $db->query("COMMIT");   // at least, store what was ok
                         $db->query("SET AUTOCOMMIT=1");

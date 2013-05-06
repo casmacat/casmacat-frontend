@@ -47,6 +47,28 @@ class LogEvent {
     const BEFORE_COPY = "beforeCopy";
     const BEFORE_PASTE = "beforePaste";
 
+    const VIS_MENU_DISPLAYED = "visMenuDisplayed";
+    const VIS_MENU_HIDDEN = "visMenuHidden";
+    const INITIAL_CONFIG = "initialConfig";
+    const CONFIG_CHANGED = "configChanged";
+    const MOUSE_WHEEL_UP = "mouseWheelUp";
+    const MOUSE_WHEEL_DOWN = "mouseWheelDown";
+    const MOUSE_WHEEL_INVALIDATE = "mouseWheelInvalidate";
+    const MEMENTO_UNDO = "mementoUndo";
+    const MEMENTO_REDO = "mementoRedo";
+    const MEMENTO_INVALIDATE = "mementoInvalidate";
+
+    const SR_MENU_DISPLAYED = "srMenuDisplayed";
+    const SR_MENU_HIDDEN = "srMenuHidden";
+    const SR_MATCH_CASE_ON = "srMatchCaseOn";
+    const SR_MATCH_CASE_OFF = "srMatchCaseOff";
+    const SR_REG_EXP_ON = "srRegExpOn";
+    const SR_REG_EXP_OFF = "srRegExpOff";
+    const SR_RULES_SETTING = "srRulesSetting";
+    const SR_RULES_SET = "srRulesSet";
+    const SR_RULES_APPLIED = "srRulesApplied";
+    const SR_RULE_DELETED = "srRuleDeleted";
+
     public $id;
     public $jobId;
     public $fileId;
@@ -165,6 +187,14 @@ class LogEvent {
         $this->ctrl = $object->ctrl;
         $this->alt = $object->alt;
         $this->cursorPosition = $object->cursorPosition;
+    }
+
+    public function configData($object) {
+        $this->config = $object->config;
+    }
+
+    public function srRulesSetData($object) {
+        $this->rules = $object->rules;
     }
 
     public function toString() {

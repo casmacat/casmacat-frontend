@@ -87,11 +87,12 @@ $(function() {
             "jobId": config.job_id,
             "maxChunkSize": config.logMaxChunkSize,
 //            "maxChunkSize": 50,
-            "logRootElement": "html > body > div#outer",
+            "logRootElement": "html > body > div#outer, #sr-replace",
 
             "doSanitize": true,             // TODO check this! not working with IMT currently
             "logItp": config.itpEnabled,    // when IMT enabled, set this to true, set to false otherwise
             "logEyeTracker": config.etEnabled,    // when ET enabled, set this to true, set to false otherwise
+            "logSearchAndReplace": config.srEnabled,    // when ET enabled, set this to true, set to false otherwise
             "etDiscardInvalid": false,       // do not discard gaze samples/fixations outside of tracker area
             "etType": config.etType
         });
