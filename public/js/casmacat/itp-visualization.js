@@ -37,15 +37,20 @@
           }
 
           var $lastEditedToken = $(lastEditedToken);
-          if (lastEditedToken) {
+          if (lastEditedToken && lastEditedToken.dataset) {
             // XXX: do not use jquery data if you want css selectors to work
             lastEditedToken.dataset.validated = true;
             $lastEditedToken.prevAll(".editable-token").each(function(i, elem) {
               // if the element in the prefix has been inserted, then it must have been introduced by the user 
-              if ($(elem).data('merge-type') !== 'N') {
+              var $elem = $(elem);
+              if ($elem.data('merge-type') !== 'N') {
                 elem.dataset.validated = true;
               }
             });
+            var $next = $lastEditedToken.next();
+            if ($next.data('merge-type') !== 'N' && $next.get(0).dataset.validated === "true") {
+              $next.attr('data-last-validated', false).attr('data-validated', false);
+            }
             
             var $lastValidated = $lastEditedToken.nextAll('.editable-token[data-validated=true]').last();
             if (!$lastValidated || $lastValidated.length === 0)  {

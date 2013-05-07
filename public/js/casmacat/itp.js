@@ -75,7 +75,7 @@ $(function(){
 
         $canvas = $('<canvas tabindex="-1" id="'+prefix+'-canvas" width="'+(siz.width)+'" height="'+(siz.height)+'"/>');
         $canvas.prependTo($targetParent).hide().delay(10).css({
-             top: $source.height() + 15,
+             top: 2.25 * $source.height(),
             left: 7,
           zIndex: geom.getNextHighestDepth()
         }).bind('mousedown mouseup click', function(e){

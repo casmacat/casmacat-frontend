@@ -330,7 +330,7 @@
 
         //console.log("old tokens:", old_tokens);
         //console.log("new tokens:", new_tokens);
-        //console.log(merge);
+        //console.log("****MERGE*****", merge);
 
         var tokens = $this.clone(); 
         var id = $this.attr('id');
