@@ -100,7 +100,7 @@ else {
     while ( ($row = $db->fetch($queryId)) != false ) {
 		$writer->startElement('segment');
         $writer->writeAttribute('id', $row['id']);
-        $writer->text($row['segment']);
+        $writer->text(html_entity_decode($row['segment'], ENT_QUOTES, 'UTF-8'));
         $writer->endElement();      
     }        
     $writer->endElement(); 
@@ -155,7 +155,7 @@ else {
     while ( ($row = $db->fetch($queryId)) != false ) {
 		$writer->startElement('segment');
         $writer->writeAttribute('id', $row['id_segment']);
-        $writer->text($row['translation']);  
+        $writer->text(html_entity_decode($row['translation'], ENT_QUOTES, 'UTF-8'));  
         $writer->endElement();      
     }                
     $writer->endElement();   
