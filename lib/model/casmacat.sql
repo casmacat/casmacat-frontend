@@ -76,7 +76,6 @@ CREATE TABLE `key_event` (
   `cursor_position` int(5) NOT NULL COMMENT 'Cursor position where the key event occured',
   `which` varchar(5) NOT NULL COMMENT 'The javascript keycode',
   `mapped_key` varchar(20) NOT NULL COMMENT 'The key mapped to the code of which',
---  `character` varchar(20) NOT NULL COMMENT 'The key mapped to the code of which',
   `shift` tinyint(1) NOT NULL COMMENT 'Was the shift key pressed in addition?',
   `ctrl` tinyint(1) NOT NULL COMMENT 'Was the ctrl key pressed in addition?',
   `alt` tinyint(1) NOT NULL COMMENT 'Was the alt key pressed in addition?',
@@ -145,24 +144,6 @@ CREATE TABLE `deleting_suggestion_event` (
   `which` varchar(2) NOT NULL COMMENT 'Stores the index of the suggestion deleted',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores deletion of a suggestions.';
-
---CREATE TABLE `config_event` (
---  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary key',
---  `header_id` int(11) NOT NULL COMMENT 'Reference to log_event_header table',
---  `build_number` text NOT NULL COMMENT 'Version of UI used',
---  `debug_enabled` int(1) NOT NULL COMMENT 'Debugging enabled?',
---  `log_enabled` int(1) NOT NULL COMMENT 'Logging enabled?',
---   `itp_enabled` int(1) NOT NULL COMMENT 'ITP enabled?',
---   `pen_enabled` int(1) NOT NULL COMMENT 'E-pen enabled?',
---   `sr_enabled` int(1) NOT NULL COMMENT 'Search and replace enabled?',
---   `et_enabled` int(1) NOT NULL COMMENT 'ET enabled?',
---   `itp_server` text NOT NULL COMMENT 'ITP server used',
---   `cat_setting` text NOT NULL COMMENT 'CAT settings used',
---   `htr_server` text NOT NULL COMMENT 'HTR server used',
---   `et_type` text NOT NULL COMMENT 'ET type used',
---   `prefs` text NOT NULL COMMENT 'JSON array of prefs used',
---   PRIMARY KEY (`id`)
--- ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores configuration change events.';
 
 CREATE TABLE `config_event` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary key',

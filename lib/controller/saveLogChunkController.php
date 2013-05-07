@@ -9,6 +9,7 @@ class saveLogChunkController extends ajaxcontroller {
     private $jobId;
     private $fileId;
     private $logList;
+    private $jsonError;
 
     private $startTime;
 
@@ -22,6 +23,9 @@ class saveLogChunkController extends ajaxcontroller {
         $this->jobId = $this->get_from_get_post("jobId");
         $this->fileId = $this->get_from_get_post("fileId");
         $this->logList = json_decode($this->get_from_get_post("logList"));
+
+        $this->jsonError = json_last_error();
+
 //        $this->logList = $this->get_from_get_post("logList");
 
 //        log::doLog("CASMACAT: saveLogChunkController->__construct(): Initialized: jobId: '$this->jobId', fileId: '$this->fileId', logList: '"
@@ -29,6 +33,36 @@ class saveLogChunkController extends ajaxcontroller {
     }
 
     public function doAction() {
+
+        if ($this->jsonError !== JSON_ERROR_NONE) {
+            $this->result["code"] = $this->jsonError;
+
+            $msg = "Unknown error";
+            switch ($this->jsonError) {
+                case JSON_ERROR_NONE:   // No error has occurred
+                    break;
+                case JSON_ERROR_DEPTH:
+                    $msg = "The maximum stack depth has been exceeded";
+                    break;
+                case JSON_ERROR_STATE_MISMATCH:
+                    $msg = "Invalid or malformed JSON";
+                    break;
+                case JSON_ERROR_CTRL_CHAR:
+                    $msg = "Control character error, possibly incorrectly encoded";
+                    break;
+                case JSON_ERROR_SYNTAX:
+                    $msg = "Syntax error";
+                    break;
+                case JSON_ERROR_UTF8:
+                    $msg = "Malformed UTF-8 characters, possibly incorrectly encoded";
+                    break;
+            }
+
+            $this->result["errors"][] = array("code" => -1, "message" => "Unexcpected JSON decode error: '$msg'");
+            log::doLog("CASMACAT: saveLogChunkController->doAction(): Unexcpected JSON decode error: '$msg', logList: '"
+                . print_r($this->logList, true) . "'");
+            return;
+        }
 
         $db = Database::obtain();
         $db->query("SET AUTOCOMMIT=0");

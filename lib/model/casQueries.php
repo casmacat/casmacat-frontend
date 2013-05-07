@@ -136,7 +136,7 @@ function resetDocument($jobId, $fileId) {
             case LogEvent::HIDE_ALIGNMENT_BY_MOUSE:
             case LogEvent::SHOW_ALIGNMENT_BY_KEY:
             case LogEvent::HIDE_ALIGNMENT_BY_KEY:
-              break;
+                break;
 
             case LogEvent::KEY_DOWN:
             case LogEvent::KEY_UP:
@@ -360,7 +360,7 @@ log::doLog($endOffset);
                 break;
             case LogEvent::SHOW_ALIGNMENT_BY_MOUSE:
             case LogEvent::HIDE_ALIGNMENT_BY_MOUSE:
-              break;
+                break;
 
             case LogEvent::KEY_DOWN:
             case LogEvent::KEY_UP:

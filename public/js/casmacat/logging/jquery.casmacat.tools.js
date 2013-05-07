@@ -803,6 +803,10 @@ catch (e) {
             $.error("Error getting character offset: 'Unsupported browser'");
         }
 
+        if (charInfo.character.length > 1) {
+            charInfo.character = ""
+        }
+
         return charInfo;
     };
 

@@ -1012,11 +1012,11 @@
             if (getFieldContents(e.target) != $(e.target).text()) {
                 changes = $.fn.getChanges( getFieldContents(e.target), $(e.target).text() );
 
-                debug(pluginName + ": Text changed: "
-                    + "\n\told text: '" + getFieldContents(e.target) + "', "
-                    + "\n\tnew text: '" + $(e.target).text() + "', "
-                    + "\n\tdiff: (cursorPosition: '" + changes.cursorPosition + "', deleted: '" + changes.deleted
-                        + "', inserted: '" + changes.inserted + "').");
+//                debug(pluginName + ": Text changed: "
+//                    + "\n\told text: '" + getFieldContents(e.target) + "', "
+//                    + "\n\tnew text: '" + $(e.target).text() + "', "
+//                    + "\n\tdiff: (cursorPosition: '" + changes.cursorPosition + "', deleted: '" + changes.deleted
+//                        + "', inserted: '" + changes.inserted + "').");
 
                 setFieldContents(e.target, $(e.target).text());
             }
@@ -1024,11 +1024,11 @@
         else {
             // textarea needs no sanitize
             changes = $.fn.getChanges( getFieldContents(e.target), $(e.target).val() );
-            debug(pluginName + ": Text changed: "
-                + "\n\told text: '" + getFieldContents(e.target) + "', "
-                + "\n\tnew text: '" + $(e.target).val() + "', "
-                + "\n\tdiff: (cursorPosition: '" + changes.cursorPosition + "', deleted: '" + changes.deleted
-                    + "', inserted: '" + changes.inserted + "').");
+//            debug(pluginName + ": Text changed: "
+//                + "\n\told text: '" + getFieldContents(e.target) + "', "
+//                + "\n\tnew text: '" + $(e.target).val() + "', "
+//                + "\n\tdiff: (cursorPosition: '" + changes.cursorPosition + "', deleted: '" + changes.deleted
+//                    + "', inserted: '" + changes.inserted + "').");
             setFieldContents(e.target, $(e.target).val());
         }
 
@@ -1371,8 +1371,8 @@
 //            debug(pluginName + ": Coordinates: lx: '" + lx + "', ly: '" + ly + "', lrx: '" + lrx + "', lry: '" + lry + "'.");
 
             // make right eye coordinates relative to window
-            var rrx = rx - w.x;
-            var rry = ry - w.y;
+            var rrx = Math.floor(rx - w.x);
+            var rry = Math.floor(ry - w.y);
 //            debug(pluginName + ": Coordinates: rx: '" + rx + "', ry: '" + ry + "', rrx: '" + rrx + "', rry: '" + rry + "'.");
 
             if (settings.etDiscardInvalid) {
