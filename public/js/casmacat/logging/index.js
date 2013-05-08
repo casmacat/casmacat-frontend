@@ -94,7 +94,8 @@ $(function() {
             "logEyeTracker": config.etEnabled,    // when ET enabled, set this to true, set to false otherwise
             "logSearchAndReplace": config.srEnabled,    // when ET enabled, set this to true, set to false otherwise
             "etDiscardInvalid": false,       // do not discard gaze samples/fixations outside of tracker area
-            "etType": config.etType
+            "etType": config.etType,
+            "etExternalControl": true
         });
         $(window).logging("start");
 

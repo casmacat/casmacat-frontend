@@ -61,6 +61,8 @@
             logEyeTracker: false,       // should eye tracking be logged?
             etDiscardInvalid: true,     // discard gaze samples and fixations outside the tracked area (inner window area)
             etType: 0,                  // Eye Tracker to use: 0 = Mouse Emulator, 100 = EyeLink 1000, 200 = Tobii 120
+            etExternalControl: false,   // will calibration and stopping of eye tracker recording be performed externally?
+                                        // this (hopefully) allows to run the EyeLink application in parallel
             logKeys: true,
             logMouse: true,
             logMouseMove: false,        // should mouse movements be logged?
@@ -87,7 +89,8 @@
 
         logEventFactory = null,
 
-        w = { width: 0, height: 0, x: 0, y: 0, positionValid: false }
+        w = { width: 0, height: 0, x: 0, y: 0, positionValid: false },
+        etExternalControl = false
     ; // var
 
     /*################################################################################################################*/
@@ -364,14 +367,18 @@
                 $.fn.attachToETPluginEvent(plugin, "fixation", fixation);
 
                 plugin.setDeviceAndConnect(settings.etType);
-                while (!plugin.calibrate()) {
-                    var answer = confirm("Calibration failed, trying again?");
-                    if (!answer) {
-                        alert("Calibration failed, logging aborted!");
-                        $.error("Calibration failed, logging aborted!");
-//                        return;
+
+                if (!etExternalControl) {
+                    while (!plugin.calibrate()) {
+                        var answer = confirm("Calibration failed, trying again?");
+                        if (!answer) {
+                            alert("Calibration failed, logging aborted!");
+                            $.error("Calibration failed, logging aborted!");
+    //                        return;
+                        }
                     }
                 }
+
                 plugin.start();
             }
             else {
@@ -604,7 +611,9 @@
         if (settings.logEyeTracker) {
             var plugin = $.fn.getETPlugin();
             if (plugin.valid) {
-                plugin.stop();
+                if (!etExternalControl) {
+                    plugin.stop();
+                }
                 $.fn.detachFromETPluginEvent(plugin, "state", state);
                 $.fn.detachFromETPluginEvent(plugin, "gaze", gaze);
                 $.fn.detachFromETPluginEvent(plugin, "fixation", fixation);
