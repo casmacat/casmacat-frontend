@@ -655,15 +655,15 @@
                                     // (where the '1' is the value of maxChunkSize - 1)
             logList = []; // clear the logList
         }
-        else if (logList.length === parseInt(settings.maxChunkSize * 0.25)) {
-            debug(pluginName + ": 'logList' fill level 25%: '" + logList.length + "'.");
-        }
+//        else if (logList.length === parseInt(settings.maxChunkSize * 0.25)) {
+//            debug(pluginName + ": 'logList' fill level 25%: '" + logList.length + "'.");
+//        }
         else if (logList.length === parseInt(settings.maxChunkSize * 0.50)) {
             debug(pluginName + ": 'logList' fill level 50%: '" + logList.length + "'.");
         }
-        else if (logList.length === parseInt(settings.maxChunkSize * 0.75)) {
-            debug(pluginName + ": 'logList' fill level 75%: '" + logList.length + "'.");
-        }
+//        else if (logList.length === parseInt(settings.maxChunkSize * 0.75)) {
+//            debug(pluginName + ": 'logList' fill level 75%: '" + logList.length + "'.");
+//        }
 
         logList.push(logEvent);
 //        debug(pluginName + ": 'logList' now contains '" + logList.length + "' events.");
@@ -1393,23 +1393,27 @@
             // put it all together
             var lElement = document.elementFromPoint(lrx, lry);
             var rElement = document.elementFromPoint(rrx, rry);
-            var element = lElement;
-            if (element === null && rElement === null) {
-//                debug(pluginName + ": 'element' is null, adjusting to 'window'...");
-                element = window;
+            var element = window;
+            if (lElement === null && rElement !== null) {
+                element = rElement;
             }
-            else if (element === null && rElement !== null) {
-                element = " " + rElement;
+            else if (lElement !== null && rElement === null) {
+                element = lElement;
             }
-            else if (element !== rElement && rElement !== null) {
-                element += " " + rElement;
+            else if (lElement !== null && rElement !== null) {
+                if (lElement !== rElement) {    // TODO store 2 different elementId/xPath for this?
+                    element = lElement;
+                }
+                else {
+                    element = lElement;
+                }
             }
             var lCharInfo = $.fn.characterFromPoint(lrx, lry);
             var rCharInfo = $.fn.characterFromPoint(rrx, rry);
 
-//            debug(pluginName + ": element: '" + element + "'");
-//            debug(pluginName + ": left char offset: '" + lCharInfo.offset + "', left char: '" + lCharInfo.character + "'.");
-//            debug(pluginName + ": right char offset: '" + rCharInfo.offset + "', right char: '" + rCharInfo.character + "'.");
+            debug(pluginName + ": element: '" + element + "'");
+            debug(pluginName + ": left char offset: '" + lCharInfo.offset + "', left char: '" + lCharInfo.character + "'.");
+            debug(pluginName + ": right char offset: '" + rCharInfo.offset + "', right char: '" + rCharInfo.character + "'.");
 
             storeLogEvent(logEventFactory.newLogEvent(logEventFactory.GAZE, element, trackerTime, lrx, lry, rrx, rry,
                 leftDilation, rightDilation, lCharInfo.character, lCharInfo.offset, rCharInfo.character, rCharInfo.offset));
