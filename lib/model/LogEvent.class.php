@@ -122,26 +122,51 @@ class LogEvent {
     }
 
     public function gazeData($object) {
-        $this->tTime = $object->tt;
-        $this->lx = $object->lx;
-        $this->ly = $object->ly;
-        $this->rx = $object->rx;
-        $this->ry = $object->ry;
-        $this->lDil = $object->ld;
-        $this->rDil = $object->rd;
-        $this->lChar = $object->lc;
-        $this->lOffset = $object->lo;
-        $this->rChar = $object->rc;
-        $this->rOffset = $object->ro;
+        if (isset($object->tt)) {
+            $this->tTime = $object->tt;
+            $this->lx = $object->lx;
+            $this->ly = $object->ly;
+            $this->rx = $object->rx;
+            $this->ry = $object->ry;
+            $this->lDil = $object->ld;
+            $this->rDil = $object->rd;
+            $this->lChar = $object->lc;
+            $this->lOffset = $object->lo;
+            $this->rChar = $object->rc;
+            $this->rOffset = $object->ro;
+        }
+        else {
+            $this->tTime = $object->tTime;
+            $this->lx = $object->lx;
+            $this->ly = $object->ly;
+            $this->rx = $object->rx;
+            $this->ry = $object->ry;
+            $this->lDil = $object->lDil;
+            $this->rDil = $object->rDil;
+            $this->lChar = $object->lChar;
+            $this->lOffset = $object->lOffset;
+            $this->rChar = $object->rChar;
+            $this->rOffset = $object->rOffset;
+        }
     }
 
     public function fixationData($object) {
-        $this->tTime = $object->tt;
-        $this->x = $object->x;
-        $this->y = $object->y;
-        $this->duration = $object->d;
-        $this->character = $object->c;
-        $this->offset = $object->o;
+        if (isset($object->tt)) {
+            $this->tTime = $object->tt;
+            $this->x = $object->x;
+            $this->y = $object->y;
+            $this->duration = $object->d;
+            $this->character = $object->c;
+            $this->offset = $object->o;
+        }
+        else {
+            $this->tTime = $object->tTime;
+            $this->x = $object->x;
+            $this->y = $object->y;
+            $this->duration = $object->duration;
+            $this->character = $object->character;
+            $this->offset = $object->offset;
+        }
     }
 
     public function segmentChangedData($object) {

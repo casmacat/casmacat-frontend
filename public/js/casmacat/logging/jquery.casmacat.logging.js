@@ -89,8 +89,7 @@
 
         logEventFactory = null,
 
-        w = { width: 0, height: 0, x: 0, y: 0, positionValid: false },
-        etExternalControl = false
+        w = { width: 0, height: 0, x: 0, y: 0, positionValid: false }
     ; // var
 
     /*################################################################################################################*/
@@ -368,7 +367,7 @@
 
                 plugin.setDeviceAndConnect(settings.etType);
 
-                if (!etExternalControl) {
+                if (!settings.etExternalControl) {
                     while (!plugin.calibrate()) {
                         var answer = confirm("Calibration failed, trying again?");
                         if (!answer) {
@@ -611,7 +610,7 @@
         if (settings.logEyeTracker) {
             var plugin = $.fn.getETPlugin();
             if (plugin.valid) {
-                if (!etExternalControl) {
+                if (!settings.etExternalControl) {
                     plugin.stop();
                 }
                 $.fn.detachFromETPluginEvent(plugin, "state", state);
