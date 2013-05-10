@@ -1411,9 +1411,9 @@
             var lCharInfo = $.fn.characterFromPoint(lrx, lry);
             var rCharInfo = $.fn.characterFromPoint(rrx, rry);
 
-            debug(pluginName + ": element: '" + element + "'");
-            debug(pluginName + ": left char offset: '" + lCharInfo.offset + "', left char: '" + lCharInfo.character + "'.");
-            debug(pluginName + ": right char offset: '" + rCharInfo.offset + "', right char: '" + rCharInfo.character + "'.");
+//            debug(pluginName + ": element: '" + element + "'");
+//            debug(pluginName + ": left char offset: '" + lCharInfo.offset + "', left char: '" + lCharInfo.character + "'.");
+//            debug(pluginName + ": right char offset: '" + rCharInfo.offset + "', right char: '" + rCharInfo.character + "'.");
 
             storeLogEvent(logEventFactory.newLogEvent(logEventFactory.GAZE, element, trackerTime, lrx, lry, rrx, rry,
                 leftDilation, rightDilation, lCharInfo.character, lCharInfo.offset, rCharInfo.character, rCharInfo.offset));
