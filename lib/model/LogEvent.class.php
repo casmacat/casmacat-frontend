@@ -102,9 +102,16 @@ class LogEvent {
     }
 
     public function textData($object) {
-        $this->cursorPosition = $object->cp;
-        $this->deleted = $object->d;
-        $this->inserted = $object->i;
+        if (isset($object->cp)) {
+            $this->cursorPosition = $object->cp;
+            $this->deleted = $object->d;
+            $this->inserted = $object->i;
+        }
+        else {
+            $this->cursorPosition = $object->cursorPosition;
+            $this->deleted = $object->deleted;
+            $this->inserted = $object->inserted;
+        }
     }
 
     public function selectionData($object) {

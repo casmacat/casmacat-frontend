@@ -95,7 +95,7 @@ $(function() {
             "logSearchAndReplace": config.srEnabled,    // when ET enabled, set this to true, set to false otherwise
             "etDiscardInvalid": false,       // do not discard gaze samples/fixations outside of tracker area
             "etType": config.etType,
-            "etExternalControl": true
+            "etExternalControl": false
         });
         $(window).logging("start");
 
