@@ -257,7 +257,7 @@ log::doLog($endOffset);
 
     $db = Database::obtain();
     $queryId = $db->query("SELECT * FROM log_event_header h WHERE h.job_id = '$jobId' AND h.file_id = '$fileId'"
-            . " ORDER BY h.time ASC LIMIT $startOffset, $endOffset");
+            . " ORDER BY h.time, h.id ASC LIMIT $startOffset, $endOffset");
 
     $err = $db->get_error();
     $errno = $err["error_code"];
