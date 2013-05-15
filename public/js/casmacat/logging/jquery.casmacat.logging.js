@@ -381,8 +381,10 @@
                 plugin.start();
             }
             else {
+                settings.logEyeTracker = false;
                 alert("Eye tracking plugin is not valid!");
-                $.error("Eye tracking plugin is not valid");
+                debug(pluginName + ": Eye tracking plugin is not valid!");
+//                $.error("Eye tracking plugin is not valid");
             }
         }
 
