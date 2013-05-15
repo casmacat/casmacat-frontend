@@ -136,7 +136,7 @@ else {
         while ( ($row = $db->fetch($queryId)) != false ) {              
 			$writer->startElement('segment');
             $writer->writeAttribute('id', $row['id_segment']);
-            $writer->text($row['suggestion']);
+            $writer->text(html_entity_decode($row['suggestion']));
             $writer->endElement();                  	
 	    }            
     }                 
