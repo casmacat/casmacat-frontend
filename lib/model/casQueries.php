@@ -510,6 +510,7 @@ function insertGazeEvent($event) {
     $data["r_offset"] = $event->rOffset;
 
     $db = Database::obtain();
+//    $db->query("SET CHARACTER SET utf8");
     $db->insert("gaze_event", $data);
 
     $err = $db->get_error();

@@ -8,6 +8,8 @@ $(function() {
     if (!config.replay) {
         if (config.debug) { // enable reset document button
             $("#resetDocument").text('Reset Document').on("click", function(e) {
+//                debug("Resetting document...");
+
                 e.preventDefault();
 
                 $(window).logging("stop", true);

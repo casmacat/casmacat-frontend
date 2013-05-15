@@ -109,7 +109,7 @@ CREATE TABLE `fixation_event` (
   `x` int(5) NOT NULL COMMENT 'x coordinate of fixation (relative to window)',
   `y` int(5) NOT NULL COMMENT 'y coordinate of fixation (relative to window)',
   `duration` VARCHAR(20) NOT NULL COMMENT 'Duration of the fixation',
-  `character` VARCHAR(1) NOT NULL COMMENT 'The character fixated',
+  `character` VARCHAR(4) NOT NULL COMMENT 'The character fixated',
   `offset` INT(5) NOT NULL COMMENT 'The offset of the character within the HTML element',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores fixation events.';
@@ -124,9 +124,9 @@ CREATE TABLE `gaze_event` (
   `ry` int(5) NOT NULL COMMENT 'y coordinate of the right eye (relative to window)',
   `l_dil` varchar(10) NOT NULL COMMENT 'Dilation of the left eye',
   `r_dil` varchar(10) NOT NULL COMMENT 'Dilation of the right eye',
-  `l_char` VARCHAR(1) NOT NULL COMMENT 'The character gazed by the left eye',
+  `l_char` VARCHAR(4) NOT NULL COMMENT 'The character gazed by the left eye',
   `l_offset` INT(5) NOT NULL COMMENT 'The offset of the character within the HTML element',
-  `r_char` VARCHAR(1) NOT NULL COMMENT 'The character gazed by the right eye',
+  `r_char` VARCHAR(4) NOT NULL COMMENT 'The character gazed by the right eye',
   `r_offset` INT(5) NOT NULL COMMENT 'The offset of the character within the HTML element',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores gaze events.';
