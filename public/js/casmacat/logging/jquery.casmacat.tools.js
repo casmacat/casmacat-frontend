@@ -568,7 +568,7 @@ catch (e) {
         }
 
         if ( $("#" + id).length > 0) {
-            $.error("$.fn.showOverlay: Overlay '" + id + "' already active");
+            $.error("$.fn.showOverlay: Overlay '" + id + "' already active for href: '" + location.href + "'.");
         }
         else {
             lastFocusedElement[id] = document.activeElement;
@@ -581,7 +581,7 @@ catch (e) {
                 $("#" + id).html(msg);
             }
 
-            debug("$.fn.showOverlay: Overlay '" + id + "' displayed.");
+            debug("$.fn.showOverlay: Overlay '" + id + "' displayed for href: '" + location.href + "'.");
         }
 
         return $(this);
@@ -594,13 +594,13 @@ catch (e) {
         }
 
         if ( !$("#" + id) ) {
-            $.error("$.fn.hideOverlay: Overlay '" + id + "' not active");
+            $.error("$.fn.hideOverlay: Overlay '" + id + "' not active for href: '" + location.href + "'.");
         }
         else {
             $("#" + id).remove();
             $(lastFocusedElement[id]).focus();
             lastFocusedElement[id] = null;
-            debug("$.fn.hideOverlay: Overlay '" + id + "' removed.");
+            debug("$.fn.hideOverlay: Overlay '" + id + "' removed for href: '" + location.href + "'.");
         }
 
         return $(this);

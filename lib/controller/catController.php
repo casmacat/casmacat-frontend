@@ -125,12 +125,12 @@ class catController extends viewcontroller {
         $lang_handler=languages::getInstance("en");
 
          // CASMACAT extension start
-        if ($this->casIsReplaying) {
-            $data = getSegmentsInfoWithoutTranslation($this->jid, $this->password, $this->start_from, $this->step);
-        }
-        else {
+//        if ($this->casIsReplaying) {
+//            $data = getSegmentsInfoWithoutTranslation($this->jid, $this->password, $this->start_from, $this->step);
+//        }
+//        else {
             $data = getSegmentsInfo($this->jid, $this->password);
-        }
+//        }
         // CASMACAT extension end
 
 	if (empty($data) or $data<0){

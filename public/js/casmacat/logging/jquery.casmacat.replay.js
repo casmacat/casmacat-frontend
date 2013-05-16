@@ -885,7 +885,7 @@ debug(event);
             default:
                 alert("Unknown event type");
                 debug(pluginName + ": Unknown event type: '" + event.type + "'.");
-                $.error("Unknown event type");
+//                $.error("Unknown event type");
         }
 }
 catch (e) {

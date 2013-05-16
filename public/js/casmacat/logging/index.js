@@ -5,6 +5,7 @@ $(function() {
   $(window).on("articleloaded", function () {
     var article = $('div#outer article');
 //debug("Article loaded");
+
     if (!config.replay) {
         if (config.debug) { // enable reset document button
             $("#resetDocument").text('Reset Document').on("click", function(e) {
