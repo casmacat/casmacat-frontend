@@ -1,6 +1,6 @@
 <?php
 
-const OFFSET = 100;
+const OFFSET = 5000;
 
 if ($argc != 3) {
     print("Usage: exportLog.php <fileId> <jobId>");
@@ -181,6 +181,7 @@ else {
 		
         $startOffset += OFFSET;
         $logListChunk = null;
+        $writer->flush();
 
     }	
 	$writer->endElement();           
