@@ -1,6 +1,6 @@
 <?php
 
-const OFFSET = 5000;
+const OFFSET = 2500;
 
 if ($argc != 3) {
     print("Usage: exportLog.php <fileId> <jobId>");
