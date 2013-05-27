@@ -55,7 +55,7 @@ class Database {
 
     private function __construct($server=null, $user=null, $pass=null, $database=null) {
         // error catching if not passed in
-        
+
         if ($server == null || $user == null || $database == null) {
             return $this->oops("Database information must be passed in when the object is first created.");
         }
@@ -71,7 +71,7 @@ class Database {
 # desc: singleton declaration
 
     public static function obtain($server=null, $user=null, $pass=null, $database=null) {
-        
+
         if (!self::$instance) {
             self::$instance = new Database($server, $user, $pass, $database);
         }
@@ -99,6 +99,7 @@ class Database {
     public function connect($new_link=false) {
         $this->link_id = @mysql_connect($this->server, $this->user, $this->pass, $new_link);
         mysql_query("SET CHARACTER SET utf8", $this->link_id);
+        mysql_set_charset('utf8', $this->link_id);  // this is also needed!!!
 
         if (!$this->link_id) {//open failed
             return $this->oops("Could not connect to server: <b>$this->server</b>.");
@@ -116,8 +117,8 @@ class Database {
     }
 
 #-#connect()
-    
-    
+
+
 
     public function get_sql() {
         return $this->sql;
