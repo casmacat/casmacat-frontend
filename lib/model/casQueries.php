@@ -460,6 +460,11 @@ function fetchEventRow($headerId, $table) {
 function snakeToCamel($row) {
 //    log::doLog("CASMACAT: snakeToCamel(): camel case row: " . print_r($row, true));
 
+    if (!is_array($row)) {
+        log::doLog("CASMACAT: snakeToCamel(): Not an array: " . print_r($row, true));
+        throw new Exception("CASMACAT: snakeToCamel(): Not an array: " . print_r($row, true));
+    }
+
     foreach ($row as $key => $value) {
 /*        if (!isset($snakeToCamelCache[$key])) {
             // reorganize the array

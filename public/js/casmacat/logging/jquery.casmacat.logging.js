@@ -77,7 +77,7 @@
             logSearchAndReplace: false,
             doSanitize: true,   // TODO check how this could be done generally (which events fires first, when multiple
                                 // listeners are attached to the same event source??)
-            maxChunkSize: 5000  // maximum size of the log list before the automatic upload is triggered
+            maxChunkSize: 3000  // maximum size of the log list before the automatic upload is triggered
         },
         settings = {},  // holds the merge of the defaults and the options provided, actually the instance's settings
 
@@ -645,7 +645,7 @@
      * Stores an event in the loglist. When the size of the logList exceeds the maximum specified, it is first
      * (asynchronously) uploaded and cleared and then the new event is added.
      *
-     * TODO Will this later also be used to control pausing of the logging (additonal variable that is checked)?
+     * TODO Will this later also be used to control pausing of the logging (additional variable that is checked)?
      */
     var storeLogEvent = function(logEvent) {
 

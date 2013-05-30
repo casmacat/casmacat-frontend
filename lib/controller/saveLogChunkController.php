@@ -72,6 +72,11 @@ class saveLogChunkController extends ajaxcontroller {
             $eventCount = count($this->logList);
             log::doLog("CASMACAT: saveLogChunkController->doAction(): Processing of logList containing '" . $eventCount . "' elements...");
 
+            if (!is_array($this->logList)) {
+                log::doLog("CASMACAT: saveLogChunkController->doAction(): Not an array: '" . print_r($this->logList, true) . "'.");
+                throw new Exception("CASMACAT: saveLogChunkController->doAction(): Not an array: '" . print_r($this->logList, true) . "'.");
+            }
+
             // TODO how about transactions?
             foreach ($this->logList as $key => $value) {
 //                $value = (object) $value;
@@ -237,14 +242,16 @@ class saveLogChunkController extends ajaxcontroller {
                         $this->result["errors"][] = array("code" => -1, "message" => "Unknown log event type: '$logEvent->type' at index: '$key'");
                         log::doLog("CASMACAT: saveLogChunkController->doAction(): '$logEvent->type' at index: '$key'");
     //                    throw new Exception("CASMACAT: saveLogChunkController->doAction(): Unknown log event type: '$logEvent->type' at index: '$key'");
-                        return -1;
+//                        return -1;    // do not stop saving of events here
                 }
             }
             $db->query("COMMIT");
             $db->query("SET AUTOCOMMIT=1");
 
             $this->result["executionTime"] = Tools::getCurrentMillis() - $this->startTime;
-            $this->result["code"] = 0;
+            if (!isset($this->result["code"])) {
+                $this->result["code"] = 0;
+            }
             $this->result["data"] = "OK";
             log::doLog("CASMACAT: saveLogChunkController->doAction(): Processing of logList containing '" . $eventCount . "' elements finished, time used: '" . $this->result["executionTime"] . "' ms.");
         }
@@ -254,8 +261,8 @@ class saveLogChunkController extends ajaxcontroller {
 
 //            $this->result["executionTime"] = time() - $this->startTime;
             $this->result["code"] = -1;
-            $this->result["errors"][] = array("code" => -1, "message" => "Unexcpected error: '" . $e->GetMessage() . "'");
-            log::doLog("CASMACAT: saveLogChunkController->doAction(): Unexcpected error: '" . $e->GetMessage() . "'");
+            $this->result["errors"][] = array("code" => -1, "message" => "Unexpected error: '" . $e->GetMessage() . "'");
+            log::doLog("CASMACAT: saveLogChunkController->doAction(): Unexpected error: '" . $e->GetMessage() . "'");
         }
     }
 }
