@@ -455,10 +455,11 @@ function fetchEventRow($headerId, $table) {
 }
 
 // convert snake case to camel case
-// TODO add some caching to speed up
-//$snakeToCamelCache = array();
 function snakeToCamel($row) {
 //    log::doLog("CASMACAT: snakeToCamel(): camel case row: " . print_r($row, true));
+
+    static $snakeToCamelCache = array();
+    $newRow = array();
 
     if (!is_array($row)) {
         log::doLog("CASMACAT: snakeToCamel(): Not an array: " . print_r($row, true));
@@ -466,14 +467,13 @@ function snakeToCamel($row) {
     }
 
     foreach ($row as $key => $value) {
-/*        if (!isset($snakeToCamelCache[$key])) {
-            // reorganize the array
-            $row[$snakeToCamelCache[$key]] = $value;
-            unset($row[$key]);
 
-            log::doLog("CASMACAT: snakeToCamel(): Cache hit: $key -> $snakeToCamelCache[$key]");
+        if (isset($snakeToCamelCache[$key])) {
+            $newRow[$snakeToCamelCache[$key]] = $value;
+//echo "Cache hit: $key -> $snakeToCamelCache[$key]\n";
+//            log::doLog("CASMACAT: snakeToCamel(): Cache hit: $key -> $snakeToCamelCache[$key]");
             continue;
-        }*/
+        }
 
         // taken from: http://www.refreshinglyblue.com/2009/03/20/php-snake-case-to-camel-case/
         $s = str_replace(' ', '', ucwords(str_replace('_', ' ', $key)));
@@ -481,15 +481,23 @@ function snakeToCamel($row) {
 
         // reorganize the array
         if ($s != $key) {
-            $row[$s] = $value;
-            unset($row[$key]);
+            $newRow[$s] = $value;
+//            unset($row[$key]);
             // cache it
-            /*$snakeToCamelCache[$key] = $s;
-            log::doLog("CASMACAT: snakeToCamel(): New cache entry: $key -> $snakeToCamelCache[$key]");*/
+            $snakeToCamelCache[$key] = $s;
+//echo "New cache entry: $key -> $snakeToCamelCache[$key]\n";
+//            log::doLog("CASMACAT: snakeToCamel(): New cache entry: $key -> $snakeToCamelCache[$key]");
+        }
+        else {
+            $newRow[$key] = $value;
+            $snakeToCamelCache[$key] = $key;
+//echo "New cache entry: $key -> $snakeToCamelCache[$key]\n";
+//            log::doLog("CASMACAT: snakeToCamel(): New cache entry: $key -> $snakeToCamelCache[$key]");
         }
     }
 
-    return (object)$row;
+//    return (object)$row;
+    return (object)$newRow;
 //    log::doLog("CASMACAT: snakeTCoCamel(): camel case row: " . print_r($row, true));
 }
 
