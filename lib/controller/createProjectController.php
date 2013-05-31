@@ -102,14 +102,14 @@ class createProjectController extends ajaxcontroller {
 			$handle = fopen($filename, "r");
 			$contents = fread($handle, filesize($filename));
 			fclose($handle);
-            $fileSplit = explode('.', $file);
+                        $fileSplit = explode('.', $file);
 			$mimeType = $fileSplit[count($fileSplit)-1];
 			
 			$fid = insertFile($pid, $file, $this->source_language, $mimeType, $contents);
 			
 			insertFilesJob($jid, $fid);
 			
-			$insertSegments = extractSegments($intDir, $file, $pid, $fid);
+			$insertSegments = extractSegments($intDir, $file, $pid, $fid, $jid);
 	    }
 
 		$this->deleteDir($intDir);
