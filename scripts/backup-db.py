@@ -3,16 +3,13 @@
 import sys, MySQLdb
 import ConfigParser, os, time
 
-n_expected_args = 1
+n_expected_args = 0
 n_received_args = len(sys.argv[1:])
 
-if (n_received_args < n_expected_args):
-  sys.exit("Usage: %s db_name" % sys.argv[0])
+if (n_received_args > n_expected_args):
+  sys.exit("Usage: %s" % sys.argv[0])
 
 timestamp = time.strftime('%Y%m%d_%H%M%S')
-db_name     = sys.argv[1]
-db_name_new = "bak_" + db_name + "_" + timestamp 
-
 base_dir = '/home/demo/public_html/cat/matecat-test'
 base_new = raw_input('Base dir set to `%s`. Enter new path, if need be: ' % base_dir)
 if os.path.exists(base_new):
@@ -28,26 +25,28 @@ username = config.get('db', 'username').strip('"')
 password = config.get('db', 'password').strip('"')
 database = config.get('db', 'database').strip('"')
 
+database_new = "bak_" + database + "_" + timestamp
+
 try:
-  cnx = MySQLdb.connect(hostname, username, password, db_name)
+  cnx = MySQLdb.connect(hostname, username, password, database)
 except MySQLdb.OperationalError, e:
   sys.exit("Error: %s" % e)
 
 print "Making backup ..."
 if not os.path.exists("%s/mysql-backup" % base_dir):
   os.mkdir("%s/mysql-backup" % base_dir)
-filename  = "%s/mysql-backup/%s-%s.sql" % (base_dir, db_name, timestamp)
+filename  = "%s/mysql-backup/%s-%s.sql" % (base_dir, database, timestamp)
 mysql_credentials = "--user='%s' --password='%s' --host='%s' " % (username, password, hostname)
-res = os.system("mysqldump %s -e --opt -c '%s' | gzip -c > %s.gz" % (mysql_credentials, db_name, filename))
+res = os.system("mysqldump %s -e --opt -c '%s' | gzip -c > %s.gz" % (mysql_credentials, database, filename))
 if res != 0: raise Exception("error %d" % res)
 
-print "Renaming database to `%s` ..." % db_name_new
+print "Renaming database to `%s` ..." % database_new
 cur = cnx.cursor()
 # mysqldump -h [server] -u [user] -p[password] db1 | mysql -h [server] -u [user] -p[password] db2
-cur.execute("CREATE DATABASE %s" % (db_name_new))
-res = os.system("mysqldump %s '%s' | mysql %s '%s'" % (mysql_credentials, db_name, mysql_credentials, db_name_new))
+cur.execute("CREATE DATABASE %s" % (database_new))
+res = os.system("mysqldump %s '%s' | mysql %s '%s'" % (mysql_credentials, database, mysql_credentials, database_new))
 if res != 0: raise Exception("error %d" % res)
-cur.execute("DROP DATABASE %s" % (db_name))
+cur.execute("DROP DATABASE %s" % (database))
 cur.close()
 
 print "Creating new tables ..."
