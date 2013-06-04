@@ -67,7 +67,8 @@ if __name__ == "__main__":
     config_fn = basepath + '/' + config_fn
   config = json.load(open(config_fn))
 
-  tokenizer_plugin = TextProcessorPlugin(config["text-processor"]["module"], config["text-processor"]["parameters"])
+
+  tokenizer_plugin = TextProcessorPlugin(config["source-processor"]["module"], config["source-processor"]["parameters"])
   tokenizer_factory = tokenizer_plugin.create()
   assert tokenizer_factory, "Tokenizer plugin failed"
   tokenizer = tokenizer_factory.createInstance()
@@ -143,3 +144,6 @@ if __name__ == "__main__":
 
     print >> fd, xliff_tmpl % (source_language, target_language, "\n".join([ sentence_tmpl % (i, i, escape(s.strip())) for i, s in sentences]))
     fd.close()
+  else:
+    print "\n".join([ " ".join(s) for i, s in sentences ])
+    
