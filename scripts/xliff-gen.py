@@ -10,11 +10,10 @@ try: import simplejson as json
 except ImportError: import json
 
 
-from casmacat import *
 #from numpy.testing.utils import elapsed
 
 def usage():
-  print >> sys.stderr, sys.argv[0], "help", "config=", "detokenize", "source-language=", "target-language=", "filter=", "xliff="
+  print >> sys.stderr, sys.argv[0], "help", "config=", "detokenize", "source-language=", "target-language=", "filter=", "xliff=", "basepath="
 
 
 if __name__ == "__main__":
@@ -23,7 +22,7 @@ if __name__ == "__main__":
   import atexit
 
   try:
-    opts, args = getopt.getopt(sys.argv[1:], "hc:ds:t:f:x:", ["help", "config=", "detokenize", "source-language=", "target-language=", "filter=", "xliff="])
+    opts, args = getopt.getopt(sys.argv[1:], "hc:ds:t:f:x:b:", ["help", "config=", "detokenize", "source-language=", "target-language=", "filter=", "xliff=", "basepath="])
   except getopt.GetoptError as err:
     # print help information and exit:
     print str(err) # will print something like "option -a not recognized"
@@ -36,6 +35,7 @@ if __name__ == "__main__":
   target_language = "es"
   filter_sentences = None
   xliff_fn = None
+  basepath = "/home/demo/software/casmacat-server-library/server"
   for o, a in opts:
     if o == "-v":
       verbose = True
@@ -52,17 +52,23 @@ if __name__ == "__main__":
       filter_sentences = a
     elif o in ("-x", "--xliff"):
       xliff_fn = a
+    elif o in ("-b", "--basepath"):
+      basepath = a
     elif o in ("-d", "--detokenize"):
       tokenize = False
     else:
       assert False, "unhandled option"
 
-
-  assert config_fn, "config file required"
-
+  sys.path.append(basepath)
+  from casmacat import *
+  
+  assert config_fn, "config file required" 
+  if not config_fn.startswith('/'): 
+    config_fn = basepath + '/' + config_fn
   config = json.load(open(config_fn))
 
-  tokenizer_plugin = TextProcessorPlugin(config["text-processor"]["module"], config["text-processor"]["parameters"])
+
+  tokenizer_plugin = TextProcessorPlugin(config["source-processor"]["module"], config["source-processor"]["parameters"])
   tokenizer_factory = tokenizer_plugin.create()
   assert tokenizer_factory, "Tokenizer plugin failed"
   tokenizer = tokenizer_factory.createInstance()
@@ -120,7 +126,7 @@ if __name__ == "__main__":
 
   if xliff_fn:
     fd = open(xliff_fn, "w")
-    xliff_tmpl = """<?xml version="1.0" encoding="utf-8" ?>                                                                                                                                                                                                                                        
+    xliff_tmpl = """<?xml version="1.0" encoding="utf-8" ?>
 <xliff version="1.1" xml:lang='en'>
   <file source-language='%s' target-language='%s' datatype="winres" original="Sample1.rc">
     <header>
@@ -134,7 +140,11 @@ if __name__ == "__main__":
   </file>
 </xliff>
 """
-    sentence_tmpl = """        <trans-unit id="%d" restype="label" resname="ID1%d"><source>%s</source></trans-unit>"""
+    sentence_tmpl = """        <trans-unit id="%d" restype="label" resname="ID%d"><source>%s</source></trans-unit>"""
 
     print >> fd, xliff_tmpl % (source_language, target_language, "\n".join([ sentence_tmpl % (i, i, escape(s.strip())) for i, s in sentences]))
     fd.close()
+  else:
+    separator = " " if tokenize else ""
+    print "\n".join([ separator.join(s) for i, s in sentences ])
+    

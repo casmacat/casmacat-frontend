@@ -27,12 +27,12 @@ try:
 except:
   sys.exit("No source language found in XLIFF")
 try:
-  tgt_lang  = file_node.getAttributeNode('target-language').nodeValue
+  tgt_lang = file_node.getAttributeNode('target-language').nodeValue
 except:
   sys.exit("No target language found in XLIFF")
 
 # Matecat server URL
-url = 'http://cat.iti.upv.es/matecat-test/'
+url = 'http://casmacat.iti.upv.es/matecat-test/'
 
 session = requests.session()
 # Init session first
