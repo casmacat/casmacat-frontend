@@ -27,7 +27,7 @@ try:
 except:
   sys.exit("No source language found in XLIFF")
 try:
-  tgt_lang  = file_node.getAttributeNode('target-language').nodeValue
+  tgt_lang = file_node.getAttributeNode('target-language').nodeValue
 except:
   sys.exit("No target language found in XLIFF")
 
@@ -62,7 +62,6 @@ data = {
 r = session.post(url, data=data)
 j = json.loads(r.text)
 
-print j
 trans_url = "translate/%(project_name)s/%(source_language)s-%(target_language)s/%(id_job)s-%(password)s" % j
 print 
 print url + trans_url

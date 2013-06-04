@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 #
-# Note: This script is deprecated. Use `db-backup.py` instead.
+# Note: This script resets *all* database tables. Consider using `backup-db.py` instead.
 #
 
 import sys, MySQLdb
