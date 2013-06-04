@@ -1291,10 +1291,15 @@
                 }
                 break;
             case logEventFactory.MOUSE_WHEEL_DOWN:
-                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.MOUSE_WHEEL_DOWN, data.segment));
-                textChanged({
-                     target: $(".editarea", data.segment)[0]
-                });
+                if (getFieldContents($(".editarea", data.segment)[0]) != $(".editarea", data.segment).text()) {
+                    storeLogEvent(logEventFactory.newLogEvent(logEventFactory.MOUSE_WHEEL_DOWN, data.segment));
+                    textChanged({
+                        target: $(".editarea", data.segment)[0]
+                    });
+                }
+                else {    // TODO that is unsatisfying: one doesn't know if the user tried to use the option...
+                    debug(pluginName + ": Mouse wheel down event: No changes detected.");
+                }
                 break;
             case logEventFactory.MOUSE_WHEEL_INVALIDATE:    // TODO seems not really needed
                 storeLogEvent(logEventFactory.newLogEvent(logEventFactory.MOUSE_WHEEL_INVALIDATE, data.segment));
@@ -1353,10 +1358,15 @@
                 storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_RULES_SET, data.segment, data.rules));
                 break;
             case logEventFactory.SR_RULES_APPLIED:
-                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_RULES_APPLIED, data.segment));
-                textChanged({
-                     target: $(".editarea", data.segment)[0]
-                });
+                if (getFieldContents($(".editarea", data.segment)[0]) != $(".editarea", data.segment).text()) {
+                    storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_RULES_APPLIED, data.segment));
+                    textChanged({
+                         target: $(".editarea", data.segment)[0]
+                    });
+                }
+                else {    // TODO that is unsatisfying: one doesn't know if the user tried to use the option...
+                    debug(pluginName + ": SR rules applied event: No changes detected.");
+                }
                 break;
             case logEventFactory.SR_RULE_DELETED:
                 storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_RULE_DELETED, data.segment));
