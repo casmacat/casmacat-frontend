@@ -145,5 +145,6 @@ if __name__ == "__main__":
     print >> fd, xliff_tmpl % (source_language, target_language, "\n".join([ sentence_tmpl % (i, i, escape(s.strip())) for i, s in sentences]))
     fd.close()
   else:
-    print "\n".join([ " ".join(s) for i, s in sentences ])
+    separator = " " if tokenize else ""
+    print "\n".join([ separator.join(s) for i, s in sentences ])
     
