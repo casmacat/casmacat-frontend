@@ -1,21 +1,21 @@
 #! /usr/bin/env python
 
-import sys, requests, json
+import sys, requests, json, os.path, socket
 from xml.dom.minidom import parse
-from os.path import basename
+
 
 n_expected_args = 2
 n_received_args = len(sys.argv[1:])
 
 if (n_received_args < n_expected_args):
-  sys.exit("Usage: %s userID file.xlif[,file2.xliff,...]" % sys.argv[0])
+  sys.exit("Usage: %s user_id file.xliff[,file2.xliff,...]" % sys.argv[0])
 
 user_id     = sys.argv[1]
 xliff_files = sys.argv[2:]
 
 # Helper function to assign unique filenames
 def fnam(f):
-  return user_id + "-" + basename(f)
+  return user_id + "-" + os.path.basename(f)
 
 # Read target & tource langs
 dom = parse(open(xliff_files[0], 'r'))
@@ -32,7 +32,8 @@ except:
   sys.exit("No target language found in XLIFF")
 
 # Matecat server URL
-url = 'http://casmacat.iti.upv.es/matecat-test/'
+matecat_dir = os.path.abspath(os.path.join('.', os.pardir))
+url = 'http://%s/%s/' % (socket.getfqdn(), matecat_dir)
 
 session = requests.session()
 # Init session first
@@ -43,9 +44,9 @@ for x in xliff_files:
   files = { 'files[]': (ufnam, open(x, 'r')) }
   r = session.post(url + 'lib/utils/fileupload/', files=files)
   j = json.loads(r.text)
-  print "Uploading %s at %s" % (ufnam, j[0]['guid'])
+  #print "Uploading %s at %s" % (ufnam, j[0]['guid'])
   num_src_segments = len(file_node.getElementsByTagName('source'))
-  print "FYI, this XLIFF has %d segments" % num_src_segments
+  #print "FYI, this XLIFF has %d segments" % num_src_segments
 
 file_names = ",".join(map(fnam, xliff_files))
 # This object is sent via ajax to `url` from Matecat
@@ -63,6 +64,6 @@ r = session.post(url, data=data)
 j = json.loads(r.text)
 
 trans_url = "translate/%(project_name)s/%(source_language)s-%(target_language)s/%(id_job)s-%(password)s" % j
-print 
+#print 
 print url + trans_url
-print
+#print

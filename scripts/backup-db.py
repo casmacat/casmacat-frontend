@@ -10,7 +10,7 @@ if (n_received_args > n_expected_args):
   sys.exit("Usage: %s" % sys.argv[0])
 
 timestamp = time.strftime('%Y%m%d_%H%M%S')
-base_dir = '/home/demo/public_html/cat/matecat-test'
+base_dir = '/var/www/matecat-test'
 base_new = raw_input('Base dir set to `%s`. Enter new path, if need be: ' % base_dir)
 if os.path.exists(base_new):
   base_dir = base_new
