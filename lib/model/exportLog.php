@@ -171,6 +171,9 @@ else {
     //print "Header: ".($headerTime-$startTime)."\n";
     
     //events
+    
+    
+    
     $writer->startElement('events');
     
     /*$queryId = $db->query("SELECT COUNT(*) AS total FROM log_event_header h WHERE h.job_id = '$jobId' AND h.file_id = '$fileId'");
@@ -253,7 +256,7 @@ else {
         //log::doLog("CASMACAT: deleteEvents: " . print_r($deleteEvents, true));
         $countDeletes = 0;
         $lenDeletes = count($deleteEvents);
-        print $lenDeletes;
+        //print $lenDeletes;
     }
     else $lenDeletes = 0;
     
@@ -648,6 +651,10 @@ else {
     //-------------------------------------------------------------------------------------------
     
     //suggestions_loaded_event 
+    
+    
+    
+    
     $queryId = $db->query("SELECT h.id as id, h.job_id, h.file_id, h.element_id, h.x_path, h.time, h.type"
             . ", s.matches"
         . " FROM log_event_header h, suggestions_loaded_event s WHERE h.job_id = '$jobId' AND h.file_id = '$fileId' AND h.id = s.header_id ORDER BY h.time, h.id ASC");
@@ -702,7 +709,8 @@ else {
     }
         
     $suggestion_chosenRow = null;
-    $suggestions_chosenEvents = array();
+    $suggestion_chosenEvents = array();
+    
     while ( ($suggestion_chosenRow = $db->fetch($queryId)) != false ) {
         
         $suggestion_chosenRowAsObject = snakeToCamel($suggestion_chosenRow);        
