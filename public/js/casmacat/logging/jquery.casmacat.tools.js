@@ -743,9 +743,9 @@ catch (e) {
     $.fn.characterFromPoint = function(rx, ry) {
 
         var range = null;
-        var charInfo = { offset: -1, character: "" };
+        var charInfo = { offset: -1, character: "", element: null };
 
-        if (document.caretPositionFromPoint) {  // FF 20.0, see: https://developer.mozilla.org/en-US/docs/DOM/document.caretPositionFromPoint
+        /*if (document.caretPositionFromPoint) {  // FF 20.0, see: https://developer.mozilla.org/en-US/docs/DOM/document.caretPositionFromPoint
                                                 // and https://wiki.mozilla.org/RapidRelease/Calendar
             range = document.caretPositionFromPoint(rx, ry);
             if (range !== null && range.offsetNode !== null) {
@@ -766,22 +766,44 @@ catch (e) {
             }
             // Couldn't determine character
         }
-        else if (document.caretRangeFromPoint) {
+        else*/ if (document.caretRangeFromPoint) {
             range = document.caretRangeFromPoint(rx, ry);
             if (range !== null) {
-                charInfo.offset = range.startOffset;
+//                charInfo.offset = range.startOffset;
+
                 try {
                     range.setEnd(range.endContainer, range.endOffset + 1);  // select to the right
                     charInfo.character = range.toString();
+
+                    var p = $(range.endContainer.parentNode).parents();
+                    if (p.is(".editarea") || p.is(".source")) {
+                        charInfo.element = p[0];
+                        charInfo.offset = $(p).getOffsetContenteditable(range);
+                    }
+                    else {
+                        charInfo.element = range.endContainer;
+                        charInfo.offset = range.startOffset;
+                    }
                 }
                 catch (eRight) {
                     try {
                         range.setStart(range.startContainer, range.startOffset - 1);  // select to the left
                         charInfo.character = range.toString();
+
+                        var p = $(range.startContainer.parentNode).parents();
+                        if (p.is(".editarea") || p.is(".source")) {
+                            charInfo.element = p[0];
+                            charInfo.offset = $(p).getOffsetContenteditable(range);
+                        }
+                        else {
+                            charInfo.element = range.startContainer;
+                            charInfo.offset = range.startOffset;
+                        }
                     }
                     catch (eLeft) {
 //                        debug("$.fn.characterFromPoint: Couldn't determine character!");
                         charInfo.offset = -1;
+//                        charInfo.element = null;
                     }
                 }
             }
@@ -804,10 +826,62 @@ catch (e) {
         }
 
         if (charInfo.character.length > 1) {
-            charInfo.character = ""
+            charInfo.character = "";
+        }
+
+        if (charInfo.element === null) {
+//                debug(pluginName + ": 'element' is null, adjusting to 'window'...");
+            charInfo.element = window;
         }
 
         return charInfo;
+    };
+
+    // TODO merge this one with $.fn.getCursorPositionContenteditable()
+    $.fn.getOffsetContenteditable = function(range) {
+        try { // TODO error handling
+//            var range = window.getSelection().getRangeAt(0);
+            var node = $(this).get(0);
+        } catch (e) {
+          return false;
+        }
+//            debug("$.fn.getCursorPositionContenteditable: Running on node: '" + node.tagName + "' and range: '"
+//                + range.selectedText + "'...");
+
+            var treeWalker = document.createTreeWalker(node,
+                NodeFilter.SHOW_TEXT, function (node) {
+                    var nodeRange = document.createRange();
+                    nodeRange.selectNode(node);
+                    if (nodeRange.compareBoundaryPoints(Range.END_TO_END, range) < 1) {
+//                        debug("$.fn.getCursorPositionContenteditable: Accepting node: '" + node.nodeName + "'...");
+                        return NodeFilter.FILTER_ACCEPT;
+                    }
+                    else {
+//                        debug("$.fn.getCursorPositionContenteditable: Rejecting node: '" + node.nodeName + "'...");
+                        return NodeFilter.FILTER_REJECT;
+                    }
+                }, false);
+
+            var pos = 0;
+            while (treeWalker.nextNode()) {
+                pos += treeWalker.currentNode.length;
+            }
+
+            if (range.startContainer.nodeType === Node.TEXT_NODE) {
+                pos += range.startOffset;
+            }
+
+//            debug("$.fn.getCursorPositionContenteditable: Cursor position: '" + pos + "'.");
+
+            // breaking the chain ;-)
+//            return $(this);
+            return pos;
+
+//        }
+//        catch (e) {
+//            debug("Info: Could not get cursor position.");
+//            return -1;
+//        }
     };
 
 })(jQuery);

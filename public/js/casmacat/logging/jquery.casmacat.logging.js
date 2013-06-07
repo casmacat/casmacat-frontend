@@ -1403,23 +1403,23 @@
             }
 
             // put it all together
-            var lElement = document.elementFromPoint(lrx, lry);
-            var rElement = document.elementFromPoint(rrx, rry);
-            var element = window;
-            if (lElement === null && rElement !== null) {
-                element = rElement;
-            }
-            else if (lElement !== null && rElement === null) {
-                element = lElement;
-            }
-            else if (lElement !== null && rElement !== null) {
-                if (lElement !== rElement) {    // TODO store 2 different elementId/xPath for this?
-                    element = lElement;
-                }
-                else {
-                    element = lElement;
-                }
-            }
+//            var lElement = document.elementFromPoint(lrx, lry);
+//            var rElement = document.elementFromPoint(rrx, rry);
+//            var element = window;
+//            if (lElement === null && rElement !== null) {
+//                element = rElement;
+//            }
+//            else if (lElement !== null && rElement === null) {
+//                element = lElement;
+//            }
+//            else if (lElement !== null && rElement !== null) {
+//                if (lElement !== rElement) {    // TODO store 2 different elementId/xPath for this?
+//                    element = lElement;
+//                }
+//                else {
+//                    element = lElement;
+//                }
+//            }
             var lCharInfo = $.fn.characterFromPoint(lrx, lry);
             var rCharInfo = $.fn.characterFromPoint(rrx, rry);
 
@@ -1427,7 +1427,7 @@
 //            debug(pluginName + ": left char offset: '" + lCharInfo.offset + "', left char: '" + lCharInfo.character + "'.");
 //            debug(pluginName + ": right char offset: '" + rCharInfo.offset + "', right char: '" + rCharInfo.character + "'.");
 
-            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.GAZE, element, trackerTime, lrx, lry, rrx, rry,
+            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.GAZE, rCharInfo.element, trackerTime, lrx, lry, rrx, rry,
                 leftDilation, rightDilation, lCharInfo.character, lCharInfo.offset, rCharInfo.character, rCharInfo.offset));
         }
         else {
@@ -1451,15 +1451,15 @@
                 }
             }
 
-            var element = document.elementFromPoint(rx, ry);
-            if (element === null) {
-//                debug(pluginName + ": 'element' is null, adjusting to 'window'...");
-                element = window;
-            }
+//            var element = document.elementFromPoint(rx, ry);
+//            if (element === null) {
+////                debug(pluginName + ": 'element' is null, adjusting to 'window'...");
+//                element = window;
+//            }
             var charInfo = $.fn.characterFromPoint(rx, ry);
 
 //            debug(pluginName + ": char offset: '" + charInfo.offset + "', char: '" + charInfo.character + "'.");
-            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FIXATION, element, trackerTime, rx, ry, duration,
+            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FIXATION, charInfo.element, trackerTime, rx, ry, duration,
                 charInfo.character, charInfo.offset));
         }
         else {
