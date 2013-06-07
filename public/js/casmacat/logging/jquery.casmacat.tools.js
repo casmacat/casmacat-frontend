@@ -828,7 +828,7 @@ catch (e) {
         if (charInfo.character.length > 1) {
             charInfo.character = "";
         }
-debug(charInfo.element);
+
         if (charInfo.element === null) {
 //                debug(pluginName + ": 'element' is null, adjusting to 'window'...");
             charInfo.element = window;
