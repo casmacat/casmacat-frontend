@@ -1,28 +1,28 @@
 <?php
 
 
-//if ($argc != 3) {
-//    print("Usage: exportLog.php <fileId> <jobId>");
-//}
-//else {
+if ($argc != 3) {
+    print("Usage: exportLog.php <fileId> <jobId>");
+}
+else {
     
     $fileId = $argv[1];
     $jobId = $argv[2];
 
     $startOffset = 0;
 
-    //require_once INIT::$'../../inc/config.inc.php';
+    require_once '../../inc/config.inc.php';
 
     INIT::obtain();
 
-//    require_once INIT::$UTILS_ROOT.'/log.class.php';
-//    require_once INIT::$MODEL_ROOT.'/Database.class.php';
+    require_once INIT::$UTILS_ROOT.'/log.class.php';
+    require_once INIT::$MODEL_ROOT.'/Database.class.php';
     $db = Database::obtain(INIT::$DB_SERVER, INIT::$DB_USER, INIT::$DB_PASS, INIT::$DB_DATABASE);
     $db->connect();
 
-//    include_once INIT::$MODEL_ROOT . "/casQueries.php";
-//    include_once INIT::$MODEL_ROOT . "/LogEvent.class.php";
-//    include_once INIT::$UTILS_ROOT . "/Tools.class.php";
+    include_once INIT::$MODEL_ROOT . "/casQueries.php";
+    include_once INIT::$MODEL_ROOT . "/LogEvent.class.php";
+    include_once INIT::$UTILS_ROOT . "/Tools.class.php";
     
     ini_set('memory_limit', '8000M');
     
@@ -107,7 +107,7 @@
     while ( ($row = $db->fetch($queryId)) != false ) {
 	$writer->startElement('segment');
         $writer->writeAttribute('id', $row['id']);
-        $writer->text(html_entity_decode($row['segment'], ENT_QUOTES, 'UTF-8'));
+        $writer->text(html_entity_decode($row['segment'], ENT_NOQUOTES, 'UTF-8'));
         $writer->endElement();      
     }        
     $writer->endElement(); 
@@ -162,7 +162,7 @@
     while ( ($row = $db->fetch($queryId)) != false ) {
 	$writer->startElement('segment');
         $writer->writeAttribute('id', $row['id_segment']);
-        $writer->text(html_entity_decode($row['translation'], ENT_QUOTES, 'UTF-8'));  
+        $writer->text(html_entity_decode($row['translation'], ENT_NOQUOTES, 'UTF-8'));  
         $writer->endElement();      
     }                
     $writer->endElement();   
@@ -244,7 +244,7 @@
         //log::doLog("CASMACAT: fetchLogChunk(): Next headerRow: " . print_r($deleteRowAsObject, true));
 
         $deleteEvent = new LogEvent($jobId, $fileId, $deleteRowAsObject);     
-        $deleteEvent->deleteData($deleteRowAsObject);
+        $deleteEvent->deletingSuggestionData($deleteRowAsObject);
         
         array_push($deleteEvents, $deleteEvent); 
     }
@@ -253,7 +253,7 @@
         //log::doLog("CASMACAT: deleteEvents: " . print_r($deleteEvents, true));
         $countDeletes = 0;
         $lenDeletes = count($deleteEvents);
-        //print $lenDeletes;
+        print $lenDeletes;
     }
     else $lenDeletes = 0;
     
@@ -1074,5 +1074,5 @@
     
     ini_set('memory_limit', '128M');
   
-//}
+}
 ?>
