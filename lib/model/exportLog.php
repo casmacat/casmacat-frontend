@@ -721,7 +721,7 @@ else {
         
         array_push($suggestion_chosenEvents, $suggestion_chosenEvent); 
     }
-    if(!empty($suggestions_chosenEvents))
+    if(!empty($suggestion_chosenEvents))
     {
     
     	//log::doLog("CASMACAT: suggestion_chosenEvents: " . print_r($suggestion_chosenEvents, true));
