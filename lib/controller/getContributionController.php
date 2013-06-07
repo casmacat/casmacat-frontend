@@ -33,6 +33,7 @@ class getContributionController extends ajaxcontroller {
 
     }
 
+    // Note: curl *must* be installed for this function to work
     public function doAction() {
         if (empty($this->id_segment)) {
             $this->result['errors'][] = array("code" => -1, "message" => "missing id_segment");
@@ -116,9 +117,12 @@ class getContributionController extends ajaxcontroller {
                 $match['created_by'] = 'MT'; //MyMemory returns MT!
             }
         }
-	//$matches=array();
 
-        $this->result['data']['matches'] = $matches;
+        if (empty($matches)) {
+          $this->result['errors'][] = array("code" => -3, "message" => "empty matches");
+        } else {
+          $this->result['data']['matches'] = $matches;
+        }
     }
 
 	private function setSuggestionReport($matches) {

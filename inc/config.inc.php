@@ -96,23 +96,26 @@ class INIT {
 	self::$BUILD_NUMBER='0.3.0';
 
         // Casmacat customizations
-        self::$ITP_SERVER = isset($_GET['itpserver']) ? $_GET['itpserver'] : $_INI_FILE['casmacat']['itpserver'];
-        self::$HTR_SERVER = isset($_GET['htrserver']) ? $_GET['htrserver'] : $_INI_FILE['casmacat']['htrserver'];
+        self::$ITP_SERVER  = self::getConfig('itpserver');
+        self::$HTR_SERVER  = self::getConfig('htrserver');
         self::$ITP_ENABLED = self::getConfigBool('itpenabled');
         self::$PEN_ENABLED = self::getConfigBool('penenabled');
-        self::$ET_ENABLED = self::getConfigBool('etenabled');
-        self::$SR_ENABLED = self::getConfigBool('srenabled');
-        self::$ET_TYPE = isset($_INI_FILE['casmacat']['ettype']) ? $_INI_FILE['casmacat']['ettype'] : 0;
-
-        self::$DEBUG = self::getConfigBool('debug', "debug");
+        self::$ET_ENABLED  = self::getConfigBool('etenabled');
+        self::$SR_ENABLED  = self::getConfigBool('srenabled');
+        self::$ET_TYPE     = self::getConfig('ettype', "casmacat", 0);
+        self::$DEBUG       = self::getConfigBool('debug', "debug");
     }
 
-    private static function getConfigBool($name, $namespace = "casmacat", $default_value = false) {
+    private static function getConfig($name, $namespace = "casmacat", $default_value = "") {
       global $_INI_FILE;
       $retval = $default_value;
       if (isset($_GET[$name])) $retval = $_GET[$name];
-      else if (isset($_INI_FILE[$namespace][$name])) $retval = $_INI_FILE[$namespace][$name];
-      return (bool)$retval;
+      elseif (isset($_INI_FILE[$namespace][$name])) $retval = $_INI_FILE[$namespace][$name];
+      return $retval;
+    }
+    
+    private static function getConfigBool($name, $namespace = "casmacat", $default_value = false) {
+      return (bool)self::getConfig($name, $namespace, $default_value);
     }
 
 }

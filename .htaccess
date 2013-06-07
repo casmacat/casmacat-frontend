@@ -18,6 +18,8 @@ RewriteRule ^(listshortcuts)/[/]?$ index.php?action=listShortcuts [L]
 </IfModule>
 
 # XXX: Check these values in nginx as well
+# Note: You must put `AllowOverride All` in your httpd.conf for this work.
+# Otherwise the server will throw a "500 Internal Error"
 php_value post_max_size 5M
 php_value upload_max_filesize 10M
 

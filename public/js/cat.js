@@ -872,7 +872,7 @@ UI = {
                 jid: config.job_id,
                 password: config.password,
                 step : step,
-                segment: this.startSegmentId,
+                segment: UI.startSegmentId,
                 where: where,
                 // CASMACAT extension start
                 replay: config.replay ? "true" : "false"
@@ -883,7 +883,7 @@ UI = {
                 $.each(d.data['files'], function() {
                     startSegmentId = this['segments'][0]['sid'];
                 })
-                if(typeof this.startSegmentId == 'undefined') this.startSegmentId = startSegmentId;
+                if(typeof UI.startSegmentId == 'undefined') UI.startSegmentId = startSegmentId;
                 UI.body.addClass('loaded');
                 if(typeof d.data['files'] != 'undefined') UI.renderSegments(d.data['files'],where,true);
                 $('#outer').removeClass('loading loadingBefore');
