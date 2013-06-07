@@ -714,7 +714,7 @@ else {
     while ( ($suggestion_chosenRow = $db->fetch($queryId)) != false ) {
         
         $suggestion_chosenRowAsObject = snakeToCamel($suggestion_chosenRow);        
-        log::doLog("CASMACAT: fetchLogChunk(): Next headerRow: " . print_r($suggestion_chosenRowAsObject, true));
+        //log::doLog("CASMACAT: fetchLogChunk(): Next headerRow: " . print_r($suggestion_chosenRowAsObject, true));
 
         $suggestion_chosenEvent = new LogEvent($jobId, $fileId, $suggestion_chosenRowAsObject);     
         $suggestion_chosenEvent->suggestionChosenData($suggestion_chosenRowAsObject);
