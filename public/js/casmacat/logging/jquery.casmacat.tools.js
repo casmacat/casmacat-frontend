@@ -777,7 +777,7 @@ catch (e) {
 
                     var p = $(range.endContainer.parentNode).parents();
                     if (p.is(".editarea") || p.is(".source")) {
-                        charInfo.element = p;
+                        charInfo.element = p[0];
                         charInfo.offset = $(p).getOffsetContenteditable(range);
                     }
                     else {
@@ -792,7 +792,7 @@ catch (e) {
 
                         var p = $(range.startContainer.parentNode).parents();
                         if (p.is(".editarea") || p.is(".source")) {
-                            charInfo.element = p;
+                            charInfo.element = p[0];
                             charInfo.offset = $(p).getOffsetContenteditable(range);
                         }
                         else {
@@ -828,7 +828,7 @@ catch (e) {
         if (charInfo.character.length > 1) {
             charInfo.character = "";
         }
-
+debug(charInfo.element);
         if (charInfo.element === null) {
 //                debug(pluginName + ": 'element' is null, adjusting to 'window'...");
             charInfo.element = window;

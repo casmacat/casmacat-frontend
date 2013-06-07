@@ -1458,7 +1458,7 @@
 //            }
             var charInfo = $.fn.characterFromPoint(rx, ry);
 
-            debug(pluginName + ": char offset: '" + charInfo.offset + "', char: '" + charInfo.character + "'.");
+//            debug(pluginName + ": char offset: '" + charInfo.offset + "', char: '" + charInfo.character + "'.");
             storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FIXATION, charInfo.element, trackerTime, rx, ry, duration,
                 charInfo.character, charInfo.offset));
         }
