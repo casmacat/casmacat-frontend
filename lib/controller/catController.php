@@ -268,35 +268,44 @@ class catController extends viewcontroller {
         }
 
         if ($this->page) {  // use this only when a value has been given. And yes, we should homogenize stuff like this ASAP!!
-            // FIXME: This is a temp workaround for the pre-evaluation. We should homogenize stuff like this ASAP!
-            // We reuse the $page var to indicate the CAT client configuration, since $page is actually not being used in the prototype.
-            $delimiters = array(":", "@");
-            foreach ($delimiters as $delim) {
-              list($catsetting, $portnum) = explode($delim, $this->page);
-              if (intval($portnum) > 0) {
-                $server_url = $this->template->catserver;
-                if (strstr($server_url, "http://") === true) {
-                    $server_url = str_replace("http://", "", $server_url);
-                }
-            }
-            $path_parts = explode("/", $server_url);
-            $server_data = $path_parts[0];
-            // In nginx we use the @ to change port number at runtime, otherwise we'll pass the port as usual (:)
-            if (strstr($server_data, "@") !== false) {
-              $server_data = preg_replace('/@[0-9]+/', $delim.$portnum, $server_data);
-            } else if (strstr($server_data, ":") !== false) {
-              $server_data = preg_replace('/:[0-9]+/', $delim.$portnum, $server_data);
+          // FIXME: This is a temp workaround for the pre-evaluation. We should homogenize stuff like this ASAP!
+          // We reuse the $page var to indicate the CAT client configuration, since $page is actually not being used in the prototype.
+          $delimiters = array(":", "@");
+          foreach ($delimiters as $delim) {
+            if ( strpos($this->page, $delim) !== false ) {
+              break; // We have found the current delimiter
             } else {
-              $server_data .= $delim.$portnum;
+              $delim = null;
             }
-            $path_parts[0] = $server_data;
-            $this->template->itpserver = implode("/", $path_parts);
-            break;
           }
-          $this->template->catsetting = $catsetting;
-        }
-        else {
-            $this->template->catsetting = "";
+
+          $server_url  = INIT::$ITP_SERVER; // We can't access template vars before PHPTAL populates them
+          $path_parts  = explode("/", $server_url);
+          $server_data = $path_parts[0];
+          
+          if ($delim) {
+            list($catsetting, $portnum) = explode($delim, $this->page);
+            $this->template->catsetting = $catsetting;
+            if (intval($portnum) > 0) {
+              if (strstr($server_url, "http://") === true) {
+                $server_url = str_replace("http://", "", $server_url);
+              }
+              // In nginx we use the @ to change port number at runtime, otherwise we'll pass the port as usual (:)
+              if (strpos($server_data, "@") !== false) {
+                $server_data = preg_replace('/@[0-9]+/', $delim.$portnum, $server_data);
+              } elseif (strpos($server_data, ":") !== false) {
+                $server_data = preg_replace('/:[0-9]+/', $delim.$portnum, $server_data);
+              }
+            }
+          } else {
+            $this->template->catsetting = $this->page;
+          }
+
+          $path_parts[0] = $server_data;
+          $this->template->itpserver = implode("/", $path_parts);
+
+        } else {
+          $this->template->catsetting = "";
         }
 
 //		$this->template->stats=$stats[0]['TOTAL'];
