@@ -25,7 +25,7 @@ require("jquery.hotkeys");
       pos++;
       //dump("onMoveUp");
       self.change(stack[pos]);
-      self.$elem.trigger('mousewheelup', [pos, stack]);
+      if (self.$elem) self.$elem.trigger('mousewheelup', [pos, stack]);
       if (pos >= stack.length) {
         pos = stack.length - 1;
         return;
@@ -41,7 +41,7 @@ require("jquery.hotkeys");
       }
       //dump("onMoveDown");
       self.change(stack[pos]);
-      self.$elem.trigger('mousewheeldown', [pos, stack]);
+      if (self.$elem) self.$elem.trigger('mousewheeldown', [pos, stack]);
     };
 
     function dump(fn) {
@@ -69,7 +69,8 @@ require("jquery.hotkeys");
         saveState(last);
       }
       dump("invalidate");
-      self.$elem.trigger('mousewheelinvalidate');
+      // Double-check that this module has been initialized
+      if (self.$elem) self.$elem.trigger('mousewheelinvalidate');
     };
     
     // Mandatory intialization method ------------------------------------------
