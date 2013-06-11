@@ -681,7 +681,7 @@
         var startTime = new Date().getTime();
 //        debug(pluginName + ": 'logList' refers to: jobId: '" + jobId + "', settings.fileId: '" + settings.jobId + "'.");
 
-        var internalLogList = logList;
+//        var internalLogList = logList;
 //        debug(pluginName + ": 'internalLogList' content dump:");
 //        for (var key in internalLogList) {
 //            if (internalLogList.hasOwnProperty(key)) {
@@ -693,8 +693,8 @@
             action: "saveLogChunk",
             fileId: settings.fileId,
             jobId: settings.jobId,
-            logList: JSON.stringify(internalLogList)
-//            logList: logList
+//            logList: JSON.stringify(internalLogList)
+            logList: JSON.stringify(logList)
         };
 
         chunksUploading++;
@@ -713,6 +713,8 @@
                     var executionTime = new Date().getTime() - startTime;
                     debug(pluginName + ": Upload of 'logList' completed, executionTime: '" + executionTime + "', (server) executionTime: '" + result.executionTime + "'.");
                 }
+                // TODO error handling in case when only some events couldn't be stored in database
+                // that means that data == OK but result.errors is also set
                 else if (result.errors) {    // TODO is the error format really like this? with the index access
                                             // 'result.errors[0]'?
                     alert("(Server) Error uploading 'logList': '" + result.errors[0].message + "'");
@@ -725,12 +727,12 @@
                 debug(request);
                 debug(status);
                 debug(error);
-                debug(pluginName + ": 'internalLogList' content dump:");
-                for (var key in internalLogList) {
-                    if (internalLogList.hasOwnProperty(key)) {
-                        debug(internalLogList[key]);
-                    }
-                }
+//                debug(pluginName + ": 'internalLogList' content dump:");
+//                for (var key in internalLogList) {
+//                    if (internalLogList.hasOwnProperty(key)) {
+//                        debug(internalLogList[key]);
+//                    }
+//                }
 //                debug(data.logList);
                 alert("Error uploading 'logList': '" + error + "'");
                 $.error("Error uploading 'logList': '" + error + "'");
@@ -1420,8 +1422,12 @@
 //                    element = lElement;
 //                }
 //            }
+
+//var startTime = new Date().getTime();
             var lCharInfo = $.fn.characterFromPoint(lrx, lry);
             var rCharInfo = $.fn.characterFromPoint(rrx, rry);
+//var executionTime = new Date().getTime() - startTime;
+//debug("*** gaze exec: " + executionTime);
 
 //            debug(pluginName + ": element: '" + element + "'");
 //            debug(pluginName + ": left char offset: '" + lCharInfo.offset + "', left char: '" + lCharInfo.character + "'.");
@@ -1456,7 +1462,10 @@
 ////                debug(pluginName + ": 'element' is null, adjusting to 'window'...");
 //                element = window;
 //            }
+//var startTime = new Date().getTime();
             var charInfo = $.fn.characterFromPoint(rx, ry);
+//var executionTime = new Date().getTime() - startTime;
+//debug("*** fix exec: " + executionTime);
 
 //            debug(pluginName + ": char offset: '" + charInfo.offset + "', char: '" + charInfo.character + "'.");
             storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FIXATION, charInfo.element, trackerTime, rx, ry, duration,
