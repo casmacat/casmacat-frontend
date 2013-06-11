@@ -59,7 +59,7 @@ var Memento = require("module.memento");
         return !data1 || (data2 && (data1.nbest.length === 0 || data1.nbest[0].target === data2.nbest[0].target));
       },
       change: function(data) {
-        if (!Boolean($target.editable('getText'))) {
+        if (!userCfg().allowRejectSuffix || !Boolean($target.editable('getText'))) {
           return false;
         }
         if (data) {
@@ -71,7 +71,7 @@ var Memento = require("module.memento");
         }
       }
     });
-
+      
     self.memento = new Memento();
     self.memento.init($target, {
       start: function() {

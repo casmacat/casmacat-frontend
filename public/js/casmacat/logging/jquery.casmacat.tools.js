@@ -809,14 +809,14 @@ catch (e) {
             }
             // Couldn't determine character
         }
-        else if (document.body.createTextRange) {
+        /*else if (document.body.createTextRange) {
             range = document.body.createTextRange();
             range.moveToPoint(rx, ry);
             range.expand("character"); // or .moveEnd("character", 1); ???
             range.select();
             charInfo.offset = range.startOffset;
             // TODO
-        }
+        }*/
         else {
             // TODO for this case there is the possibility of using a range which is allways checked against isPointInRange
             // and then shrinked and shrinked until if fits ;-)

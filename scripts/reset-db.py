@@ -4,7 +4,7 @@
 # Note: This script truncates *all* database tables. Consider using `backup-db.py` instead.
 #
 
-import sys, MySQLdb
+import sys, os, MySQLdb, ConfigParser
 
 n_expected_args = 1
 n_received_args = len(sys.argv[1:])
@@ -30,8 +30,8 @@ database = config.get('db', 'database').strip('"')
 cnx = MySQLdb.connect(hostname, username, password, database)
 cur = cnx.cursor()
 
-event_tables   = ("config_event", "deleting_suggestion_event", "fixation_event", "gaze_event", "itp_event", "key_event", "log_event_header", "mouse_event", "resize_event", "scroll_event", "selection_event", "sr_event", "stats_event", "suggestions_loaded_event", "suggestion_chosen_event", " text_event")
-cleanup_tables = ("files", "files_job", "jobs", "notifications", "projects", "segments", "segments_comments", "segment_translations ", "translators")
+event_tables   = ("config_event", "deleting_suggestion_event", "fixation_event", "gaze_event", "itp_event", "key_event", "log_event_header", "mouse_event", "resize_event", "scroll_event", "selection_event", "sr_event", "stats_event", "suggestions_loaded_event", "suggestion_chosen_event", " text_event", "segment_translations", "segments_comments")
+cleanup_tables = ("files", "files_job", "jobs", "projects", "segments", "translators", "notifications")
 
 if table_type == "events":
   task_tables = event_tables

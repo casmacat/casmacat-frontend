@@ -234,8 +234,8 @@ class saveLogChunkController extends ajaxcontroller {
                         break;
 
                     default:
-                        $db->query("COMMIT");   // at least, store what was ok
-                        $db->query("SET AUTOCOMMIT=1");
+//                        $db->query("COMMIT");   // at least, store what was ok
+//                        $db->query("SET AUTOCOMMIT=1");
 
 //                        $this->result["executionTime"] = time() - $this->startTime;
                         $this->result["code"] = -1;
