@@ -643,7 +643,7 @@
 
     /**
      * Stores an event in the loglist. When the size of the logList exceeds the maximum specified, it is first
-     * (asynchronously) uploaded and cleared and then the new event is added.
+     * (asynchronously) uploaded and cleared. Then the new event is added.
      *
      * TODO Will this later also be used to control pausing of the logging (additional variable that is checked)?
      */
@@ -1146,6 +1146,12 @@
         debug(pluginName + ": Segment closed: '" + data.segment.id + "'.");
 
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SEGMENT_CLOSED, data.segment));
+
+        if (logList.length >= 100) {
+            debug(pluginName + ": Forcing upload of 'logList'...");
+            uploadLogChunk(true);
+            logList = []; // clear the logList
+        }
     };
 
     var loadingSuggestions = function(e, data) {
