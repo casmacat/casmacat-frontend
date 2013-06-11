@@ -44,6 +44,9 @@ function deleteEventRow($headerId, $table) {
 function resetDocument($jobId, $fileId) {
 
     $db = Database::obtain();
+    $db->query("SET AUTOCOMMIT=0");
+    $db->query("START TRANSACTION");
+
     $queryId = $db->query("SELECT * FROM log_event_header h WHERE h.job_id = '$jobId' AND h.file_id = '$fileId'"
             . " ORDER BY h.time ASC");
 
@@ -223,6 +226,9 @@ function resetDocument($jobId, $fileId) {
         throw new Exception("CASMACAT: resetDocument(): " . print_r($err, true));
 //        return $errno * -1;
     }
+
+    $db->query("COMMIT");
+    $db->query("SET AUTOCOMMIT=1");
 
     return true;
 }
