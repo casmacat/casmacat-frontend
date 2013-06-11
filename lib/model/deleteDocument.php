@@ -20,6 +20,7 @@ else {
     include_once INIT::$MODEL_ROOT . "/LogEvent.class.php";
     
     ini_set('memory_limit', '8000M');
+    ini_set('max_execution_time', 6000);
       
     $db = Database::obtain(INIT::$DB_SERVER, INIT::$DB_USER, INIT::$DB_PASS, INIT::$DB_DATABASE);
     $db->connect();	
@@ -27,6 +28,8 @@ else {
     resetDocument($jobId, $fileId);
     
     ini_set('memory_limit', '128M');
+    ini_set('max_execution_time', 30);
+
     print "END";
     return 0;
   
