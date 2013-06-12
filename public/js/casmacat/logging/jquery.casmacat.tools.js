@@ -769,35 +769,56 @@ catch (e) {
         else*/ if (document.caretRangeFromPoint) {
             range = document.caretRangeFromPoint(rx, ry);
             if (range !== null) {
-//                charInfo.offset = range.startOffset;
+
+                var p = $(range.endContainer.parentNode).parents();
+                if (p.is(".editarea") || p.is(".source")) {
+                    debug("$.fn.characterFromPoint: In token...");
+                    charInfo.element = p[0];
+                    charInfo.offset = $(p).getOffsetContenteditable(range);
+                }
+                else if ( ($(range.endContainer.parentNode).is(".editarea") || $(range.endContainer.parentNode).is(".source"))
+                        && config.itpEnabled ) {   // TODO
+                    debug("$.fn.characterFromPoint: In text?...");
+                    charInfo.element = range.endContainer;
+                    charInfo.offset = $(range.endContainer.parentNode).getOffsetContenteditable(range);
+                }
+                else {
+                    debug("$.fn.characterFromPoint: Elsewhere...");
+                    charInfo.element = range.endContainer;
+                    charInfo.offset = range.startOffset;
+                }
 
                 try {
                     range.setEnd(range.endContainer, range.endOffset + 1);  // select to the right
                     charInfo.character = range.toString();
-
-                    var p = $(range.endContainer.parentNode).parents();
-                    if (p.is(".editarea") || p.is(".source")) {
-                        charInfo.element = p[0];
-                        charInfo.offset = $(p).getOffsetContenteditable(range);
-                    }
-                    else {
-                        charInfo.element = range.endContainer;
-                        charInfo.offset = range.startOffset;
-                    }
                 }
                 catch (eRight) {
                     try {
-                        range.setStart(range.startContainer, range.startOffset - 1);  // select to the left
-                        charInfo.character = range.toString();
-
-                        var p = $(range.startContainer.parentNode).parents();
+                        var p = $(range.endContainer.parentNode).parents();
                         if (p.is(".editarea") || p.is(".source")) {
-                            charInfo.element = p[0];
-                            charInfo.offset = $(p).getOffsetContenteditable(range);
+                            debug("$.fn.characterFromPoint: In token (ALT)...");
+                            var textNodes = getTextNodesIn(range.endContainer.parentNode.parentNode, true); // TODO merge with code below
+                            for (var i = 0; i < textNodes.length; i++) {
+                                if (textNodes[i] === range.endContainer) {
+                                    range.setStart(textNodes[i + 1], 0);
+                                    range.setEnd(textNodes[i + 1], 1);
+                                    charInfo.character = range.toString();
+                                    break;
+                                }
+                            }
                         }
-                        else {
-                            charInfo.element = range.startContainer;
-                            charInfo.offset = range.startOffset;
+                        else if ( ($(range.endContainer.parentNode).is(".editarea") || $(range.endContainer.parentNode).is(".source"))
+                                && config.itpEnabled ) {   // TODO
+                            debug("$.fn.characterFromPoint: In text? (ALT)...");
+                            var textNodes = getTextNodesIn(range.endContainer.parentNode, true); // TODO merge with code before
+                            for (var i = 0; i < textNodes.length; i++) {
+                                if (textNodes[i] === range.endContainer) {
+                                    range.setStart(textNodes[i + 1], 0);
+                                    range.setEnd(textNodes[i + 1], 1);
+                                    charInfo.character = range.toString();
+                                    break;
+                                }
+                            }
                         }
                     }
                     catch (eLeft) {
@@ -836,6 +857,26 @@ catch (e) {
 
         return charInfo;
     };
+
+    // http://stackoverflow.com/questions/298750/how-do-i-select-text-nodes-with-jquery
+    function getTextNodesIn(node, includeWhitespaceNodes) {
+        var textNodes = [], whitespace = /^\s*$/;
+
+        function getTextNodes(node) {
+            if (node.nodeType == 3) {
+                if (includeWhitespaceNodes || !whitespace.test(node.nodeValue)) {
+                    textNodes.push(node);
+                }
+            } else {
+                for (var i = 0, len = node.childNodes.length; i < len; ++i) {
+                    getTextNodes(node.childNodes[i]);
+                }
+            }
+        }
+
+        getTextNodes(node);
+        return textNodes;
+    }
 
     // TODO merge this one with $.fn.getCursorPositionContenteditable()
     $.fn.getOffsetContenteditable = function(range) {
