@@ -56,7 +56,7 @@
                     srclang = $(this).find('td').get(2).textContent;
                     jobid = $(this).find('td').get(4).textContent;
                     password = $(this).find('td').get(5).textContent;
-                    $("#downloadForm input[name=jid]").val(jobid);
+                    $("#downloadForm input[name=jobid]").val(jobid);
                     $("#downloadForm input[name=fileid]").val(fileid);
                     $("#downloadForm input[name=filename]").val(filename);
                     $("#downloadForm input[name=srclang]").val(srclang);
@@ -136,7 +136,7 @@
             
             <form id="downloadForm" action="${basepath}" method="post">
                 <input type="hidden" name="action" value="createLogDownload"/>
-                <input type="hidden" name="jid" value="0"/>
+                <input type="hidden" name="jobid" value="0"/>
                 <input type="hidden" name="fileid" value="0"/>
                 <input type="hidden" name="filename" value="0"/>
                 <input type="hidden" name="srclang" value="0"/>

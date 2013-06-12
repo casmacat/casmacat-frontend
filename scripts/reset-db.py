@@ -45,6 +45,10 @@ print "Truncating %d tables..." % len(task_tables)
 for table in task_tables:
   cur.execute("TRUNCATE TABLE %s" % table)
 
+if task_tables == event_tables:
+  # This is needed to avoid loading the last segment after the reset
+  cur.execute("UPDATE jobs SET last_opened_segment = NULL WHERE 1")
+
 cur.close()
 
 print "Done."
