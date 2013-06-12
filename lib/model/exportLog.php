@@ -1,44 +1,56 @@
 <?php
 
 
-if ($argc != 3) {
+if ($argc < 3) {
     print("Usage: exportLog.php <fileId> <jobId>");
 }
 else {
+    if ($argc == 3) {
+        require_once '../../inc/config.inc.php';
+    }
+    
+    if ($argc == 4) {
+        require_once 'inc/config.inc.php';
+    }
     
     $fileId = $argv[1];
     $jobId = $argv[2];
-
-    $startOffset = 0;
-
-    require_once '../../inc/config.inc.php';
-
+    
+    
+        
     INIT::obtain();
 
     require_once INIT::$UTILS_ROOT.'/log.class.php';
-    require_once INIT::$MODEL_ROOT.'/Database.class.php';
-    $db = Database::obtain(INIT::$DB_SERVER, INIT::$DB_USER, INIT::$DB_PASS, INIT::$DB_DATABASE);
-    $db->connect();
+    require_once INIT::$MODEL_ROOT.'/Database.class.php';  
 
     include_once INIT::$MODEL_ROOT . "/casQueries.php";
     include_once INIT::$MODEL_ROOT . "/LogEvent.class.php";
-    include_once INIT::$UTILS_ROOT . "/Tools.class.php";
-    
+    //include_once INIT::$UTILS_ROOT . "/Tools.class.php";
+        
     ini_set('memory_limit', '8000M');
     
-    $startTime = Tools::getCurrentMillis();
+    //$startTime = Tools::getCurrentMillis();
     //print "Start: ".$startTime."\n";
 	
-	
+    
+    $db = Database::obtain(INIT::$DB_SERVER, INIT::$DB_USER, INIT::$DB_PASS, INIT::$DB_DATABASE);
+    $db->connect();	
+    
     //filename and source lang
-    $queryId = $db->query("SELECT filename, source_language FROM `files` f WHERE f.id = ".$fileId);
+    $queryId = $db->query("SELECT filename, source_language FROM files f WHERE f.id = ".$fileId);
+    
     $err = $db->get_error();
+    //log::doLog("CASMACAT: err(): " .print_r($err,true));
     $errno = $err["error_code"];
     if ($errno != 0) {
+         log::doLog("CASMACAT: fetchLogChunk(): " . print_r($err, true));
+        throw new Exception("CASMACAT: fetchLogChunk(): " . print_r($err, true));
         return $errno * -1;
     }
-    $row = $db->fetch($queryId);				
+    $row = $db->fetch($queryId);
+    
     $src_lang = $row["source_language"];
+
     $filename ="log_id".$fileId."_".$row["filename"].".xml";
 	
     if (!file_exists(INIT::$LOG_DOWNLOAD) || !is_dir(INIT::$LOG_DOWNLOAD)) {
@@ -116,7 +128,7 @@ else {
     $writer->startElement('initialTargetText');
         
     if ($itp == 1) {
-        $queryId = $db->query("SELECT element_id, data FROM `log_event_header` l, itp_event i WHERE l.type = 'decode' AND l.job_id = ".$jobId." AND l.file_id = ".$fileId." AND i.header_id = l.id");
+        $queryId = $db->query("SELECT element_id, data FROM `log_event_header` l, itp_event i WHERE l.type = 'decode' AND l.job_id = ".$jobId." AND l.file_id = ".$fileId." AND i.header_id = l.id ORDER BY element_id");
         while ( ($row = $db->fetch($queryId)) != false ) {
             $itp = 1;
             $json = $row["data"];
@@ -167,21 +179,14 @@ else {
     }                
     $writer->endElement();   
 
-    //$headerTime = Tools::getCurrentMillis();
-    //print "Header: ".($headerTime-$startTime)."\n";
     
     //events
     
     
     
     $writer->startElement('events');
-    
-    /*$queryId = $db->query("SELECT COUNT(*) AS total FROM log_event_header h WHERE h.job_id = '$jobId' AND h.file_id = '$fileId'");
-    $row = $db->fetch($queryId);
-    $total = $row["total"];
-    print "Total: ".$total."\n";
-    */
-    
+  
+   
     $writer->flush();
     
     //config_event 
@@ -1075,12 +1080,14 @@ else {
 	
     $db->close();
     
-    $endTime = Tools::getCurrentMillis();
+    //$endTime = Tools::getCurrentMillis();
     //print "Finish: ".$endTime."\n";
-    $totalTime = $endTime - $startTime;
+    //$totalTime = $endTime - $startTime;
     //print "Total time: ".$totalTime."\n";
     
     ini_set('memory_limit', '128M');
+    print "END export log";
+    return 0;
   
 }
 ?>
