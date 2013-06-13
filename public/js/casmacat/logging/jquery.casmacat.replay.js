@@ -46,7 +46,8 @@
                                         //          id set. This id will be stored as the id of E. If the element with the
                                         //          id is a parent of E then the path from this parent to E is stored as an
                                         //          relative xPath
-            replayEyeTracker: false,
+            etCollect: true,  // current replay speed,
+            etShowData: true,  // current replay speed,
             maxChunkSize: 5000,     // maximum size of the log list before the automatic download is triggered
             //fetchNextChunk: 500,    // how many events must be left in replayList before starting fetching of next chunk
                                     // in background, not implemented
@@ -317,7 +318,7 @@
 
             // insert virtual mouse pointer
             vsContents.find("body").append("<img id='vMousePointer' src='" + config.basepath + "public/img/casMousePointer.png'></img>");
-            vsContents.find("body").append("<div id='fixationTarget' src='" + config.basepath + "public/img/casTarget.png'></div>");
+//            vsContents.find("body").append("<div id='fixationTarget' src='" + config.basepath + "public/img/casTarget.png'></div>");
 
             vsReady = true;
             if (firstChunkLoaded) {
@@ -718,8 +719,29 @@ debug(event);
             case logEventFactory.GAZE:
                 break;
             case logEventFactory.FIXATION:
-                vsWindow.$("#fixationTarget").css({"left": (event.x - 10) + "px", "top": (event.y - 10) + "px"});
-                vsWindow.$("#fixationTarget").html("<br>" + event.x + "," + event.y + "," + event.offset + ",'" + event.character + "'");
+                var target = null;
+                // TODO write a bit smarter codes here
+                if (settings.etCollect) {
+                    vsContents.find("body").append("<div class='fixationTarget'></div>");
+                    target = vsWindow.$(".fixationTarget").last();
+                }
+                else {
+                    if (vsWindow.$(".fixationTarget").length <= 0) {
+                        vsContents.find("body").append("<div class='fixationTarget'></div>");
+                    }
+                    target = vsWindow.$(".fixationTarget").last();
+                }
+
+
+
+
+debug("ETETETETETETETET");
+debug(target);
+                target.css({"left": (event.x - 10) + "px", "top": (event.y - 10) + "px"});
+
+                if (settings.etShowData) {
+                    target.html("<br>" + event.x + "," + event.y + "," + event.offset + ",'" + event.character + "'");
+                }
                 break;
 
             case logEventFactory.SCROLL:

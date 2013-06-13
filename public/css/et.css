@@ -10,7 +10,7 @@
     font-size: 20pt;
 }
 
-#fixationTarget {
+.fixationTarget {
     z-index: 1000000000;
     position: absolute;
     left: 0px;
