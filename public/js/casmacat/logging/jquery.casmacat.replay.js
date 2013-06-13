@@ -317,6 +317,7 @@
 
             // insert virtual mouse pointer
             vsContents.find("body").append("<img id='vMousePointer' src='" + config.basepath + "public/img/casMousePointer.png'></img>");
+            vsContents.find("body").append("<div id='fixationTarget' src='" + config.basepath + "public/img/casTarget.png'></div>");
 
             vsReady = true;
             if (firstChunkLoaded) {
@@ -715,10 +716,10 @@ debug(event);
                 break;
 
             case logEventFactory.GAZE:
-                // TODO
                 break;
-            case logEventFactory.FIX:
-                // TODO
+            case logEventFactory.FIXATION:
+                vsWindow.$("#fixationTarget").css({"left": (event.x - 10) + "px", "top": (event.y - 10) + "px"});
+                vsWindow.$("#fixationTarget").html("<br>" + event.x + "," + event.y + "," + event.offset + ",'" + event.character + "'");
                 break;
 
             case logEventFactory.SCROLL:
@@ -762,8 +763,8 @@ debug(event);
                 break;
 
             case logEventFactory.SEGMENT_OPENED:
-debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
-debug(event);
+//debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+//debug(event);
                 var editarea = element.find(".editarea")[0];
                 vsWindow.UI.openSegment(editarea);
 
@@ -776,8 +777,8 @@ debug(event);
                 }
                 break;
             case logEventFactory.SEGMENT_CLOSED:
-debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
-debug(event);
+//debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+//debug(event);
                 vsWindow.UI.closeSegment(element, false);
                 break;
 
@@ -785,8 +786,8 @@ debug(event);
                 vsWindow.UI.getContribution(element);
                 break;
             case logEventFactory.SUGGESTIONS_LOADED:
-debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
-debug(event);
+//debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+//debug(event);
                 var d =  {  // pseudo return value
                     data: {
                         matches: JSON.parse(event.matches)
@@ -795,8 +796,8 @@ debug(event);
                 vsWindow.UI.getContributionSuccess(d, element, element, 0, element);
                 break;
             case logEventFactory.SUGGESTION_CHOSEN:
-debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
-debug(event);
+//debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+//debug(event);
                 if (event.which != 0) { // event.which == 0 should already been handled by getContributionSuccess()
                     vsWindow.UI.chooseSuggestion(event.which);    // should be already handled be text changed
                 }
@@ -873,8 +874,7 @@ debug(event);
 //                break;    // let it slip so the pointer is moved, too
             case logEventFactory.MOUSE_MOVE:
                 // TODO this is still buggy (position not 100% valid) and a performance issue, should not be used
-                vsWindow.$("#vMousePointer").css("left", event.x + "px");
-                vsWindow.$("#vMousePointer").css("top", event.y + "px");
+                vsWindow.$("#vMousePointer").css({"left": event.x + "px", "top": event.y + "px"});
                 break;
 
             case logEventFactory.BEFORE_COPY:
@@ -882,13 +882,75 @@ debug(event);
             case logEventFactory.BEFORE_PASTE:
                 break;
 
+            case logEventFactory.VIS_MENU_DISPLAYED:
+                var panel = vsWindow.$(".vis-options", element);
+                if (panel.is(":hidden")) {
+                    vsWindow.$(".vis-button", element).next().toggle("fast");
+                }
+                else {
+                    throw "Error: Visualization menu is already visible!";
+                }
+                break;
+            case logEventFactory.VIS_MENU_HIDDEN:
+                var panel = vsWindow.$(".vis-options", element);
+                if (!panel.is(":hidden")) {
+                    vsWindow.$(".vis-button", element).next().toggle("fast");
+                }
+                else {
+                    throw "Error: Visualization menu is already hidden!";
+                }
+                break;
+
+            case logEventFactory.INITIAL_CONFIG:
+                // TODO use this correctly
+                alert("Warning! Using initial config not yet implemented! Set the correct configuration manually in the config.ini file.");
+                debug(pluginName + ": Warning! Using initial config not yet implemented! Set the correct configuration manually in the config.ini file.");
+                //vsWindow.$.extend(true, vsWindow.config, JSON.parse(event.config));
+                break;
+            case logEventFactory.CONFIG_CHANGED:
+                // TODO inform program parts about this
+                var c = JSON.parse(event.config);
+                for (var key in c.prefs) {
+//if (event.config.indexOf("mode")>-1) {
+//    alert(event.config.prefs);
+//}
+                    if (c.prefs["mode"] !== undefined) {
+                        // seems like nothing needs to be done here
+    //                    vsWindow.$("#" + event.elementId).editableItp('trigger', "itptogglechange", ...);
+alert("YARGL1: "+ key + " " + c.prefs[key]);
+                    }
+                    else {
+                        try {
+                            debug(element.find(".editarea"));
+debug("EDIT");
+//alert("EDIT");
+
+                            element.find(".editarea").editableItp("trigger", "togglechange",
+                                {ev: null, toggle: key, value: c.prefs[key], cfg: null});
+//                            element.editableItp("trigger", "togglechange",
+//                                {ev: null, toggle: key, value: c.prefs[key], cfg: null});
+                        }
+                        catch (e) {
+                            debug(pluginName + ": " + e);
+                            debug(event);
+//                            alert("YARGL2: "+ key + " " + c.prefs[key]);
+                        }
+                    }
+                }
+debug(c.prefs);
+debug(event.config);
+                vsWindow.$.extend(true, vsWindow.config, c);
+
+                break;
+
             default:
-                alert("Unknown event type");
+                alert("Unknown event type: '" + event.type + "'.");
                 debug(pluginName + ": Unknown event type: '" + event.type + "'.");
 //                $.error("Unknown event type");
         }
 }
 catch (e) {
+    ;
 debug(pluginName + ": " + e);
 debug(event);
 $.error("Erroneous event");

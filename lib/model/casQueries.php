@@ -263,6 +263,7 @@ log::doLog($endOffset);
 
     $db = Database::obtain();
     $queryId = $db->query("SELECT * FROM log_event_header h WHERE h.job_id = '$jobId' AND h.file_id = '$fileId'"
+            . " AND h.type != 'gaze'"
             . " ORDER BY h.time, h.id ASC LIMIT $startOffset, $endOffset");
 
     $err = $db->get_error();
@@ -308,10 +309,10 @@ log::doLog($endOffset);
                 $eventRow = fetchEventRow($logEvent->id, "scroll_event");
                 $logEvent->scrollData($eventRow);
                 break;
-            case LogEvent::GAZE:
-                $eventRow = fetchEventRow($logEvent->id, "gaze_event");
-                $logEvent->gazeData($eventRow);
-                break;
+//            case LogEvent::GAZE:
+//                $eventRow = fetchEventRow($logEvent->id, "gaze_event");
+//                $logEvent->gazeData($eventRow);
+//                break;
             case LogEvent::FIXATION:
                 $eventRow = fetchEventRow($logEvent->id, "fixation_event");
                 $logEvent->fixationData($eventRow);
