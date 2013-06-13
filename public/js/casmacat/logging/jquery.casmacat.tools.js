@@ -772,18 +772,18 @@ catch (e) {
 
                 var p = $(range.endContainer.parentNode).parents();
                 if (p.is(".editarea") || p.is(".source")) {
-                    debug("$.fn.characterFromPoint: In token...");
+//                    debug("$.fn.characterFromPoint: In token...");
                     charInfo.element = p[0];
                     charInfo.offset = $(p).getOffsetContenteditable(range);
                 }
                 else if ( ($(range.endContainer.parentNode).is(".editarea") || $(range.endContainer.parentNode).is(".source"))
                         && config.itpEnabled ) {   // TODO
-                    debug("$.fn.characterFromPoint: In text?...");
+//                    debug("$.fn.characterFromPoint: In text?...");
                     charInfo.element = range.endContainer;
                     charInfo.offset = $(range.endContainer.parentNode).getOffsetContenteditable(range);
                 }
                 else {
-                    debug("$.fn.characterFromPoint: Elsewhere...");
+//                    debug("$.fn.characterFromPoint: Elsewhere...");
                     charInfo.element = range.endContainer;
                     charInfo.offset = range.startOffset;
                 }
@@ -796,7 +796,7 @@ catch (e) {
                     try {
                         var p = $(range.endContainer.parentNode).parents();
                         if (p.is(".editarea") || p.is(".source")) {
-                            debug("$.fn.characterFromPoint: In token (ALT)...");
+//                            debug("$.fn.characterFromPoint: In token (ALT)...");
                             var textNodes = getTextNodesIn(range.endContainer.parentNode.parentNode, true); // TODO merge with code below
                             for (var i = 0; i < textNodes.length; i++) {
                                 if (textNodes[i] === range.endContainer) {
@@ -809,7 +809,7 @@ catch (e) {
                         }
                         else if ( ($(range.endContainer.parentNode).is(".editarea") || $(range.endContainer.parentNode).is(".source"))
                                 && config.itpEnabled ) {   // TODO
-                            debug("$.fn.characterFromPoint: In text? (ALT)...");
+//                            debug("$.fn.characterFromPoint: In text? (ALT)...");
                             var textNodes = getTextNodesIn(range.endContainer.parentNode, true); // TODO merge with code before
                             for (var i = 0; i < textNodes.length; i++) {
                                 if (textNodes[i] === range.endContainer) {
