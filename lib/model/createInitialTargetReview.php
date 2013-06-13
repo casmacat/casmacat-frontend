@@ -10,14 +10,27 @@ else {
     $fileTranslator = $argv[1];
     $fileReviewer = $argv[2];
     
-    $translator = simplexml_load_file($fileTranslator);
+
     $reader = new XMLReader();
     $reader->open($fileTranslator);
+
     
- 
-    
-    $translations = $translator->finalTargetText->segment;
-    
+    while ($reader->read()) { 
+        if ($reader->name === 'finalTargetText') { 
+
+            $dom = $reader ->expand();
+            $finalTargets = $dom->getElementsByTagName('segment');
+            $translations = array();
+            foreach( $finalTargets as $target )
+            {
+                array_push($translations, $target->nodeValue);
+                
+            }
+           
+            
+            break;
+        } 
+    } 
  
     $doc = new DOMDocument();
     $doc->load($fileReviewer );
