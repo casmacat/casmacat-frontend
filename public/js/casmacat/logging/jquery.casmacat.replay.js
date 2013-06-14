@@ -720,23 +720,14 @@ debug(event);
                 break;
             case logEventFactory.FIXATION:
                 var target = null;
-                // TODO write a bit smarter codes here
                 if (settings.etCollect) {
                     vsContents.find("body").append("<div class='fixationTarget'></div>");
-                    target = vsWindow.$(".fixationTarget").last();
                 }
-                else {
-                    if (vsWindow.$(".fixationTarget").length <= 0) {
-                        vsContents.find("body").append("<div class='fixationTarget'></div>");
-                    }
-                    target = vsWindow.$(".fixationTarget").last();
+                else if (vsWindow.$(".fixationTarget").length <= 0) {
+                    vsContents.find("body").append("<div class='fixationTarget'></div>");
                 }
+                target = vsWindow.$(".fixationTarget").last();
 
-
-
-
-debug("ETETETETETETETET");
-debug(target);
                 target.css({"left": (event.x - 10) + "px", "top": (event.y - 10) + "px"});
 
                 if (settings.etShowData) {
@@ -947,8 +938,7 @@ alert("YARGL1: "+ key + " " + c.prefs[key]);
 debug("EDIT");
 //alert("EDIT");
 
-                            element.find(".editarea").editableItp("trigger", "togglechange",
-                                {ev: null, toggle: key, value: c.prefs[key], cfg: null});
+                            element.find(".editarea").editableItp("toggle", key + "", c.prefs[key] + "");
 //                            element.editableItp("trigger", "togglechange",
 //                                {ev: null, toggle: key, value: c.prefs[key], cfg: null});
                         }
