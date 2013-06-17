@@ -319,7 +319,7 @@
             // insert virtual mouse pointer
             vsContents.find("body").append("<img id='vMousePointer' src='" + config.basepath + "public/img/casMousePointer.png'></img>");
 //            vsContents.find("body").append("<div id='fixationTarget' src='" + config.basepath + "public/img/casTarget.png'></div>");
-
+//resizeBlockingInput();
             vsReady = true;
             if (firstChunkLoaded) {
                 updateUIStatus("Ready.");
@@ -606,9 +606,10 @@
     };
 
     var resizeBlockingInput = function() {
-        $("#blockInput").css("top", $("html > body > header").height());
-        $("#blockInput").width($(document).width());
-        $("#blockInput").height($(document).height());
+        $("#blockInput").css("top", ($("#virtualScreen").offset().top - 10) + "px");
+        $("#blockInput").css("left", ($("#virtualScreen").offset().left - 10) + "px");
+        $("#blockInput").height($("#virtualScreen").height() + 20);
+        $("#blockInput").width($("#virtualScreen").width() + 20);
     };
 
     var itpDecodeCall = false;
@@ -620,10 +621,20 @@ try {
 //        debug(event);
 //        debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
 
-        // TODO currently only elementId mode is used here. support for hybrid mode should be added as soon as possible!
-        // segment is a jQuery object
-        var element = vsContents.find("#" + event.elementId);
-//        var segment = vsContents.find("#" + event.elementId);
+        // select element by id, xpath or hybrid
+        var element = null;
+        if (event.elementId !== "") {
+            element = vsContents.find("#" + event.elementId);
+        }
+        if (event.xPath !== "") {
+            if (element === null) {
+                element = vsDocument.evaluate(event.xPath, vsDocument, null, XPathResult.ANY_TYPE, null);
+            }
+            else {
+                element = vsDocument.evaluate(event.xPath, element[0], null, XPathResult.ANY_TYPE, null);
+            }
+        }
+
         var itpData = null;
 
         switch (event.type) {
@@ -748,6 +759,7 @@ debug(event);
                 lh = $("#virtualScreen").prop("height");
                 $("#virtualScreen").prop("width", event.width);
                 $("#virtualScreen").prop("height", event.height);
+                resizeBlockingInput();
                 break;
 
             // TODO log these correctly
@@ -815,6 +827,14 @@ debug(event);
                     vsWindow.UI.chooseSuggestion(event.which);    // should be already handled be text changed
                 }
                 break;
+            case logEventFactory.DELETING_SUGGESTION:
+                element.find(".graysmall[data-item='" + event.which + "']").remove();
+                break;
+            case logEventFactory.SUGGESTION_DELETED:
+                break;
+            case logEventFactory.STATS_UPDATED:
+                vsWindow.UI.setProgress(JSON.parse(event.stats));
+                break;
 
             case logEventFactory.DECODE:
                 itpData = JSON.parse(event.data);
@@ -839,13 +859,16 @@ debug(event);
                 vsWindow.$("#" + event.elementId).editableItp('trigger', "getTokensResult", {errors: [], data: itpData});
                 break;
             case logEventFactory.SHOW_ALIGNMENT_BY_MOUSE:
-                /*vsWindow.$("#vMousePointer").css("left", event.x + "px");
-                vsWindow.$("#vMousePointer").css("top", event.y + "px");
+                // TODO this is still buggy (position not 100% valid)
+                vsWindow.$("#vMousePointer").css({"left": (event.x - 18) + "px", "top": (event.y)+ "px"});
+                /*
                 vsWindow.$("#vMousePointer").css("visibility", "visible");
                 vsWindow.$("#" + event.elementId).trigger('mouseenter');*/
                 break;
             case logEventFactory.HIDE_ALIGNMENT_BY_MOUSE:
-                /*vsWindow.$("#vMousePointer").css("left", event.x + "px");
+                // TODO this is still buggy (position not 100% valid)
+                vsWindow.$("#vMousePointer").css({"left": (event.x - 18) + "px", "top": (event.y)+ "px"});
+                /*
                 vsWindow.$("#vMousePointer").css("visibility", "hidden");
                 vsWindow.$("#" + event.elementId).trigger('mouseleave');*/
                 break;
@@ -886,8 +909,9 @@ debug(event);
                 }
 //                break;    // let it slip so the pointer is moved, too
             case logEventFactory.MOUSE_MOVE:
-                // TODO this is still buggy (position not 100% valid) and a performance issue, should not be used
-                vsWindow.$("#vMousePointer").css({"left": event.x + "px", "top": event.y + "px"});
+                // TODO this is still buggy (position not 100% valid) and a performance issue (when caused throught mouse move event),
+                // should not be used
+                vsWindow.$("#vMousePointer").css({"left": (event.x - 18) + "px", "top": (event.y)+ "px"});
                 break;
 
             case logEventFactory.BEFORE_COPY:
@@ -924,33 +948,16 @@ debug(event);
                 // TODO inform program parts about this
                 var c = JSON.parse(event.config);
                 for (var key in c.prefs) {
-//if (event.config.indexOf("mode")>-1) {
-//    alert(event.config.prefs);
-//}
+
                     if (c.prefs["mode"] !== undefined) {
-                        // seems like nothing needs to be done here
+                        // seems like nothing needs to be done here as it will be done by the $.extend at the end
     //                    vsWindow.$("#" + event.elementId).editableItp('trigger', "itptogglechange", ...);
-alert("YARGL1: "+ key + " " + c.prefs[key]);
+alert("CONFIG_CHANGED: " + c.prefs["mode"] + " !== undefined");
                     }
                     else {
-                        try {
-                            debug(element.find(".editarea"));
-debug("EDIT");
-//alert("EDIT");
-
-                            element.find(".editarea").editableItp("toggle", key + "", c.prefs[key] + "");
-//                            element.editableItp("trigger", "togglechange",
-//                                {ev: null, toggle: key, value: c.prefs[key], cfg: null});
-                        }
-                        catch (e) {
-                            debug(pluginName + ": " + e);
-                            debug(event);
-//                            alert("YARGL2: "+ key + " " + c.prefs[key]);
-                        }
+                        vsWindow.$("#" + event.elementId + "-" + key).click();
                     }
                 }
-debug(c.prefs);
-debug(event.config);
                 vsWindow.$.extend(true, vsWindow.config, c);
 
                 break;

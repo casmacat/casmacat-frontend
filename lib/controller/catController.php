@@ -239,7 +239,7 @@ class catController extends viewcontroller {
         	log::doLog($this->last_opened_segment);
         }
 
-        $this->job_stats = CatUtils::getStatsForJob($this->jid);
+        $this->job_stats = CatUtils::getStatsForJob($this->jid, $this->casIsReplaying);
 	if (count($files_found)==1){
 		$this->downloadFileName=$files_found[0];
 	}
@@ -282,7 +282,7 @@ class catController extends viewcontroller {
           $server_url  = INIT::$ITP_SERVER; // We can't access template vars before PHPTAL populates them
           $path_parts  = explode("/", $server_url);
           $server_data = $path_parts[0];
-          
+
           if ($delim) {
             list($catsetting, $portnum) = explode($delim, $this->page);
             $this->template->catsetting = $catsetting;

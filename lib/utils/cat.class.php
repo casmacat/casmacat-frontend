@@ -278,8 +278,15 @@ class CatUtils {
         return 0;
     }
 
-    public static function getStatsForJob($jid) {
-		$job_stats=getStatsForJob($jid);
+    public static function getStatsForJob($jid, $replay = false) {
+        // CASMACAT start
+        $job_stats = null;
+        if ($replay) {
+            $job_stats = getStatsForJobWithoutData($jid);
+        }
+        else {
+            $job_stats = getStatsForJob($jid);
+        }
 
 		$job_stats=$job_stats[0];
 		$job_stats['TOTAL_FORMATTED']=number_format($job_stats['TOTAL'],0,".",",");

@@ -970,6 +970,16 @@ function getMoreSegmentsWithoutTranslation($jid, $password, $step = 50, $ref_seg
     return $results;
 }
 
+function getStatsForJobWithoutData($id_job) {
+
+    $query = "select SUM(raw_word_count) as TOTAL, SUM(raw_word_count) as DRAFT, 0 as REJECTED, 0 as TRANSLATED, 0 as APPROVED from jobs j INNER JOIN files_job fj on j.id=fj.id_job INNER join segments s on fj.id_file=s.id_file LEFT join segment_translations st on s.id=st.id_segment WHERE j.id=".$id_job;
+
+    $db = Database::obtain();
+    $results = $db->fetch_array($query);
+
+    return $results;
+}
+
 function createAndAppendElement($doc, $parent, $name) {
     $tmp = $doc->createElement($name);
     $parent->appendChild($tmp);
