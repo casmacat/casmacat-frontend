@@ -55,7 +55,7 @@ $(function(){
     return { matches: matches };
   };
 
-  function toogleEpenMode(editarea) {
+  function toggleEpenMode(editarea) {
     if (!config.penEnabled) {
       return false;
     }
@@ -104,7 +104,7 @@ $(function(){
         prioritizer: "none"
       });
       */
-      // Toogle buttons
+      // Toggle buttons
       $canvas.sketchable('clear').toggle();
       $clearBtn.toggle();
       // Toggle translation matches et al.
@@ -114,7 +114,7 @@ $(function(){
       sel.removeAllRanges();
     });
   };
-
+  
   //if (config.debug) {
     var $listDocs = $('<span style="float:left"><a href="'+config.basepath+'listdocuments/">Document list</a> &gt;</span>');
     var $shortCut = $('<div><a href="'+config.basepath+'listshortcuts/"><strong>Shortcuts</strong></a></div>');
@@ -177,7 +177,7 @@ $(function(){
           $indicator = $('<li/>').html('<a href="#" class="itp-btn pen-indicator" title="Toggle e-pen input">&#9997;</a>');
           $indicator.click(function(e){
             e.preventDefault();
-            toogleEpenMode(editarea);
+            toggleEpenMode(editarea);
           });
           $('.buttons', UI.currentSegment).prepend($indicator);
         }
@@ -351,22 +351,22 @@ $(function(){
     }
   };
 
-  UI.closeSegment = function(editarea) {
-    // WTF? editarea semantics is not the same as in openSegment
-    if (editarea) {
-      var sid = $(editarea).attr('id');
+  UI.closeSegment = function(segment, bybutton) {
+    // WTF? function semantics is not the same as in openSegment
+    if (segment) {
+      var sid = $(segment).attr('id');
       var $target = $('#'+sid+'-editarea'), $source = $('#'+sid+'-editarea');
       //console.log("***CLOSE SEGMENT***", $target[0], trace())
       $target.find('*').andSelf().off('.matecat');
       $source.find('*').andSelf().off('.matecat');
       $target.editableItp('destroy');
-      if ($target.hasClass('epen-target')) {
-        toogleEpenMode($target);
+      if ($target.hasClass('epen-target') && bybutton) {
+        toggleEpenMode($target);
       }
     }
 
     $('.vis-commands').hide();
-    original_closeSegment.call(UI, editarea);
+    original_closeSegment.call(UI, segment);
   };
 
   /*UI.copySuggestionInEditarea = function(editarea) {
@@ -376,7 +376,7 @@ $(function(){
 
   UI.setContribution = function(segment,status,byStatus) {
     original_setContribution.call(UI, segment,status,byStatus);
-    getEditArea().editableItp('validate');
+    if (status == 'translated' || status == 'approved') getEditArea().editableItp('validate');
   };
   
   UI.doRequest = function(req) {
