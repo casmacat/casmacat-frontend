@@ -139,7 +139,8 @@ $(function(){
   var original_closeSegment = UI.closeSegment;
   var original_doRequest = UI.doRequest;
   var original_copySuggestionInEditarea = UI.copySuggestionInEditarea;
-
+  var original_setContribution = UI.setContribution;
+  
   UI.openSegment = function(editarea) {
     original_openSegment.call(UI, editarea);
     // XXX: in ITP mode Matecat does not clear blockButtons
@@ -373,6 +374,11 @@ $(function(){
     original_copySuggestionInEditarea.call(UI, editarea);
   };*/
 
+  UI.setContribution = function(segment,status,byStatus) {
+    original_setContribution.call(UI, segment,status,byStatus);
+    getEditArea().editableItp('validate');
+  };
+  
   UI.doRequest = function(req) {
     var d = req.data, a = d.action, $ea = getEditArea();
     UI.saveCallback(a, req);
@@ -395,7 +401,6 @@ $(function(){
             data: formatItpMatches(data)
           });
         });
-
         break;
       default:
         console.log("Forwarding request 'as is':", a);
