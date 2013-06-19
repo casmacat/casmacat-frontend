@@ -71,12 +71,11 @@ $(function(){
       if ($canvas.length === 0) {
         var geom = require('geometry-utils'),
              pos = $target.offset(),
-             siz = { width: $target.width() + 25, height: $target.height() + 35 };
+             siz = { width: $target.width() + 20, height: $target.height() + 10 };
 
-        $canvas = $('<canvas tabindex="-1" id="'+prefix+'-canvas" width="'+(siz.width)+'" height="'+(siz.height)+'"/>');
+        $canvas = $('<canvas tabindex="-1" id="'+prefix+'-canvas" width="'+siz.width+'" height="'+siz.height+'"/>');
         $canvas.prependTo($targetParent).hide().delay(10).css({
-             top: 2.25 * $source.height(),
-            left: 7,
+            left: ($section.find('.wrap').width() - siz.width - $section.find('.status-container').width()/2) / 2,
           zIndex: geom.getNextHighestDepth()
         }).bind('mousedown mouseup click', function(e){
           // This is to prevent logging click events on the canvas
