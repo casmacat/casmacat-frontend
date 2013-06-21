@@ -55,7 +55,7 @@ $(function(){
     return { matches: matches };
   };
 
-  function toogleEpenMode(editarea) {
+  function toggleEpenMode(editarea) {
     if (!config.penEnabled) {
       return false;
     }
@@ -71,12 +71,11 @@ $(function(){
       if ($canvas.length === 0) {
         var geom = require('geometry-utils'),
              pos = $target.offset(),
-             siz = { width: $target.width() + 25, height: $target.height() + 35 };
+             siz = { width: $target.width() + 20, height: $target.height() + 10 };
 
-        $canvas = $('<canvas tabindex="-1" id="'+prefix+'-canvas" width="'+(siz.width)+'" height="'+(siz.height)+'"/>');
+        $canvas = $('<canvas tabindex="-1" id="'+prefix+'-canvas" width="'+siz.width+'" height="'+siz.height+'"/>');
         $canvas.prependTo($targetParent).hide().delay(10).css({
-             top: 2.25 * $source.height(),
-            left: 7,
+            left: ($section.find('.wrap').width() - siz.width - $section.find('.status-container').width()/2) / 2,
           zIndex: geom.getNextHighestDepth()
         }).bind('mousedown mouseup click', function(e){
           // This is to prevent logging click events on the canvas
@@ -105,7 +104,7 @@ $(function(){
         prioritizer: "none"
       });
       */
-      // Toogle buttons
+      // Toggle buttons
       $canvas.sketchable('clear').toggle();
       $clearBtn.toggle();
       // Toggle translation matches et al.
@@ -115,7 +114,7 @@ $(function(){
       sel.removeAllRanges();
     });
   };
-
+  
   //if (config.debug) {
     var $listDocs = $('<span style="float:left"><a href="'+config.basepath+'listdocuments/">Document list</a> &gt;</span>');
     var $shortCut = $('<div><a href="'+config.basepath+'listshortcuts/"><strong>Shortcuts</strong></a></div>');
@@ -140,7 +139,8 @@ $(function(){
   var original_closeSegment = UI.closeSegment;
   var original_doRequest = UI.doRequest;
   var original_copySuggestionInEditarea = UI.copySuggestionInEditarea;
-
+  var original_setContribution = UI.setContribution;
+  
   UI.openSegment = function(editarea) {
     original_openSegment.call(UI, editarea);
     // XXX: in ITP mode Matecat does not clear blockButtons
@@ -177,7 +177,7 @@ $(function(){
           $indicator = $('<li/>').html('<a href="#" class="itp-btn pen-indicator" title="Toggle e-pen input">&#9997;</a>');
           $indicator.click(function(e){
             e.preventDefault();
-            toogleEpenMode(editarea);
+            toggleEpenMode(editarea);
           });
           $('.buttons', UI.currentSegment).prepend($indicator);
         }
@@ -351,22 +351,22 @@ $(function(){
     }
   };
 
-  UI.closeSegment = function(editarea) {
-    // WTF? editarea semantics is not the same as in openSegment
-    if (editarea) {
-      var sid = $(editarea).attr('id');
+  UI.closeSegment = function(segment, bybutton) {
+    // WTF? function semantics is not the same as in openSegment
+    if (segment) {
+      var sid = $(segment).attr('id');
       var $target = $('#'+sid+'-editarea'), $source = $('#'+sid+'-editarea');
       //console.log("***CLOSE SEGMENT***", $target[0], trace())
       $target.find('*').andSelf().off('.matecat');
       $source.find('*').andSelf().off('.matecat');
       $target.editableItp('destroy');
-      if ($target.hasClass('epen-target')) {
-        toogleEpenMode($target);
+      if ($target.hasClass('epen-target') && bybutton) {
+        toggleEpenMode($target);
       }
     }
 
     $('.vis-commands').hide();
-    original_closeSegment.call(UI, editarea);
+    original_closeSegment.call(UI, segment);
   };
 
   /*UI.copySuggestionInEditarea = function(editarea) {
@@ -374,6 +374,11 @@ $(function(){
     original_copySuggestionInEditarea.call(UI, editarea);
   };*/
 
+  UI.setContribution = function(segment,status,byStatus) {
+    original_setContribution.call(UI, segment,status,byStatus);
+    if (status == 'translated' || status == 'approved') getEditArea().editableItp('validate');
+  };
+  
   UI.doRequest = function(req) {
     var d = req.data, a = d.action, $ea = getEditArea();
     UI.saveCallback(a, req);
@@ -396,7 +401,6 @@ $(function(){
             data: formatItpMatches(data)
           });
         });
-
         break;
       default:
         console.log("Forwarding request 'as is':", a);

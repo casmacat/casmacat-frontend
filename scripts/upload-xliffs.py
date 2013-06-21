@@ -32,7 +32,12 @@ except:
   sys.exit("No target language found in XLIFF")
 
 # Matecat server URL
-url = 'http://%s/matecat-test/' % socket.getfqdn()
+parent_dir = os.path.abspath(os.pardir).split('/')[-1]
+url = 'http://%s/%s/' % (socket.getfqdn(), parent_dir)
+# This is needed for multiple virtual hosts
+url_new = raw_input('URL set to `%s`. Enter new URL, if need be: ' % url)
+if url_new:
+  url = url_new
 
 session = requests.session()
 # Init session first
