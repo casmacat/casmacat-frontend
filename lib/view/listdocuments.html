@@ -8,89 +8,13 @@
         <link rel='stylesheet' media='screen and (min-width: 1181px) and (max-width: 1680px)' href='${basepath}public/css/1300more.css' />
         
         <script type="text/javascript" src="${basepath}public/js/lib/jquery.js"></script>
-        <script type="text/javascript" src="${basepath}public/js/casmacat/jquery.dataTables.js" language="javascript" />
+        <script type="text/javascript" src="${basepath}public/js/casmacat/jquery.dataTables.js" language="javascript"></script>
         <script type="text/javascript">
             var config = {
                 basepath: '${basepath | string:/}'
         }
         </script>
-        <script type="text/javascript">
-            $(document).ready(function() {
-
-                $('#documentList').dataTable( {
-                    'bProcessing': true,
-                    'bServerSide': true,
-                    'sPaginationType': 'full_numbers',
-                    'bStateSave': false,
-                    'sAjaxSource': '${basepath}index.php?action=generateList'
-                } );
-            } );
-            var jobid = null;
-            var password = null;
-            var selectedDoc = null;
-            var selectedAssignment = null;
-            $('#documentList tbody tr').live('click', function(e) {
-
-                if ( $(this).hasClass('rowSelected') ) {
-                    $(this).removeClass('rowSelected');
-                    fileid = null;
-                    jobid = null;
-                    password = null;
-                    filename = null;
-                    srclang = null;
-                    selectedDoc = null;
-                    selectedAssignment = null;
-                                        
-                    $('#startTranslation').attr('disabled', true);
-                    $('#replay').attr('disabled', true);
-                    $('#downloadForm input[id=download]').attr('disabled','disabled');
-                    $('#deleteDocForm input[id=deleteDoc]').attr('disabled','disabled');
-                }
-                else {
-                    $(selectedDoc).parent('tr').removeClass('rowSelected');
-                    $(this).addClass('rowSelected');
-                    selectedAssignment = $(this).find('td');
-                    selectedDoc = $(this).find('td').next();
-                    fileid = $(this).find('td').get(0).textContent;
-                    filename = $(this).find('td').get(1).textContent;
-                    srclang = $(this).find('td').get(2).textContent;
-                    jobid = $(this).find('td').get(4).textContent;
-                    password = $(this).find('td').get(5).textContent;
-                    $("#downloadForm input[name=jobid]").val(jobid);
-                    $("#downloadForm input[name=fileid]").val(fileid);
-                    $("#downloadForm input[name=filename]").val(filename);
-                    $("#downloadForm input[name=srclang]").val(srclang);
-
-                    $('#startTranslation').attr('disabled', false);
-                    $('#replay').attr('disabled', false);
-                    $('#downloadForm input[id=download]').attr('disabled',false);
-                    $('#deleteDocForm input[id=deleteDoc]').attr('disabled', false);
-                } }
-        );
-            function startTranslation() {
-//                var data = {
-//                    action: "cat",
-//                    jid: jobid,
-//                    password: password
-//                };
-//                $.ajax({
-//                    async: false,
-//                    url:config.basepath + 'index.php?action=cat',
-//                    data: data,
-//                    type: "GET"
-//                 
-//                })
-                //window.location.href = '${basepath}index.php?action=cat&jid='+jobid+'&password='+password;
-                window.location.href = '${basepath}translate/'+filename+'/'+srclang+'/'+jobid+'-'+password;
-       
-            }
-            
-            function replay(){
-                window.location.href = '${basepath}replay/'+filename+'/'+srclang+'/'+jobid+'-'+password;
-            }
-
-
-          </script>   
+        <script type="text/javascript" src="${basepath}public/js/casmacat/listdocuments.js"></script>   
      </head>
     <body>
         <header>
@@ -123,6 +47,7 @@
 
             <input id="startTranslation" type="button" value="Translate" disabled="disabled" onclick="javascript:startTranslation();"/>
             <input id="replay" type="button" value="Replay" disabled="disabled" onclick="javascript:replay();"/>
+            <input id="download" type="button" value="Download" disabled="disabled" onclick="javascript:download();"/>
             
           <!--  <form id="deleteDocForm" action="${basepath}" method="post">
                 <input type="hidden" name="action" value="deteleDoc"/>
@@ -134,14 +59,14 @@
             </form>   -->
             
             
-            <form id="downloadForm" action="${basepath}" method="post">
+            <!--<form id="downloadForm" action="${basepath}" method="post">
                 <input type="hidden" name="action" value="createLogDownload"/>
                 <input type="hidden" name="jobid" value="0"/>
                 <input type="hidden" name="fileid" value="0"/>
                 <input type="hidden" name="filename" value="0"/>
                 <input type="hidden" name="srclang" value="0"/>
                 <input id="download" name="submit" type="submit" value="Download" disabled="disabled"/>
-            </form>    
+            </form>    -->
         
             
         

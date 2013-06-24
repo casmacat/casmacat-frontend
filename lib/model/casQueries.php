@@ -95,22 +95,22 @@ function resetDocument($jobId, $fileId) {
                 break;
 
             case LogEvent::RESIZE:
-                deleteEventRow($logEvent->id, "resize_event");
+                //deleteEventRow($logEvent->id, "resize_event");
                 break;
             case LogEvent::TEXT:
-                deleteEventRow($logEvent->id, "text_event");
+                //deleteEventRow($logEvent->id, "text_event");
                 break;
             case LogEvent::SELECTION:
-                deleteEventRow($logEvent->id, "selection_event");
+                //deleteEventRow($logEvent->id, "selection_event");
                 break;
             case LogEvent::SCROLL:
-                deleteEventRow($logEvent->id, "scroll_event");
+                //deleteEventRow($logEvent->id, "scroll_event");
                 break;
             case LogEvent::GAZE:
-                deleteEventRow($logEvent->id, "gaze_event");
+                //deleteEventRow($logEvent->id, "gaze_event");
                 break;
             case LogEvent::FIXATION:
-                deleteEventRow($logEvent->id, "fixation_event");
+                //deleteEventRow($logEvent->id, "fixation_event");
                 break;
 
             case LogEvent::DRAFTED:
@@ -131,19 +131,19 @@ function resetDocument($jobId, $fileId) {
             case LogEvent::LOADING_SUGGESTIONS:
                 break;
             case LogEvent::SUGGESTIONS_LOADED:
-                deleteEventRow($logEvent->id, "suggestions_loaded_event");
+                //deleteEventRow($logEvent->id, "suggestions_loaded_event");
                 break;
             case LogEvent::SUGGESTION_CHOSEN:
-                deleteEventRow($logEvent->id, "suggestion_chosen_event");
+                //deleteEventRow($logEvent->id, "suggestion_chosen_event");
                 break;
             case LogEvent::DELETING_SUGGESTION:
-                deleteEventRow($logEvent->id, "deleting_suggestion_event");
+                //deleteEventRow($logEvent->id, "deleting_suggestion_event");
                 break;
             case LogEvent::SUGGESTION_DELETED:
                 break;
 
             case LogEvent::STATS_UPDATED:
-                deleteEventRow($logEvent->id, "stats_event");
+                //deleteEventRow($logEvent->id, "stats_event");
                 break;
 
             case LogEvent::DECODE:
@@ -151,7 +151,7 @@ function resetDocument($jobId, $fileId) {
             case LogEvent::SUFFIX_CHANGE:
             case LogEvent::CONFIDENCES:
             case LogEvent::TOKENS:
-                deleteEventRow($logEvent->id, "itp_event");
+                //deleteEventRow($logEvent->id, "itp_event");
                 break;
             case LogEvent::SHOW_ALIGNMENT_BY_MOUSE:
             case LogEvent::HIDE_ALIGNMENT_BY_MOUSE:
@@ -161,14 +161,14 @@ function resetDocument($jobId, $fileId) {
 
             case LogEvent::KEY_DOWN:
             case LogEvent::KEY_UP:
-                deleteEventRow($logEvent->id, "key_event");
+                //deleteEventRow($logEvent->id, "key_event");
                 break;
 
             case LogEvent::MOUSE_DOWN:
             case LogEvent::MOUSE_UP:
             case LogEvent::MOUSE_CLICK:
             case LogEvent::MOUSE_MOVE:
-                deleteEventRow($logEvent->id, "mouse_event");
+                //deleteEventRow($logEvent->id, "mouse_event");
                 break;
 
             case LogEvent::BEFORE_CUT:
@@ -181,7 +181,7 @@ function resetDocument($jobId, $fileId) {
                 break;
             case LogEvent::INITIAL_CONFIG:
             case LogEvent::CONFIG_CHANGED:
-                deleteEventRow($logEvent->id, "config_event");
+                //deleteEventRow($logEvent->id, "config_event");
                 break;
             case LogEvent::MOUSE_WHEEL_DOWN:
             case LogEvent::MOUSE_WHEEL_UP:
@@ -201,7 +201,7 @@ function resetDocument($jobId, $fileId) {
             case LogEvent::SR_RULES_SETTING:
                 break;
             case LogEvent::SR_RULES_SET:
-                deleteEventRow($logEvent->id, "sr_event");
+                //deleteEventRow($logEvent->id, "sr_event");
                 break;
             case LogEvent::SR_RULES_APPLIED:
             case LogEvent::SR_RULE_DELETED:

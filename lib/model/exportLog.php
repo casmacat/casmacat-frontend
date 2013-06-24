@@ -1086,7 +1086,7 @@ else {
     //print "Total time: ".$totalTime."\n";
     
     ini_set('memory_limit', '128M');
-    print "END export log";
+    print "END";
     return 0;
   
 }

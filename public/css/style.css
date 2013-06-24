@@ -240,7 +240,7 @@ background: -webkit-gradient(linear, left top, left bottom, from(#09beec), to(#1
 article .draft, article .approved{ margin-left:5px; }
 
 
-.buttons{float:right;padding:0;-webkit-transition: all  100ms ease-in; -moz-transition: all  100ms ease-in;margin-right:25px;position:absolute;right:0;}
+.buttons{float:right;padding:0;-webkit-transition: all  100ms ease-in; -moz-transition: all  100ms ease-in;margin-right:25px;margin-top:-15px;position:absolute;right:0;}
 .buttons li{float:left;text-align:center;margin:0px 0 20px 0px;height:35px;width:auto !important;padding:0 !Important}
 .buttons p {margin:2px 0 0 5px;font-size:11px;font-weight:normal;color:#666;display:none;text-align:center;}
 
@@ -1041,17 +1041,17 @@ filter: �alpha(opacity=50)�; /*per Internet Explorer 8*/
 /*media query */
 
 @media screen and (max-width: 1580px){
-.buttons{margin:-15px 45px 0 0 !important;}
+.buttons{margin:-15px 25px 0 0 !important;}
 .graysmall li{width:43%;}
 
 }
 
 @media screen and (max-width: 1380px){
-.buttons{margin:-15px 43px 0 0 !important;}
+.buttons{margin:-15px 25px 0 0 !important;}
 .graysmall li{width:42.5%;}
 }
 @media screen and (max-width: 1280px){
-.buttons{margin:-15px 42px 0 0 !important;}
+.buttons{margin:-15px 21px 0 0 !important;}
 }
 
 
