@@ -5,6 +5,24 @@ include_once INIT::$MODEL_ROOT . "/LogEvent.class.php";
  * Contains all CASMACAT related database queries.
  */
 
+function fetchInitialConfig($jobId, $fileId) {
+
+    $db = Database::obtain();
+    $queryId = $db->query("SELECT c.config FROM log_event_header h, config_event c"
+            . " WHERE h.job_id = '$jobId' AND h.file_id = '$fileId' AND h.id = c.header_id"
+            . " AND h.type = 'initialConfig' ORDER BY h.time ASC LIMIT 0, 1");
+
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: fetchInitialConfig(): " . print_r($err, true));
+        throw new Exception("CASMACAT: fetchInitialConfig(): " . print_r($err, true));
+//        return $errno * -1;
+    }
+
+    return $db->fetch($queryId)["config"];
+}
+
 function deleteHeaderRow($id) {
 
     $db = Database::obtain();

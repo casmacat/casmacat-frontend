@@ -34,6 +34,8 @@ class catController extends viewcontroller {
     // CASMACAT extension start
     private $casIsReplaying = false;
   private $fid = "";
+
+  private $initCfg = null;
     // CASMACAT extension end
 
     public function __construct() {
@@ -244,6 +246,13 @@ class catController extends viewcontroller {
 		$this->downloadFileName=$files_found[0];
 	}
 
+        // CASMACAT start
+        if ($this->casIsReplaying) {
+            $this->initCfg = json_decode(fetchInitialConfig($this->jid, $this->fid));
+            log::doLog("CASMACAT: Initial config: " . print_r($this->initCfg, true));
+        }
+        // CASMACAT end
+
     //   echo "<pre>";
     //   print_r($this->data);
     //   exit;
@@ -337,6 +346,23 @@ class catController extends viewcontroller {
                     $this->last_opened_segment = "";
             }
         }
+
+        if ($this->casIsReplaying) {
+//            $this->template->fid = $this->initCfg->file_id;
+//            $this->template->logEnabled = $this->initCfg->logEnabled;
+//            $this->template->logMaxChunkSize = $this->initCfg->logMaxChunkSize;
+//            $this->template->replay = $this->initCfg->casIsReplaying;
+//            $this->template->debug = $this->initCfg->debug;
+            $this->template->catsetting = $this->initCfg->catsetting;
+            $this->template->itpEnabled = $this->initCfg->itpEnabled;
+            $this->template->penEnabled = $this->initCfg->penEnabled;
+            $this->template->etEnabled = $this->initCfg->etEnabled;
+//            $this->template->etType = $this->initCfg->etType;
+            $this->template->srEnabled = $this->initCfg->srEnabled;
+
+            // prefs
+        }
+
         // CASMACAT extension end
 
   $this->template->fid = $this->fid;

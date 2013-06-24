@@ -1119,11 +1119,8 @@ filter: �alpha(opacity=50)�; /*per Internet Explorer 8*/
 
 #blockInput {
     position: absolute;
-    /*position: relative;*/
     z-index: 10000;
     background-color: rgba(127, 127, 127, 0.3);
-/*    left: 0px;
-    right: 0px;*/
     background-image: url(../img/casBlockInput.png);
     background-repeat: repeat;
 }

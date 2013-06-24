@@ -616,24 +616,25 @@
     var itpSuffixChangeCall = false;
     var lw, lh; // TODO width and height from last resize, this must become an array
     var replayEvent = function(event) {
-try {
+//try {
 //        debug(pluginName + ": Replayed event dump:");
 //        debug(event);
 //        debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
 
         // select element by id, xpath or hybrid
-        var element = null;
-        if (event.elementId !== "") {
-            element = vsContents.find("#" + event.elementId);
-        }
-        if (event.xPath !== "") {
-            if (element === null) {
-                element = vsDocument.evaluate(event.xPath, vsDocument, null, XPathResult.ANY_TYPE, null);
-            }
-            else {
-                element = vsDocument.evaluate(event.xPath, element[0], null, XPathResult.ANY_TYPE, null);
-            }
-        }
+//        var element = null;
+//        if (event.elementId !== "") {
+//            element = vsContents.find("#" + event.elementId);
+//        }
+//        if (event.xPath !== "") {
+//            if (element === null) {
+//                element = vsWindow.$(vsDocument.evaluate(event.xPath, vsDocument, null, XPathResult.ANY_TYPE, null));
+//            }
+//            else {
+//                element = vsWindow.$(vsDocument.evaluate(event.xPath, element[0], null, XPathResult.ANY_TYPE, null));
+//            }
+//        }
+        var element = vsWindow.$(vsDocument).resolveFromElementId(event.elementId, event.xPath);
 
         var itpData = null;
 
@@ -672,13 +673,16 @@ debug(event);
                     throw "Deleted text doesn't match stored value: textNow: '" + textNow + "', event.deleted: '" + event.deleted + "'";
                 }
 
-                if (settings.itpEnabled) {
+                if (settings.itpEnabled) {  // set text with itp module
                     vsWindow.$("#" + event.elementId).editableItp("setTargetText", textNew);
-                    setCursorPos(event.elementId, parseInt(event.cursorPosition) + parseInt(event.inserted.length));
+//                    debug(pluginName + ": Re-setting cursor to: '" + event.cursorPosition + "'");
+//                    setCursorPos(event.elementId, parseInt(event.cursorPosition) + parseInt(event.inserted.length));
                     break;
                 }
 
+                // set text normal
                 element.text(textNew);
+                debug(pluginName + ": Re-setting cursor to: '" + event.cursorPosition + "'");
                 setCursorPos(event.elementId, parseInt(event.cursorPosition) + parseInt(event.inserted.length));
 
                 break;
@@ -693,8 +697,8 @@ debug(event);
                     var range = vsDocument.createRange();
                     var selectedNow = null;
 
-                    var startNode = $(vsDocument).resolveFromElementId(event.startNodeId, event.startNodeXPath);
-                    var endNode = $(vsDocument).resolveFromElementId(event.endNodeId, event.endNodeXPath);
+                    var startNode = $(vsDocument).resolveFromElementId(event.startNodeId, event.startNodeXPath)[0];
+                    var endNode = $(vsDocument).resolveFromElementId(event.endNodeId, event.endNodeXPath)[0];
 
                     var startOffset = parseInt(event.sCursorPosition);
                     var endOffset = parseInt(event.eCursorPosition);
@@ -847,6 +851,7 @@ debug(event);
                 break;
             case logEventFactory.SUFFIX_CHANGE:
                 itpData = JSON.parse(event.data);
+debug(itpData);
                 vsWindow.$("#" + event.elementId).editableItp('trigger', "setPrefixResult", {errors: [], data: itpData});
                 itpSuffixChangeCall = true;
                 break;
@@ -887,6 +892,7 @@ debug(event);
                 break;
             case logEventFactory.KEY_UP:
                 if (element.hasClass("editarea")) {
+//if (settings.itpEnabled) break;
                     if (event.which == 35 || event.which == 36  // end/home
                             || event.which == 37 || event.which == 38   // left/up
                             || event.which == 39 || event.which == 40) {  // right/down
@@ -902,10 +908,12 @@ debug(event);
                 break;
             case logEventFactory.MOUSE_CLICK:
                 if (element.hasClass("editarea")) {
+//if (settings.itpEnabled) break;
                     setCursorPos(event.elementId, event.cursorPosition);
                 }
                 else if (element.parents("div.editarea").get(0)) {
-                    setCursorPos(element.parents("div.editarea").get(0).prop("id"), event.cursorPosition);
+//if (settings.itpEnabled) break;
+                    setCursorPos(element.parents("div.editarea").prop("id"), event.cursorPosition);
                 }
 //                break;    // let it slip so the pointer is moved, too
             case logEventFactory.MOUSE_MOVE:
@@ -941,25 +949,42 @@ debug(event);
             case logEventFactory.INITIAL_CONFIG:
                 // TODO use this correctly
                 alert("Warning! Using initial config not yet implemented! Set the correct configuration manually in the config.ini file.");
-                debug(pluginName + ": Warning! Using initial config not yet implemented! Set the correct configuration manually in the config.ini file.");
-                //vsWindow.$.extend(true, vsWindow.config, JSON.parse(event.config));
+                debug(pluginName + ": Warning! Using initial config not yet supported! Set the correct configuration manually in the config.ini file.");
+//                vsWindow.$.extend(true, vsWindow.config, JSON.parse(event.config));
                 break;
             case logEventFactory.CONFIG_CHANGED:
                 // TODO inform program parts about this
                 var c = JSON.parse(event.config);
+
                 for (var key in c.prefs) {
+
+                    c.prefs[key] = (c.prefs[key] === "true");
 
                     if (c.prefs["mode"] !== undefined) {
                         // seems like nothing needs to be done here as it will be done by the $.extend at the end
     //                    vsWindow.$("#" + event.elementId).editableItp('trigger', "itptogglechange", ...);
-alert("CONFIG_CHANGED: " + c.prefs["mode"] + " !== undefined");
+                        alert("Warning! Configuration change using c.prefs['mode'] not yet implemented!");
+                        debug(pluginName + ": Configuration change using c.prefs['mode'] not yet implemented!");
                     }
-                    else {
+                    else if (c.prefs[key] !== vsWindow.config.prefs[key]) {
+                        vsWindow.$("#" + event.elementId, ".editarea").editableItp("toggle", key, c.prefs[key]);
                         vsWindow.$("#" + event.elementId + "-" + key).click();
+                        if (c.prefs[key] === true) {
+                            vsWindow.$("#" + event.elementId + "-" + key).attr("checked", "checked");
+                        }
+                        else {
+                            vsWindow.$("#" + event.elementId + "-" + key).attr("checked", "");
+                        }
                     }
                 }
-                vsWindow.$.extend(true, vsWindow.config, c);
+                vsWindow.$.extend(true, vsWindow.config.prefs, c.prefs);
 
+                break;
+            case logEventFactory.MOUSE_WHEEL_INVALIDATE:
+                element.trigger("mousewheelinvalidate");
+                break;
+            case logEventFactory.MEMENTO_INVALIDATE:
+                element.trigger("mementoinvalidate");
                 break;
 
             default:
@@ -967,13 +992,12 @@ alert("CONFIG_CHANGED: " + c.prefs["mode"] + " !== undefined");
                 debug(pluginName + ": Unknown event type: '" + event.type + "'.");
 //                $.error("Unknown event type");
         }
-}
-catch (e) {
-    ;
-debug(pluginName + ": " + e);
-debug(event);
-$.error("Erroneous event");
-}
+//}
+//catch (e) {
+//    debug(pluginName + ": " + e);
+//    debug(event);
+//    $.error("Erroneous event");
+//}
     };
 
     var revertEvent = function(event) {
