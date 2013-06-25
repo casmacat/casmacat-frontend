@@ -20,7 +20,8 @@ function fetchInitialConfig($jobId, $fileId) {
 //        return $errno * -1;
     }
 
-    return $db->fetch($queryId)["config"];
+    $row = $db->fetch($queryId);
+    return $row["config"];
 }
 
 function deleteHeaderRow($id) {
