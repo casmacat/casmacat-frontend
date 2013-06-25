@@ -54,9 +54,9 @@ class replayController extends viewcontroller {
 
 //        log::doLog("CASMACAT: replayController->doAction(): Loading meta data...");
 
-        $logListChunk = fetchLogChunk($this->jobId, $this->fileId, 0, 2);
-        $this->vsWidth = $logListChunk[1]->width;
-        $this->vsHeight = $logListChunk[1]->height;
+        $logListChunk = fetchLogChunk($this->jobId, $this->fileId, 0, 3);
+        $this->vsWidth = $logListChunk[2]->width;
+        $this->vsHeight = $logListChunk[2]->height;
         $this->startTime = $logListChunk[0]->time;
         $this->endTime = fetchEndTime($this->jobId, $this->fileId);
     }

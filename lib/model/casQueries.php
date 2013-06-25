@@ -5,6 +5,25 @@ include_once INIT::$MODEL_ROOT . "/LogEvent.class.php";
  * Contains all CASMACAT related database queries.
  */
 
+function fetchInitialConfig($jobId, $fileId) {
+
+    $db = Database::obtain();
+    $queryId = $db->query("SELECT c.config FROM log_event_header h, config_event c"
+            . " WHERE h.job_id = '$jobId' AND h.file_id = '$fileId' AND h.id = c.header_id"
+            . " AND h.type = 'initialConfig' ORDER BY h.time ASC LIMIT 0, 1");
+
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: fetchInitialConfig(): " . print_r($err, true));
+        throw new Exception("CASMACAT: fetchInitialConfig(): " . print_r($err, true));
+//        return $errno * -1;
+    }
+
+    $row = $db->fetch($queryId);
+    return $row["config"];
+}
+
 function deleteHeaderRow($id) {
 
     $db = Database::obtain();
@@ -77,22 +96,22 @@ function resetDocument($jobId, $fileId) {
                 break;
 
             case LogEvent::RESIZE:
-                deleteEventRow($logEvent->id, "resize_event");
+                //deleteEventRow($logEvent->id, "resize_event");
                 break;
             case LogEvent::TEXT:
-                deleteEventRow($logEvent->id, "text_event");
+                //deleteEventRow($logEvent->id, "text_event");
                 break;
             case LogEvent::SELECTION:
-                deleteEventRow($logEvent->id, "selection_event");
+                //deleteEventRow($logEvent->id, "selection_event");
                 break;
             case LogEvent::SCROLL:
-                deleteEventRow($logEvent->id, "scroll_event");
+                //deleteEventRow($logEvent->id, "scroll_event");
                 break;
             case LogEvent::GAZE:
-                deleteEventRow($logEvent->id, "gaze_event");
+                //deleteEventRow($logEvent->id, "gaze_event");
                 break;
             case LogEvent::FIXATION:
-                deleteEventRow($logEvent->id, "fixation_event");
+                //deleteEventRow($logEvent->id, "fixation_event");
                 break;
 
             case LogEvent::DRAFTED:
@@ -113,19 +132,19 @@ function resetDocument($jobId, $fileId) {
             case LogEvent::LOADING_SUGGESTIONS:
                 break;
             case LogEvent::SUGGESTIONS_LOADED:
-                deleteEventRow($logEvent->id, "suggestions_loaded_event");
+                //deleteEventRow($logEvent->id, "suggestions_loaded_event");
                 break;
             case LogEvent::SUGGESTION_CHOSEN:
-                deleteEventRow($logEvent->id, "suggestion_chosen_event");
+                //deleteEventRow($logEvent->id, "suggestion_chosen_event");
                 break;
             case LogEvent::DELETING_SUGGESTION:
-                deleteEventRow($logEvent->id, "deleting_suggestion_event");
+                //deleteEventRow($logEvent->id, "deleting_suggestion_event");
                 break;
             case LogEvent::SUGGESTION_DELETED:
                 break;
 
             case LogEvent::STATS_UPDATED:
-                deleteEventRow($logEvent->id, "stats_event");
+                //deleteEventRow($logEvent->id, "stats_event");
                 break;
 
             case LogEvent::DECODE:
@@ -133,7 +152,7 @@ function resetDocument($jobId, $fileId) {
             case LogEvent::SUFFIX_CHANGE:
             case LogEvent::CONFIDENCES:
             case LogEvent::TOKENS:
-                deleteEventRow($logEvent->id, "itp_event");
+                //deleteEventRow($logEvent->id, "itp_event");
                 break;
             case LogEvent::SHOW_ALIGNMENT_BY_MOUSE:
             case LogEvent::HIDE_ALIGNMENT_BY_MOUSE:
@@ -143,14 +162,14 @@ function resetDocument($jobId, $fileId) {
 
             case LogEvent::KEY_DOWN:
             case LogEvent::KEY_UP:
-                deleteEventRow($logEvent->id, "key_event");
+                //deleteEventRow($logEvent->id, "key_event");
                 break;
 
             case LogEvent::MOUSE_DOWN:
             case LogEvent::MOUSE_UP:
             case LogEvent::MOUSE_CLICK:
             case LogEvent::MOUSE_MOVE:
-                deleteEventRow($logEvent->id, "mouse_event");
+                //deleteEventRow($logEvent->id, "mouse_event");
                 break;
 
             case LogEvent::BEFORE_CUT:
@@ -163,7 +182,7 @@ function resetDocument($jobId, $fileId) {
                 break;
             case LogEvent::INITIAL_CONFIG:
             case LogEvent::CONFIG_CHANGED:
-                deleteEventRow($logEvent->id, "config_event");
+                //deleteEventRow($logEvent->id, "config_event");
                 break;
             case LogEvent::MOUSE_WHEEL_DOWN:
             case LogEvent::MOUSE_WHEEL_UP:
@@ -183,7 +202,7 @@ function resetDocument($jobId, $fileId) {
             case LogEvent::SR_RULES_SETTING:
                 break;
             case LogEvent::SR_RULES_SET:
-                deleteEventRow($logEvent->id, "sr_event");
+                //deleteEventRow($logEvent->id, "sr_event");
                 break;
             case LogEvent::SR_RULES_APPLIED:
             case LogEvent::SR_RULE_DELETED:
@@ -263,6 +282,7 @@ log::doLog($endOffset);
 
     $db = Database::obtain();
     $queryId = $db->query("SELECT * FROM log_event_header h WHERE h.job_id = '$jobId' AND h.file_id = '$fileId'"
+            . " AND h.type != 'gaze'"
             . " ORDER BY h.time, h.id ASC LIMIT $startOffset, $endOffset");
 
     $err = $db->get_error();
@@ -308,10 +328,10 @@ log::doLog($endOffset);
                 $eventRow = fetchEventRow($logEvent->id, "scroll_event");
                 $logEvent->scrollData($eventRow);
                 break;
-            case LogEvent::GAZE:
-                $eventRow = fetchEventRow($logEvent->id, "gaze_event");
-                $logEvent->gazeData($eventRow);
-                break;
+//            case LogEvent::GAZE:
+//                $eventRow = fetchEventRow($logEvent->id, "gaze_event");
+//                $logEvent->gazeData($eventRow);
+//                break;
             case LogEvent::FIXATION:
                 $eventRow = fetchEventRow($logEvent->id, "fixation_event");
                 $logEvent->fixationData($eventRow);
@@ -962,6 +982,16 @@ function getMoreSegmentsWithoutTranslation($jid, $password, $step = 50, $ref_seg
                 where j.id=$jid and j.password='$password' and s.id > $ref_point and s.show_in_cattool=1
                 limit 0,$step
              ";
+
+    $db = Database::obtain();
+    $results = $db->fetch_array($query);
+
+    return $results;
+}
+
+function getStatsForJobWithoutData($id_job) {
+
+    $query = "select SUM(raw_word_count) as TOTAL, SUM(raw_word_count) as DRAFT, 0 as REJECTED, 0 as TRANSLATED, 0 as APPROVED from jobs j INNER JOIN files_job fj on j.id=fj.id_job INNER join segments s on fj.id_file=s.id_file LEFT join segment_translations st on s.id=st.id_segment WHERE j.id=".$id_job;
 
     $db = Database::obtain();
     $results = $db->fetch_array($query);

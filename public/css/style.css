@@ -1121,8 +1121,6 @@ filter: �alpha(opacity=50)�; /*per Internet Explorer 8*/
     position: absolute;
     z-index: 10000;
     background-color: rgba(127, 127, 127, 0.3);
-    left: 0px;
-    right: 0px;
     background-image: url(../img/casBlockInput.png);
     background-repeat: repeat;
 }
@@ -1246,7 +1244,13 @@ dl {
     position: absolute;
     left: 0px;
     top: 0px;
-    visibility: hidden;
+    /*visibility: hidden;*/
+    margin: 0px;
+    padding: 0px;
+    width: 12px;
+    height: 21px;
+/*    margin-top: -11px;  Half the height
+    margin-left: -6px;  Half the width */
 }
 
 /* CASMACAT extension end */

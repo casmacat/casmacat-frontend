@@ -148,7 +148,7 @@
 //        debug(element);
 
         // breaking the chain ;-)
-        return element;
+        return $(element);
     };
 
     /**
@@ -482,7 +482,7 @@ catch (e) {
         }
 
         if (pos > 0) {
-            $.error("$.fn.setCursorPositionContenteditable: Inconsistency detected: 'pos' is still greater than '0'");
+            $.error("$.fn.setCursorPositionContenteditable: Inconsistency detected: 'pos' is still greater than '0' (pos: " + pos + ")");
         }
 
 //        $(this).focus();  // should be called in the last handler
