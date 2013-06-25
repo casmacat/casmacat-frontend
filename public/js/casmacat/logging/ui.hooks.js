@@ -86,6 +86,7 @@ $(function(){
     var lastSegmentClosed = null;
     var original_closeSegment = UI.closeSegment;
     UI.closeSegment = function(segment, byButton) {
+        if (!segment) return false;
 //        debug("ui.hooks: closeSegment()...");
 
         if (lastSegmentClosed === null && byButton === 1) {
