@@ -46,7 +46,8 @@
                                         //          id set. This id will be stored as the id of E. If the element with the
                                         //          id is a parent of E then the path from this parent to E is stored as an
                                         //          relative xPath
-            replayEyeTracker: false,
+            etCollect: true,  // current replay speed,
+            etShowData: true,  // current replay speed,
             maxChunkSize: 5000,     // maximum size of the log list before the automatic download is triggered
             //fetchNextChunk: 500,    // how many events must be left in replayList before starting fetching of next chunk
                                     // in background, not implemented
@@ -317,7 +318,8 @@
 
             // insert virtual mouse pointer
             vsContents.find("body").append("<img id='vMousePointer' src='" + config.basepath + "public/img/casMousePointer.png'></img>");
-
+//            vsContents.find("body").append("<div id='fixationTarget' src='" + config.basepath + "public/img/casTarget.png'></div>");
+//resizeBlockingInput();
             vsReady = true;
             if (firstChunkLoaded) {
                 updateUIStatus("Ready.");
@@ -604,24 +606,36 @@
     };
 
     var resizeBlockingInput = function() {
-        $("#blockInput").css("top", $("html > body > header").height());
-        $("#blockInput").width($(document).width());
-        $("#blockInput").height($(document).height());
+        $("#blockInput").css("top", ($("#virtualScreen").offset().top - 10) + "px");
+        $("#blockInput").css("left", ($("#virtualScreen").offset().left - 10) + "px");
+        $("#blockInput").height($("#virtualScreen").height() + 20);
+        $("#blockInput").width($("#virtualScreen").width() + 20);
     };
 
     var itpDecodeCall = false;
     var itpSuffixChangeCall = false;
     var lw, lh; // TODO width and height from last resize, this must become an array
     var replayEvent = function(event) {
-try {
+//try {
 //        debug(pluginName + ": Replayed event dump:");
 //        debug(event);
 //        debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
 
-        // TODO currently only elementId mode is used here. support for hybrid mode should be added as soon as possible!
-        // segment is a jQuery object
-        var element = vsContents.find("#" + event.elementId);
-//        var segment = vsContents.find("#" + event.elementId);
+        // select element by id, xpath or hybrid
+//        var element = null;
+//        if (event.elementId !== "") {
+//            element = vsContents.find("#" + event.elementId);
+//        }
+//        if (event.xPath !== "") {
+//            if (element === null) {
+//                element = vsWindow.$(vsDocument.evaluate(event.xPath, vsDocument, null, XPathResult.ANY_TYPE, null));
+//            }
+//            else {
+//                element = vsWindow.$(vsDocument.evaluate(event.xPath, element[0], null, XPathResult.ANY_TYPE, null));
+//            }
+//        }
+        var element = vsWindow.$(vsDocument).resolveFromElementId(event.elementId, event.xPath);
+
         var itpData = null;
 
         switch (event.type) {
@@ -659,13 +673,16 @@ debug(event);
                     throw "Deleted text doesn't match stored value: textNow: '" + textNow + "', event.deleted: '" + event.deleted + "'";
                 }
 
-                if (settings.itpEnabled) {
+                if (settings.itpEnabled) {  // set text with itp module
                     vsWindow.$("#" + event.elementId).editableItp("setTargetText", textNew);
-                    setCursorPos(event.elementId, parseInt(event.cursorPosition) + parseInt(event.inserted.length));
+//                    debug(pluginName + ": Re-setting cursor to: '" + event.cursorPosition + "'");
+//                    setCursorPos(event.elementId, parseInt(event.cursorPosition) + parseInt(event.inserted.length));
                     break;
                 }
 
+                // set text normal
                 element.text(textNew);
+                debug(pluginName + ": Re-setting cursor to: '" + event.cursorPosition + "'");
                 setCursorPos(event.elementId, parseInt(event.cursorPosition) + parseInt(event.inserted.length));
 
                 break;
@@ -680,8 +697,8 @@ debug(event);
                     var range = vsDocument.createRange();
                     var selectedNow = null;
 
-                    var startNode = $(vsDocument).resolveFromElementId(event.startNodeId, event.startNodeXPath);
-                    var endNode = $(vsDocument).resolveFromElementId(event.endNodeId, event.endNodeXPath);
+                    var startNode = $(vsDocument).resolveFromElementId(event.startNodeId, event.startNodeXPath)[0];
+                    var endNode = $(vsDocument).resolveFromElementId(event.endNodeId, event.endNodeXPath)[0];
 
                     var startOffset = parseInt(event.sCursorPosition);
                     var endOffset = parseInt(event.eCursorPosition);
@@ -715,10 +732,22 @@ debug(event);
                 break;
 
             case logEventFactory.GAZE:
-                // TODO
                 break;
-            case logEventFactory.FIX:
-                // TODO
+            case logEventFactory.FIXATION:
+                var target = null;
+                if (settings.etCollect) {
+                    vsContents.find("body").append("<div class='fixationTarget'></div>");
+                }
+                else if (vsWindow.$(".fixationTarget").length <= 0) {
+                    vsContents.find("body").append("<div class='fixationTarget'></div>");
+                }
+                target = vsWindow.$(".fixationTarget").last();
+
+                target.css({"left": (event.x - 10) + "px", "top": (event.y - 10) + "px"});
+
+                if (settings.etShowData) {
+                    target.html("<br>" + event.x + "," + event.y + "," + event.offset + ",'" + event.character + "'");
+                }
                 break;
 
             case logEventFactory.SCROLL:
@@ -734,6 +763,7 @@ debug(event);
                 lh = $("#virtualScreen").prop("height");
                 $("#virtualScreen").prop("width", event.width);
                 $("#virtualScreen").prop("height", event.height);
+                resizeBlockingInput();
                 break;
 
             // TODO log these correctly
@@ -762,8 +792,8 @@ debug(event);
                 break;
 
             case logEventFactory.SEGMENT_OPENED:
-debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
-debug(event);
+//debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+//debug(event);
                 var editarea = element.find(".editarea")[0];
                 vsWindow.UI.openSegment(editarea);
 
@@ -776,8 +806,8 @@ debug(event);
                 }
                 break;
             case logEventFactory.SEGMENT_CLOSED:
-debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
-debug(event);
+//debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+//debug(event);
                 vsWindow.UI.closeSegment(element, false);
                 break;
 
@@ -785,8 +815,8 @@ debug(event);
                 vsWindow.UI.getContribution(element);
                 break;
             case logEventFactory.SUGGESTIONS_LOADED:
-debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
-debug(event);
+//debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+//debug(event);
                 var d =  {  // pseudo return value
                     data: {
                         matches: JSON.parse(event.matches)
@@ -795,11 +825,19 @@ debug(event);
                 vsWindow.UI.getContributionSuccess(d, element, element, 0, element);
                 break;
             case logEventFactory.SUGGESTION_CHOSEN:
-debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
-debug(event);
+//debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+//debug(event);
                 if (event.which != 0) { // event.which == 0 should already been handled by getContributionSuccess()
                     vsWindow.UI.chooseSuggestion(event.which);    // should be already handled be text changed
                 }
+                break;
+            case logEventFactory.DELETING_SUGGESTION:
+                element.find(".graysmall[data-item='" + event.which + "']").remove();
+                break;
+            case logEventFactory.SUGGESTION_DELETED:
+                break;
+            case logEventFactory.STATS_UPDATED:
+                vsWindow.UI.setProgress(JSON.parse(event.stats));
                 break;
 
             case logEventFactory.DECODE:
@@ -813,6 +851,7 @@ debug(event);
                 break;
             case logEventFactory.SUFFIX_CHANGE:
                 itpData = JSON.parse(event.data);
+debug(itpData);
                 vsWindow.$("#" + event.elementId).editableItp('trigger', "setPrefixResult", {errors: [], data: itpData});
                 itpSuffixChangeCall = true;
                 break;
@@ -825,13 +864,16 @@ debug(event);
                 vsWindow.$("#" + event.elementId).editableItp('trigger', "getTokensResult", {errors: [], data: itpData});
                 break;
             case logEventFactory.SHOW_ALIGNMENT_BY_MOUSE:
-                /*vsWindow.$("#vMousePointer").css("left", event.x + "px");
-                vsWindow.$("#vMousePointer").css("top", event.y + "px");
+                // TODO this is still buggy (position not 100% valid)
+                vsWindow.$("#vMousePointer").css({"left": (event.x - 18) + "px", "top": (event.y)+ "px"});
+                /*
                 vsWindow.$("#vMousePointer").css("visibility", "visible");
                 vsWindow.$("#" + event.elementId).trigger('mouseenter');*/
                 break;
             case logEventFactory.HIDE_ALIGNMENT_BY_MOUSE:
-                /*vsWindow.$("#vMousePointer").css("left", event.x + "px");
+                // TODO this is still buggy (position not 100% valid)
+                vsWindow.$("#vMousePointer").css({"left": (event.x - 18) + "px", "top": (event.y)+ "px"});
+                /*
                 vsWindow.$("#vMousePointer").css("visibility", "hidden");
                 vsWindow.$("#" + event.elementId).trigger('mouseleave');*/
                 break;
@@ -850,6 +892,7 @@ debug(event);
                 break;
             case logEventFactory.KEY_UP:
                 if (element.hasClass("editarea")) {
+//if (settings.itpEnabled) break;
                     if (event.which == 35 || event.which == 36  // end/home
                             || event.which == 37 || event.which == 38   // left/up
                             || event.which == 39 || event.which == 40) {  // right/down
@@ -865,16 +908,18 @@ debug(event);
                 break;
             case logEventFactory.MOUSE_CLICK:
                 if (element.hasClass("editarea")) {
+//if (settings.itpEnabled) break;
                     setCursorPos(event.elementId, event.cursorPosition);
                 }
                 else if (element.parents("div.editarea").get(0)) {
-                    setCursorPos(element.parents("div.editarea").get(0).prop("id"), event.cursorPosition);
+//if (settings.itpEnabled) break;
+                    setCursorPos(element.parents("div.editarea").prop("id"), event.cursorPosition);
                 }
 //                break;    // let it slip so the pointer is moved, too
             case logEventFactory.MOUSE_MOVE:
-                // TODO this is still buggy (position not 100% valid) and a performance issue, should not be used
-                vsWindow.$("#vMousePointer").css("left", event.x + "px");
-                vsWindow.$("#vMousePointer").css("top", event.y + "px");
+                // TODO this is still buggy (position not 100% valid) and a performance issue (when caused throught mouse move event),
+                // should not be used
+                vsWindow.$("#vMousePointer").css({"left": (event.x - 18) + "px", "top": (event.y)+ "px"});
                 break;
 
             case logEventFactory.BEFORE_COPY:
@@ -882,17 +927,77 @@ debug(event);
             case logEventFactory.BEFORE_PASTE:
                 break;
 
+            case logEventFactory.VIS_MENU_DISPLAYED:
+                var panel = vsWindow.$(".vis-options", element);
+                if (panel.is(":hidden")) {
+                    vsWindow.$(".vis-button", element).next().toggle("fast");
+                }
+                else {
+                    throw "Error: Visualization menu is already visible!";
+                }
+                break;
+            case logEventFactory.VIS_MENU_HIDDEN:
+                var panel = vsWindow.$(".vis-options", element);
+                if (!panel.is(":hidden")) {
+                    vsWindow.$(".vis-button", element).next().toggle("fast");
+                }
+                else {
+                    throw "Error: Visualization menu is already hidden!";
+                }
+                break;
+
+            case logEventFactory.INITIAL_CONFIG:
+                // TODO use this correctly
+                alert("Warning! Using initial config not yet implemented! Set the correct configuration manually in the config.ini file.");
+                debug(pluginName + ": Warning! Using initial config not yet supported! Set the correct configuration manually in the config.ini file.");
+//                vsWindow.$.extend(true, vsWindow.config, JSON.parse(event.config));
+                break;
+            case logEventFactory.CONFIG_CHANGED:
+                // TODO inform program parts about this
+                var c = JSON.parse(event.config);
+
+                for (var key in c.prefs) {
+
+                    c.prefs[key] = (c.prefs[key] === "true");
+
+                    if (c.prefs["mode"] !== undefined) {
+                        // seems like nothing needs to be done here as it will be done by the $.extend at the end
+    //                    vsWindow.$("#" + event.elementId).editableItp('trigger', "itptogglechange", ...);
+                        alert("Warning! Configuration change using c.prefs['mode'] not yet implemented!");
+                        debug(pluginName + ": Configuration change using c.prefs['mode'] not yet implemented!");
+                    }
+                    else if (c.prefs[key] !== vsWindow.config.prefs[key]) {
+                        vsWindow.$("#" + event.elementId, ".editarea").editableItp("toggle", key, c.prefs[key]);
+                        vsWindow.$("#" + event.elementId + "-" + key).click();
+                        if (c.prefs[key] === true) {
+                            vsWindow.$("#" + event.elementId + "-" + key).attr("checked", "checked");
+                        }
+                        else {
+                            vsWindow.$("#" + event.elementId + "-" + key).attr("checked", "");
+                        }
+                    }
+                }
+                vsWindow.$.extend(true, vsWindow.config.prefs, c.prefs);
+
+                break;
+            case logEventFactory.MOUSE_WHEEL_INVALIDATE:
+                element.trigger("mousewheelinvalidate");
+                break;
+            case logEventFactory.MEMENTO_INVALIDATE:
+                element.trigger("mementoinvalidate");
+                break;
+
             default:
-                alert("Unknown event type");
+                alert("Unknown event type: '" + event.type + "'.");
                 debug(pluginName + ": Unknown event type: '" + event.type + "'.");
 //                $.error("Unknown event type");
         }
-}
-catch (e) {
-debug(pluginName + ": " + e);
-debug(event);
-$.error("Erroneous event");
-}
+//}
+//catch (e) {
+//    debug(pluginName + ": " + e);
+//    debug(event);
+//    $.error("Erroneous event");
+//}
     };
 
     var revertEvent = function(event) {

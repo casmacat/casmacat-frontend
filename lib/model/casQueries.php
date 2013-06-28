@@ -5,6 +5,25 @@ include_once INIT::$MODEL_ROOT . "/LogEvent.class.php";
  * Contains all CASMACAT related database queries.
  */
 
+function fetchInitialConfig($jobId, $fileId) {
+
+    $db = Database::obtain();
+    $queryId = $db->query("SELECT c.config FROM log_event_header h, config_event c"
+            . " WHERE h.job_id = '$jobId' AND h.file_id = '$fileId' AND h.id = c.header_id"
+            . " AND h.type = 'initialConfig' ORDER BY h.time ASC LIMIT 0, 1");
+
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: fetchInitialConfig(): " . print_r($err, true));
+        throw new Exception("CASMACAT: fetchInitialConfig(): " . print_r($err, true));
+//        return $errno * -1;
+    }
+
+    $row = $db->fetch($queryId);
+    return $row["config"];
+}
+
 function deleteHeaderRow($id) {
 
     $db = Database::obtain();
@@ -263,6 +282,7 @@ log::doLog($endOffset);
 
     $db = Database::obtain();
     $queryId = $db->query("SELECT * FROM log_event_header h WHERE h.job_id = '$jobId' AND h.file_id = '$fileId'"
+            . " AND h.type != 'gaze'"
             . " ORDER BY h.time, h.id ASC LIMIT $startOffset, $endOffset");
 
     $err = $db->get_error();
@@ -308,10 +328,10 @@ log::doLog($endOffset);
                 $eventRow = fetchEventRow($logEvent->id, "scroll_event");
                 $logEvent->scrollData($eventRow);
                 break;
-            case LogEvent::GAZE:
-                $eventRow = fetchEventRow($logEvent->id, "gaze_event");
-                $logEvent->gazeData($eventRow);
-                break;
+//            case LogEvent::GAZE:
+//                $eventRow = fetchEventRow($logEvent->id, "gaze_event");
+//                $logEvent->gazeData($eventRow);
+//                break;
             case LogEvent::FIXATION:
                 $eventRow = fetchEventRow($logEvent->id, "fixation_event");
                 $logEvent->fixationData($eventRow);
@@ -962,6 +982,16 @@ function getMoreSegmentsWithoutTranslation($jid, $password, $step = 50, $ref_seg
                 where j.id=$jid and j.password='$password' and s.id > $ref_point and s.show_in_cattool=1
                 limit 0,$step
              ";
+
+    $db = Database::obtain();
+    $results = $db->fetch_array($query);
+
+    return $results;
+}
+
+function getStatsForJobWithoutData($id_job) {
+
+    $query = "select SUM(raw_word_count) as TOTAL, SUM(raw_word_count) as DRAFT, 0 as REJECTED, 0 as TRANSLATED, 0 as APPROVED from jobs j INNER JOIN files_job fj on j.id=fj.id_job INNER join segments s on fj.id_file=s.id_file LEFT join segment_translations st on s.id=st.id_segment WHERE j.id=".$id_job;
 
     $db = Database::obtain();
     $results = $db->fetch_array($query);
