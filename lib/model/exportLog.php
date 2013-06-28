@@ -595,7 +595,7 @@ else {
         //log::doLog("CASMACAT: fetchLogChunk(): Next headerRow: " . print_r($srRowAsObject, true));
 
         $srEvent = new LogEvent($jobId, $fileId, $srRowAsObject);     
-        $srEvent->srData($srRowAsObject);
+        $srEvent->srRulesSetData($srRowAsObject);
         
         array_push($srEvents, $srEvent); 
     }
