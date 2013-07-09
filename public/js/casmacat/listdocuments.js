@@ -60,8 +60,8 @@
                 } }
         );
             function startTranslation() {
-                window.location.href = config.basepath+'?action=translate&jid='+jobid+'&password='+password;
-                //window.location.href = config.basepath+'translate/'+filename+'/'+srclang+'/'+jobid+'-'+password;
+                //window.location.href = config.basepath+'?action=translate&jid='+jobid+'&password='+password;
+                window.location.href = config.basepath+'translate/'+filename+'/'+srclang+'/'+jobid+'-'+password;
        
             }
             
