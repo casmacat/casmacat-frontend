@@ -119,7 +119,7 @@ else {
     while ( ($row = $db->fetch($queryId)) != false ) {
 	$writer->startElement('segment');
         $writer->writeAttribute('id', $row['id']);
-        $writer->text(html_entity_decode($row['segment'], ENT_NOQUOTES, 'UTF-8'));
+        $writer->text(html_entity_decode($row['segment'], ENT_QUOTES, 'UTF-8'));
         $writer->endElement();      
     }        
     $writer->endElement(); 
