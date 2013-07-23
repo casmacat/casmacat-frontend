@@ -136,7 +136,7 @@
 
         if (xPath !== null && xPath !== "") { // if hybrid or xPath only mode
 
-//            debug("$.fn.resolveFromElementId(): Using xPath: '" + xPath + "'.");
+            debug("$.fn.resolveFromElementId(): Using xPath: '" + xPath + "'.");
 
             // TODO document.evaluate() seems not to be available for IE. Maybe use this instead for IE:
             // "http://sourceforge.net/projects/js-xpath/"

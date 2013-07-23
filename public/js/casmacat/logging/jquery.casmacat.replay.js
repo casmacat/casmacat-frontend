@@ -54,6 +54,7 @@
             blockingInputZIndex: 10000,  // the CSS z-index of the div that blocks user input
             tickInterval: 200,       // specifies the interval to use for ticking (used to refresh time in UI)
             itpEnabled: true,
+            showDimensions: false,
             isLive: false          // experimental
         },
         settings = {},  // holds the merge of the defaults and the options provided, actually the instance's settings
@@ -726,6 +727,7 @@ debug(event);
                         + "This is only a text range error and it is safe to continue. But it may indicate a text change error somewhere before.\n\n"
                         + "Continue replay?");
                     if (!answer) {
+                        methods["pauseResume"]();
                         $.error("Unexpected error");
                     }
                 }
@@ -796,6 +798,14 @@ debug(event);
 //debug(event);
                 var editarea = element.find(".editarea")[0];
                 vsWindow.UI.openSegment(editarea);
+
+                if (settings.showDimensions) {
+                    var src = element.find("#" + element[0].id + "-source");
+                    var tgt = element.find(".editarea");
+                    alert(element[0].id + ": " + element.width() + "x" + element.height() + " " + element.offset().left + "," + element.offset().top + "\n"
+                    + "src: " + src.width() + "x" + src.height() + " " + src.offset().left + "," + src.offset().top + "\n"
+                    + "tgt: " + tgt.width() + "x" + tgt.height() + " " + tgt.offset().left + "," + tgt.offset().top);
+                }
 
                 debug(pluginName + ": Setting editable read-only...");
                 if ($("#blockInput").css("z-index") >= 0) {
