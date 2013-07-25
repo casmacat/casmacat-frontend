@@ -492,7 +492,7 @@ UI = {
         $('.percentuage',segment).removeClass('visible');
         this.setContribution(segment,status,byStatus);
         this.setTranslation(segment,status);
-        this.closeSegment(segment,0);
+        this.closeSegment(segment,1); // Luis: 0, but breaks buttons
     },
 
     checkHeaviness: function() {
@@ -995,7 +995,7 @@ UI = {
         // CASMACAT extension start
 //        AND sanitize problem
 //if (config.enable_itp)
-            if(!(this.currentSegment.is(this.lastOpenedSegment))) this.closeSegment(this.lastOpenedSegment,1);
+            if(!(this.currentSegment.is(this.lastOpenedSegment))) this.closeSegment(this.lastOpenedSegment,0); // Luis: 1, but breaks buttons
 //        }
         // CASMACAT extension end
 
