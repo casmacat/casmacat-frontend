@@ -1039,6 +1039,7 @@ debug(itpData);
 
         debug(pluginName + ": Loading 'logListChunk' with: jobId: '" + data.jobId + "', "
             + "fileId: '" + data.fileId + "', startOffset: '" + data.startOffset + "', endOffset: '" + data.endOffset + "'.");
+        updateUIStatus("Loading chunk...");
 
         var xmlHttpRequest = $.ajax({
             async: async,
@@ -1062,6 +1063,13 @@ debug(itpData);
                     updateUIStatus("Chunk loaded, processing data...");
                     eventCounter = eventCounter + result.data.logListChunk.length;
                     replayList.push.apply(replayList, result.data.logListChunk);
+
+                    if (!isReplaying) {
+                        var tempTimerId = window.setTimeout(function() {
+                            updateUIStatus("Ready.");
+                            window.clearTimeout(tempTimerId);
+                        }, 0);
+                    }
 
                     dumpReplayList();
                 }
