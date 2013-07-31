@@ -48,6 +48,8 @@
                                         //          relative xPath
             etCollect: true,  // current replay speed,
             etShowData: true,  // current replay speed,
+            etRemapAOI: true,
+            etRemapAOITolerance: 20, // size of virtual border around src/tgt
             maxChunkSize: 5000,     // maximum size of the log list before the automatic download is triggered
             //fetchNextChunk: 500,    // how many events must be left in replayList before starting fetching of next chunk
                                     // in background, not implemented
@@ -616,6 +618,7 @@
     var itpDecodeCall = false;
     var itpSuffixChangeCall = false;
     var lw, lh; // TODO width and height from last resize, this must become an array
+    var remappedAOIFixations = [];
     var replayEvent = function(event) {
 //try {
 //        debug(pluginName + ": Replayed event dump:");
@@ -648,6 +651,11 @@
                 break;
 
             case logEventFactory.TEXT:
+                if (settings.etRemapAOI) {
+                    debug(pluginName + ": Remapping AOI, skipping event: type: '" + event.type + "' ");
+                    break;
+                }
+
 debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
 debug(event);
                 if (itpDecodeCall) {
@@ -688,6 +696,11 @@ debug(event);
 
                 break;
             case logEventFactory.SELECTION:
+                if (settings.etRemapAOI) {
+                    debug(pluginName + ": Remapping AOI, skipping event: type: '" + event.type + "' ");
+                    break;
+                }
+
 debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
 debug(event);
 
@@ -700,7 +713,10 @@ debug(event);
 
                     var startNode = $(vsDocument).resolveFromElementId(event.startNodeId, event.startNodeXPath)[0];
                     var endNode = $(vsDocument).resolveFromElementId(event.endNodeId, event.endNodeXPath)[0];
-
+/*debug("startNode:");
+debug(startNode);
+debug("endNode:");
+debug(endNode);*/
                     var startOffset = parseInt(event.sCursorPosition);
                     var endOffset = parseInt(event.eCursorPosition);
 
@@ -745,10 +761,31 @@ debug(event);
                 }
                 target = vsWindow.$(".fixationTarget").last();
 
-                target.css({"left": (event.x - 10) + "px", "top": (event.y - 10) + "px"});
+//                target.css({"left": (event.x - 10) + "px", "top": (event.y - 10) + "px"});
+//                target.css({"left": (event.x - 10) + "px", "top": (event.y - 10 + $(window).scrollTop()) + "px"});
+//alert($("#virtualScreen")[0].contentWindow.$($("#virtualScreen")[0].contentWindow).scrollTop());
+                target.css({"left": (event.x - 10) + "px",
+                    "top": (event.y - 10 + parseInt($("#virtualScreen")[0].contentWindow.$($("#virtualScreen")[0].contentWindow).scrollTop())) + "px"});
 
                 if (settings.etShowData) {
                     target.html("<br>" + event.x + "," + event.y + "," + event.offset + ",'" + event.character + "'");
+                }
+
+                if (settings.etRemapAOI) {
+                    var src = vsWindow.$("#segment-" + vsWindow.UI.currentSegmentId + "-source");
+                    var tgt = vsWindow.$("#segment-" + vsWindow.UI.currentSegmentId + "-editarea");
+
+                    if ((src.offset().left - settings.etRemapAOITolerance) < event.x
+                        || event.x < (src.offset().left + src.width() + settings.etRemapAOITolerance)) {
+
+                        event.aoi = "currentSource";
+                        remappedAOIFixations.push(event);
+                    }
+                    else if ((tgt.offset().left - settings.etRemapAOITolerance) < event.y
+                        || event.y < (tgt.offset().left + tgt.width() + settings.etRemapAOITolerance)) {
+                        event.aoi = "currentTarget";
+                        remappedAOIFixations.push(event);
+                    }
                 }
                 break;
 
@@ -763,9 +800,10 @@ debug(event);
             case logEventFactory.RESIZE:
                 lw = $("#virtualScreen").prop("width");
                 lh = $("#virtualScreen").prop("height");
-                $("#virtualScreen").prop("width", event.width);
+                $("#virtualScreen").prop("width", parseInt(event.width) + 17);
                 $("#virtualScreen").prop("height", event.height);
                 resizeBlockingInput();
+//alert(event.width + ", " + event.height + " - " + $("#virtualScreen")[0].contentWindow.$($("#virtualScreen")[0].contentWindow).width() + ", " + $("#virtualScreen")[0].contentWindow.$($("#virtualScreen")[0].contentWindow).height());
                 break;
 
             // TODO log these correctly
@@ -799,13 +837,18 @@ debug(event);
                 var editarea = element.find(".editarea")[0];
                 vsWindow.UI.openSegment(editarea);
 
-                if (settings.showDimensions) {
-                    var src = element.find("#" + element[0].id + "-source");
-                    var tgt = element.find(".editarea");
-                    alert(element[0].id + ": " + element.width() + "x" + element.height() + " " + element.offset().left + "," + element.offset().top + "\n"
-                    + "src: " + src.width() + "x" + src.height() + " " + src.offset().left + "," + src.offset().top + "\n"
-                    + "tgt: " + tgt.width() + "x" + tgt.height() + " " + tgt.offset().left + "," + tgt.offset().top);
-                }
+                vsWindow.$(".fixationTarget").remove();  // remove older fixations
+
+//                if (settings.showDimensions) {
+////                    var segmentScrollTimer = window.setTimeout(function(e) {
+//                        var src = element.find("#" + element[0].id + "-source");
+//                        var tgt = element.find(".editarea");
+//                        alert(element[0].id + ": " + element.width() + "x" + element.height() + " " + element.offset().left + "," + element.offset().top + "\n"
+//                        + "src: " + src.width() + "x" + src.height() + " " + src.offset().left + "," + src.offset().top + "\n"
+//                        + "tgt: " + tgt.width() + "x" + tgt.height() + " " + tgt.offset().left + "," + tgt.offset().top);
+////                        window.clearTimeout(segmentScrollTimer);
+////                    }, 501);    // 500+1 from UI.scrollSegment animate()
+//                }
 
                 debug(pluginName + ": Setting editable read-only...");
                 if ($("#blockInput").css("z-index") >= 0) {
@@ -851,6 +894,11 @@ debug(event);
                 break;
 
             case logEventFactory.DECODE:
+                if (settings.etRemapAOI) {
+                    debug(pluginName + ": Remapping AOI, skipping event: type: '" + event.type + "' ");
+                    break;
+                }
+
                 itpData = JSON.parse(event.data);
                 vsWindow.$("#" + event.elementId).editableItp('trigger', "decodeResult", {errors: [], data: itpData});
                 itpDecodeCall = true;
@@ -860,6 +908,11 @@ debug(event);
                 vsWindow.$("#" + event.elementId).editableItp('trigger', "getAlignmentsResult", {errors: [], data: itpData});
                 break;
             case logEventFactory.SUFFIX_CHANGE:
+                if (settings.etRemapAOI) {
+                    debug(pluginName + ": Remapping AOI, skipping event: type: '" + event.type + "' ");
+                    break;
+                }
+
                 itpData = JSON.parse(event.data);
 debug(itpData);
                 vsWindow.$("#" + event.elementId).editableItp('trigger', "setPrefixResult", {errors: [], data: itpData});
@@ -901,6 +954,11 @@ debug(itpData);
             case logEventFactory.KEY_DOWN:
                 break;
             case logEventFactory.KEY_UP:
+                if (settings.etRemapAOI) {
+                    debug(pluginName + ": Remapping AOI, skipping event: type: '" + event.type + "' ");
+                    break;
+                }
+
                 if (element.hasClass("editarea")) {
 //if (settings.itpEnabled) break;
                     if (event.which == 35 || event.which == 36  // end/home
@@ -917,6 +975,11 @@ debug(itpData);
             case logEventFactory.MOUSE_UP:
                 break;
             case logEventFactory.MOUSE_CLICK:
+                if (settings.etRemapAOI) {
+                    debug(pluginName + ": Remapping AOI, skipping event: type: '" + event.type + "' ");
+                    break;
+                }
+
                 if (element.hasClass("editarea")) {
 //if (settings.itpEnabled) break;
                     setCursorPos(event.elementId, event.cursorPosition);

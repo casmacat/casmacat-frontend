@@ -991,7 +991,7 @@ UI = {
         this.nextIsLoaded = false;
         this.getContribution(segment,0);
         this.opening = true;
-//----------------------------------------Here gehts weiter
+
         // CASMACAT extension start
 //        AND sanitize problem
 //if (config.enable_itp)
@@ -1342,6 +1342,7 @@ UI = {
     },
 
     scrollSegment: function(segment) {
+console.trace();
         var spread = 23;
         var current = this.currentSegment;
         var previousSegment = $(segment).prev('section');
@@ -1373,6 +1374,24 @@ UI = {
         }
 
         $("html,body").stop();
+        // CASMACAT extension start
+alert("BEFORE ANIM");
+        if (config.replay === 1) {
+            $("html,body").animate({
+                scrollTop: destinationTop-20
+            }, 500, "swing", function(e) {
+alert("ANIM COMP");
+                var element = $(segment);
+                var src = element.find("#" + element[0].id + "-source");
+                var tgt = element.find(".editarea");
+                alert(element[0].id + ": " + element.width() + "x" + element.height() + " " + element.offset().left + "," + element.offset().top + "\n"
+                + "src: " + src.width() + "x" + src.height() + " " + src.offset().left + "," + src.offset().top + "\n"
+                + "tgt: " + tgt.width() + "x" + tgt.height() + " " + tgt.offset().left + "," + tgt.offset().top);
+            });
+
+            return;
+        }
+        // CASMACAT extension end
         $("html,body").animate({
             scrollTop: destinationTop-20
         }, 500 );

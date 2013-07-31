@@ -1,0 +1,25 @@
+/*
+    Description: Enlarge font for Eye Tracking.
+*/
+
+.source, .editarea {
+    font-size: 18pt !important;
+}
+
+.suggestion_source, .translation {
+    font-size: 18pt;
+}
+
+.fixationTarget {
+    z-index: 1000000000;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    /*visibility: hidden;*/
+    margin: 0px;
+    padding: 0px;
+    width: 20px;
+    height: 20px;
+    color: red;
+    background-image: url(../img/casTarget.png);
+}

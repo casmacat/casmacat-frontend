@@ -113,7 +113,7 @@ $(function() {
     $(window).replaying({
         "fileId": config.fileId,
         "jobId": config.jobId,
-        "maxChunkSize": 20,
+        "maxChunkSize": 500,
         "isLive": true, // experimental
         "itpEnabled": config.itpEnabled,
         "showDimensions": true
