@@ -48,7 +48,8 @@
               }
             });
             var $next = $lastEditedToken.next();
-            if ($next.data('merge-type') !== 'N' && $next.get(0).dataset.validated === "true") {
+            var nself = $next.get(0);
+            if ($next.data('merge-type') !== 'N' && nself && nself.dataset.validated === "true") {
               $next.attr('data-last-validated', false).attr('data-validated', false);
             }
             
