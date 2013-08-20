@@ -2,7 +2,6 @@
 
 /**
  * jQuery CASMACAT replay plugin
- * Author: Ragnar Bonk
  *
  * Dependencies:
  *  - casmacat.logevent.js
@@ -11,12 +10,9 @@
  *  - debug.js [optional]
  *
  * Supported Browsers:
- *  - Firefox >= 15
+ *  - Firefox >= 21
  *  - Chrome >= 22.0.1229.79 m
- *  - IE >= 9 (no eye tracking) (TODO needs intensive testing -> DOMSubtreeModified stuff)
- *  - Opera >= 12.02 (no eye tracking, no contentenditable)
  *
- *  TODO testing with QUnit?
  */
 
 ;(function ( $, window, document, undefined ) {
@@ -48,15 +44,18 @@
                                         //          relative xPath
             etCollect: true,  // current replay speed,
             etShowData: true,  // current replay speed,
-            etRemapAOI: true,
-            etRemapAOITolerance: 20, // size of virtual border around src/tgt
+//            etRemapAOI: false,    // will not work correctly if text/decode/etc is not replayed at the same time
+//                                  // (the problem is the auto resize of the editarea)
+//            etRemapAOITolerance: 20, // size of virtual border around src/tgt
+            ignoreSelectionErrors: false,
+            abortOnTextErrors: false,
             maxChunkSize: 5000,     // maximum size of the log list before the automatic download is triggered
             //fetchNextChunk: 500,    // how many events must be left in replayList before starting fetching of next chunk
                                     // in background, not implemented
             blockingInputZIndex: 10000,  // the CSS z-index of the div that blocks user input
             tickInterval: 200,       // specifies the interval to use for ticking (used to refresh time in UI)
             itpEnabled: true,
-            showDimensions: false,
+//            showDimensions: false,    // will probably not work correctly
             isLive: false          // experimental
         },
         settings = {},  // holds the merge of the defaults and the options provided, actually the instance's settings
@@ -70,6 +69,14 @@
         currentTime = 0,        // current real time of clock
         currentTickTime = 0,    // current time of clock (steps)
         speed = DEFAULT_SPEED,  // current replay speed,
+        skipCurrentSegment = false,  // skip events of the current segment and continue on the next segment
+
+        etXOffset = 0,
+        etYOffset = 0,
+        currentWidth = 0,
+        currentHeight = 0,
+        wOffset = 0,
+        hOffset = 0,
 
         pendingRequest = null,  // XmlHttpRequest object of the ajax request loading the log nextchunk
         firstChunkLoaded = false,
@@ -319,6 +326,16 @@
             vsContents = $("#virtualScreen").contents();
 //            settings.itpEnabled = new Boolean(vsWindow.config.enable_itp);
 
+            currentWidth = parseInt($("#virtualScreen").prop("width"));
+            currentHeight = parseInt($("#virtualScreen").prop("height"));
+
+            $("#vsConfig").prop("disabled", "");
+            $("#vsDimensions").prop("disabled", "");
+            $("#vsWidth").prop("disabled", "");
+            $("#vsHeight").prop("disabled", "");
+            $("#etXOffset").prop("disabled", "");
+            $("#etYOffset").prop("disabled", "");
+
             // insert virtual mouse pointer
             vsContents.find("body").append("<img id='vMousePointer' src='" + config.basepath + "public/img/casMousePointer.png'></img>");
 //            vsContents.find("body").append("<div id='fixationTarget' src='" + config.basepath + "public/img/casTarget.png'></div>");
@@ -356,17 +373,32 @@
                 debug(pluginName + ": No next event.");
                 updateUIStatus("No next event.");
             }
+        },
+
+        setVSWidth: function() {
+            wOffset = parseInt($("#vsWidth").val());
+            $("#virtualScreen").prop("width", currentWidth + wOffset);
+            resizeBlockingInput();
+            updateUIStatus("Updated VS width.");
+        },
+
+        setVSHeight: function() {
+            hOffset = parseInt($("#vsHeight").val());
+            $("#virtualScreen").prop("height", currentHeight + hOffset);
+            resizeBlockingInput();
+            updateUIStatus("Updated VS height.");
+        },
+
+        setETOffsets: function() {
+            etXOffset = $("#etXOffset").val();
+            etYOffset = $("#etYOffset").val();
+            updateUIStatus("Updated ET offsets.");
         }
     };
 
     /*################################################################################################################*/
     /*###################################################################### Private methods/objects of the plugin ###*/
     /*################################################################################################################*/
-
-    var ReplayException = function(message) {
-        this.message = message;
-        return this;
-    };
 
     var tick = function(newTime) {
         updateUIStatus("Replaying...");
@@ -651,8 +683,12 @@
                 break;
 
             case logEventFactory.TEXT:
-                if (settings.etRemapAOI) {
-                    debug(pluginName + ": Remapping AOI, skipping event: type: '" + event.type + "' ");
+//                if (settings.etRemapAOI) {
+//                    debug(pluginName + ": Remapping AOI, skipping event: type: '" + event.type + "' ");
+//                    break;
+//                }
+
+                if (skipCurrentSegment) {
                     break;
                 }
 
@@ -664,22 +700,52 @@ debug(event);
                     break;
                 }
                 else if (itpSuffixChangeCall) {
+//if (event.id == "13895595") {
+//    itpSuffixChangeCall = false;
+//}
+//else {
                     debug(pluginName + ": Skipping text changed event because of itpSuffixChangeCall...");
                     itpSuffixChangeCall = false;
                     break;
+//}
                 }
 
                 var textNow = element.text();
                 var textNew = null;
 
-                if (textNow.substr(event.cursorPosition, event.deleted.length) == event.deleted) {
-                    var prefix = textNow.substr(0, event.cursorPosition);
-                    var postfixPos = parseInt(event.cursorPosition) + parseInt(event.deleted.length);
-                    var postfix = textNow.substr(postfixPos);
-                    textNew = prefix + event.inserted + postfix;
+                try {
+                    if (textNow.substr(event.cursorPosition, event.deleted.length) == event.deleted) {
+                        var prefix = textNow.substr(0, event.cursorPosition);
+                        var postfixPos = parseInt(event.cursorPosition) + parseInt(event.deleted.length);
+                        var postfix = textNow.substr(postfixPos);
+                        textNew = prefix + event.inserted + postfix;
+                    }
+                    else {
+                        throw {
+                            msg: "Deleted text doesn't match stored value",
+                            textNow: textNow,
+                            modNow: textNow.substr(event.cursorPosition, event.deleted.length),
+                            deleted: event.deleted,
+                            inserted: event.inserted,
+                            cursorPosition: event.cursorPosition
+                        }
+                    }
                 }
-                else {
-                    throw "Deleted text doesn't match stored value: textNow: '" + textNow + "', event.deleted: '" + event.deleted + "'";
+                catch (e) {
+
+                    if (settings.abortOnTextErrors === true) {
+                        methods["pauseResume"]();
+                        $.error("Unexpected error: '" + e.msg + "'\ntextNow: '" + e.textNow + "'\nmodNow: '" + e.modNow + "'\ndeleted: '" + e.deleted
+                            + "'\ninserted: '" + e.inserted + "'\ncursorPosition: '" + e.cursorPosition + "'\n\n");
+                    }
+
+                    var answer = confirm("Unexpected error: '" + e.msg + "'\ntextNow: '" + e.textNow + "'\ndeleted: '" + e.deleted
+                            + "'\ninserted: '" + e.inserted + "'\ncursorPosition: '" + e.cursorPosition + "'\n\n"
+                        + "This is a CRITICAL error!\n\n"
+                        + "Skip current segment and continue replay?");
+                    if (answer) {
+                        skipCurrentSegment = true;
+                    }
                 }
 
                 if (settings.itpEnabled) {  // set text with itp module
@@ -696,8 +762,12 @@ debug(event);
 
                 break;
             case logEventFactory.SELECTION:
-                if (settings.etRemapAOI) {
-                    debug(pluginName + ": Remapping AOI, skipping event: type: '" + event.type + "' ");
+//                if (settings.etRemapAOI) {
+//                    debug(pluginName + ": Remapping AOI, skipping event: type: '" + event.type + "' ");
+//                    break;
+//                }
+
+                if (skipCurrentSegment) {
                     break;
                 }
 
@@ -713,6 +783,8 @@ debug(event);
 
                     var startNode = $(vsDocument).resolveFromElementId(event.startNodeId, event.startNodeXPath)[0];
                     var endNode = $(vsDocument).resolveFromElementId(event.endNodeId, event.endNodeXPath)[0];
+//var startNode = window.$(event.startNodeId, vsDocument)[0];
+//var endNode = window.$(event.endNodeId, vsDocument)[0];
 /*debug("startNode:");
 debug(startNode);
 debug("endNode:");
@@ -728,23 +800,113 @@ debug(endNode);*/
 
                     if (selectedNow != event.selectedText) {
                         throw {
-                            msg: "Selected text doesn't match stored value",
+                            msg: "Selected text doesn't match stored value (variant 1)",
                             now: selectedNow,
                             stored: event.selectedText
                         }
                     }
                 }
                 catch (e) {
-                    debug(pluginName + ": Unexpected error: '" + e + "', stack trace: '" + e.stack + "'");
-                    debug(pluginName + ": Erroneous event dump:");
-                    debug(event);
 
-                    var answer = confirm("Unexpected error: '" + e.msg + "'\nNow: '" + e.now + "'\nStored: '" + e.stored + "'\nStack trace: '" + e.stack + "'\n\n"
-                        + "This is only a text range error and it is safe to continue. But it may indicate a text change error somewhere before.\n\n"
-                        + "Continue replay?");
-                    if (!answer) {
-                        methods["pauseResume"]();
-                        $.error("Unexpected error");
+                    if (settings.ignoreSelectionErrors) {
+                        break;
+                    }
+
+    debug(pluginName + ": Unexpected error: '" + e + "', stack trace: '" + e.stack + "'");
+    debug(pluginName + ": Erroneous event dump:");
+    debug(event);
+
+    var answer = confirm("Unexpected error: '" + e.msg + "'\nNow: '" + e.now + "'\nStored: '" + e.stored + "'\nStack trace: '" + e.stack + "'\n\n"
+        + "This is only a text range error and it is safe to continue. But it may indicate a text change error somewhere before.\n\n"
+        + "Continue replay?");
+    if (!answer) {
+        methods["pauseResume"]();
+        $.error("Unexpected error");
+    }
+
+
+                    debug(pluginName + ": Selection variant 1 failed, trying variant 2...");
+                    // try variant 2
+                    try {
+                        var selection = vsWindow.getSelection();
+                        selection.removeAllRanges();
+
+                        var range = vsDocument.createRange();
+                        var selectedNow = null;
+
+                        var startNode = $(vsDocument).resolveFromElementId(event.startNodeId, event.startNodeXPath)[0];
+                        var startOffset = parseInt(event.sCursorPosition);
+                        range.setStart(startNode, startOffset);
+                        range.setEnd(startNode, startOffset);
+
+                        selection.addRange(range);
+                        for (var i = 0; i < event.selectedText.length; i++) {
+                            selection.modify("extend", "forward", "character"); // this might also be done in the opposite direction...
+                        }
+                        selectedNow = selection.toString();
+
+                        if (selectedNow != event.selectedText) {
+                            throw {
+                                msg: "Selected text doesn't match stored value (variant 2)",
+                                now: selectedNow,
+                                stored: event.selectedText
+                            }
+                        }
+                    }
+                    catch (e2) {
+debug(pluginName + ": Selection variant 2 failed, trying variant 3...");
+try {
+    var selection = vsWindow.getSelection();
+    selection.removeAllRanges();
+
+    var range = vsDocument.createRange();
+    var selectedNow = null;
+
+    var endNode = $(vsDocument).resolveFromElementId(event.endNodeId, event.endNodeXPath)[0];
+    var endOffset = parseInt(event.eCursorPosition);
+    range.setStart(endNode, endOffset);
+    range.setEnd(endNode, endOffset);
+
+    selection.addRange(range);
+    for (var i = 0; i < event.selectedText.length; i++) {
+        selection.modify("extend", "backward", "character");
+    }
+    selectedNow = selection.toString();
+
+    if (selectedNow != event.selectedText) {
+        throw {
+            msg: "Selected text doesn't match stored value (variant 3)",
+            now: selectedNow,
+            stored: event.selectedText
+        }
+    }
+}
+catch (e3) {
+
+    debug(pluginName + ": Unexpected error: '" + e3 + "', stack trace: '" + e3.stack + "'");
+    debug(pluginName + ": Erroneous event dump:");
+    debug(event);
+
+    var answer = confirm("Unexpected error: '" + e3.msg + "'\nNow: '" + e3.now + "'\nStored: '" + e3.stored + "'\nStack trace: '" + e3.stack + "'\n\n"
+        + "This is only a text range error and it is safe to continue. But it may indicate a text change error somewhere before.\n\n"
+        + "Continue replay?");
+    if (!answer) {
+        methods["pauseResume"]();
+        $.error("Unexpected error");
+    }
+}
+
+//                        debug(pluginName + ": Unexpected error: '" + e2 + "', stack trace: '" + e2.stack + "'");
+//                        debug(pluginName + ": Erroneous event dump:");
+//                        debug(event);
+//
+//                        var answer = confirm("Unexpected error: '" + e2.msg + "'\nNow: '" + e2.now + "'\nStored: '" + e2.stored + "'\nStack trace: '" + e2.stack + "'\n\n"
+//                            + "This is only a text range error and it is safe to continue. But it may indicate a text change error somewhere before.\n\n"
+//                            + "Continue replay?");
+//                        if (!answer) {
+//                            methods["pauseResume"]();
+//                            $.error("Unexpected error");
+//                        }
                     }
                 }
                 break;
@@ -764,44 +926,53 @@ debug(endNode);*/
 //                target.css({"left": (event.x - 10) + "px", "top": (event.y - 10) + "px"});
 //                target.css({"left": (event.x - 10) + "px", "top": (event.y - 10 + $(window).scrollTop()) + "px"});
 //alert($("#virtualScreen")[0].contentWindow.$($("#virtualScreen")[0].contentWindow).scrollTop());
-                target.css({"left": (event.x - 10) + "px",
-                    "top": (event.y - 10 + parseInt($("#virtualScreen")[0].contentWindow.$($("#virtualScreen")[0].contentWindow).scrollTop())) + "px"});
+                target.css({"left": (event.x - 10 + parseInt(etXOffset)) + "px",
+                    "top": (event.y - 10 + parseInt(etYOffset) + parseInt($("#virtualScreen")[0].contentWindow.$($("#virtualScreen")[0].contentWindow).scrollTop())) + "px"});
 
                 if (settings.etShowData) {
                     target.html("<br>" + event.x + "," + event.y + "," + event.offset + ",'" + event.character + "'");
                 }
 
-                if (settings.etRemapAOI) {
-                    var src = vsWindow.$("#segment-" + vsWindow.UI.currentSegmentId + "-source");
-                    var tgt = vsWindow.$("#segment-" + vsWindow.UI.currentSegmentId + "-editarea");
-
-                    if ((src.offset().left - settings.etRemapAOITolerance) < event.x
-                        || event.x < (src.offset().left + src.width() + settings.etRemapAOITolerance)) {
-
-                        event.aoi = "currentSource";
-                        remappedAOIFixations.push(event);
-                    }
-                    else if ((tgt.offset().left - settings.etRemapAOITolerance) < event.y
-                        || event.y < (tgt.offset().left + tgt.width() + settings.etRemapAOITolerance)) {
-                        event.aoi = "currentTarget";
-                        remappedAOIFixations.push(event);
-                    }
-                }
+//                if (settings.etRemapAOI) {
+//                    var src = vsWindow.$("#segment-" + vsWindow.UI.currentSegmentId + "-source");
+//                    var tgt = vsWindow.$("#segment-" + vsWindow.UI.currentSegmentId + "-editarea");
+//
+//                    if ((src.offset().left - settings.etRemapAOITolerance) < event.x
+//                        || event.x < (src.offset().left + src.width() + settings.etRemapAOITolerance)) {
+//
+//                        event.aoi = "currentSource";
+//                        remappedAOIFixations.push(event);
+//                    }
+//                    else if ((tgt.offset().left - settings.etRemapAOITolerance) < event.y
+//                        || event.y < (tgt.offset().left + tgt.width() + settings.etRemapAOITolerance)) {
+//                        event.aoi = "currentTarget";
+//                        remappedAOIFixations.push(event);
+//                    }
+//                }
                 break;
 
             case logEventFactory.SCROLL:
+//if (12867043 <= event.id && event.id <= 12867045) {   // just for testing
+//    break;
+//}
                 if (event.elementId == "window") {
                     vsContents.scrollTop(event.offset);
+                    debug(pluginName + ": Scrolled to: '" + event.offset + "'");
+debug(event);
                 }
                 else {
                     // currently not needed as there are no other scrollbars
                 }
                 break;
             case logEventFactory.RESIZE:
-                lw = $("#virtualScreen").prop("width");
-                lh = $("#virtualScreen").prop("height");
-                $("#virtualScreen").prop("width", parseInt(event.width) + 17);
-                $("#virtualScreen").prop("height", event.height);
+//                lw = $("#virtualScreen").prop("width");
+//                lh = $("#virtualScreen").prop("height");
+                lw = currentWidth;
+                lh = currentHeight;
+                currentWidth = parseInt(event.width) + 17;
+                currentHeight = parseInt(event.height);
+                $("#virtualScreen").prop("width", currentWidth + wOffset);
+                $("#virtualScreen").prop("height", currentHeight + hOffset);
                 resizeBlockingInput();
 //alert(event.width + ", " + event.height + " - " + $("#virtualScreen")[0].contentWindow.$($("#virtualScreen")[0].contentWindow).width() + ", " + $("#virtualScreen")[0].contentWindow.$($("#virtualScreen")[0].contentWindow).height());
                 break;
@@ -834,6 +1005,10 @@ debug(endNode);*/
             case logEventFactory.SEGMENT_OPENED:
 //debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
 //debug(event);
+                if (skipCurrentSegment) {
+                    skipCurrentSegment = false;
+                }
+
                 var editarea = element.find(".editarea")[0];
                 vsWindow.UI.openSegment(editarea);
 
@@ -894,8 +1069,16 @@ debug(endNode);*/
                 break;
 
             case logEventFactory.DECODE:
-                if (settings.etRemapAOI) {
-                    debug(pluginName + ": Remapping AOI, skipping event: type: '" + event.type + "' ");
+//                if (settings.etRemapAOI) {
+//                    debug(pluginName + ": Remapping AOI, skipping event: type: '" + event.type + "' ");
+//                    break;
+//                }
+
+                if (skipCurrentSegment) {
+                    break;
+                }
+
+                if (vsWindow.config.catsetting === "pe") {
                     break;
                 }
 
@@ -908,14 +1091,27 @@ debug(endNode);*/
                 vsWindow.$("#" + event.elementId).editableItp('trigger', "getAlignmentsResult", {errors: [], data: itpData});
                 break;
             case logEventFactory.SUFFIX_CHANGE:
-                if (settings.etRemapAOI) {
-                    debug(pluginName + ": Remapping AOI, skipping event: type: '" + event.type + "' ");
+//                if (settings.etRemapAOI) {
+//                    debug(pluginName + ": Remapping AOI, skipping event: type: '" + event.type + "' ");
+//                    break;
+//                }
+
+//alert("SUFFIXCHANGE");
+debug(event);
+
+                if (skipCurrentSegment) {
                     break;
                 }
 
+                if (vsWindow.config.catsetting === "pe") {
+                    break;
+                }
+//var to = element.text();
                 itpData = JSON.parse(event.data);
-debug(itpData);
+//debug(itpData);
                 vsWindow.$("#" + event.elementId).editableItp('trigger', "setPrefixResult", {errors: [], data: itpData});
+//var tn = element.text();
+//if (to === tn) alert("NOCHANGE");
                 itpSuffixChangeCall = true;
                 break;
             case logEventFactory.CONFIDENCES:
@@ -954,8 +1150,12 @@ debug(itpData);
             case logEventFactory.KEY_DOWN:
                 break;
             case logEventFactory.KEY_UP:
-                if (settings.etRemapAOI) {
-                    debug(pluginName + ": Remapping AOI, skipping event: type: '" + event.type + "' ");
+//                if (settings.etRemapAOI) {
+//                    debug(pluginName + ": Remapping AOI, skipping event: type: '" + event.type + "' ");
+//                    break;
+//                }
+
+                if (skipCurrentSegment) {
                     break;
                 }
 
@@ -975,8 +1175,12 @@ debug(itpData);
             case logEventFactory.MOUSE_UP:
                 break;
             case logEventFactory.MOUSE_CLICK:
-                if (settings.etRemapAOI) {
-                    debug(pluginName + ": Remapping AOI, skipping event: type: '" + event.type + "' ");
+//                if (settings.etRemapAOI) {
+//                    debug(pluginName + ": Remapping AOI, skipping event: type: '" + event.type + "' ");
+//                    break;
+//                }
+
+                if (skipCurrentSegment) {
                     break;
                 }
 

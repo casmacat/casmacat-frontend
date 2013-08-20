@@ -1375,12 +1375,12 @@ console.trace();
 
         $("html,body").stop();
         // CASMACAT extension start
-alert("BEFORE ANIM");
+//alert("BEFORE ANIM");
         if (config.replay === 1) {
             $("html,body").animate({
                 scrollTop: destinationTop-20
             }, 500, "swing", function(e) {
-alert("ANIM COMP");
+//alert("ANIM COMP");
                 var element = $(segment);
                 var src = element.find("#" + element[0].id + "-source");
                 var tgt = element.find(".editarea");

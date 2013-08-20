@@ -22,6 +22,7 @@
         <script type="text/javascript" src="${basepath}public/js/lib/jquery.atooltip.js"></script>
         <script type="text/javascript" src="${basepath}public/js/lib/jquery-fieldselection.min.js"></script>
         <script type="text/javascript" src="${basepath}public/js/lib/jquery.cookie.js"></script>
+        <script type="text/javascript" src="${basepath}public/js/lib/jquery.format.js"></script>
 
         <script type="text/javascript">
             var config = {
@@ -66,8 +67,6 @@
                     <button id="previousEvent" disabled="disabled">&lt; Evt</button>
                     <button id="nextEvent" disabled="disabled">Evt &gt;</button>
                     |
-                    <button id="toggleInput" disabled="disabled">Toggle input</button>
-
                     <label for="selectSpeed">Speed</label>
                     <input id="selectSpeed" list="builtinSpeed" type="text" value="1.00" size="5"></input>
                     <datalist id="builtinSpeed">
@@ -84,6 +83,17 @@
                         <option value="10.00"></option>
                         <option value="100.00"></option>
                     </datalist>
+                    |
+                    <button id="toggleInput" disabled="disabled">Toggle input</button>
+                    <button id="vsConfig" disabled="disabled">Config</button>
+                    |
+                    <button id="vsDimensions" disabled="disabled">Dimensions</button>
+                    <input id="vsWidth" type="text" value="0" size="5"></input>
+                    <input id="vsHeight" type="text" value="0" size="5"></input>
+                    |
+                    <label>ET offsets</label>
+                    <input id="etXOffset" type="text" value="0" size="5"></input>
+                    <input id="etYOffset" type="text" value="0" size="5"></input>
                 </span>
                 <span class="toolbarBottom">
                     <label for="startTime">Start</label>

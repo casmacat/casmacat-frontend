@@ -1,22 +1,6 @@
 "use strict"; // strict scope for the whole file
 
 /**
- * jQuery CASMACAT logevent object and factory
- * Author: Ragnar Bonk
- *
- * Dependencies:
- *  - debug.js [optional]
- *
- * Supported Browsers:
- *  - Firefox >= 15
- *  - Chrome >= 22.0.1229.79 m
- *  - IE >= 9 (no eye tracking) (TODO needs intensive testing -> DOMSubtreeModified stuff)
- *  - Opera >= 12.02 (no eye tracking, no contentenditable)
- *
- *  TODO testing with QUnit?
- */
-
-/**
  * A logevent factory to construct concrete logevents
  */
 var LogEventFactory = function(elementIdMode) {

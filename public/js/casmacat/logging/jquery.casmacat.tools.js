@@ -2,7 +2,6 @@
 
 /**
  * jQuery CASMACAT tools
- * Original author: Ragnar Bonk
  *
  * Some parts of this script (mainly functions, follow the links provided in the comments of each funtion to find their
  * license, if any) are covered by the MIT license, the rest is GNU/GPL...
@@ -13,12 +12,8 @@
  *  - debug.js [optional] (get it from the author or write your own ;-) )
  *
  * Supported Browsers:
- *  - Firefox >= 15
+ *  - Firefox >= 21
  *  - Chrome >= 22.0.1229.79 m
- *  - IE >= 9 (xPath support seems to miss right now)
- *  - Opera >= 12.02
- *
- *  TODO testing with QUnit?
  */
 
 (function($) {

@@ -59,6 +59,8 @@ class replayController extends viewcontroller {
         $this->vsHeight = $logListChunk[2]->height;
         $this->startTime = $logListChunk[0]->time;
         $this->endTime = fetchEndTime($this->jobId, $this->fileId);
+
+//        $this->vsSrc = $this->vsSrc . INIT::$BASE_URL . "index.php?action=cat&jid=$this->jobId&password=$this->password&page=&ia@6007&replay=true";
     }
 
     public function setTemplateVars() {

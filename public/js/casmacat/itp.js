@@ -114,7 +114,7 @@ $(function(){
       sel.removeAllRanges();
     });
   };
-  
+
   //if (config.debug) {
     var $listDocs = $('<span style="float:left"><a href="'+config.basepath+'listdocuments/">Document list</a> &gt;</span>');
     var $shortCut = $('<div><a href="'+config.basepath+'listshortcuts/"><strong>Shortcuts</strong></a></div>');

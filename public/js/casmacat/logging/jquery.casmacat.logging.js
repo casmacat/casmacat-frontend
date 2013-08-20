@@ -2,8 +2,6 @@
 
 /**
  * jQuery CASMACAT logging plugin
- * Author: Ragnar Bonk
- *
  * Some parts of this script (mainly functions, follow the links provided in the comments of each funtion to find their
  * license, if any) are covered by the MIT license, the rest is GNU/GPL...
  *
@@ -15,12 +13,8 @@
  *  - debug.js [optional]
  *
  * Supported Browsers:
- *  - Firefox >= 20.0
+ *  - Firefox >= 21.0
  *  - Chrome >= 22.0.1229.79 m
- *  - IE >= 9 (no eye tracking) (TODO needs intensive testing -> DOMSubtreeModified stuff)
- *  - Opera >= 12.02 (no eye tracking, no contentenditable)
- *
- *  TODO testing with QUnit?
  */
 
 // the semi-colon before the function invocation is a safety net against concatenated scripts and/or other plugins that

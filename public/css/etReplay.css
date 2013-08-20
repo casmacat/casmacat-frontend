@@ -3,11 +3,15 @@
 */
 
 .source, .editarea {
-    font-size: 18pt !important;
+    /*font-size: 20pt !important;*/
+
+    /* c3d11p3 */
+    font-size: 17.7pt !important;
+    padding-right: 20px !important;
 }
 
 .suggestion_source, .translation {
-    font-size: 18pt;
+    font-size: 20pt;
 }
 
 .fixationTarget {

@@ -110,13 +110,43 @@ $(function() {
         }
     };
 
+    // for debugging
+    $("#vsConfig").click(function(e) {
+        var vsWindow = $("#virtualScreen")[0].contentWindow;
+        var configStr = JSON.stringify(vsWindow.config);
+//        var formatted = $(configStr).format({method: "json"});
+//        alert("Config:\n " + formatted);
+        alert("Config:\n " + configStr);
+    });
+    $("#vsDimensions").click(function(e) {
+        var vsWindow = $("#virtualScreen")[0].contentWindow;
+        alert("Dimensions:\n " + vsWindow.$(vsWindow).width() + " x " + vsWindow.$(vsWindow).height());
+    });
+    $("#vsWidth").blur(function(e) {
+        $(window).replaying("setVSWidth");
+    });
+    $("#vsHeight").blur(function(e) {
+        $(window).replaying("setVSHeight");
+    });
+    $("#etXOffset").blur(function(e) {
+        $(window).replaying("setETOffsets");
+    });
+    $("#etYOffset").blur(function(e) {
+        $(window).replaying("setETOffsets");
+    });
+
+
     $(window).replaying({
         "fileId": config.fileId,
         "jobId": config.jobId,
         "maxChunkSize": 500,
         "isLive": true, // experimental
         "itpEnabled": config.itpEnabled,
-        "showDimensions": true
+        "showDimensions": true,
+        "etRemapAOI": false,
+        "ignoreSelectionErrors": true,
+        "abortOnTextErrors": true,
+        "etCollect": false
     });
 
 //                $(window).on("vsEditorReady", function(e) {
