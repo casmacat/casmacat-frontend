@@ -145,7 +145,7 @@ $(function() {
         "showDimensions": true,
         "etRemapAOI": false,
         "ignoreSelectionErrors": true,
-        "abortOnTextErrors": true,
+        "abortOnTextErrors": false,
         "etCollect": false
     });
 

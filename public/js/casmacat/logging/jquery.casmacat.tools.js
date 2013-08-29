@@ -576,7 +576,7 @@ catch (e) {
                 $("#" + id).html(msg);
             }
 
-            debug("$.fn.showOverlay: Overlay '" + id + "' displayed for href: '" + location.href + "'.");
+//            debug("$.fn.showOverlay: Overlay '" + id + "' displayed for href: '" + location.href + "'.");
         }
 
         return $(this);
@@ -595,7 +595,7 @@ catch (e) {
             $("#" + id).remove();
             $(lastFocusedElement[id]).focus();
             lastFocusedElement[id] = null;
-            debug("$.fn.hideOverlay: Overlay '" + id + "' removed for href: '" + location.href + "'.");
+//            debug("$.fn.hideOverlay: Overlay '" + id + "' removed for href: '" + location.href + "'.");
         }
 
         return $(this);

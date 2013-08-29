@@ -3,11 +3,14 @@
 */
 
 .source, .editarea {
+    /* default */
     /*font-size: 20pt !important;*/
 
     /* c3d11p3 */
     font-size: 17.7pt !important;
     padding-right: 20px !important;
+    /* window offsets: -140, -102
+       et offsets: -113, 0 */
 }
 
 .suggestion_source, .translation {
