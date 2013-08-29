@@ -448,6 +448,7 @@
                         $.fn.hideOverlay();
                         debug(pluginName + ": Finished, no more events.");
                         updateUIStatus("Finished, end of replay reached.");
+                        //$("#toggleInput").prop("disabled", "");
                         isReplaying = false;
                         isPaused = false;
                         return;
@@ -459,6 +460,7 @@
             $.fn.hideOverlay();
             debug(pluginName + ": Finished, no more events.");
             updateUIStatus("Finished, end of replay reached.");
+            //$("#toggleInput").prop("disabled", "");
             isReplaying = false;
             isPaused = false;
             return;
@@ -775,6 +777,9 @@
                         + "Skip current segment and continue replay?");
                     if (answer) {
                         skipCurrentSegment = true;
+                        // fetch final translation
+                        // element.text(finalTranlation);
+                        // vsWindow.$("#" + event.elementId).editableItp("setTargetText", finalTranlation);
                     }
                 }
 
