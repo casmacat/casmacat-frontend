@@ -47,7 +47,7 @@ AddOutputFilterByType DEFLATE application/xml application/xhtml+xml appalication
 AddOutputFilterByType DEFLATE application/javascript application/x-javascript application/json
 #AddOutputFilterByType DEFLATE application/x-httpd-php
 </IfModule>
-	
+
 <IfModule mod_setenvif.c>
 SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png)$ no-gzip dont-vary
 SetEnvIfNoCase Request_URI \.(?:exe|t?gz|zip|bz2|sit|rar)$ no-gzip dont-vary

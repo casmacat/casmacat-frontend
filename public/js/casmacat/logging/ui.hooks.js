@@ -86,15 +86,21 @@ $(function(){
     var lastSegmentClosed = null;
     var original_closeSegment = UI.closeSegment;
     UI.closeSegment = function(segment, byButton) {
-        if (!segment) return false;
 //        debug("ui.hooks: closeSegment()...");
 
-        if (lastSegmentClosed === null && byButton === 1) {
-            lastSegmentClosed = segment.id;
+        if (!segment) { // this fixes commit 4c320792d0 (this commit breaks showing itp translation matches tab)
+            original_closeSegment.call(UI, segment, byButton);
+            return;
         }
-        original_closeSegment.call(UI, segment, byButton);
-        if (lastSegmentClosed !== null && byButton === 0) {
-            if (lastSegmentClosed === segment.id) {
+
+        if (lastSegmentClosed === null && byButton === 0) { // me: 0
+            lastSegmentClosed = segment.prop("id");
+            debug("ui.hooks: Last closed segment id: '" + lastSegmentClosed + "'.");
+        }
+//        UI.toSegment = undefined;
+        original_closeSegment.call(UI, segment[0], byButton);
+        if (lastSegmentClosed !== null && byButton === 1) { // me: 1
+            if (lastSegmentClosed === segment.prop("id")) {
                 debug("cat.js: Ignoring second closeSegment() call...");
                 lastSegmentClosed = null;
                 return;
