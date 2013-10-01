@@ -55,6 +55,20 @@ $(function(){
     return { matches: matches };
   };
 
+  var original_deActivateSegment = UI.deActivateSegment;
+  UI.deActivateSegment = function(byButton) {
+    if (config.penEnabled) {
+      var $segment = (byButton)? this.currentSegment : this.lastOpenedSegment;
+      if ($segment) {
+        $('.epen-wrap',   $segment).toggleClass('epen-wrap', false);
+        $('.epen-source', $segment).toggleClass('epen-source', false);
+        $('.epen-target', $segment).toggleClass('epen-target', false);
+        $('canvas', $segment).remove();
+      }
+    }
+    original_deActivateSegment.call(UI, byButton);
+  };
+  
   function toggleEpenMode(editarea) {
     if (!config.penEnabled) {
       return false;
