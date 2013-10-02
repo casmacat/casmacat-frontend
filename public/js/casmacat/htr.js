@@ -116,14 +116,17 @@
 
       function doDeleteGesture($token) {
         var t = $token, n;
+        console.log('delete', $token);
         do {
+          //console.log('deleting', '"' + t.text() + '"', t);
           n = $(t[0].nextSibling);
           t.remove(); 
           t = n;
-        } while (t.length && !t.is('.editable-token'));
+        } while (t && !t.is('.editable-token') && t[0].nextSibling);
         
-        $target.editableItp('setPrefix', $target.editable('getTokenPos', t.next()))
-        console.log('delete', $token);
+        var cursorPos = $target.editable('getTokenPos', t.next());
+        //console.log('update at', cursorPos, '"' + $target.text().slice(0, cursorPos)  + '"');
+        $target.editableItp('setPrefix', cursorPos)
       };
 
       function doInsertGesture($token) {
@@ -152,7 +155,7 @@
       function processGesture(gesture, stroke) {
         var centroid = MathLib.centroid(stroke);
         centroid = getAbsoluteXY(centroid);
-        console.log("--------> processGesture:", gesture.name)
+        console.log("--------> processGesture:", gesture.name, centroid)
         switch (gesture.name) {
           case 'dot': // reject 
             var tokenDistances = $target.editable('getTokensAtXY', centroid, 0);
@@ -164,7 +167,7 @@
             break;
           case 'se': // delete
             var tokenDistances = $target.editable('getTokensAtXY', centroid, 0);
-            var tokenDistancesInLine = tokenDistances.filter(function(a){ return a.distance.dy === 0});;
+            var tokenDistancesInLine = tokenDistances.filter(function(a){ return a.distance.dy < 3 });;
             if (tokenDistancesInLine.length > 0 && tokenDistancesInLine[0].distance.d < 3) {
               var token = tokenDistancesInLine[0];
               doDeleteGesture($(token.token));
@@ -182,7 +185,7 @@
             break;
           case 'ne': // validate 
             var tokenDistances = $target.editable('getTokensAtXY', centroid, 0);
-            if (tokenDistances[0].distance.dx < 0 || tokenDistances[0].distance.dy !== 0) {
+            if (tokenDistances[0].distance.dx > 0 || tokenDistances[0].distance.dy !== 0) {
               doValidateGesture();
             }
             break;
@@ -209,6 +212,7 @@
               // one stroke means either gesture or first HTR stroke
               if (strokes.length === 1) {
                 gesture = gestureRecognizer.recognize(strokes);
+                console.log("GESTURE", gesture);
                 // first HTR stroke
                 if (!gesture || insert_after_token) {
                   var centroid = getAbsoluteXY(MathLib.centroid(strokes[0].slice(0, 20)));
@@ -241,6 +245,7 @@
 
             clear: function(elem, data) {
               // skanvas.removeData('htr');
+              casmacatHtr.endSession();
               clearTimeout(decoderTimer);
             }
          },
