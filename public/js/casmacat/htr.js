@@ -251,7 +251,7 @@
             clear: function(elem, data) {
               // skanvas.removeData('htr');
               casmacatHtr.endSession({
-                maxNBests: 10,
+                maxNBests: 30,
               });
               clearTimeout(decoderTimer);
             }

@@ -14,7 +14,7 @@
 }
 
 .epen-wrap { 
-  display:block !important; text-align:center !important; cursor: crosshair; 
+  display:block !important; text-align:center !important; cursor: url('../img/precision-cursor.png') 8 8, crosshair; 
 }
 
 .epen-wrap canvas { 
