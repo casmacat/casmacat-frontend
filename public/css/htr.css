@@ -18,8 +18,45 @@
 }
 
 .epen-wrap canvas { 
-  border:2px dashed black !important;
+  border:2px dashed black;
+  border-bottom: none;
 	display:block !important; position:absolute !important;
+}
+
+/*
+.epen-wrap .canvas-options:before { 
+  content: "\00a0";
+}
+*/
+
+.epen-selected {
+  border-bottom: 1px dashed green;
+}
+
+.epen-wrap .canvas-options { 
+  border:1px solid black;
+  border-top: 1px solid #ccc;
+  background-color: #efefef;
+	display:block !important; position:absolute !important;
+  height: 1.5em;
+}
+
+.epen-wrap .canvas-options ul { 
+  display: table-row;
+  list-style-type:none;
+  margin:0;
+  padding:0;
+}
+
+.epen-wrap .canvas-options ul li { 
+  display: table-cell;
+  vertical-align: middle;
+  float:left;
+
+  margin-top: 3px;
+  margin-left: 1em;
+  padding-right: 1em;
+  border-right: 1px solid #ccc;
 }
 
 .epen-wrap .target {

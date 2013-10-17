@@ -531,6 +531,7 @@
         else {
           replaceable.replaceWith(tokens.contents());
         }
+        replaceable = tokens.contents();
       }
       else {
         replaceable.text(str);
@@ -538,6 +539,8 @@
 
       data['str'] = $this.text();
 
+
+      return replaceable;
     },
 
   };

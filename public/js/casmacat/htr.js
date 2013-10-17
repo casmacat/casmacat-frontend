@@ -211,6 +211,9 @@
               if (!strokes || !strokes[0]) return false;
               // one stroke means either gesture or first HTR stroke
               if (strokes.length === 1) {
+                $canvas.next('.canvas-options').html('');
+                $('.epen-selected', $target).toggleClass('epen-selected', false);
+
                 gesture = gestureRecognizer.recognize(strokes);
                 console.log("GESTURE", gesture);
                 // first HTR stroke
@@ -314,9 +317,25 @@
         if (!best.text || best.text === "") return;
         //console.log(best.text, best.textSegmentation);
         var htrData = skanvas.data('htr');
+        var $replaced, $originalToken = $(htrData.target.token);
         if (htrData.target) {
-          $target.editable('replaceText', best.text, best.textSegmentation, htrData.target.token, is_final);
+          $originalToken.toggleClass('epen-selected');
+          $originalToken.text(best.text);
+          //$replaced = $target.editable('replaceText', best.text, best.textSegmentation, $originalToken, false && is_final);
+
+          var $options = $canvas.next('.canvas-options');
+          $options.html('<ul/>'); 
+          var $list = $('ul', $options).on('click', function(e){ 
+            var result = $(e.srcElement).data('result');
+            $originalToken.text(result.text);
+            //$replaced = $target.editable('replaceText', result.test, result.textSegmentation, $replaced, false && is_final);
+          });
+          for (var n = 0; n < data.nbest.length; n++) {
+            var $result = $('<li>' +  data.nbest[n].text + '</li>').data('result', data.nbest[n]);
+            $list.append($result);
+          }
         }
+        
       };
 
 
@@ -366,11 +385,22 @@
         $canvas = $('<canvas tabindex="-1" id="'+prefix+'-canvas" width="'+siz.width+'" height="'+siz.height+'"/>');
         $canvas.prependTo($targetParent).hide().delay(10).css({
             left: ($section.find('.wrap').width() - siz.width - $section.find('.status-container').width()/2) / 2,
-          zIndex: geom.getNextHighestDepth()
+            zIndex: geom.getNextHighestDepth(),
         }).bind('mousedown mouseup click', function(e){
           // This is to prevent logging click events on the canvas
           e.stopPropagation();
         });
+
+  
+        $options = $('<div tabindex="-1" class="canvas-options"><ul><li>option1</li><li>option2</li></ul></div>');
+        $canvas.after($options);
+
+        $options.delay(100).css({
+            left: ($section.find('.wrap').width() - siz.width - $section.find('.status-container').width()/2) / 2,
+            width: siz.width + 2,
+            top: $canvas.position().top + $canvas.height() + 3,
+            zIndex: 99999 
+        })
 
         htr.init($canvas, $source, $target);
 
