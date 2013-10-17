@@ -240,6 +240,8 @@
                 }
               }
               if (!gesture) {
+                var $options = $canvas.next('.canvas-options');
+                $options.text("Decoding strokes...");
                 casmacatHtr.addStroke({points: strokes[strokes.length-1], is_pen_down: true});      
                 decoderTimer = setTimeout(function () {
                   //$('#btn-decode').trigger('click');
@@ -311,24 +313,33 @@
       });
 */
 
+      function replace_suggestion(result) {
+        var $selectedToken = $('.epen-selected', $target), $nextToken = $selectedToken.next('.editable-token');
+        $selectedToken.text(result.text);
+        //$replaced = $target.editable('replaceText', result.test, result.textSegmentation, $replaced, false && is_final);
+ 
+        var cursorPos = $target.editable('getTokenPos', $nextToken);
+        $target.editableItp('setPrefix', cursorPos)
+        console.log('update at', cursorPos, $nextToken);
+      }
+
       function update_htr_suggestions(data, is_final) {
         if (!data || !data.nbest || !data.nbest.length) return;
         var best = data.nbest[0];
         if (!best.text || best.text === "") return;
         //console.log(best.text, best.textSegmentation);
         var htrData = skanvas.data('htr');
-        var $replaced, $originalToken = $(htrData.target.token);
+        var $originalToken = $(htrData.target.token);
         if (htrData.target) {
           $originalToken.toggleClass('epen-selected');
-          $originalToken.text(best.text);
-          //$replaced = $target.editable('replaceText', best.text, best.textSegmentation, $originalToken, false && is_final);
+          replace_suggestion(best);
 
           var $options = $canvas.next('.canvas-options');
           $options.html('<ul/>'); 
+
           var $list = $('ul', $options).on('click', function(e){ 
             var result = $(e.srcElement).data('result');
-            $originalToken.text(result.text);
-            //$replaced = $target.editable('replaceText', result.test, result.textSegmentation, $replaced, false && is_final);
+            replace_suggestion(result);
           });
           for (var n = 0; n < data.nbest.length; n++) {
             var $result = $('<li>' +  data.nbest[n].text + '</li>').data('result', data.nbest[n]);
@@ -392,7 +403,7 @@
         });
 
   
-        $options = $('<div tabindex="-1" class="canvas-options"><ul><li>option1</li><li>option2</li></ul></div>');
+        $options = $('<div tabindex="-1" class="canvas-options"></div>');
         $canvas.after($options);
 
         $options.delay(100).css({
