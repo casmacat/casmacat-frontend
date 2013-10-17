@@ -1,6 +1,6 @@
-(function(module, global){
+(function(module, global) {
 
-  module.exports = {
+  var htr = module.exports = {
     init: function($canvas, $source, $target) {
 
       // Ensure we receive a jQuery element
@@ -39,7 +39,7 @@
       });
 
       setHtrConf(); // first-time load
-      
+
       function getRelativeXY(point) {
         var leftBorder  = parseInt(skanvas.css('borderLeftWidth')) || 0;
         var topBorder   = parseInt(skanvas.css('borderTopWidth'))  || 0;
@@ -217,10 +217,12 @@
                 if (!gesture || insert_after_token) {
                   var centroid = getAbsoluteXY(MathLib.centroid(strokes[0].slice(0, 20)));
                   var tokenDistance = getTokenDistanceAtPointer({clientX: centroid[0], clientY: centroid[1]});
+                  var caretPos = $target.editable('getTokenPos', tokenDistance.token);
+                  console.log('TOKDIST', tokenDistance, caretPos);
                   casmacatHtr.startSession({
                     source: $source.editable('getText'),
                     target: $target.editable('getText'),
-                    caretPos: 0,
+                    caretPos: caretPos,
                   });
                   
                   skanvas.data('htr', { 
@@ -245,7 +247,9 @@
 
             clear: function(elem, data) {
               // skanvas.removeData('htr');
-              casmacatHtr.endSession();
+              casmacatHtr.endSession({
+                maxNBests: 10,
+              });
               clearTimeout(decoderTimer);
             }
          },
@@ -305,7 +309,7 @@
 */
 
       function update_htr_suggestions(data, is_final) {
-        if (!data || !data.nbest) return;
+        if (!data || !data.nbest || !data.nbest.length) return;
         var best = data.nbest[0];
         if (!best.text || best.text === "") return;
         //console.log(best.text, best.textSegmentation);
@@ -316,7 +320,106 @@
       };
 
 
+    },
+
+    attachEvents: function($target) {
+      var namespace = 'itp';
+      $target.on('enableEpenToggle.'+namespace, function(e, value) {
+        var cfg = $target.data(namespace).config;
+        cfg.epenEnabled = toggleOpt($target, "opt-epen", value);
+        toggleEpenMode($target, cfg.epenEnabled);
+        $target.trigger('togglechange', ['enableEpen', cfg.epenEnabled, cfg]);
+      });
     }
+
+
+
+
   };
+
+  function toggleOpt($elem, opt, value) {
+    var elem = $elem.get(0);
+    if (typeof value === "undefined") {
+      value = (elem.getAttribute("data-" + opt) !== "true");
+    }
+    elem.setAttribute("data-" + opt, value);
+    return value
+  }
+
+
+
+
+  function toggleEpenMode($target, value) {
+    var sid = $target.data('sid'), prefix = "#segment-" + sid;
+    var $source = $(prefix + "-source"), $section = $(prefix), animMs = 300;
+    var $targetParent = $(prefix + "-target");
+    $section.find('.wrap').toggleClass("epen-wrap", value);
+    $source.toggleClass("epen-source", animMs);
+    $target.toggleClass("epen-target", animMs, function(){
+      var $canvas = $targetParent.find('canvas'), $clearBtn = $('.buttons', UI.currentSegment).find('.pen-clear-indicator');
+      // Create canvas on top
+      if ($canvas.length === 0) {
+        var geom = require('geometry-utils'),
+             pos = $target.offset(),
+             siz = { width: $target.width() + 20, height: $target.height() + 10 };
+
+        $canvas = $('<canvas tabindex="-1" id="'+prefix+'-canvas" width="'+siz.width+'" height="'+siz.height+'"/>');
+        $canvas.prependTo($targetParent).hide().delay(10).css({
+            left: ($section.find('.wrap').width() - siz.width - $section.find('.status-container').width()/2) / 2,
+          zIndex: geom.getNextHighestDepth()
+        }).bind('mousedown mouseup click', function(e){
+          // This is to prevent logging click events on the canvas
+          e.stopPropagation();
+        });
+
+        htr.init($canvas, $source, $target);
+
+        // A button to clear canvas (see http://ikwebdesigner.com/special-characters/)
+        if ($clearBtn.length === 0) {
+          $clearBtn = $('<li/>').html('<a href="#" class="itp-btn pen-clear-indicator" title="Clear drawing area">&#10227;</a>');
+          $clearBtn.click(function(e){
+            e.preventDefault();
+            $canvas.sketchable('clear');
+          });
+          $('.buttons', UI.currentSegment).prepend($clearBtn);
+          $clearBtn.hide();
+        }
+      } else {
+        $canvas = $targetParent.find('canvas');
+      }
+      /*
+      // TODO: Remove suffix length feature for e-pen mode and restore previous prioritizer
+      $target.editableItp('updateConfig', {
+        prioritizer: "none"
+      });
+      */
+      // Toggle buttons
+      $canvas.sketchable('clear').toggle();
+      $clearBtn.toggle();
+      // Toggle translation matches et al.
+      $section.find('.overflow').toggle(animMs);
+      // Remove contenteditable selection
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+    }, value);
+  };
+  
+
+
+  if (config.penEnabled) {
+    var original_deActivateSegment = UI.deActivateSegment;
+    UI.deActivateSegment = function(byButton) {
+      var $segment = (byButton)? this.currentSegment : this.lastOpenedSegment;
+      if ($segment) {
+        $('.epen-wrap',   $segment).toggleClass('epen-wrap', false);
+        $('.epen-source', $segment).toggleClass('epen-source', false);
+        $('.epen-target', $segment).toggleClass('epen-target', false);
+        $('canvas', $segment).remove();
+      }
+      original_deActivateSegment.call(UI, byButton);
+    };
+  }
+
+
 
 })('object' === typeof module ? module : {}, this);

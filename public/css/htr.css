@@ -14,7 +14,7 @@
 }
 
 .epen-wrap { 
-  display:block !important; text-align:center !important; 
+  display:block !important; text-align:center !important; cursor: crosshair; 
 }
 
 .epen-wrap canvas { 

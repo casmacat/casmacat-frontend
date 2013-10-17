@@ -691,6 +691,47 @@ UI = {
             return false;
         }
 
+        if (config.debug && !config.logEnabled) { // enable reset document button
+            $("#resetDocument").text('Reset Document').on("click", function(e) {
+                e.preventDefault();
+
+                var data = {
+                    action: "resetDocument",
+                    fileId: config.file_id,
+                    jobId: config.job_id
+                };
+
+                $.ajax({
+                    async: false,
+                    url: config.basepath + "?action=resetDocument",
+                    data: data,
+                    type: "GET",
+                    dataType: "json",
+                    cache: false,
+                    success: function(result) {
+                        if (result.data && result.data == "OK") {
+                            alert("Document reset, will now reload...");
+//                            $(window).logging("start");
+                            var url = window.location.toString().substr(0, window.location.toString().lastIndexOf("#"));
+                            window.location = url;
+                        }
+                        else if (result.errors) {    // TODO is the error format really like this? with the index access
+                                                    // 'result.errors[0]'?
+                            alert("(Server) Error resetting document: '" + result.errors[0].message + "'");
+                            $.error("(Server) Error resetting document: '" + result.errors[0].message + "'");
+                        }
+                    },
+                    error: function(request, status, error) {
+                        debug(request);
+                        debug(status);
+                        debug(error);
+                        alert("Error resetting document: '" + error + "'");
+                        $.error("Error resetting document: '" + error + "'");
+                    }
+                });
+            });
+        }
+
         var event = $.Event("loadingSuggestions");
         if (next == 0) {
             event.segment = segment[0];

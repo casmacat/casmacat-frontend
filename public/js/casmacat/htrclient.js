@@ -60,9 +60,9 @@
     *       textSegmentation {Array} Segmentation of recognized text
     *       [elapsedTime] {Number} ms
     */
-    endSession: function() {
+    endSession: function(obj) {
       this.checkConnection();
-      this.server.emit('endSession');
+      this.server.emit('endSession', {data: obj});
     },    
      
   });

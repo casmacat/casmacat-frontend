@@ -29,9 +29,6 @@ $(function(){
   };
 
   insertStyle(config.basepath  + 'public/css/itp.css');
-  if (config.penEnabled) {
-    insertStyle(config.basepath  + 'public/css/htr.css');
-  }
 
   require('jquery.editable.itp');
 
@@ -55,80 +52,7 @@ $(function(){
     return { matches: matches };
   };
 
-  var original_deActivateSegment = UI.deActivateSegment;
-  UI.deActivateSegment = function(byButton) {
-    if (config.penEnabled) {
-      var $segment = (byButton)? this.currentSegment : this.lastOpenedSegment;
-      if ($segment) {
-        $('.epen-wrap',   $segment).toggleClass('epen-wrap', false);
-        $('.epen-source', $segment).toggleClass('epen-source', false);
-        $('.epen-target', $segment).toggleClass('epen-target', false);
-        $('canvas', $segment).remove();
-      }
-    }
-    original_deActivateSegment.call(UI, byButton);
-  };
-  
-  function toggleEpenMode(editarea) {
-    if (!config.penEnabled) {
-      return false;
-    }
-
-    var $target = $(editarea), sid = $target.data('sid'), prefix = "#segment-" + sid;
-    var $source = $(prefix + "-source"), $section = $(prefix), animMs = 300;
-    var $targetParent = $(prefix + "-target");
-    $section.find('.wrap').toggleClass("epen-wrap");
-    $source.toggleClass("epen-source", animMs);
-    $target.toggleClass("epen-target", animMs, function(){
-      var $canvas = $targetParent.find('canvas'), $clearBtn = $('.buttons', UI.currentSegment).find('.pen-clear-indicator');
-      // Create canvas on top
-      if ($canvas.length === 0) {
-        var geom = require('geometry-utils'),
-             pos = $target.offset(),
-             siz = { width: $target.width() + 20, height: $target.height() + 10 };
-
-        $canvas = $('<canvas tabindex="-1" id="'+prefix+'-canvas" width="'+siz.width+'" height="'+siz.height+'"/>');
-        $canvas.prependTo($targetParent).hide().delay(10).css({
-            left: ($section.find('.wrap').width() - siz.width - $section.find('.status-container').width()/2) / 2,
-          zIndex: geom.getNextHighestDepth()
-        }).bind('mousedown mouseup click', function(e){
-          // This is to prevent logging click events on the canvas
-          e.stopPropagation();
-        });
-
-        var htr = require('htr');
-        htr.init($canvas, $source, $target);
-
-        // A button to clear canvas (see http://ikwebdesigner.com/special-characters/)
-        if ($clearBtn.length === 0) {
-          $clearBtn = $('<li/>').html('<a href="#" class="itp-btn pen-clear-indicator" title="Clear drawing area">&#10227;</a>');
-          $clearBtn.click(function(e){
-            e.preventDefault();
-            $canvas.sketchable('clear');
-          });
-          $('.buttons', UI.currentSegment).prepend($clearBtn);
-          $clearBtn.hide();
-        }
-      } else {
-        $canvas = $targetParent.find('canvas');
-      }
-      /*
-      // TODO: Remove suffix length feature for e-pen mode and restore previous prioritizer
-      $target.editableItp('updateConfig', {
-        prioritizer: "none"
-      });
-      */
-      // Toggle buttons
-      $canvas.sketchable('clear').toggle();
-      $clearBtn.toggle();
-      // Toggle translation matches et al.
-      $section.find('.overflow').toggle(animMs);
-      // Remove contenteditable selection
-      var sel = window.getSelection();
-      sel.removeAllRanges();
-    });
-  };
-
+ 
   //if (config.debug) {
     var $listDocs = $('<span style="float:left"><a href="'+config.basepath+'listdocuments/">Document list</a> &gt;</span>');
     var $shortCut = $('<div><a href="'+config.basepath+'listshortcuts/"><strong>Shortcuts</strong></a></div>');
@@ -149,6 +73,14 @@ $(function(){
   UI.reinitMMShortcuts    = function(){}; // Use shortcuts.js instead
   var shortcuts = require('shortcuts');
 
+
+  if (config.penEnabled) {
+    var htr = require('htr');
+    insertStyle(config.basepath  + 'public/css/htr.css');
+    UI.toggleKeyBindings['ctrl+shift+e'] = 'enableEpen'
+  }
+
+
   var original_openSegment = UI.openSegment;
   var original_closeSegment = UI.closeSegment;
   var original_doRequest = UI.doRequest;
@@ -161,6 +93,8 @@ $(function(){
     var $target = $(editarea), sid = $target.data('sid'), $source = $("#segment-" + sid + "-source");
     if (!$target.data('itp')) {
       //console.log("***OPEN SEGMENT***", $target[0], trace())
+
+      if (config.penEnabled) htr.attachEvents($target);
 
       $target.on('ready.matecat', function() {
         var settings, $indicator;
@@ -176,23 +110,30 @@ $(function(){
         $target.editableItp('updateConfig', settings);
         // A button to toggle ITP mode
         $indicator = ('.buttons', UI.currentSegment).find('.itp-indicator');
-        if (config.itpEnabled && $indicator.length === 0) {
-          $indicator = $('<li/>').html('<a href="#" class="itp-btn itp-indicator">'+settings.mode+'</a><p>ESC</p>');
-          $indicator.click(function(e){
-            e.preventDefault();
-            UI.toggleItp(e);
-          });
-          $('.buttons', UI.currentSegment).prepend($indicator);
+        if (config.itpEnabled) {
+          if ($indicator.length === 0) {
+            $indicator = $('<li/>').html('<a href="#" class="itp-btn itp-indicator">'+settings.mode+'</a><p>ESC</p>');
+            $indicator.click(function(e){
+              e.preventDefault();
+              UI.toggleItp(e);
+            });
+            $('.buttons', UI.currentSegment).prepend($indicator);
+          }
         }
         // A button to toggle e-pen mode
         $indicator = $('.buttons', UI.currentSegment).find('.pen-indicator');
-        if (config.htrserver && config.penEnabled && $indicator.length === 0) {
-          $indicator = $('<li/>').html('<a href="#" class="itp-btn pen-indicator" title="Toggle e-pen input">&#9997;</a>');
-          $indicator.click(function(e){
-            e.preventDefault();
-            toggleEpenMode(editarea);
-          });
-          $('.buttons', UI.currentSegment).prepend($indicator);
+        if (config.htrserver && config.penEnabled) {
+          if ($indicator.length === 0) {
+            $indicator = $('<li/>').html('<a href="#" class="itp-btn pen-indicator" title="Toggle e-pen input">&#9997;</a>');
+            $indicator.click(function(e){
+              e.preventDefault();
+              getEditArea().editableItp('toggle', 'enableEpen', true);
+            });
+            $('.buttons', UI.currentSegment).prepend($indicator);
+          }
+          if (!config.prefs.toggleEpenOffOnSegmentClose) {
+            getEditArea().editableItp('toggle', 'enableEpen', true);
+          }
         }
         // A series of buttons to toggle visualization options
         $indicator = $('.text', UI.currentSegment).find('.vis-commands');
@@ -374,7 +315,7 @@ $(function(){
       $source.find('*').andSelf().off('.matecat');
       $target.editableItp('destroy');
       if ($target.hasClass('epen-target') && bybutton) {
-        toggleEpenMode($target);
+        getEditArea().editableItp('toggle', 'enableEpen', false);
       }
     }
 
