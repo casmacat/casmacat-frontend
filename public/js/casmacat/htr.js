@@ -337,8 +337,8 @@
           var $options = $canvas.next('.canvas-options');
           $options.html('<ul/>'); 
 
-          var $list = $('ul', $options).on('click', function(e){ 
-            var result = $(e.srcElement).data('result');
+          var $list = $('ul', $options).on('click', function(e) { 
+            var result = $(e.target).data('result');
             replace_suggestion(result);
           });
           for (var n = 0; n < data.nbest.length; n++) {
