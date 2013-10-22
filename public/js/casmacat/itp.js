@@ -94,8 +94,6 @@ $(function(){
     if (!$target.data('itp')) {
       //console.log("***OPEN SEGMENT***", $target[0], trace())
 
-      if (config.penEnabled) htr.attachEvents($target);
-
       $target.on('ready.matecat', function() {
         var settings, $indicator;
         if (config.catsetting) {
@@ -123,6 +121,8 @@ $(function(){
         // A button to toggle e-pen mode
         $indicator = $('.buttons', UI.currentSegment).find('.pen-indicator');
         if (config.htrserver && config.penEnabled) {
+           htr.attachEvents($target);
+
           if ($indicator.length === 0) {
             $indicator = $('<li/>').html('<a href="#" class="itp-btn pen-indicator" title="Toggle e-pen input">&#9997;</a>');
             $indicator.click(function(e){

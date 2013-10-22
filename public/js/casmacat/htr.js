@@ -67,7 +67,7 @@
 
       // helper function to limit the number of server requests
       // at least throttle_ms have to pass for events to trigger 
-      var decoderTimer = 0, timerMs = 400;
+      var decoderTimer = 0, timerMs = 800;
       var canvasForwarderTimer = 0, canvasForwarderTimerMs = 100;
       var insert_after_token, insertion_token, insertion_token_space;
 
@@ -456,6 +456,7 @@
         $('.epen-source', $segment).toggleClass('epen-source', false);
         $('.epen-target', $segment).toggleClass('epen-target', false);
         $('canvas', $segment).remove();
+        $('.canvas-options', $segment).remove();
       }
       original_deActivateSegment.call(UI, byButton);
     };
