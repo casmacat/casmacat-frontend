@@ -20,7 +20,7 @@
 .epen-wrap canvas { 
   border:2px dashed black;
   border-bottom: none;
-	display:block !important; position:absolute !important;
+	display:block; position:absolute !important;
 }
 
 /*
@@ -33,11 +33,15 @@
   border-bottom: 1px dashed green;
 }
 
+.canvas-options { 
+  display:none;
+}
+
 .epen-wrap .canvas-options { 
   border:1px solid black;
   border-top: 1px solid #ccc;
   background-color: #efefef;
-	display:block !important; position:absolute !important;
+	display:block; position:absolute !important;
   height: 1.5em;
 }
 

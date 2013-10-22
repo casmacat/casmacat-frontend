@@ -384,7 +384,7 @@
     var $source = $(prefix + "-source"), $section = $(prefix), animMs = 300;
     var $targetParent = $(prefix + "-target");
     $section.find('.wrap').toggleClass("epen-wrap", value);
-    $source.toggleClass("epen-source", animMs);
+    $source.toggleClass("epen-source", animMs, function(){}, value);
     $target.toggleClass("epen-target", animMs, function(){
       var $canvas = $targetParent.find('canvas'), $clearBtn = $('.buttons', UI.currentSegment).find('.pen-clear-indicator');
       // Create canvas on top
@@ -409,7 +409,7 @@
         $options.delay(100).css({
             left: ($section.find('.wrap').width() - siz.width - $section.find('.status-container').width()/2) / 2,
             width: siz.width + 2,
-            top: $canvas.position().top + $canvas.height() + 3,
+            top: $canvas.position().top + $canvas.height() + 20,
             zIndex: 99999 
         })
 
@@ -427,6 +427,7 @@
         }
       } else {
         $canvas = $targetParent.find('canvas');
+        $options = $targetParent.find('.canvas-options');
       }
       /*
       // TODO: Remove suffix length feature for e-pen mode and restore previous prioritizer
@@ -443,6 +444,7 @@
       var sel = window.getSelection();
       sel.removeAllRanges();
     }, value);
+    //$options.toggleClass('hide', animMs, function(){}, !value);
   };
   
 
