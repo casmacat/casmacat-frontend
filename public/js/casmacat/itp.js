@@ -127,7 +127,7 @@ $(function(){
             $indicator = $('<li/>').html('<a href="#" class="itp-btn pen-indicator" title="Toggle e-pen input">&#9997;</a>');
             $indicator.click(function(e){
               e.preventDefault();
-              getEditArea().editableItp('toggle', 'enableEpen', true);
+              getEditArea().editableItp('toggle', 'enableEpen');
             });
             $('.buttons', UI.currentSegment).prepend($indicator);
           }
