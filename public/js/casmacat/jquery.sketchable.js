@@ -239,7 +239,8 @@
     graphics: {
       fillStyle: '#F0F', 
       strokeStyle: '#F0F',
-      lineWidth: 2
+      lineWidth: 2,
+      firstPointSize: 0
       //lineCap: 
       //lineJoin: 
       //miterLimit: 
@@ -297,7 +298,9 @@
     var p = getMousePos(e);
     data.canvas.beginPath();
     // mark visually 1st point of stroke
-    data.canvas.fillCircle(p.x, p.y, options.graphics.lineWidth);
+    if (options.graphics.firstPointSize > 0) {
+      data.canvas.fillCircle(p.x, p.y, options.graphics.firstPointSize);
+    }
     //data.coords.push({ x:p.x, y:p.y, type:1 });
     //data.coords.push([ p.x, p.y, 1 ]);
     var timeDelta;
