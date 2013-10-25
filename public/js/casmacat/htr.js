@@ -14,6 +14,7 @@
       
       var MG = require("mg-recognizer");
       var HC = require("htrclient");
+      var GU = require("geometry-utils");
 
       // Setup -----------------------------------------------------------------
       var gestureRecognizer = new MG();
@@ -188,6 +189,23 @@
             if (tokenDistances[0].distance.dx > 0 || tokenDistances[0].distance.dy !== 0) {
               doValidateGesture();
             }
+            break;
+          case 'n': // set caret 
+            var clientCentroid = [centroid[0] - $(window).scrollLeft(), centroid[1] - $(window).scrollTop()];
+            //$canvas.hide()
+            //$canvas.next().hide()
+            //var range;
+            //if (typeof document.caretRangeFromPoint !== 'undefined') {
+            //  range = document.caretRangeFromPoint(e.pageX, e.pageY);
+            //}
+            //else {
+            //  range = document.caretPositionFromPoint(e.pageX, e.pageY);
+            //}
+            //$canvas.show()
+            //$canvas.next().show()
+            var caretPos = GU.getCaretPositionFromXY($target[0], clientCentroid[0], clientCentroid[1]);
+            $target.focus();
+            $target.editable('setCaretPos', caretPos);
             break;
           default:
             console.log("Gesture not implemented or out of context", gesture, centroid, tokenDistances);
