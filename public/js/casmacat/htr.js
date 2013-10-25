@@ -154,6 +154,7 @@
       };
 
       function processGesture(gesture, stroke) {
+        var $options = $canvas.next('.canvas-options');
         var centroid = MathLib.centroid(stroke);
         centroid = getAbsoluteXY(centroid);
         console.log("--------> processGesture:", gesture.name, centroid)
@@ -163,7 +164,10 @@
             var tokenDistancesInLine = tokenDistances.filter(function(a){ return a.distance.dy === 0});;
             if (tokenDistancesInLine.length > 0 && tokenDistancesInLine[0].distance.d < 3) {
               var token = tokenDistancesInLine[0];
+              $options.html('<strong>Reject</strong> '+$(token.token).text()); 
               doRejectGesture($(token.token));
+
+              
             }
             break;
           case 'se': // delete
@@ -171,6 +175,7 @@
             var tokenDistancesInLine = tokenDistances.filter(function(a){ return a.distance.dy < 3 });;
             if (tokenDistancesInLine.length > 0 && tokenDistancesInLine[0].distance.d < 3) {
               var token = tokenDistancesInLine[0];
+              $options.html('<strong>Delete</strong> '+$(token.token).text()); 
               doDeleteGesture($(token.token));
             }
             break;
@@ -181,12 +186,14 @@
               var leftTokens = tokenDistancesInLine.filter(function(a){ return a.distance.dx > 0});
               var $token = (leftTokens.length > 0)?$(leftTokens[0].token):null;
               console.log('left tokens', leftTokens);
+              $options.html('<strong>Inserting handwritting text ...</strong>'); 
               doInsertGesture($token);
             }
             break;
           case 'ne': // validate 
             var tokenDistances = $target.editable('getTokensAtXY', centroid, 0);
             if (tokenDistances[0].distance.dx > 0 || tokenDistances[0].distance.dy !== 0) {
+              $options.html('<strong>Validate segment<strong>'); 
               doValidateGesture();
             }
             break;
@@ -206,6 +213,7 @@
             var caretPos = GU.getCaretPositionFromXY($target[0], clientCentroid[0], clientCentroid[1]);
             $target.focus();
             $target.editable('setCaretPos', caretPos);
+            $options.html('<strong>Setting caret to introduce typed text ...</strong>'); 
             break;
           default:
             console.log("Gesture not implemented or out of context", gesture, centroid, tokenDistances);
@@ -259,7 +267,7 @@
               }
               if (!gesture) {
                 var $options = $canvas.next('.canvas-options');
-                $options.text("Decoding strokes...");
+                $options.html("<strong>Decoding strokes ...</strong>");
                 casmacatHtr.addStroke({points: strokes[strokes.length-1], is_pen_down: true});      
                 decoderTimer = setTimeout(function () {
                   //$('#btn-decode').trigger('click');
