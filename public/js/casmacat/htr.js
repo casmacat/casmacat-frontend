@@ -77,7 +77,7 @@
           token: null,
           distance: {d: 0, dx: 0, dy: 0}
         }
-        if (insert_after_token) {
+        if (typeof(insert_after_token) !== 'undefined') {
           var res = $target.editable('appendWordAfter', '', insert_after_token, ($target.text() !== '')?' ':'');
           tokenDistance.token = insertion_token = res.$token;
           insertion_token_space = res.$spaces;
@@ -243,7 +243,7 @@
                 gesture = gestureRecognizer.recognize(strokes);
                 console.log("GESTURE", gesture);
                 // first HTR stroke
-                if (!gesture || insert_after_token) {
+                if (!gesture || typeof(insert_after_token) !== 'undefined') {
                   var centroid = getAbsoluteXY(MathLib.centroid(strokes[0].slice(0, 20)));
                   var tokenDistance = getTokenDistanceAtPointer({clientX: centroid[0], clientY: centroid[1]});
                   var caretPos = $target.editable('getTokenPos', tokenDistance.token);
