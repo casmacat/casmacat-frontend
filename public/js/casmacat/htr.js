@@ -166,8 +166,6 @@
               var token = tokenDistancesInLine[0];
               $options.html('<strong>Reject</strong> '+$(token.token).text()); 
               doRejectGesture($(token.token));
-
-              
             }
             break;
           case 'se': // delete
@@ -399,7 +397,7 @@
       value = (elem.getAttribute("data-" + opt) !== "true");
     }
     elem.setAttribute("data-" + opt, value);
-    return value
+    return value;
   }
 
 
@@ -432,13 +430,18 @@
         $options = $('<div tabindex="-1" class="canvas-options"></div>');
         $canvas.after($options);
 
-        $options.delay(100).css({
-            left: ($section.find('.wrap').width() - siz.width - $section.find('.status-container').width()/2) / 2,
-            width: siz.width + 2,
-            top: $canvas.position().top + $canvas.height() + 20,
-            zIndex: 99999 
-        })
 
+        // the size of canvas-options should be computed AFTER canvas transition is over. Thus, we wait 20ms. Ideally, we shoud use jQuery 1.8 'deferred.then'
+        setTimeout(function(){
+            console.log('CANVAS', $canvas, $canvas.offsetParent().offsetParent().position(), $canvas.offset(), $canvas.position(), $canvas.height());
+            $options.css({
+                left: ($section.find('.wrap').width() - siz.width - $section.find('.status-container').width()/2) / 2,
+                width: siz.width + 2,
+                top: $canvas.position().top + $canvas.height(),
+                zIndex: 99999 
+            });
+          }, 20); 
+          
         htr.init($canvas, $source, $target);
 
         // A button to clear canvas (see http://ikwebdesigner.com/special-characters/)
