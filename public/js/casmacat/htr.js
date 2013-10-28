@@ -415,7 +415,7 @@
       if ($canvas.length === 0) {
         var geom = require('geometry-utils'),
              pos = $target.offset(),
-             siz = { width: $target.width() + 20, height: $target.height() + 10 };
+             siz = { width: $target.outerWidth() + 20, height: $target.outerHeight() };
 
         $canvas = $('<canvas tabindex="-1" id="'+prefix+'-canvas" width="'+siz.width+'" height="'+siz.height+'"/>');
         $canvas.prependTo($targetParent).hide().delay(10).css({
@@ -436,7 +436,7 @@
             $options.css({
                 left: ($section.find('.wrap').width() - siz.width - $section.find('.status-container').width()/2) / 2,
                 width: siz.width + 2,
-                top: $canvas.position().top + $canvas.height(),
+                top: $canvas.position().top + $canvas.outerHeight(),
                 zIndex: 99999 
             });
           }, 20); 

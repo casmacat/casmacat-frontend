@@ -6,12 +6,39 @@
 
 .epen-source { 
   /* border:1px solid green !important; */
+  float: none;
+  position: static;
+}
+
+.epen-wrap .target {
+  display:block !important; table-layout:auto !important; width:auto !important; 
+  padding-left: 20px !important;
+  padding-right: 26px !important;
+}
+
+.epen-wrap .textarea-container { 
+  margin-left: 0px;
+  float: none;
+  position: static;
+  margin-bottom: 20px;
 }
 
 .epen-target { 
-  margin-top:15px !important; width:100% !important;
+  box-shadow:none !important; -webkit-box-shadow:none !important; border:none !important;
+  line-height:250% !important;
+  float: none;
+  position: static;
+
+  /* margin-top: 15px !important; */
+  width:100% !important;
   /* border:1px solid red !important; */
+  float: none;
+  position: static;
+  padding-top: 40px !important;
+  padding-bottom: 40px !important;
+  min-height: 1em;
 }
+
 
 .epen-wrap { 
   display:block !important; text-align:center !important; cursor: url('../img/precision-cursor.png') 8 8, crosshair; 
@@ -63,11 +90,4 @@
   border-right: 1px solid #ccc;
 }
 
-.epen-wrap .target {
-  display:block !important; table-layout:auto !important; width:auto !important; 
-}
 
-.epen-wrap .editarea { 
-  box-shadow:none !important; -webkit-box-shadow:none !important; border:none !important;
-  line-height:160% !important;
-}
