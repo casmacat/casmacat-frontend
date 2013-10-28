@@ -433,7 +433,6 @@
 
         // the size of canvas-options should be computed AFTER canvas transition is over. Thus, we wait 20ms. Ideally, we shoud use jQuery 1.8 'deferred.then'
         setTimeout(function(){
-            console.log('CANVAS', $canvas, $canvas.offsetParent().offsetParent().position(), $canvas.offset(), $canvas.position(), $canvas.height());
             $options.css({
                 left: ($section.find('.wrap').width() - siz.width - $section.find('.status-container').width()/2) / 2,
                 width: siz.width + 2,
