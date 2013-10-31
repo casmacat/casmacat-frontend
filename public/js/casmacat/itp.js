@@ -32,6 +32,16 @@ $(function(){
 
   require('jquery.editable.itp');
 
+
+  var settings = {
+      itp: undefined,
+      visualization: config.prefs
+    }
+
+  if (config.catsetting) {
+    jQuery.extend(settings, require(config.basepath + '/' + config.catsetting));
+  }
+
   function getEditArea() {
     //return $(UI.currentSegment).find('.editarea');
     return UI.editarea || $('.editarea', UI.currentSegment);
@@ -79,6 +89,10 @@ $(function(){
     insertStyle(config.basepath  + 'public/css/htr.css');
     UI.toggleKeyBindings['ctrl+shift+e'] = 'enableEpen'
   }
+  else {
+    settings.visualization.epenEnabled = false;
+    settings.visualization.toggleEpenOffOnSegmentClose = true;
+  }
 
 
   var original_openSegment = UI.openSegment;
@@ -95,22 +109,25 @@ $(function(){
       //console.log("***OPEN SEGMENT***", $target[0], trace())
 
       $target.on('ready.matecat', function() {
-        var settings, $indicator;
-        if (config.catsetting) {
-          settings = require(config.basepath + '/' + config.catsetting);
-        } else {
-          settings = $target.editableItp('getConfig');
+        var $indicator;
+        if (typeof(settings.itp) === 'undefined') {
+          settings.itp = $target.editableItp('getConfig');
         }
-        if ($.trim($target.text()).length === 0 && settings.mode != "manual") {
+        // enable S&R if server supports it and configuration is set 
+        if ((settings.itp.hasOwnProperty('allowSearchReplace') && settings.itp.allowSearchReplace) || (!settings.itp.hasOwnProperty('allowSearchReplace') && config.srEnabled)) {
+          setupSearchReplace();
+        }
+
+        if ($.trim($target.text()).length === 0 && settings.itp.mode != "manual") {
           $target.editableItp('decode');
         }
         $target.editableItp('startSession');
-        $target.editableItp('updateConfig', settings);
+        $target.editableItp('updateConfig', settings.itp);
         // A button to toggle ITP mode
         $indicator = ('.buttons', UI.currentSegment).find('.itp-indicator');
         if (config.itpEnabled) {
           if ($indicator.length === 0) {
-            $indicator = $('<li/>').html('<a href="#" class="itp-btn itp-indicator">'+settings.mode+'</a><p>ESC</p>');
+            $indicator = $('<li/>').html('<a href="#" class="itp-btn itp-indicator">'+settings.itp.mode+'</a><p>ESC</p>');
             $indicator.click(function(e){
               e.preventDefault();
               UI.toggleItp(e);
@@ -131,7 +148,7 @@ $(function(){
             });
             $('.buttons', UI.currentSegment).prepend($indicator);
           }
-          if (!config.prefs.toggleEpenOffOnSegmentClose) {
+          if (settings.visualization.epenEnabled && !settings.visualization.toggleEpenOffOnSegmentClose) {
             getEditArea().editableItp('toggle', 'enableEpen', true);
           }
         }
@@ -142,8 +159,9 @@ $(function(){
           for (var opt in shortcuts.toggles) {
             var toggleId = shortcuts.toggles[opt],
                 labelId  = $(UI.currentSegment).attr("id") + "-" + toggleId,
-                sc = opt.toUpperCase(),
-                prefStatus  = config.prefs[toggleId],
+                sc = opt.toUpperCase();
+
+            var prefStatus  = settings.visualization[toggleId],
                 checkStatus = (prefStatus) ? ' checked="checked"' : '';
             nav += '<input title='+sc+' type="checkbox" '+checkStatus+' id="'+labelId+'" name="'+toggleId+'"><label title='+sc+'>'+toggleId+'</label> ';
           }
@@ -184,7 +202,7 @@ $(function(){
         itpServerUrl:   config.itpserver,
         debug:          config.debug,
         replay:         config.replay
-      }, config.prefs)
+      }, settings.visualization)
       .on('togglechange.matecat', function (ev, toggle, value, cfg) {
         var $indicator = $('.text', UI.currentSegment).find('.vis-commands'),
             name = '#segment-' + sid + '-' + toggle;
@@ -256,7 +274,7 @@ $(function(){
           $target.find('span.editable-token')
           .off('mouseenter.matecat mouseleave.matecat caretenter.matecat caretleave.matecat')
           .on('mouseenter.matecat', function (ev) {
-            if (!config.prefs.displayMouseAlign) return;
+            if (!settings.visualization.displayMouseAlign) return;
             var data = {
                 target: ev.target,
                 x: ev.clientX,
@@ -265,17 +283,17 @@ $(function(){
             $(window).trigger('showAlignmentByMouse', data);
           })
           .on('mouseleave.matecat', function (ev) {
-            if (!config.prefs.displayMouseAlign) return;
+            if (!settings.visualization.displayMouseAlign) return;
             $(window).trigger('hideAlignmentByMouse', ev.target);
           })
           .on('caretenter.matecat', function (ev, data) {
-            if (!config.prefs.displayCaretAlign) return;
+            if (!settings.visualization.displayCaretAlign) return;
             // change dom node in data by its id to avoid circular problem when converting to JSON
             var d = jQuery.extend({}, data); d.token = '#'+d.token.id;
             $(window).trigger('showAlignmentByKey', {element: $target[0], type: "caretenter", data: d});
           })
           .on('caretleave.matecat', function (ev, data) {
-            if (!config.prefs.displayCaretAlign) return;
+            if (!settings.visualization.displayCaretAlign) return;
             // change dom node in data by its id to avoid circular problem when converting to JSON
             var d = jQuery.extend({}, data); d.token = '#'+d.token.id;
             if (config.displayCaretAlign) $(window).trigger('hideAlignmentByKey', {element: $target[0], type: "caretleave", data: d});
@@ -283,7 +301,7 @@ $(function(){
 
           $source.find('span.editable-token').off('mouseenter.matecat mouseleave.matecat')
           .on('mouseenter.matecat', function (ev) {
-            if (!config.prefs.displayMouseAlign) return;
+            if (!settings.visualization.displayMouseAlign) return;
             var data = {
                 target: ev.target,
                 x: ev.clientX,
@@ -292,7 +310,7 @@ $(function(){
             $(window).trigger('showAlignmentByMouse', data);
           })
           .on('mouseleave.matecat', function (ev) {
-            if (!config.prefs.displayMouseAlign) return;
+            if (!settings.visualization.displayMouseAlign) return;
             $(window).trigger('hideAlignmentByMouse', ev.target);
           })
       });
@@ -383,20 +401,6 @@ $(function(){
   };
 
   // BEGIN S&R facilities ------------------------------------------------------
-  if (config.catsetting) {
-    var settings = require(config.basepath + '/' + config.catsetting);
-    if (settings) {
-      // For the evaluation, S&R can be optional
-      if (settings.allowSearchReplace || !settings.hasOwnProperty('allowSearchReplace')) {
-        setupSearchReplace();
-      } else {
-        $('#sr-replace').hide();
-      }
-    }
-  } else if (config.srEnabled) {
-    setupSearchReplace();
-  }
-
   $('#sr-rules').hide(); // In any case, this must be hidden beforehand
 
   function addSearchReplaceEvents() {
