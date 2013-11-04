@@ -125,9 +125,10 @@
           t = n;
         } while (t && !t.is('.editable-token') && t[0].nextSibling);
         
-        var cursorPos = $target.editable('getTokenPos', t.next());
-        //console.log('update at', cursorPos, '"' + $target.text().slice(0, cursorPos)  + '"');
-        $target.editableItp('setPrefix', cursorPos)
+        // XXX: comment out prediction after delete since behaviour has not been properly defined
+        //var cursorPos = $target.editable('getTokenPos', t.next());
+        ////console.log('update at', cursorPos, '"' + $target.text().slice(0, cursorPos)  + '"');
+        //$target.editableItp('setPrefix', cursorPos)
       };
 
       function doInsertGesture($token) {
