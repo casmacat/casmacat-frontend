@@ -332,7 +332,12 @@
     e.preventDefault();
     var elem = $(e.target);
     var touch = e.originalEvent.changedTouches[0];
-    touch.type = e.type;
+    
+    // copy original event properties to touch event to simulate mouse event
+    for (var o in e) {
+      touch[o] = e[o];
+    }
+
     // remove (emulated) mouse events on mobile devices
     switch(e.type) {
       case "touchstart": 

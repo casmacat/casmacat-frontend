@@ -106,6 +106,7 @@
       if (callback) callback(window.require.cache[url]);
     };
     request.open('GET', url, !!callback);
+    //request.open('GET', url + '?t=' + (new Date()).getTime(), !!callback);
     request.send();
     return exports;
   };

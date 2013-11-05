@@ -227,6 +227,7 @@
           events: {
           
             mouseDown: function(e) {
+              e.stopPropagation();
               clearTimeout(decoderTimer);
             },
             
@@ -422,11 +423,13 @@
         $canvas.prependTo($targetParent).hide().delay(10).css({
             left: ($section.find('.wrap').width() - siz.width - $section.find('.status-container').width()/2) / 2,
             zIndex: geom.getNextHighestDepth(),
-        }).bind('mousedown mouseup click', function(e){
+        }).bind('mousedown mouseup click touchstart touchend', function(e){
           // This is to prevent logging click events on the canvas
           e.stopPropagation();
         });
 
+        $canvas.focus();
+        $canvas.on('dragstart', function(){return false});
   
         $options = $('<div tabindex="-1" class="canvas-options"></div>');
         $canvas.after($options);
