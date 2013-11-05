@@ -99,6 +99,7 @@ $(function(){
   var original_closeSegment = UI.closeSegment;
   var original_doRequest = UI.doRequest;
   var original_copySuggestionInEditarea = UI.copySuggestionInEditarea;
+  var original_setTranslation = UI.setTranslation;
 
   UI.openSegment = function(editarea) {
     original_openSegment.call(UI, editarea);
@@ -399,6 +400,16 @@ $(function(){
     }
     //return req.data;
   };
+
+  UI.setTranslation = function(segment, status) {
+    original_closeSegment.call(UI, segment, status);
+
+    if (status === 'translated') {
+      getEditArea().editableItp('validate');
+    }
+  };
+
+
 
   // BEGIN S&R facilities ------------------------------------------------------
   $('#sr-rules').hide(); // In any case, this must be hidden beforehand
