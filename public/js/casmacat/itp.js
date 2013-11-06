@@ -409,6 +409,11 @@ $(function(){
     }
   };
 
+  if (!config.replay && config.debug) { // enable reset document button
+    $("#resetDocument").text('Reset Document').on("click", function(e) {
+      getEditArea().editableItp('reset');
+    });
+  }
 
 
   // BEGIN S&R facilities ------------------------------------------------------
