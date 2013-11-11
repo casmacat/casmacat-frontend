@@ -291,6 +291,11 @@
           canvasForwarderTimer = setTimeout(function() {
             var tokens = $target.editable('getTokensAtXY', [e.clientX, e.clientY]);
             var elem; 
+            if (tokens.length > 0) {
+              $('.editable-token', $target).toggleClass('epen-closest', false);
+              $(tokens[0].token).toggleClass('epen-closest', true);
+            }
+            
             if (tokens.length > 0 && tokens[0].distance.d == 0) {
               elem = $(tokens[0].token);
             }
