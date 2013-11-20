@@ -391,6 +391,13 @@
         toggleEpenMode($target, cfg.epenEnabled);
         $target.trigger('togglechange', ['enableEpen', cfg.epenEnabled, cfg]);
       });
+
+      var resizeHandler = function(e) {
+        adjustCanvasSize($target);
+      }
+
+      $(window).resize(resizeHandler);
+      $target[0].addEventListener('DOMSubtreeModified', resizeHandler);
     }
 
 
@@ -407,6 +414,33 @@
     return value;
   }
 
+
+  function adjustCanvasSize($target) {
+    var sid = $target.data('sid'), prefix = "#segment-" + sid;
+    var $targetParent = $(prefix + "-target"),
+        $canvas = $targetParent.find('canvas'),
+        $section = $(prefix),
+         pos = $target.offset(),
+         siz = { width: $target.outerWidth() + 20, height: $target.outerHeight() };
+
+    if ($canvas.length > 0 && ($canvas.attr('width') != siz.width || $canvas.attr('height') != siz.height)) {
+      console.log('ADJUSTING TO', siz);
+      $canvas.attr('width', siz.width).attr('height', siz.height);
+      $canvas.css({
+          left: ($section.find('.wrap').width() - siz.width - $section.find('.status-container').width()/2) / 2,
+      });
+
+      setTimeout(function(){
+        $options = $canvas.next('.canvas-options');
+        console.log('OPTIONS', $options);
+        $options.css({
+            left: ($section.find('.wrap').width() - siz.width - $section.find('.status-container').width()/2) / 2,
+            width: siz.width + 2,
+            top: $canvas.position().top + $canvas.outerHeight(),
+        });
+      }, 100);
+    }
+  }
 
 
 
