@@ -101,7 +101,7 @@ var Memento = require("module.memento");
           source: itpCfg.$source.editable('getText'),
           target: $target.editable('getText'),
         });
-        $target.editable('setCaretPos', data.caret);        
+        if (data.caret) $target.editable('setCaretPos', data.caret);        
       }
     });
  

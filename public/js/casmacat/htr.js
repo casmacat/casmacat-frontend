@@ -129,6 +129,7 @@
         //var cursorPos = $target.editable('getTokenPos', t.next());
         ////console.log('update at', cursorPos, '"' + $target.text().slice(0, cursorPos)  + '"');
         //$target.editableItp('setPrefix', cursorPos)
+        $target.trigger('editabletextchange', [null, null]);
       };
 
       function doInsertGesture($token) {
@@ -138,8 +139,8 @@
         //  numResults: 2,
         //}
 
-        insert_after_token = $token; 
         console.log('insertion token', insert_after_token);
+        insert_after_token = $token; 
         // decoderTimer = setTimeout(function () {
         //   $('#btn-decode').trigger('click');
         // }, timerMs);
@@ -361,6 +362,7 @@
         insert_after_token = undefined;
         insertion_token = undefined;
         insertion_token_space = undefined;
+        $target.trigger('editabletextchange', [null, null]);
       });
 
 /*      
