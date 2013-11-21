@@ -69,7 +69,7 @@
       // helper function to limit the number of server requests
       // at least throttle_ms have to pass for events to trigger 
       var decoderTimer = 0, timerMs = 800;
-      var canvasForwarderTimer = 0, canvasForwarderTimerMs = 100;
+      var canvasForwarderTimer = 0, canvasForwarderTimerMs = 50;
       var insert_after_token, insertion_token, insertion_token_space;
 
       function getTokenDistanceAtPointer(e) {
@@ -146,12 +146,28 @@
       };
 
       function doValidateGesture($token) {
+        console.log('validate');
+        $target.editableItp('validate');
+      };
+
+      function doUndoGesture($token) {
         //var query = {
         //  source: $source.text(),
         //  caretPos: 0,
         //  num_results: 1,
         //}
-        console.log('validate');
+        console.log('undo');
+        $target.editableItp('undo');
+      };
+
+      function doRedoGesture($token) {
+        //var query = {
+        //  source: $source.text(),
+        //  caretPos: 0,
+        //  num_results: 1,
+        //}
+        console.log('redo');
+        $target.editableItp('redo');
       };
 
       function processGesture(gesture, stroke) {
@@ -213,6 +229,20 @@
             $target.focus();
             $target.editable('setCaretPos', caretPos);
             $options.html('<strong>Setting caret to introduce typed text ...</strong>'); 
+            break;
+          case 'e': // redo
+            var tokenDistances = $target.editable('getTokensAtXY', centroid, 0);
+            if (tokenDistances[0].distance.dx > 0 || tokenDistances[0].distance.dy !== 0) {
+              $options.html('<strong>Redo<strong>'); 
+              doRedoGesture();
+            }
+            break;
+          case 'w': // undo
+            var tokenDistances = $target.editable('getTokensAtXY', centroid, 0);
+            if (tokenDistances[0].distance.dx > 0 || tokenDistances[0].distance.dy !== 0) {
+              $options.html('<strong>Undo<strong>'); 
+              doUndoGesture();
+            }
             break;
           default:
             console.log("Gesture not implemented or out of context", gesture, centroid, tokenDistances);
@@ -288,7 +318,7 @@
       }).bind('mousemove', function (e) { 
         clearTimeout(canvasForwarderTimer);
         if (canvasForwarderTimerMs > 0 && !skanvas.data('sketchable').canvas.isDrawing) {
-          canvasForwarderTimer = setTimeout(function() {
+          function forwardCanvas() {
             var tokens = $target.editable('getTokensAtXY', [e.clientX, e.clientY]);
             var elem; 
             if (tokens.length > 0) {
@@ -307,7 +337,9 @@
               elem.mousemove();
             }
             lastElementOnMouse = elem;
-          }, canvasForwarderTimerMs);
+          }
+          forwardCanvas();
+          //canvasForwarderTimer = setTimeout(forwardCanvas, canvasForwarderTimerMs);
         }
       });
       

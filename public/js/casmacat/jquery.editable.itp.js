@@ -227,6 +227,16 @@
       return $(this).data(namespace).itpServer;
     },
 
+    undo: function() {
+      var memento = $(this).data(namespace).events.memento;
+      if (memento) memento.undo();
+    },
+
+    redo: function() {
+      var memento = $(this).data(namespace).events.memento;
+      if (memento) memento.redo();
+    },
+
     toggle: function(option, value) {
       $(this).trigger(option + "Toggle", value); 
     },
