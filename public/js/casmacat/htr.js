@@ -148,7 +148,12 @@
 
       function doValidateGesture($token) {
         console.log('validate');
-        $target.editableItp('validate');
+        var sid = $target.attr('data-sid');
+        var $button = $('#segment-' + sid + '-button-translated');
+        console.log(sid, $button);
+        $button.click();
+  
+        //$target.editableItp('validate');
       };
 
       function doUndoGesture($token) {
