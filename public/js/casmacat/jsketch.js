@@ -33,19 +33,14 @@
     // although discouraged, we can instantiate the class without arguments
     if (!elem) return;
     // one can pass default setup values
-    options = options || {};
+    this.options = options || {};
     // set drawing context first
     this.context(elem);
     // scene defaults
     this.stageWidth  = elem.getAttribute("width");
     this.stageHeight = elem.getAttribute("height");
     // drawing defaults
-    this.graphics.fillStyle   = options.fillStyle   || '#F00';
-    this.graphics.strokeStyle = options.strokeStyle || '#F0F';
-    this.graphics.lineWidth   = typeof options.lineWidth !== 'undefined' ? options.lineWidth : 2;
-    this.graphics.lineCap     = options.lineCap     || 'round';
-    this.graphics.lineJoin    = options.lineJoin    || 'round';
-    this.graphics.mitterLimit = typeof options.mitterLimit !== 'undefined' ? options.mitterLimit : 10;
+    this.setStyle();
     // make room for storing some data such as brush type, colors, etc.
     this.data = {};
     // make constructor chainable
@@ -58,6 +53,14 @@
    * @see jSketch
    */    
   jSketch.fn = Sketch.prototype = {
+    setStyle: function() {
+      this.graphics.fillStyle   = this.options.fillStyle   || '#F00';
+      this.graphics.strokeStyle = this.options.strokeStyle || '#F0F';
+      this.graphics.lineWidth   = typeof this.options.lineWidth !== 'undefined' ? this.options.lineWidth : 2;
+      this.graphics.lineCap     = this.options.lineCap     || 'round';
+      this.graphics.lineJoin    = this.options.lineJoin    || 'round';
+      this.graphics.mitterLimit = typeof this.options.mitterLimit !== 'undefined' ? this.options.mitterLimit : 10;
+    },
     /**
      * Allows to change the drawing context at runtime.
      * @param {Object} elem DOM element
@@ -309,6 +312,7 @@
      * @methodOf jSketch
      */
     beginPath: function() {
+      this.setStyle();
       this.graphics.beginPath();
       return this;
     },
