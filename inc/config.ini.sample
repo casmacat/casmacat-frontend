@@ -39,4 +39,5 @@ itpenabled = 1 ; enable ITP
 penenabled = 0 ; enable e-pen interaction
 etenabled  = 1 ; enable eye tracking
 srenabled  = 1 ; enable search and replace
+biconcorenabled = 0 ; enable the biconcordancer
 ettype = 0 ; 0 = Mouse Emulator, 100 = EyeLink 1000, 200 = Tobii 120
