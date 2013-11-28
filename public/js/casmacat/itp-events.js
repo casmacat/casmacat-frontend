@@ -620,7 +620,9 @@ var Memento = require("module.memento");
         var cpos = $target.editable('getCaretPos');
         forgetState(cpos);
         // Update only the caret position
-        self.currentCaretPos.pos = cpos;
+        if (self.currentCaretPos)
+          // 2013-11-28 - herve - added the 'if' condition -- I was getting "self.currentCaretPos is undefined" errors here
+          self.currentCaretPos.pos = cpos;
         // Issue a reject only if CTRL is pressed
         if (e.ctrlKey) reject(); // UPDATE: This is error prone and may require interaction with other modules
       })
