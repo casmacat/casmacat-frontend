@@ -1202,6 +1202,9 @@ UI = {
     },
 
     renderContributions: function(d,segment) {
+        if (config.hideContributions)
+            return;
+
 //        console.log("renderContributions:", d, segment)
         var isActiveSegment = $(segment).hasClass('editor');
         var editarea = $('.editarea', segment);

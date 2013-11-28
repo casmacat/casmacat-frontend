@@ -47,6 +47,7 @@ class INIT {
     public static $ET_ENABLED;
     public static $SR_ENABLED;
     public static $BICONCOR_ENABLED;
+    public static $HIDE_CONTRIBUTIONS;
     public static $ET_TYPE;
 
 
@@ -104,6 +105,7 @@ class INIT {
         self::$ET_ENABLED  = self::getConfigBool('etenabled');
         self::$SR_ENABLED  = self::getConfigBool('srenabled');
         self::$BICONCOR_ENABLED = self::getConfigBool('biconcorenabled');
+        self::$HIDE_CONTRIBUTIONS = self::getConfigBool('hidecontributions');
         self::$ET_TYPE     = self::getConfig('ettype', "casmacat", 0);
         self::$DEBUG       = self::getConfigBool('debug', "debug");
     }
