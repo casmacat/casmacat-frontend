@@ -33,7 +33,7 @@
                 '<a href="#"'
                         + ' class="itp-btn biconcor-btn"'
                     + ' title="Biconcordancer"'
-                    + '>\u2637</a>'
+                    + '>\u2637</a><p>CTRL+B</p>'
             );
             $indicator.click (function (e) {
                 e.preventDefault();
@@ -44,7 +44,7 @@
     };
 
     // Button click handler
-    UI.launchBiconcor = function (evt) {
+    UI.launchBiconcor = function () {
         // NB document.getSelection() not available in IE
         // 
         // NB we don't even check that the selected text belongs to the current
@@ -81,17 +81,36 @@
             }
         });
         if (data.warm) {
-            buildConcordanceGUI (data.concorStruct);
+            if (data.concorStruct.length > 0) {
+                buildConcordanceGUI (data.concorStruct);
+            } else {
+                buildTextOnlyDialog ("No matches found for '" + data.srcPhrase + "'");
+            }
         } else if (data.promptForSrcPhrase) {
-            buildSrcPhrasePrompt();
+            buildTextOnlyDialog (
+                "Type a word in the box above to look up its concordances\n\n"
+                + "You can also select a word in the document itself before opening this dialog,\n"
+                + "the word will be automatically queried."
+            );
         } else {
-            buildWarmingUpMessage ();
+            buildTextOnlyDialog (
+                "The concordancer went to sleep.\n"
+                + "It's waking up, should only take around 10 seconds..."
+            );
             title = "Just a moment...";
         }
         $(elDialog).dialog ({
             modal: true,
             width: 'auto',
             title: title
+        });
+        $(elDialog).on ("dialogclose", function () {
+            // 2013-11-28 - herve - need to explicitly bring focus back
+            // somewhere, else it seems to go into limbo and no keyboard
+            // shortcuts work anymore. The edit box seems like a decent
+            // candidate for focusing.
+            if (UI.editarea)
+                UI.editarea.focus();
         });
         elDialog.parentNode.style.zIndex = 10000; // 1000 not enough
         if (!title) {
@@ -105,26 +124,16 @@
 
     // All these hardcoded styles should go in a separate stylesheet
 
-    function buildSrcPhrasePrompt () {
-        setChildren (elDialog, buildNode (
-            'p', {},
-            "Type a word in the box above to look up its concordances",
-            ['br'],
-            ['br'],
-            "You can also select a word in the document itself before opening this dialog,",
-            ['br'],
-            "the word will be automatically queried."
-        ));
-    }
-
-    function buildWarmingUpMessage () {
-        setChildren (elDialog, buildNode (
-            'p', {},
-            "The concordancer went to sleep.",
-            ['br'],
-            "It's waking up, should take around 10 seconds..."
-        ));
-    }
+    function buildTextOnlyDialog (mesg) {
+        var nodeDef = [];
+        mesg.split(/\n/).forEach (function (line) {
+            if (nodeDef.length > 0)
+                nodeDef.push (['br']);
+            nodeDef.push (line);
+        });
+        nodeDef.splice (0, 0, 'p', {});
+        setChildren (elDialog, buildNode.apply (this, nodeDef))
+    };
 
     function buildConcordanceGUI (concorStruct) {
         setChildren (elDialog); // clear
