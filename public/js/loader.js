@@ -53,6 +53,11 @@ Loader = {
       this.components.push('casmacat/itp');
   	  this.libraries.push('../casmacat/require.node');
     }
+    if (config.biconcorEnabled) {
+      this.components.push('casmacat/biconcor');
+      this.includeStyle ('biconcor.css', '', config.basepath + 'public/css/');
+      this.includeStyle ('jquery-ui-1.8.20.smoothness.css', 'lib/', config.basepath + 'public/css/');
+    }
 
 		var l = this.libraries;
 		var c = this.detect('fork')? this.forkComponents : this.components;

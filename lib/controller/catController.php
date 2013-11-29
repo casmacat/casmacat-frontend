@@ -335,6 +335,9 @@ class catController extends viewcontroller {
         $this->template->etEnabled = INIT::$ET_ENABLED;
         $this->template->etType = INIT::$ET_TYPE;
         $this->template->srEnabled = INIT::$SR_ENABLED;
+        $this->template->biconcorEnabled = INIT::$BICONCOR_ENABLED;
+        $this->template->hideContributions = INIT::$HIDE_CONTRIBUTIONS;
+        $this->template->floatPredictions = INIT::$FLOAT_PREDICTIONS;
         log::doLog("CASMACAT: itpEnabled: " . INIT::$ITP_ENABLED);
         log::doLog("CASMACAT: etEnabled: " . INIT::$ET_ENABLED);
         if (INIT::$LOG_ENABLED) {
@@ -359,6 +362,9 @@ class catController extends viewcontroller {
             $this->template->etEnabled = $this->initCfg->etEnabled;
 //            $this->template->etType = $this->initCfg->etType;
             $this->template->srEnabled = $this->initCfg->srEnabled;
+            $this->template->biconcorEnabled = $this->initCfg->biconcorEnabled;
+            $this->template->hideContributions = $this->initCfg->hideContributions;
+            $this->template->floatPredictions = $this->initCfg->floatPredictions;
 
             // prefs
         }

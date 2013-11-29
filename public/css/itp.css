@@ -34,3 +34,17 @@
   cursor: auto;
 }
 .btn { margin-left: 15px; }
+
+
+.floating-prediction {
+    position: fixed;
+    background-color: white;
+    z-index: 1000;
+    border: solid 1px #cdcdcd;
+    padding: 0.25em 0.5em;
+    cursor: default;
+}
+
+.floating-prediction-hidden {
+    display: none;
+}

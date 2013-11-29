@@ -120,6 +120,7 @@
        'ctrl+del': clearTarget,
             'esc': UI.toggleItp,
          'return': saveDraft,
+         'ctrl+b': UI.launchBiconcor,
   };
   
   var toggleKeyBindings = UI.toggleKeyBindings = {
