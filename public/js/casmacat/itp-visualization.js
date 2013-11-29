@@ -1,3 +1,5 @@
+// -*- js-indent-level: 2 -*-
+
 (function(module, global){
   var NLP = require('nlp-utils');
 
@@ -352,6 +354,163 @@
 
       }
     }
+
+    // the "floating prediction" displays the predicted next word next to the
+    // user's text caret
+    var floatingPredItpVis; // singleton instance
+    self.FloatingPrediction = (function () {
+      var NUM_WORDS_LOOKAHEAD = 3;
+      var HIDDEN = top.location.href.indexOf ('/translate-no-itp/') >= 0;
+
+      if (floatingPredItpVis)
+        // there can only be one
+        floatingPredItpVis.FloatingPrediction.destroy();
+      floatingPredItpVis = self;
+
+      var elFloatPred = document.createElement ('div');
+      if (!HIDDEN)
+        document.body.appendChild (elFloatPred);
+
+      var predictedText = null;
+      setPredictedText (null);
+
+      function getCaretPixelCoords () {
+        // returns the X/Y coordinates, in fixed window pixels, of the text
+        // caret
+        // 
+        // FIXME shouldn't this use getCaretXY() from jquery.editable.js ?
+        // 
+        var sel = document.selection;
+        var x = 0, y = 0;
+        var range;
+        if (sel) {
+          if (sel.type != "Control") {
+            range = sel.createRange();
+            range.collapse(true);
+            x = range.boundingLeft;
+            y = range.boundingTop;
+          }
+        } else if (window.getSelection) {
+          sel = window.getSelection();
+          if (sel.rangeCount) {
+            range = sel.getRangeAt(0).cloneRange();
+            if (range.getClientRects) {
+              range.collapse(true);
+              var rect = range.getClientRects()[0];
+              x = rect && rect.left;
+              y = rect && rect.top;
+            }
+          }
+        }
+        return typeof x === 'number' && typeof y === 'number'
+              ? [parseInt(x),parseInt(y)] : null;
+      }
+
+      function adjustPosition () {
+        var coord = getCaretPixelCoords();
+        if (coord) {
+          elFloatPred.style.top  = (coord[1]+10) + 'px';
+          elFloatPred.style.left = (coord[0]+10) + 'px';
+          showPredictedText();
+        }
+      }
+
+      function skip (regex, pos, txt) {
+        if (typeof txt === 'undefined')
+          txt = predictedText;
+        while (pos < txt.length && regex.test(txt[pos]))
+          pos++;
+        return pos;
+      }
+
+      function skipBack (regex, pos, txt) {
+        if (typeof txt === 'undefined')
+          txt = predictedText;
+        while (pos > 0 && regex.test(txt[pos-1]))
+          pos--;
+        return pos;
+      }
+
+      function setVisible (visible) {
+        elFloatPred.className =
+            'floating-prediction'
+            + (visible ? '' : ' floating-prediction-hidden');
+      }
+
+      function setPredictedText (txt) {
+        predictedText = txt;
+        showPredictedText();
+      }
+
+      function showPredictedText () {
+        if (!$target.editable('hasFocus')) {
+          setVisible (false);
+          return;
+        }
+        var txt = predictedText;
+        var floatHtmlStr;
+        if (txt) {
+          var boldStart = $target.editable('getCaretPos');
+          var predStart = skipBack (/^\S/, boldStart);
+          var boldEnd = skip (/^\S/, boldStart);
+          var predEnd = predStart;
+          // predStart = skip (/^\s/, predStart);
+          for (var word = 0; word < NUM_WORDS_LOOKAHEAD; word++)
+            predEnd = skip (/^\S/, skip (/^\s/, predEnd));
+          floatHtmlStr = 
+              txt.substring (predStart, boldStart) +
+              '<b>' + 
+              txt.substring (boldStart, boldEnd) +
+              '</b>' +
+              txt.substring (boldEnd, predEnd);
+        }
+        if (floatHtmlStr) {
+          elFloatPred.innerHTML = floatHtmlStr;
+        }
+        setVisible (!!floatHtmlStr);
+      }
+
+      function goToPos (pos) {
+        // I thought this would be enough:
+        //   $target.editable ('setCaretPos', $target.text().length);
+        // but I can't get it to work.
+        var token = $target.editable ('getTokenAtCaret', 0);
+        var range = document.createRange();
+        range.setStart (token.elem, pos);
+        range.collapse();
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange (range);
+      }
+
+      function acceptNextWord () {
+        if (!predictedText)
+          return;
+        var pos = $target.editable('getCaretPos');
+        var oldText = $target.text();
+        var insText = predictedText.substring(pos).replace (/(\S)\s.*/,'$1');
+        var sufText = oldText.substring (pos);
+        if (sufText.indexOf(insText) === 0)
+          sufText = sufText.substring(insText.length).trim();
+        var newText = oldText.substring (0, pos) + insText + ' ' + sufText;
+        $target.editable ('setText', newText);
+        goToPos (pos + insText.length + 1);
+        showPredictedText();
+      }
+
+      function destroy () {
+        elFloatPred.parentNode.removeChild (elFloatPred);
+      }
+
+      // public methods for FloatingPrediction
+      return {
+        adjustPosition: adjustPosition,
+        setPredictedText: setPredictedText,
+        acceptNextWord: acceptNextWord,
+        destroy: destroy
+      };
+    })();
+
   };
   
   module.exports = ItpVisualization; 

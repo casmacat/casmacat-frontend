@@ -42,3 +42,4 @@ srenabled  = 1 ; enable search and replace
 biconcorenabled = 0 ; enable the biconcordancer
 ettype = 0 ; 0 = Mouse Emulator, 100 = EyeLink 1000, 200 = Tobii 120
 hideContributions = 1 ; hide the TM suggestions, which in most Casmacat setups are bogus anyway
+floatpredictions = 1 ; whether the ITP predictions should be displayed in a floating box rather than inserted directly into the textarea

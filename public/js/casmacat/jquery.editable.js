@@ -540,6 +540,10 @@
 
     },
 
+    hasFocus: function () {
+      // herve - did I really need to add this? It's probably already somewhere else
+      return $(this).is (':focus');
+    }
   };
 
 
