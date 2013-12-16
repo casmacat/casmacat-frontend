@@ -69,6 +69,7 @@
       // helper function to limit the number of server requests
       // at least throttle_ms have to pass for events to trigger 
       var decoderTimer = 0, timerMs = 800;
+      var doubleClickTimer = 0, doubleClickTimerMs = 200, doubleClick = false;
       var canvasForwarderTimer = 0, canvasForwarderTimerMs = 50;
       var insert_after_token, insertion_token, insertion_token_space;
 
@@ -111,7 +112,7 @@
 
       // Gesture callbacks -----------------------------------------------------
       function doRejectGesture($token) {
-        $target.editableItp('rejectSuffix', $target.editable('getTokenPos', $token[0]))
+        $target.editableItp('rejectSuffix', $target.editable('getTokenPos', $token[0]), 10)
         console.log('reject', $token);
       };
 
@@ -176,13 +177,41 @@
         $target.editableItp('redo');
       };
 
+
+      function doSetCaretGesture(centroid) {
+        var clientCentroid = [centroid[0] - $(window).scrollLeft(), centroid[1] - $(window).scrollTop()];
+        //$canvas.hide()
+        //$canvas.next().hide()
+        //var range;
+        //if (typeof document.caretRangeFromPoint !== 'undefined') {
+        //  range = document.caretRangeFromPoint(e.pageX, e.pageY);
+        //}
+        //else {
+        //  range = document.caretPositionFromPoint(e.pageX, e.pageY);
+        //}
+        //$canvas.show()
+        //$canvas.next().show()
+        var caretPos = GU.getCaretPositionFromXY($target[0], clientCentroid[0], clientCentroid[1]);
+        $target.focus();
+        $target.editable('setCaretPos', caretPos);
+      };
+
+      function doSelectGesture(centroid) {
+      }
+
       function processGesture(gesture, stroke) {
         var $options = $canvas.next('.canvas-options');
         var centroid = MathLib.centroid(stroke);
         centroid = getAbsoluteXY(centroid);
+
+        if (doubleClick && gesture.name === "dot") {
+          gesture.name = "double-click";
+        }
+        doubleClick = false; 
+
         console.log("--------> processGesture:", gesture.name, centroid)
         switch (gesture.name) {
-          case 'dot': // reject 
+          case 'n': // reject 
             var tokenDistances = $target.editable('getTokensAtXY', centroid, 0);
             var tokenDistancesInLine = tokenDistances.filter(function(a){ return a.distance.dy === 0});;
             if (tokenDistancesInLine.length > 0 && tokenDistancesInLine[0].distance.d < 3) {
@@ -218,23 +247,21 @@
               doValidateGesture();
             }
             break;
-          case 'n': // set caret 
-            var clientCentroid = [centroid[0] - $(window).scrollLeft(), centroid[1] - $(window).scrollTop()];
-            //$canvas.hide()
-            //$canvas.next().hide()
-            //var range;
-            //if (typeof document.caretRangeFromPoint !== 'undefined') {
-            //  range = document.caretRangeFromPoint(e.pageX, e.pageY);
-            //}
-            //else {
-            //  range = document.caretPositionFromPoint(e.pageX, e.pageY);
-            //}
-            //$canvas.show()
-            //$canvas.next().show()
-            var caretPos = GU.getCaretPositionFromXY($target[0], clientCentroid[0], clientCentroid[1]);
-            $target.focus();
-            $target.editable('setCaretPos', caretPos);
-            $options.html('<strong>Setting caret to introduce typed text ...</strong>'); 
+          case 'dot': // set caret 
+            doubleClick = true;
+            doubleClickTimer = setTimeout(function (centroid) {
+              return function() {
+                doubleClick = false;
+                doSetCaretGesture(centroid);
+                $options.html('<strong>Setting caret to introduce typed text ...</strong>'); 
+                  //$('#btn-decode').trigger('click');
+                  skanvas.sketchable('clear');
+              }
+            }(centroid), doubleClickTimerMs);
+            break;
+          case 'double-click': // select 
+            doSelectGesture(centroid);
+            $options.html('<strong>Select text ...</strong>'); 
             break;
           case 'e': // redo
             var tokenDistances = $target.editable('getTokensAtXY', centroid, 0);
@@ -265,6 +292,7 @@
             mouseDown: function(e) {
               e.stopPropagation();
               clearTimeout(decoderTimer);
+              clearTimeout(doubleClickTimer);
             },
             
             mouseUp: function(e) {
