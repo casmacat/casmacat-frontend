@@ -203,13 +203,14 @@
       return data.config;
     },
     
-    rejectSuffix: function(caretPos) {
+    rejectSuffix: function(caretPos, numResults) {
       var data = $(this).data(namespace);
+      if (typeof(numResults) === 'undefined') numResults = 1;
       data.itpServer.rejectSuffix({
         source: data.$source.text(),
         target: data.$target.text(),
         caretPos: caretPos,
-        numResults: 1,
+        numResults: numResults,
       });
     },
 
