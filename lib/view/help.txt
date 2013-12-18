@@ -1,0 +1,41 @@
+You are about to test a new computer-aided translation tool. The tool 
+implements Interactive Translation Prediction (ITP), a post-edition paradigm 
+where each time the user makes a correction the computer software suggests a 
+new translation that includes all previous user corrections. This process 
+continues until the suggested translation matches the user’s expectations.
+
+Features
+--------
+
+- A new translation is automatically suggested after each keypress
+- The system will highlight the part of the predicted translation it considers to 
+be correct, you can use the TAB key to quickly jump this part
+
+Post-editing guidelines with ITP
+--------------------------------
+
+- You are assumed to post-edit the suggested translations from left to right, 
+i.e. translation errors at the beginning of the translation are to be corrected 
+first
+- However, you can go back and post-edit a previous error if necessary. In this 
+case translation prediction is deactivated
+- Don’t waste time deleting wrong translations. It is more productive to 
+start editing the wrong text while the system makes news translation proposals 
+to the right of you typing.
+- ITP can be disabled using the ESC key whenever the system becomes too 
+annoying for you.
+
+Useful shortcuts
+----------------
+
+- **ESC** toggles translation prediction
+- **TAB** moves the cursor to the beginning of the next translation prediction
+- **CTRL+SHIFT+S** toggles limitation of prediction length 
+- **CTRL+M** toggles highlighting of source words aligned to target word under the caret 
+- **CTRL+SHIFT+1** toggles highlighting of aligned words of the word under the mouse cursor 
+- **CTRL+SHIFT+4** toggles highlighting of user validated words 
+- **ALT+UP/DOWN** iterate over alternative translation predictions
+
+More shortcuts [here].
+
+[here]: ${basepath}listshortcuts/ 
