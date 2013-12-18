@@ -1,5 +1,7 @@
 <?php
 
+    include_once realpath(dirname(__FILE__) . '/../../') . '/lib/utils/parsedown.class.php';
+
     /*
      * Script:    DataTables server-side script for PHP and MySQL
      * Copyright: 2010 - Allan Jardine, 2012 - Chris Wright
@@ -29,6 +31,11 @@
         }
         
         public function setTemplateVars() {
+
+            $md = Parsedown::instance();
+            $content = $md->parse(file_get_contents(realpath(dirname(__FILE__) . '/../../')."/lib/view/help.txt"));
+            $content = str_replace('${basepath}', INIT::$BASE_URL, $content);
+            $this->template->content = $content;
             $this->template->basepath = INIT::$BASE_URL;
         }
     }
