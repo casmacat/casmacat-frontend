@@ -12,6 +12,7 @@ RewriteRule ^(manage)/([^/]*)/([^/]*)-([^/]*)$ index.php?action=manage&pid=$3&pa
 RewriteRule ^(editlog)/([^/]*)-([^/]*)/?$ index.php?action=editlog&jid=$2&password=$3 [L]
 
 RewriteRule ^(replay)/([^/]*)/([^/]*)/([^/]*)-([^/]*)[/]*([^/]*)[/]*$ index.php?action=replay&jid=$4&password=$5 [L]
+RewriteRule ^(help)[/]?$ index.php?action=help [L]
 RewriteRule ^(listdocuments)/[/]?$ index.php?action=listDocuments [L]
 RewriteRule ^(listshortcuts)/[/]?$ index.php?action=listShortcuts [L]
 #RewriteRule ^(createlogdownload)/([^/]*)/([^/]*)/([^/]*)-([^/]*)[/]*([^/]*)[/]*$ index.php?action=createlogdownload&jid=$4&fileid=$5 [L]
