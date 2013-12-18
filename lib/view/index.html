@@ -83,6 +83,8 @@
 
         <header>
             <div class="wrapper">
+                <a tal:attributes="class string:downloadtr-button ${job_stats/DOWNLOAD_STATUS}" href="${basepath}help" target="_blank">HELP</a>
+                
 
                 <form id="fileDownload" action="${basepath}" method="post">
                     <input type="hidden" name="action" value="downloadFile" />
