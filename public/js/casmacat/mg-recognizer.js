@@ -22,8 +22,8 @@ function MinGestures(conf) {
   var dotThr    = conf && conf.dotThr    ? conf.dotThr    : 5; 
 
   // Main/Secondary Angular Thresholds
-  var mat = conf && conf.mat ? conf.mat : 10, 
-      sat = conf && conf.sat ? conf.sat : 35;
+  var mat = conf && conf.mat ? conf.mat : 15, 
+      sat = conf && conf.sat ? conf.sat : 30;
   // Fit Pearson (SD not tested yet)
   var fp = conf && conf.fp ? conf.fp : 0.3, 
       fs = conf && conf.fs ? conf.fs : 0.2;

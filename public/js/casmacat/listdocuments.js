@@ -12,7 +12,7 @@
                     'bServerSide': true,
                     'sPaginationType': 'full_numbers',
                     'bStateSave': false,
-                    'sAjaxSource': config.basepath+'/index.php?action=generateList'
+                    'sAjaxSource': config.basepath.replace(/\/$/,'') + '/index.php?action=generateList'
                 } );
             } );
             var jobid = null;

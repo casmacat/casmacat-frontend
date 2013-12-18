@@ -531,6 +531,7 @@
         else {
           replaceable.replaceWith(tokens.contents());
         }
+        replaceable = tokens.contents();
       }
       else {
         replaceable.text(str);
@@ -538,8 +539,14 @@
 
       data['str'] = $this.text();
 
+
+      return replaceable;
     },
 
+    hasFocus: function () {
+      // herve - did I really need to add this? It's probably already somewhere else
+      return $(this).is (':focus');
+    }
   };
 
 

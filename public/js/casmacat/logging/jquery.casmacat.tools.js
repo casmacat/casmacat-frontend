@@ -2,7 +2,6 @@
 
 /**
  * jQuery CASMACAT tools
- * Original author: Ragnar Bonk
  *
  * Some parts of this script (mainly functions, follow the links provided in the comments of each funtion to find their
  * license, if any) are covered by the MIT license, the rest is GNU/GPL...
@@ -13,12 +12,8 @@
  *  - debug.js [optional] (get it from the author or write your own ;-) )
  *
  * Supported Browsers:
- *  - Firefox >= 15
+ *  - Firefox >= 21
  *  - Chrome >= 22.0.1229.79 m
- *  - IE >= 9 (xPath support seems to miss right now)
- *  - Opera >= 12.02
- *
- *  TODO testing with QUnit?
  */
 
 (function($) {
@@ -136,7 +131,7 @@
 
         if (xPath !== null && xPath !== "") { // if hybrid or xPath only mode
 
-//            debug("$.fn.resolveFromElementId(): Using xPath: '" + xPath + "'.");
+            debug("$.fn.resolveFromElementId(): Using xPath: '" + xPath + "'.");
 
             // TODO document.evaluate() seems not to be available for IE. Maybe use this instead for IE:
             // "http://sourceforge.net/projects/js-xpath/"
@@ -581,7 +576,7 @@ catch (e) {
                 $("#" + id).html(msg);
             }
 
-            debug("$.fn.showOverlay: Overlay '" + id + "' displayed for href: '" + location.href + "'.");
+//            debug("$.fn.showOverlay: Overlay '" + id + "' displayed for href: '" + location.href + "'.");
         }
 
         return $(this);
@@ -600,7 +595,7 @@ catch (e) {
             $("#" + id).remove();
             $(lastFocusedElement[id]).focus();
             lastFocusedElement[id] = null;
-            debug("$.fn.hideOverlay: Overlay '" + id + "' removed for href: '" + location.href + "'.");
+//            debug("$.fn.hideOverlay: Overlay '" + id + "' removed for href: '" + location.href + "'.");
         }
 
         return $(this);

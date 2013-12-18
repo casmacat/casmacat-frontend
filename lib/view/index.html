@@ -40,6 +40,9 @@
                 etEnabled: ${etEnabled},
                 etType: ${etType},
                 srEnabled: ${srEnabled},
+                biconcorEnabled: ${biconcorEnabled},
+                hideContributions: ${hideContributions},
+                floatPredictions: ${floatPredictions},
 
                 prefs: {
                   confidenceThresholds: { doubt: 0.5, bad: 0.01 },
@@ -48,9 +51,11 @@
                   displayConfidences: false,
                   highlightValidated: false,
                   highlightPrefix: false,
-                  limitSuffixLength: true,
+                  limitSuffixLength: false,
                   prioritizer: "confidence",
                   priorityLength: 1,
+                  epenEnabled: false,
+                  toggleEpenOffOnSegmentClose: false,
                 }
                 // CASMACAT extension end
             }
@@ -78,6 +83,8 @@
 
         <header>
             <div class="wrapper">
+                <a tal:attributes="class string:downloadtr-button ${job_stats/DOWNLOAD_STATUS}" href="${basepath}help" target="_blank">HELP</a>
+                
 
                 <form id="fileDownload" action="${basepath}" method="post">
                     <input type="hidden" name="action" value="downloadFile" />
@@ -359,7 +366,7 @@
                 <!--<a tal:attributes="href string:${basepath}editlog/${jid}-${password}">Editing Log</a>-->
 
                 <span tal:condition="true:debug">
-                    <a id="resetDocument" href="#"></a>
+                    <a id="resetDocument" href="#">Reset Document</a>
                     <!--<a id="stopLogging" href=".">Stop Logging</a>-->
                 </span>
                 <!-- CASMACAT extension end -->

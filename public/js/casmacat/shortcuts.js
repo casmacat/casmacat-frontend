@@ -104,9 +104,10 @@
     $ea.trigger('itptogglechange', [newMode]);
   };
   
+
   // Define key bindings here
   
-  var keyBindings = {
+  var keyBindings = UI.keyBindings = {
         'ctrl+up': loadPrevSegment,
       'ctrl+down': loadNextSegment,
     'ctrl+insert': copySourceToTarget,
@@ -119,9 +120,10 @@
        'ctrl+del': clearTarget,
             'esc': UI.toggleItp,
          'return': saveDraft,
+         'ctrl+b': UI.launchBiconcor,
   };
   
-  var toggleKeyBindings = {
+  var toggleKeyBindings = UI.toggleKeyBindings = {
    'ctrl+shift+1': 'displayMouseAlign',
          'ctrl+m': 'displayCaretAlign',
    'ctrl+shift+3': 'displayConfidences',
@@ -131,7 +133,7 @@
    'ctrl+shift+s': 'limitSuffixLength',
   };
 
-  function toggleOpt(optname, value) {
+  var toggleOpt = function(optname, value) {
     return function(e) {
       getEditArea().editableItp('toggle', optname, value);
     }

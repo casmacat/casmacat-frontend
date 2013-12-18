@@ -6,27 +6,91 @@
 
 .epen-source { 
   /* border:1px solid green !important; */
-}
-
-.epen-target { 
-  margin-top:15px !important; width:100% !important;
-  /* border:1px solid red !important; */
-}
-
-.epen-wrap { 
-  display:block !important; text-align:center !important; 
-}
-
-.epen-wrap canvas { 
-  border:2px dashed black !important;
-	display:block !important; position:absolute !important;
+  float: none;
+  position: static;
 }
 
 .epen-wrap .target {
   display:block !important; table-layout:auto !important; width:auto !important; 
+  padding-left: 20px !important;
+  padding-right: 26px !important;
 }
 
-.epen-wrap .editarea { 
+.epen-wrap .textarea-container { 
+  margin-left: 0px;
+  float: none;
+  position: static;
+  margin-bottom: 20px;
+}
+
+.epen-target { 
   box-shadow:none !important; -webkit-box-shadow:none !important; border:none !important;
-  line-height:160% !important;
+  line-height:250% !important;
+  float: none;
+  position: static;
+
+  /* margin-top: 15px !important; */
+  width:100% !important;
+  /* border:1px solid red !important; */
+  float: none;
+  position: static;
+  padding-top: 40px !important;
+  padding-bottom: 40px !important;
+  min-height: 1em;
+}
+
+
+.epen-wrap { 
+  display:block !important; text-align:center !important; cursor: url('../img/precision-cursor.png') 8 8, crosshair; 
+}
+
+.epen-wrap canvas { 
+  border:2px dashed black;
+  border-bottom: none;
+	display:block; position:absolute !important;
+}
+
+/*
+.epen-wrap .canvas-options:before { 
+  content: "\00a0";
+}
+*/
+
+.epen-selected {
+  border-bottom: 1px dashed green;
+}
+
+.canvas-options { 
+  display:none;
+}
+
+.epen-wrap .canvas-options { 
+  border:1px solid black;
+  border-top: 1px solid #ccc;
+  background-color: #efefef;
+	display:block; position:absolute !important;
+  height: 1.5em;
+  overflow: hidden;
+}
+
+.epen-wrap .canvas-options ul { 
+  display: table-row;
+  list-style-type:none;
+  margin:0;
+  padding:0;
+}
+
+.epen-wrap .canvas-options ul li { 
+  display: table-cell;
+  vertical-align: middle;
+  float:left;
+
+  margin-top: 3px;
+  margin-left: 1em;
+  padding-right: 1em;
+  border-right: 1px solid #ccc;
+}
+
+.epen-closest {
+  background-color: lightblue;
 }

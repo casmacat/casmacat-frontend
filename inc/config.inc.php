@@ -46,6 +46,9 @@ class INIT {
     public static $PEN_ENABLED;
     public static $ET_ENABLED;
     public static $SR_ENABLED;
+    public static $BICONCOR_ENABLED;
+    public static $HIDE_CONTRIBUTIONS;
+    public static $FLOAT_PREDICTIONS;
     public static $ET_TYPE;
 
 
@@ -102,6 +105,9 @@ class INIT {
         self::$PEN_ENABLED = self::getConfigBool('penenabled');
         self::$ET_ENABLED  = self::getConfigBool('etenabled');
         self::$SR_ENABLED  = self::getConfigBool('srenabled');
+        self::$BICONCOR_ENABLED = self::getConfigBool('biconcorenabled');
+        self::$HIDE_CONTRIBUTIONS = self::getConfigBool('hidecontributions');
+        self::$FLOAT_PREDICTIONS = self::getConfigBool('floatpredictions');
         self::$ET_TYPE     = self::getConfig('ettype', "casmacat", 0);
         self::$DEBUG       = self::getConfigBool('debug', "debug");
     }

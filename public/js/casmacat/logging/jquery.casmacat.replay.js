@@ -2,7 +2,6 @@
 
 /**
  * jQuery CASMACAT replay plugin
- * Author: Ragnar Bonk
  *
  * Dependencies:
  *  - casmacat.logevent.js
@@ -11,12 +10,9 @@
  *  - debug.js [optional]
  *
  * Supported Browsers:
- *  - Firefox >= 15
+ *  - Firefox >= 21
  *  - Chrome >= 22.0.1229.79 m
- *  - IE >= 9 (no eye tracking) (TODO needs intensive testing -> DOMSubtreeModified stuff)
- *  - Opera >= 12.02 (no eye tracking, no contentenditable)
  *
- *  TODO testing with QUnit?
  */
 
 ;(function ( $, window, document, undefined ) {
@@ -48,12 +44,18 @@
                                         //          relative xPath
             etCollect: true,  // current replay speed,
             etShowData: true,  // current replay speed,
+//            etRemapAOI: false,    // will not work correctly if text/decode/etc is not replayed at the same time
+//                                  // (the problem is the auto resize of the editarea)
+//            etRemapAOITolerance: 20, // size of virtual border around src/tgt
+            ignoreSelectionErrors: false,
+            abortOnTextErrors: false,
             maxChunkSize: 5000,     // maximum size of the log list before the automatic download is triggered
             //fetchNextChunk: 500,    // how many events must be left in replayList before starting fetching of next chunk
                                     // in background, not implemented
             blockingInputZIndex: 10000,  // the CSS z-index of the div that blocks user input
             tickInterval: 200,       // specifies the interval to use for ticking (used to refresh time in UI)
             itpEnabled: true,
+//            showDimensions: false,    // will probably not work correctly
             isLive: false          // experimental
         },
         settings = {},  // holds the merge of the defaults and the options provided, actually the instance's settings
@@ -67,6 +69,14 @@
         currentTime = 0,        // current real time of clock
         currentTickTime = 0,    // current time of clock (steps)
         speed = DEFAULT_SPEED,  // current replay speed,
+        skipCurrentSegment = false,  // skip events of the current segment and continue on the next segment
+
+        etXOffset = 0,
+        etYOffset = 0,
+        currentWidth = 0,
+        currentHeight = 0,
+        wOffset = 0,
+        hOffset = 0,
 
         pendingRequest = null,  // XmlHttpRequest object of the ajax request loading the log nextchunk
         firstChunkLoaded = false,
@@ -316,6 +326,16 @@
             vsContents = $("#virtualScreen").contents();
 //            settings.itpEnabled = new Boolean(vsWindow.config.enable_itp);
 
+            currentWidth = parseInt($("#virtualScreen").prop("width"));
+            currentHeight = parseInt($("#virtualScreen").prop("height"));
+
+            $("#vsConfig").prop("disabled", "");
+            $("#vsDimensions").prop("disabled", "");
+            $("#vsWidth").prop("disabled", "");
+            $("#vsHeight").prop("disabled", "");
+            $("#etXOffset").prop("disabled", "");
+            $("#etYOffset").prop("disabled", "");
+
             // insert virtual mouse pointer
             vsContents.find("body").append("<img id='vMousePointer' src='" + config.basepath + "public/img/casMousePointer.png'></img>");
 //            vsContents.find("body").append("<div id='fixationTarget' src='" + config.basepath + "public/img/casTarget.png'></div>");
@@ -353,17 +373,32 @@
                 debug(pluginName + ": No next event.");
                 updateUIStatus("No next event.");
             }
+        },
+
+        setVSWidth: function() {
+            wOffset = parseInt($("#vsWidth").val());
+            $("#virtualScreen").prop("width", currentWidth + wOffset);
+            resizeBlockingInput();
+            updateUIStatus("Updated VS width.");
+        },
+
+        setVSHeight: function() {
+            hOffset = parseInt($("#vsHeight").val());
+            $("#virtualScreen").prop("height", currentHeight + hOffset);
+            resizeBlockingInput();
+            updateUIStatus("Updated VS height.");
+        },
+
+        setETOffsets: function() {
+            etXOffset = $("#etXOffset").val();
+            etYOffset = $("#etYOffset").val();
+            updateUIStatus("Updated ET offsets.");
         }
     };
 
     /*################################################################################################################*/
     /*###################################################################### Private methods/objects of the plugin ###*/
     /*################################################################################################################*/
-
-    var ReplayException = function(message) {
-        this.message = message;
-        return this;
-    };
 
     var tick = function(newTime) {
         updateUIStatus("Replaying...");
@@ -379,9 +414,9 @@
         else {  // replay current event
             currentTime = replayList[currentIndex].time;
             if (newTime) {
-                debug(pluginName + ": Ticking for fast forward: currentTime: '" + currentTime + "', "
-                    + "nextTick: '" + nextTick + "', "
-                    + "currentIndex: '" + currentIndex + "'.");
+//                debug(pluginName + ": Ticking for fast forward: currentTime: '" + currentTime + "', "
+//                    + "nextTick: '" + nextTick + "', "
+//                    + "currentIndex: '" + currentIndex + "'.");
                 updateUIStatus("Fast forwarding...");
             }
             else {
@@ -413,6 +448,7 @@
                         $.fn.hideOverlay();
                         debug(pluginName + ": Finished, no more events.");
                         updateUIStatus("Finished, end of replay reached.");
+                        //$("#toggleInput").prop("disabled", "");
                         isReplaying = false;
                         isPaused = false;
                         return;
@@ -424,6 +460,7 @@
             $.fn.hideOverlay();
             debug(pluginName + ": Finished, no more events.");
             updateUIStatus("Finished, end of replay reached.");
+            //$("#toggleInput").prop("disabled", "");
             isReplaying = false;
             isPaused = false;
             return;
@@ -613,27 +650,11 @@
     };
 
     var itpDecodeCall = false;
-    var itpSuffixChangeCall = false;
+    var itpSuffixChangeCall = false; var suffixChangeTime = 0;
     var lw, lh; // TODO width and height from last resize, this must become an array
+    var remappedAOIFixations = [];
     var replayEvent = function(event) {
-//try {
-//        debug(pluginName + ": Replayed event dump:");
-//        debug(event);
-//        debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
 
-        // select element by id, xpath or hybrid
-//        var element = null;
-//        if (event.elementId !== "") {
-//            element = vsContents.find("#" + event.elementId);
-//        }
-//        if (event.xPath !== "") {
-//            if (element === null) {
-//                element = vsWindow.$(vsDocument.evaluate(event.xPath, vsDocument, null, XPathResult.ANY_TYPE, null));
-//            }
-//            else {
-//                element = vsWindow.$(vsDocument.evaluate(event.xPath, element[0], null, XPathResult.ANY_TYPE, null));
-//            }
-//        }
         var element = vsWindow.$(vsDocument).resolveFromElementId(event.elementId, event.xPath);
 
         var itpData = null;
@@ -647,48 +668,137 @@
                 break;
 
             case logEventFactory.TEXT:
-debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
-debug(event);
+//                if (settings.etRemapAOI) {
+//                    debug(pluginName + ": Remapping AOI, skipping event: type: '" + event.type + "' ");
+//                    break;
+//                }
+//if (event.id == "13905162") break;
+                if (skipCurrentSegment) {
+                    break;
+                }
+//if (event.deleted == "medio ") {
+//    debug("**** EVENT NOT LOST, WHAT IS THE PROBLEM!? text.time: " + event.time + " suffix.time: " + suffixChangeTime);
+//    alert("EVENT NOT LOST, WHAT IS THE PROBLEM!? text.time: " + event.time + " suffix.time: " + suffixChangeTime);
+//itpSuffixChangeCall = false;
+//}
+                var timespan = parseInt(event.time) - parseInt(suffixChangeTime);
+                debug(pluginName + ": Time span between suffixchange (" + suffixChangeTime + ") and text (" + event.time + "): " + timespan);
+                if (timespan >= 50 && itpSuffixChangeCall === true) {
+                    itpSuffixChangeCall = false;
+                }
+//else if (timespan <= 50 && itpSuffixChangeCall === false) {
+//    itpSuffixChangeCall = true;
+//}
+                suffixChangeTime = 0;
+
+
+                debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+                debug(event);
+
                 if (itpDecodeCall) {
                     debug(pluginName + ": Skipping text changed event because of itpDecodeCall...");
                     itpDecodeCall = false;
                     break;
                 }
                 else if (itpSuffixChangeCall) {
+//if (event.id == "13905162") {
+//    itpSuffixChangeCall = false;
+//}
+//else {
                     debug(pluginName + ": Skipping text changed event because of itpSuffixChangeCall...");
                     itpSuffixChangeCall = false;
                     break;
+//}
                 }
 
                 var textNow = element.text();
                 var textNew = null;
 
-                if (textNow.substr(event.cursorPosition, event.deleted.length) == event.deleted) {
-                    var prefix = textNow.substr(0, event.cursorPosition);
-                    var postfixPos = parseInt(event.cursorPosition) + parseInt(event.deleted.length);
-                    var postfix = textNow.substr(postfixPos);
-                    textNew = prefix + event.inserted + postfix;
+                try {
+                    if (textNow.substr(event.cursorPosition, event.deleted.length) == event.deleted) {
+                        var prefix = textNow.substr(0, event.cursorPosition);
+                        var postfixPos = parseInt(event.cursorPosition) + parseInt(event.deleted.length);
+                        var postfix = textNow.substr(postfixPos);
+                        textNew = prefix + event.inserted + postfix;
+                    }
+                    else {
+                        throw {
+                            msg: "Deleted text doesn't match stored value",
+                            textNow: textNow,
+                            modNow: textNow.substr(event.cursorPosition, event.deleted.length),
+                            deleted: event.deleted,
+                            inserted: event.inserted,
+                            cursorPosition: event.cursorPosition
+                        }
+                    }
                 }
-                else {
-                    throw "Deleted text doesn't match stored value: textNow: '" + textNow + "', event.deleted: '" + event.deleted + "'";
+                catch (e) {
+
+                    element.css("border-color", "red");
+
+                    if (settings.abortOnTextErrors === true) {
+                        methods["pauseResume"]();
+                        $.error("Unexpected error: '" + e.msg + "'\ntextNow: '" + e.textNow + "'\nmodNow: '" + e.modNow + "'\ndeleted: '" + e.deleted
+                            + "'\ninserted: '" + e.inserted + "'\ncursorPosition: '" + e.cursorPosition + "'\n\n");
+                        alert("Unexpected error: '" + e.msg + "'\ntextNow: '" + e.textNow + "'\ndeleted: '" + e.deleted
+                            + "'\ninserted: '" + e.inserted + "'\ncursorPosition: '" + e.cursorPosition + "'\n\n");
+                    }
+
+                    var answer = confirm("Unexpected error: '" + e.msg + "'\ntextNow: '" + e.textNow + "'\ndeleted: '" + e.deleted
+                            + "'\ninserted: '" + e.inserted + "'\ncursorPosition: '" + e.cursorPosition + "'\n\n"
+                        + "This is a CRITICAL error!\n\n"
+                        + "Skip current segment and continue replay?");
+                    if (answer) {
+                        skipCurrentSegment = true;
+                    }
                 }
 
-                if (settings.itpEnabled) {  // set text with itp module
-                    vsWindow.$("#" + event.elementId).editableItp("setTargetText", textNew);
-//                    debug(pluginName + ": Re-setting cursor to: '" + event.cursorPosition + "'");
-//                    setCursorPos(event.elementId, parseInt(event.cursorPosition) + parseInt(event.inserted.length));
-                    break;
-                }
+                if (textNew != null) {  // avoid 'null' to be inserted
+                    if (settings.itpEnabled) {  // set text with itp module
+                        vsWindow.$("#" + event.elementId).editableItp("setTargetText", textNew);
+    //                    debug(pluginName + ": Re-setting cursor to: '" + event.cursorPosition + "'");
+    //                    setCursorPos(event.elementId, parseInt(event.cursorPosition) + parseInt(event.inserted.length));
+                        break;
+                    }
 
-                // set text normal
-                element.text(textNew);
+                    // set text normal
+                    element.text(textNew);
+                }
                 debug(pluginName + ": Re-setting cursor to: '" + event.cursorPosition + "'");
-                setCursorPos(event.elementId, parseInt(event.cursorPosition) + parseInt(event.inserted.length));
+                try {
+                    setCursorPos(event.elementId, parseInt(event.cursorPosition) + parseInt(event.inserted.length));
+                }
+                catch(e) {
+
+                    element.css("border-color", "red");
+
+                    var answer = confirm("Unexpected error: '" + e + "'\n\n"
+                        + "This is probably CRITICAL as it indicates an unrecoverable text change error!\n\n"
+                        + "Skip current segment and continue replay?");
+                    if (answer) {
+                        skipCurrentSegment = true;
+                        // fetch final translation
+                        // element.text(finalTranlation);
+                        // vsWindow.$("#" + event.elementId).editableItp("setTargetText", finalTranlation);
+                    }
+                }
 
                 break;
             case logEventFactory.SELECTION:
-debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
-debug(event);
+//                if (settings.etRemapAOI) {
+//                    debug(pluginName + ": Remapping AOI, skipping event: type: '" + event.type + "' ");
+//                    break;
+//                }
+
+//                itpDecodeCall = false;
+//                itpSuffixChangeCall = false;
+
+                if (skipCurrentSegment) {
+                    break;
+                }
+
+                debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+                debug(event);
 
                 try {
                     var selection = vsWindow.getSelection();
@@ -699,7 +809,12 @@ debug(event);
 
                     var startNode = $(vsDocument).resolveFromElementId(event.startNodeId, event.startNodeXPath)[0];
                     var endNode = $(vsDocument).resolveFromElementId(event.endNodeId, event.endNodeXPath)[0];
-
+//var startNode = window.$(event.startNodeId, vsDocument)[0];
+//var endNode = window.$(event.endNodeId, vsDocument)[0];
+/*debug("startNode:");
+debug(startNode);
+debug("endNode:");
+debug(endNode);*/
                     var startOffset = parseInt(event.sCursorPosition);
                     var endOffset = parseInt(event.eCursorPosition);
 
@@ -711,13 +826,18 @@ debug(event);
 
                     if (selectedNow != event.selectedText) {
                         throw {
-                            msg: "Selected text doesn't match stored value",
+                            msg: "Selected text doesn't match stored value (variant 1)",
                             now: selectedNow,
                             stored: event.selectedText
                         }
                     }
                 }
                 catch (e) {
+
+                    if (settings.ignoreSelectionErrors) {
+                        break;
+                    }
+
                     debug(pluginName + ": Unexpected error: '" + e + "', stack trace: '" + e.stack + "'");
                     debug(pluginName + ": Erroneous event dump:");
                     debug(event);
@@ -726,7 +846,80 @@ debug(event);
                         + "This is only a text range error and it is safe to continue. But it may indicate a text change error somewhere before.\n\n"
                         + "Continue replay?");
                     if (!answer) {
+                        methods["pauseResume"]();
                         $.error("Unexpected error");
+                    }
+
+                    debug(pluginName + ": Selection variant 1 failed, trying variant 2...");
+                    // try variant 2
+                    try {
+                        var selection = vsWindow.getSelection();
+                        selection.removeAllRanges();
+
+                        var range = vsDocument.createRange();
+                        var selectedNow = null;
+
+                        var startNode = $(vsDocument).resolveFromElementId(event.startNodeId, event.startNodeXPath)[0];
+                        var startOffset = parseInt(event.sCursorPosition);
+                        range.setStart(startNode, startOffset);
+                        range.setEnd(startNode, startOffset);
+
+                        selection.addRange(range);
+                        for (var i = 0; i < event.selectedText.length; i++) {
+                            selection.modify("extend", "forward", "character"); // this might also be done in the opposite direction...
+                        }
+                        selectedNow = selection.toString();
+
+                        if (selectedNow != event.selectedText) {
+                            throw {
+                                msg: "Selected text doesn't match stored value (variant 2)",
+                                now: selectedNow,
+                                stored: event.selectedText
+                            }
+                        }
+                    }
+                    catch (e2) {
+                        debug(pluginName + ": Selection variant 2 failed, trying variant 3...");
+                        try {
+                            var selection = vsWindow.getSelection();
+                            selection.removeAllRanges();
+
+                            var range = vsDocument.createRange();
+                            var selectedNow = null;
+
+                            var endNode = $(vsDocument).resolveFromElementId(event.endNodeId, event.endNodeXPath)[0];
+                            var endOffset = parseInt(event.eCursorPosition);
+                            range.setStart(endNode, endOffset);
+                            range.setEnd(endNode, endOffset);
+
+                            selection.addRange(range);
+                            for (var i = 0; i < event.selectedText.length; i++) {
+                                selection.modify("extend", "backward", "character");
+                            }
+                            selectedNow = selection.toString();
+
+                            if (selectedNow != event.selectedText) {
+                                throw {
+                                    msg: "Selected text doesn't match stored value (variant 3)",
+                                    now: selectedNow,
+                                    stored: event.selectedText
+                                }
+                            }
+                        }
+                        catch (e3) {
+
+                            debug(pluginName + ": Unexpected error: '" + e3 + "', stack trace: '" + e3.stack + "'");
+                            debug(pluginName + ": Erroneous event dump:");
+                            debug(event);
+
+                            var answer = confirm("Unexpected error: '" + e3.msg + "'\nNow: '" + e3.now + "'\nStored: '" + e3.stored + "'\nStack trace: '" + e3.stack + "'\n\n"
+                                + "This is only a text range error and it is safe to continue. But it may indicate a text change error somewhere before.\n\n"
+                                + "Continue replay?");
+                            if (!answer) {
+                                methods["pauseResume"]();
+                                $.error("Unexpected error");
+                            }
+                        }
                     }
                 }
                 break;
@@ -743,30 +936,54 @@ debug(event);
                 }
                 target = vsWindow.$(".fixationTarget").last();
 
-                target.css({"left": (event.x - 10) + "px", "top": (event.y - 10) + "px"});
+                target.css({"left": (event.x - 10 + parseInt(etXOffset)) + "px",
+                    "top": (event.y - 10 + parseInt(etYOffset) + parseInt($("#virtualScreen")[0].contentWindow.$($("#virtualScreen")[0].contentWindow).scrollTop())) + "px"});
 
                 if (settings.etShowData) {
                     target.html("<br>" + event.x + "," + event.y + "," + event.offset + ",'" + event.character + "'");
                 }
+
+//                if (settings.etRemapAOI) {
+//                    var src = vsWindow.$("#segment-" + vsWindow.UI.currentSegmentId + "-source");
+//                    var tgt = vsWindow.$("#segment-" + vsWindow.UI.currentSegmentId + "-editarea");
+//
+//                    if ((src.offset().left - settings.etRemapAOITolerance) < event.x
+//                        || event.x < (src.offset().left + src.width() + settings.etRemapAOITolerance)) {
+//
+//                        event.aoi = "currentSource";
+//                        remappedAOIFixations.push(event);
+//                    }
+//                    else if ((tgt.offset().left - settings.etRemapAOITolerance) < event.y
+//                        || event.y < (tgt.offset().left + tgt.width() + settings.etRemapAOITolerance)) {
+//                        event.aoi = "currentTarget";
+//                        remappedAOIFixations.push(event);
+//                    }
+//                }
                 break;
 
             case logEventFactory.SCROLL:
+//if (12867043 <= event.id && event.id <= 12867045) {   // just for testing
+//    break;
+//}
                 if (event.elementId == "window") {
                     vsContents.scrollTop(event.offset);
+                    debug(pluginName + ": Scrolled to: '" + event.offset + "'");
+debug(event);
                 }
                 else {
                     // currently not needed as there are no other scrollbars
                 }
                 break;
             case logEventFactory.RESIZE:
-                lw = $("#virtualScreen").prop("width");
-                lh = $("#virtualScreen").prop("height");
-                $("#virtualScreen").prop("width", event.width);
-                $("#virtualScreen").prop("height", event.height);
+                lw = currentWidth;
+                lh = currentHeight;
+                currentWidth = parseInt(event.width) + 17;
+                currentHeight = parseInt(event.height);
+                $("#virtualScreen").prop("width", currentWidth + wOffset);
+                $("#virtualScreen").prop("height", currentHeight + hOffset);
                 resizeBlockingInput();
                 break;
 
-            // TODO log these correctly
             case logEventFactory.DRAFTED:
                 vsWindow.UI.setTranslationSuccess({ data: "OK", stats: { DRAFT: -1 } },
                     element.parents("section"), "draft");
@@ -794,8 +1011,25 @@ debug(event);
             case logEventFactory.SEGMENT_OPENED:
 //debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
 //debug(event);
+                if (skipCurrentSegment) {
+                    skipCurrentSegment = false;
+                }
+
                 var editarea = element.find(".editarea")[0];
                 vsWindow.UI.openSegment(editarea);
+
+                vsWindow.$(".fixationTarget").remove();  // remove older fixations
+
+//                if (settings.showDimensions) {
+////                    var segmentScrollTimer = window.setTimeout(function(e) {
+//                        var src = element.find("#" + element[0].id + "-source");
+//                        var tgt = element.find(".editarea");
+//                        alert(element[0].id + ": " + element.width() + "x" + element.height() + " " + element.offset().left + "," + element.offset().top + "\n"
+//                        + "src: " + src.width() + "x" + src.height() + " " + src.offset().left + "," + src.offset().top + "\n"
+//                        + "tgt: " + tgt.width() + "x" + tgt.height() + " " + tgt.offset().left + "," + tgt.offset().top);
+////                        window.clearTimeout(segmentScrollTimer);
+////                    }, 501);    // 500+1 from UI.scrollSegment animate()
+//                }
 
                 debug(pluginName + ": Setting editable read-only...");
                 if ($("#blockInput").css("z-index") >= 0) {
@@ -841,19 +1075,66 @@ debug(event);
                 break;
 
             case logEventFactory.DECODE:
+//                if (settings.etRemapAOI) {
+//                    debug(pluginName + ": Remapping AOI, skipping event: type: '" + event.type + "' ");
+//                    break;
+//                }
+
+                if (skipCurrentSegment) {
+                    break;
+                }
+
+                if (vsWindow.config.catsetting === "pe") {
+                    break;
+                }
+
                 itpData = JSON.parse(event.data);
                 vsWindow.$("#" + event.elementId).editableItp('trigger', "decodeResult", {errors: [], data: itpData});
                 itpDecodeCall = true;
                 break;
             case logEventFactory.ALIGNMENTS:
                 itpData = JSON.parse(event.data);
-                vsWindow.$("#" + event.elementId).editableItp('trigger', "getAlignmentsResult", {errors: [], data: itpData});
+                try {   // TODO check and correct or handle this exception
+                    vsWindow.$("#" + event.elementId).editableItp('trigger', "getAlignmentsResult", {errors: [], data: itpData});
+                }
+                catch(e) {
+                    alert(e);
+                }
                 break;
             case logEventFactory.SUFFIX_CHANGE:
+//                if (settings.etRemapAOI) {
+//                    debug(pluginName + ": Remapping AOI, skipping event: type: '" + event.type + "' ");
+//                    break;
+//                }
+
+                if (skipCurrentSegment) {
+                    break;
+                }
+
+                debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+                debug(event);
+
+                if (vsWindow.config.catsetting === "pe") {
+                    break;
+                }
+
+                var to = element.text();    // ITP is not working correctly. defined behaviour was, that it should only
+                                            // send decode/suffixchange if something really changed. this is not the case
+                                            // this hack tries to correct it
                 itpData = JSON.parse(event.data);
-debug(itpData);
+//debug(itpData);
                 vsWindow.$("#" + event.elementId).editableItp('trigger', "setPrefixResult", {errors: [], data: itpData});
-                itpSuffixChangeCall = true;
+
+                var tn = element.text();    // ITP not working correctly, see above
+                if (to !== tn) {
+                    itpSuffixChangeCall = true;
+//                    suffixChangeTime = event.time;
+//                    debug("*** suffixChange changed something, so change time has been set to: " + suffixChangeTime);
+                }
+                suffixChangeTime = event.time;
+//else {
+//    alert("IS THIS THE PROBLEM???");
+//}
                 break;
             case logEventFactory.CONFIDENCES:
                 itpData = JSON.parse(event.data);
@@ -861,7 +1142,12 @@ debug(itpData);
                 break;
             case logEventFactory.TOKENS:
                 itpData = JSON.parse(event.data);
-                vsWindow.$("#" + event.elementId).editableItp('trigger', "getTokensResult", {errors: [], data: itpData});
+                try {
+                    vsWindow.$("#" + event.elementId).editableItp('trigger', "getTokensResult", {errors: [], data: itpData});
+                }
+                catch (e) {
+                    alert(e);
+                }
                 break;
             case logEventFactory.SHOW_ALIGNMENT_BY_MOUSE:
                 // TODO this is still buggy (position not 100% valid)
@@ -891,13 +1177,32 @@ debug(itpData);
             case logEventFactory.KEY_DOWN:
                 break;
             case logEventFactory.KEY_UP:
+//                if (settings.etRemapAOI) {
+//                    debug(pluginName + ": Remapping AOI, skipping event: type: '" + event.type + "' ");
+//                    break;
+//                }
+
+                if (skipCurrentSegment) {
+                    break;
+                }
+
                 if (element.hasClass("editarea")) {
 //if (settings.itpEnabled) break;
                     if (event.which == 35 || event.which == 36  // end/home
                             || event.which == 37 || event.which == 38   // left/up
                             || event.which == 39 || event.which == 40) {  // right/down
 //                        debug(pluginName + ": Replaying cursor move...");
-                        setCursorPos(event.elementId, event.cursorPosition);
+                        try {
+                            setCursorPos(event.elementId, event.cursorPosition);
+                        }
+                        catch(e) {
+                            var answer = confirm("Unexpected error: '" + e + "'\n\n"
+                                + "This is probably CRITICAL as it indicates an unrecoverable text change error!\n\n"
+                                + "Skip current segment and continue replay?");
+                            if (answer) {
+                                skipCurrentSegment = true;
+                            }
+                        }
                     }
                 }
                 break;
@@ -907,13 +1212,42 @@ debug(itpData);
             case logEventFactory.MOUSE_UP:
                 break;
             case logEventFactory.MOUSE_CLICK:
+//                if (settings.etRemapAOI) {
+//                    debug(pluginName + ": Remapping AOI, skipping event: type: '" + event.type + "' ");
+//                    break;
+//                }
+
+                if (skipCurrentSegment) {
+                    break;
+                }
+
                 if (element.hasClass("editarea")) {
 //if (settings.itpEnabled) break;
-                    setCursorPos(event.elementId, event.cursorPosition);
+                    try {
+                        setCursorPos(event.elementId, event.cursorPosition);
+                    }
+                    catch(e) {
+                        var answer = confirm("Unexpected error: '" + e + "'\n\n"
+                            + "This is probably CRITICAL as it indicates an unrecoverable text change error!\n\n"
+                            + "Skip current segment and continue replay?");
+                        if (answer) {
+                            skipCurrentSegment = true;
+                        }
+                    }
                 }
                 else if (element.parents("div.editarea").get(0)) {
 //if (settings.itpEnabled) break;
-                    setCursorPos(element.parents("div.editarea").prop("id"), event.cursorPosition);
+                    try {
+                        setCursorPos(element.parents("div.editarea").prop("id"), event.cursorPosition);
+                    }
+                    catch(e) {
+                        var answer = confirm("Unexpected error: '" + e + "'\n\n"
+                            + "This is probably CRITICAL as it indicates an unrecoverable text change error!\n\n"
+                            + "Skip current segment and continue replay?");
+                        if (answer) {
+                            skipCurrentSegment = true;
+                        }
+                    }
                 }
 //                break;    // let it slip so the pointer is moved, too
             case logEventFactory.MOUSE_MOVE:
@@ -958,15 +1292,19 @@ debug(itpData);
 
                 for (var key in c.prefs) {
 
-                    c.prefs[key] = (c.prefs[key] === "true");
+//                    c.prefs[key] = (c.prefs[key] === "true");
 
                     if (c.prefs["mode"] !== undefined) {
-                        // seems like nothing needs to be done here as it will be done by the $.extend at the end
-    //                    vsWindow.$("#" + event.elementId).editableItp('trigger', "itptogglechange", ...);
-                        alert("Warning! Configuration change using c.prefs['mode'] not yet implemented!");
-                        debug(pluginName + ": Configuration change using c.prefs['mode'] not yet implemented!");
+                        vsWindow.UI.toggleItp($.Event("dummy"));
+                        vsWindow.config.prefs["mode"] = c.prefs["mode"];
+//                        alert("ITP mode switched to: " + vsWindow.config.prefs["mode"]);
+                        continue;
                     }
-                    else if (c.prefs[key] !== vsWindow.config.prefs[key]) {
+
+                    c.prefs[key] = (c.prefs[key] === "true");
+
+                    if (c.prefs[key] !== vsWindow.config.prefs[key]) {
+
                         vsWindow.$("#" + event.elementId, ".editarea").editableItp("toggle", key, c.prefs[key]);
                         vsWindow.$("#" + event.elementId + "-" + key).click();
                         if (c.prefs[key] === true) {
@@ -980,11 +1318,25 @@ debug(itpData);
                 vsWindow.$.extend(true, vsWindow.config.prefs, c.prefs);
 
                 break;
+
+            case logEventFactory.MOUSE_WHEEL_DOWN:
+//debug(event);
+                element.trigger("mousewheeldown");
+//alert("MOUSE_WHEEL_DOWN OVER");
+                break;
+            case logEventFactory.MOUSE_WHEEL_UP:
+                element.trigger("mousewheelup");
+                break;
             case logEventFactory.MOUSE_WHEEL_INVALIDATE:
                 element.trigger("mousewheelinvalidate");
                 break;
             case logEventFactory.MEMENTO_INVALIDATE:
                 element.trigger("mementoinvalidate");
+                break;
+
+            // TODO probably textChange will handle these correctly, check this
+            case logEventFactory.MEMENTO_UNDO:
+            case logEventFactory.MEMENTO_REDO:
                 break;
 
             default:
@@ -1029,6 +1381,7 @@ debug(itpData);
 
         debug(pluginName + ": Loading 'logListChunk' with: jobId: '" + data.jobId + "', "
             + "fileId: '" + data.fileId + "', startOffset: '" + data.startOffset + "', endOffset: '" + data.endOffset + "'.");
+        updateUIStatus("Loading chunk...");
 
         var xmlHttpRequest = $.ajax({
             async: async,
@@ -1052,6 +1405,13 @@ debug(itpData);
                     updateUIStatus("Chunk loaded, processing data...");
                     eventCounter = eventCounter + result.data.logListChunk.length;
                     replayList.push.apply(replayList, result.data.logListChunk);
+
+                    if (!isReplaying) {
+                        var tempTimerId = window.setTimeout(function() {
+                            updateUIStatus("Ready.");
+                            window.clearTimeout(tempTimerId);
+                        }, 0);
+                    }
 
                     dumpReplayList();
                 }
@@ -1083,7 +1443,7 @@ debug(itpData);
                 else if (result.errors) {   // TODO is the error format really like this? with the index access
                                             // 'result.errors[0]'?
                     alert("(Server) Error loading 'logListChunk': '" + result.errors[0].message + "'");
-                    throw new ReplayException("(Server) Error loading 'logListChunk': '" + result.errors[0].message + "'");
+                    throw "(Server) Error loading 'logListChunk': '" + result.errors[0].message + "'";
                 }
             },
             error: function(request, status, error) {
@@ -1093,7 +1453,7 @@ debug(itpData);
                 debug(status);
                 debug(error);
                 alert("Error loading 'logListChunk': '" + error + "'");
-                throw new ReplayException("Error loading 'logListChunk': '" + error + "'");
+                throw "Error loading 'logListChunk': '" + error + "'";
             }
         });
 

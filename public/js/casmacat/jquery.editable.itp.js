@@ -203,13 +203,14 @@
       return data.config;
     },
     
-    rejectSuffix: function(caretPos) {
+    rejectSuffix: function(caretPos, numResults) {
       var data = $(this).data(namespace);
+      if (typeof(numResults) === 'undefined') numResults = 1;
       data.itpServer.rejectSuffix({
         source: data.$source.text(),
         target: data.$target.text(),
         caretPos: caretPos,
-        numResults: 1,
+        numResults: numResults,
       });
     },
 
@@ -225,6 +226,16 @@
 
     itpServer: function(str) { 
       return $(this).data(namespace).itpServer;
+    },
+
+    undo: function() {
+      var memento = $(this).data(namespace).events.memento;
+      if (memento) memento.undo();
+    },
+
+    redo: function() {
+      var memento = $(this).data(namespace).events.memento;
+      if (memento) memento.redo();
     },
 
     toggle: function(option, value) {

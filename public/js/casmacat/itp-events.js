@@ -101,7 +101,7 @@ var Memento = require("module.memento");
           source: itpCfg.$source.editable('getText'),
           target: $target.editable('getText'),
         });
-        $target.editable('setCaretPos', data.caret);        
+        if (data.caret) $target.editable('setCaretPos', data.caret);        
       }
     });
  
@@ -186,7 +186,10 @@ var Memento = require("module.memento");
         //console.log('contribution changed', data);
         var bestResult = data.nbest[0];
    
-        self.vis.updateSuggestions(data);
+        if (!config.floatPredictions)
+          // if we're using the floating box for displaying predictions, don't
+          // paste the decoded text into the box
+          self.vis.updateSuggestions(data);
         
         //var conf = userCfg();
         //if (conf.mode != 'PE') {
@@ -202,6 +205,11 @@ var Memento = require("module.memento");
         //XXX: $('#btn-translate').val("Translate").attr("disabled", false);
         $target.trigger('decode', [data, err]);
         $target.trigger('editabletextchange', [data, err]);
+
+        // herve - this ensures that the prediction popup shows up before the
+        // user starts translating
+        $target.focus();
+        self.vis.FloatingPrediction.setPredictedText (bestResult.target);
       });
     
       itp.on('startSessionResult', function(data, err) {
@@ -312,7 +320,8 @@ var Memento = require("module.memento");
           return;
         }
 
-        self.vis.updateSuggestions(data);
+        if (!config.floatPredictions)
+          self.vis.updateSuggestions(data);
         
         self.mousewheel.addElement(data);
         $target.trigger('suffixchange', [data, err]);
@@ -421,6 +430,9 @@ var Memento = require("module.memento");
         }
       }
 
+
+
+
       function shouldUpdate($elem, opt, value) {
         if (typeof value === "undefined") value = true;
         var old = ($elem[0].getAttribute("data-" + opt) === "true")
@@ -498,6 +510,13 @@ var Memento = require("module.memento");
 
       function tabKeyHandler(e, mode) {
         var ui = userCfg(), $token, gotoEnd = false;
+
+        if (config.floatPredictions) {
+          // when we use floating predictions, the semantics of the tab key change
+          if (mode === 'fwd')
+            self.vis.FloatingPrediction.acceptNextWord();
+          return;
+        }
 
         // find next token 
         if (mode == 'fwd') {
@@ -577,6 +596,8 @@ var Memento = require("module.memento");
   
        
           if (isPrintableChar(e)) {
+            if (config.floatPredictions)
+              self.vis.FloatingPrediction.setPredictedText (null);
             throttle(function() {
               if (data.str !== source) {
                 var query = {
@@ -593,6 +614,11 @@ var Memento = require("module.memento");
         });
       }
 
+      if (config.floatPredictions) {
+        $(window).scroll (function () {
+          self.vis.FloatingPrediction.adjustPosition();
+        });
+      }
     
       self.typedWords = {};
       self.currentCaretPos; // { pos, token }
@@ -611,13 +637,17 @@ var Memento = require("module.memento");
         //$('#caret').html('<span class="prefix">' + text.substr(0, d.pos) + '</span>' + '<span class="suffix">' + text.substr(d.pos) + "</span>");
         forgetState(d.pos);
         self.currentCaretPos = d;
+        if (config.floatPredictions)
+          self.vis.FloatingPrediction.adjustPosition();
       })
       // on ctrl+click reject suffix 
       .bind('click' + nsClass, function(e) {
         var cpos = $target.editable('getCaretPos');
         forgetState(cpos);
         // Update only the caret position
-        self.currentCaretPos.pos = cpos;
+        if (self.currentCaretPos)
+          // 2013-11-28 - herve - added the 'if' condition -- I was getting "self.currentCaretPos is undefined" errors here
+          self.currentCaretPos.pos = cpos;
         // Issue a reject only if CTRL is pressed
         if (e.ctrlKey) reject(); // UPDATE: This is error prone and may require interaction with other modules
       })

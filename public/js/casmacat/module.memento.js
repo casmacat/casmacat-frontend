@@ -66,6 +66,14 @@ require("jquery.hotkeys");
     self.getState = function() {
       return stack[pos];
     };
+
+    self.undo = function() {
+      onUndo();
+    };
+    
+    self.redo = function() {
+      onRedo();
+    };
     
     // Mandatory intialization method ------------------------------------------
     self.init = function(elem, options) {

@@ -20,7 +20,7 @@
     self.connect = function(url) {
       var ioOptions = {}
 
-      var match = /^(.*)@(\d{1,4})(.*)$/.exec(url);
+      var match = /^(.*)@(\d+)(.*)$/.exec(url);
       if (match) {
         url = match[1] + match[3];
         var port = match[2];

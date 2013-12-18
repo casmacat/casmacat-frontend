@@ -55,10 +55,12 @@ class replayController extends viewcontroller {
 //        log::doLog("CASMACAT: replayController->doAction(): Loading meta data...");
 
         $logListChunk = fetchLogChunk($this->jobId, $this->fileId, 0, 3);
-        $this->vsWidth = $logListChunk[2]->width;
+        $this->vsWidth = $logListChunk[2]->width + 17;
         $this->vsHeight = $logListChunk[2]->height;
         $this->startTime = $logListChunk[0]->time;
         $this->endTime = fetchEndTime($this->jobId, $this->fileId);
+
+//        $this->vsSrc = $this->vsSrc . INIT::$BASE_URL . "index.php?action=cat&jid=$this->jobId&password=$this->password&page=&ia@6007&replay=true";
     }
 
     public function setTemplateVars() {

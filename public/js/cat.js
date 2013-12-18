@@ -492,7 +492,7 @@ UI = {
         $('.percentuage',segment).removeClass('visible');
         this.setContribution(segment,status,byStatus);
         this.setTranslation(segment,status);
-        this.closeSegment(segment,0);
+        this.closeSegment(segment,1); // Luis: 0, but breaks buttons
     },
 
     checkHeaviness: function() {
@@ -689,6 +689,47 @@ UI = {
         if (config.replay == 1) {
             debug("cat.js: Skipping loading of suggestion in getContribution()...");
             return false;
+        }
+
+        if (config.debug && !config.logEnabled) { // enable reset document button
+            $("#resetDocument").text('Reset Document').on("click", function(e) {
+                e.preventDefault();
+
+                var data = {
+                    action: "resetDocument",
+                    fileId: config.file_id,
+                    jobId: config.job_id
+                };
+
+                $.ajax({
+                    async: false,
+                    url: config.basepath + "?action=resetDocument",
+                    data: data,
+                    type: "GET",
+                    dataType: "json",
+                    cache: false,
+                    success: function(result) {
+                        if (result.data && result.data == "OK") {
+                            alert("Document reset, will now reload...");
+//                            $(window).logging("start");
+                            var url = window.location.toString().substr(0, window.location.toString().lastIndexOf("#"));
+                            window.location = url;
+                        }
+                        else if (result.errors) {    // TODO is the error format really like this? with the index access
+                                                    // 'result.errors[0]'?
+                            alert("(Server) Error resetting document: '" + result.errors[0].message + "'");
+                            $.error("(Server) Error resetting document: '" + result.errors[0].message + "'");
+                        }
+                    },
+                    error: function(request, status, error) {
+                        debug(request);
+                        debug(status);
+                        debug(error);
+                        alert("Error resetting document: '" + error + "'");
+                        $.error("Error resetting document: '" + error + "'");
+                    }
+                });
+            });
         }
 
         var event = $.Event("loadingSuggestions");
@@ -991,11 +1032,11 @@ UI = {
         this.nextIsLoaded = false;
         this.getContribution(segment,0);
         this.opening = true;
-//----------------------------------------Here gehts weiter
+
         // CASMACAT extension start
 //        AND sanitize problem
 //if (config.enable_itp)
-            if(!(this.currentSegment.is(this.lastOpenedSegment))) this.closeSegment(this.lastOpenedSegment,1);
+            if(!(this.currentSegment.is(this.lastOpenedSegment))) this.closeSegment(this.lastOpenedSegment,0); // Luis: 1, but breaks buttons
 //        }
         // CASMACAT extension end
 
@@ -1161,6 +1202,9 @@ UI = {
     },
 
     renderContributions: function(d,segment) {
+        if (config.hideContributions)
+            return;
+
 //        console.log("renderContributions:", d, segment)
         var isActiveSegment = $(segment).hasClass('editor');
         var editarea = $('.editarea', segment);
@@ -1342,6 +1386,7 @@ UI = {
     },
 
     scrollSegment: function(segment) {
+console.trace();
         var spread = 23;
         var current = this.currentSegment;
         var previousSegment = $(segment).prev('section');
@@ -1373,6 +1418,24 @@ UI = {
         }
 
         $("html,body").stop();
+        // CASMACAT extension start
+//alert("BEFORE ANIM");
+        if (config.replay === 1) {
+            $("html,body").animate({
+                scrollTop: destinationTop-20
+            }, 500, "swing", function(e) {
+//alert("ANIM COMP");
+                var element = $(segment);
+                var src = element.find("#" + element[0].id + "-source");
+                var tgt = element.find(".editarea");
+                alert(element[0].id + ": " + element.width() + "x" + element.height() + " " + element.offset().left + "," + element.offset().top + "\n"
+                + "src: " + src.width() + "x" + src.height() + " " + src.offset().left + "," + src.offset().top + "\n"
+                + "tgt: " + tgt.width() + "x" + tgt.height() + " " + tgt.offset().left + "," + tgt.offset().top);
+            });
+
+            return;
+        }
+        // CASMACAT extension end
         $("html,body").animate({
             scrollTop: destinationTop-20
         }, 500 );

@@ -29,11 +29,18 @@ $(function(){
   };
 
   insertStyle(config.basepath  + 'public/css/itp.css');
-  if (config.penEnabled) {
-    insertStyle(config.basepath  + 'public/css/htr.css');
-  }
 
   require('jquery.editable.itp');
+
+
+  var settings = {
+      itp: undefined,
+      visualization: config.prefs
+    }
+
+  if (config.catsetting) {
+    jQuery.extend(settings, require(config.basepath + '/' + config.catsetting));
+  }
 
   function getEditArea() {
     //return $(UI.currentSegment).find('.editarea');
@@ -55,66 +62,7 @@ $(function(){
     return { matches: matches };
   };
 
-  function toggleEpenMode(editarea) {
-    if (!config.penEnabled) {
-      return false;
-    }
-
-    var $target = $(editarea), sid = $target.data('sid'), prefix = "#segment-" + sid;
-    var $source = $(prefix + "-source"), $section = $(prefix), animMs = 300;
-    var $targetParent = $(prefix + "-target");
-    $section.find('.wrap').toggleClass("epen-wrap");
-    $source.toggleClass("epen-source", animMs);
-    $target.toggleClass("epen-target", animMs, function(){
-      var $canvas = $targetParent.find('canvas'), $clearBtn = $('.buttons', UI.currentSegment).find('.pen-clear-indicator');
-      // Create canvas on top
-      if ($canvas.length === 0) {
-        var geom = require('geometry-utils'),
-             pos = $target.offset(),
-             siz = { width: $target.width() + 20, height: $target.height() + 10 };
-
-        $canvas = $('<canvas tabindex="-1" id="'+prefix+'-canvas" width="'+siz.width+'" height="'+siz.height+'"/>');
-        $canvas.prependTo($targetParent).hide().delay(10).css({
-            left: ($section.find('.wrap').width() - siz.width - $section.find('.status-container').width()/2) / 2,
-          zIndex: geom.getNextHighestDepth()
-        }).bind('mousedown mouseup click', function(e){
-          // This is to prevent logging click events on the canvas
-          e.stopPropagation();
-        });
-
-        var htr = require('htr');
-        htr.init($canvas, $source, $target);
-
-        // A button to clear canvas (see http://ikwebdesigner.com/special-characters/)
-        if ($clearBtn.length === 0) {
-          $clearBtn = $('<li/>').html('<a href="#" class="itp-btn pen-clear-indicator" title="Clear drawing area">&#10227;</a>');
-          $clearBtn.click(function(e){
-            e.preventDefault();
-            $canvas.sketchable('clear');
-          });
-          $('.buttons', UI.currentSegment).prepend($clearBtn);
-          $clearBtn.hide();
-        }
-      } else {
-        $canvas = $targetParent.find('canvas');
-      }
-      /*
-      // TODO: Remove suffix length feature for e-pen mode and restore previous prioritizer
-      $target.editableItp('updateConfig', {
-        prioritizer: "none"
-      });
-      */
-      // Toggle buttons
-      $canvas.sketchable('clear').toggle();
-      $clearBtn.toggle();
-      // Toggle translation matches et al.
-      $section.find('.overflow').toggle(animMs);
-      // Remove contenteditable selection
-      var sel = window.getSelection();
-      sel.removeAllRanges();
-    });
-  };
-  
+ 
   //if (config.debug) {
     var $listDocs = $('<span style="float:left"><a href="'+config.basepath+'listdocuments/">Document list</a> &gt;</span>');
     var $shortCut = $('<div><a href="'+config.basepath+'listshortcuts/"><strong>Shortcuts</strong></a></div>');
@@ -135,12 +83,24 @@ $(function(){
   UI.reinitMMShortcuts    = function(){}; // Use shortcuts.js instead
   var shortcuts = require('shortcuts');
 
+
+  if (config.penEnabled) {
+    var htr = require('htr');
+    insertStyle(config.basepath  + 'public/css/htr.css');
+    UI.toggleKeyBindings['ctrl+shift+e'] = 'enableEpen'
+  }
+  else {
+    settings.visualization.epenEnabled = false;
+    settings.visualization.toggleEpenOffOnSegmentClose = true;
+  }
+
+
   var original_openSegment = UI.openSegment;
   var original_closeSegment = UI.closeSegment;
   var original_doRequest = UI.doRequest;
   var original_copySuggestionInEditarea = UI.copySuggestionInEditarea;
-  var original_setContribution = UI.setContribution;
-  
+  var original_setTranslation = UI.setTranslation;
+
   UI.openSegment = function(editarea) {
     original_openSegment.call(UI, editarea);
     // XXX: in ITP mode Matecat does not clear blockButtons
@@ -150,36 +110,48 @@ $(function(){
       //console.log("***OPEN SEGMENT***", $target[0], trace())
 
       $target.on('ready.matecat', function() {
-        var settings, $indicator;
-        if (config.catsetting) {
-          settings = require(config.basepath + '/' + config.catsetting);
-        } else {
-          settings = $target.editableItp('getConfig');
+        var $indicator;
+        if (typeof(settings.itp) === 'undefined') {
+          settings.itp = $target.editableItp('getConfig');
         }
-        if ($.trim($target.text()).length === 0 && settings.mode != "manual") {
+        // enable S&R if server supports it and configuration is set 
+        if ((settings.itp.hasOwnProperty('allowSearchReplace') && settings.itp.allowSearchReplace) || (!settings.itp.hasOwnProperty('allowSearchReplace') && config.srEnabled)) {
+          setupSearchReplace();
+        }
+
+        if ($.trim($target.text()).length === 0 && settings.itp.mode != "manual") {
           $target.editableItp('decode');
         }
         $target.editableItp('startSession');
-        $target.editableItp('updateConfig', settings);
+        $target.editableItp('updateConfig', settings.itp);
         // A button to toggle ITP mode
         $indicator = ('.buttons', UI.currentSegment).find('.itp-indicator');
-        if (config.itpEnabled && $indicator.length === 0) {
-          $indicator = $('<li/>').html('<a href="#" class="itp-btn itp-indicator">'+settings.mode+'</a><p>ESC</p>');
-          $indicator.click(function(e){
-            e.preventDefault();
-            UI.toggleItp(e);
-          });
-          $('.buttons', UI.currentSegment).prepend($indicator);
+        if (config.itpEnabled) {
+          if ($indicator.length === 0) {
+            $indicator = $('<li/>').html('<a href="#" class="itp-btn itp-indicator">'+settings.itp.mode+'</a><p>ESC</p>');
+            $indicator.click(function(e){
+              e.preventDefault();
+              UI.toggleItp(e);
+            });
+            $('.buttons', UI.currentSegment).prepend($indicator);
+          }
         }
         // A button to toggle e-pen mode
         $indicator = $('.buttons', UI.currentSegment).find('.pen-indicator');
-        if (config.htrserver && config.penEnabled && $indicator.length === 0) {
-          $indicator = $('<li/>').html('<a href="#" class="itp-btn pen-indicator" title="Toggle e-pen input">&#9997;</a>');
-          $indicator.click(function(e){
-            e.preventDefault();
-            toggleEpenMode(editarea);
-          });
-          $('.buttons', UI.currentSegment).prepend($indicator);
+        if (config.htrserver && config.penEnabled) {
+           htr.attachEvents($target);
+
+          if ($indicator.length === 0) {
+            $indicator = $('<li/>').html('<a href="#" class="itp-btn pen-indicator" title="Toggle e-pen input">&#9997;</a>');
+            $indicator.click(function(e){
+              e.preventDefault();
+              getEditArea().editableItp('toggle', 'enableEpen');
+            });
+            $('.buttons', UI.currentSegment).prepend($indicator);
+          }
+          if (settings.visualization.epenEnabled && !settings.visualization.toggleEpenOffOnSegmentClose) {
+            getEditArea().editableItp('toggle', 'enableEpen', true);
+          }
         }
         // A series of buttons to toggle visualization options
         $indicator = $('.text', UI.currentSegment).find('.vis-commands');
@@ -188,8 +160,9 @@ $(function(){
           for (var opt in shortcuts.toggles) {
             var toggleId = shortcuts.toggles[opt],
                 labelId  = $(UI.currentSegment).attr("id") + "-" + toggleId,
-                sc = opt.toUpperCase(),
-                prefStatus  = config.prefs[toggleId],
+                sc = opt.toUpperCase();
+
+            var prefStatus  = settings.visualization[toggleId],
                 checkStatus = (prefStatus) ? ' checked="checked"' : '';
             nav += '<input title='+sc+' type="checkbox" '+checkStatus+' id="'+labelId+'" name="'+toggleId+'"><label title='+sc+'>'+toggleId+'</label> ';
           }
@@ -230,7 +203,7 @@ $(function(){
         itpServerUrl:   config.itpserver,
         debug:          config.debug,
         replay:         config.replay
-      }, config.prefs)
+      }, settings.visualization)
       .on('togglechange.matecat', function (ev, toggle, value, cfg) {
         var $indicator = $('.text', UI.currentSegment).find('.vis-commands'),
             name = '#segment-' + sid + '-' + toggle;
@@ -302,7 +275,7 @@ $(function(){
           $target.find('span.editable-token')
           .off('mouseenter.matecat mouseleave.matecat caretenter.matecat caretleave.matecat')
           .on('mouseenter.matecat', function (ev) {
-            if (!config.prefs.displayMouseAlign) return;
+            if (!settings.visualization.displayMouseAlign) return;
             var data = {
                 target: ev.target,
                 x: ev.clientX,
@@ -311,17 +284,17 @@ $(function(){
             $(window).trigger('showAlignmentByMouse', data);
           })
           .on('mouseleave.matecat', function (ev) {
-            if (!config.prefs.displayMouseAlign) return;
+            if (!settings.visualization.displayMouseAlign) return;
             $(window).trigger('hideAlignmentByMouse', ev.target);
           })
           .on('caretenter.matecat', function (ev, data) {
-            if (!config.prefs.displayCaretAlign) return;
+            if (!settings.visualization.displayCaretAlign) return;
             // change dom node in data by its id to avoid circular problem when converting to JSON
             var d = jQuery.extend({}, data); d.token = '#'+d.token.id;
             $(window).trigger('showAlignmentByKey', {element: $target[0], type: "caretenter", data: d});
           })
           .on('caretleave.matecat', function (ev, data) {
-            if (!config.prefs.displayCaretAlign) return;
+            if (!settings.visualization.displayCaretAlign) return;
             // change dom node in data by its id to avoid circular problem when converting to JSON
             var d = jQuery.extend({}, data); d.token = '#'+d.token.id;
             if (config.displayCaretAlign) $(window).trigger('hideAlignmentByKey', {element: $target[0], type: "caretleave", data: d});
@@ -329,7 +302,7 @@ $(function(){
 
           $source.find('span.editable-token').off('mouseenter.matecat mouseleave.matecat')
           .on('mouseenter.matecat', function (ev) {
-            if (!config.prefs.displayMouseAlign) return;
+            if (!settings.visualization.displayMouseAlign) return;
             var data = {
                 target: ev.target,
                 x: ev.clientX,
@@ -338,7 +311,7 @@ $(function(){
             $(window).trigger('showAlignmentByMouse', data);
           })
           .on('mouseleave.matecat', function (ev) {
-            if (!config.prefs.displayMouseAlign) return;
+            if (!settings.visualization.displayMouseAlign) return;
             $(window).trigger('hideAlignmentByMouse', ev.target);
           })
       });
@@ -361,7 +334,7 @@ $(function(){
       $source.find('*').andSelf().off('.matecat');
       $target.editableItp('destroy');
       if ($target.hasClass('epen-target') && bybutton) {
-        toggleEpenMode($target);
+        getEditArea().editableItp('toggle', 'enableEpen', false);
       }
     }
 
@@ -374,11 +347,6 @@ $(function(){
     original_copySuggestionInEditarea.call(UI, editarea);
   };*/
 
-  UI.setContribution = function(segment,status,byStatus) {
-    original_setContribution.call(UI, segment,status,byStatus);
-    if (status == 'translated' || status == 'approved') getEditArea().editableItp('validate');
-  };
-  
   UI.doRequest = function(req) {
     var d = req.data, a = d.action, $ea = getEditArea();
     UI.saveCallback(a, req);
@@ -401,6 +369,7 @@ $(function(){
             data: formatItpMatches(data)
           });
         });
+
         break;
       default:
         console.log("Forwarding request 'as is':", a);
@@ -432,21 +401,22 @@ $(function(){
     //return req.data;
   };
 
-  // BEGIN S&R facilities ------------------------------------------------------
-  if (config.catsetting) {
-    var settings = require(config.basepath + '/' + config.catsetting);
-    if (settings) {
-      // For the evaluation, S&R can be optional
-      if (settings.allowSearchReplace || !settings.hasOwnProperty('allowSearchReplace')) {
-        setupSearchReplace();
-      } else {
-        $('#sr-replace').hide();
-      }
+  UI.setTranslation = function(segment, status) {
+    original_setTranslation.call(UI, segment, status);
+
+    if (status === 'translated') {
+      getEditArea().editableItp('validate');
     }
-  } else if (config.srEnabled) {
-    setupSearchReplace();
+  };
+
+  if (!config.replay && config.debug) { // enable reset document button
+    $("#resetDocument").text('Reset Document').on("click", function(e) {
+      getEditArea().editableItp('reset');
+    });
   }
 
+
+  // BEGIN S&R facilities ------------------------------------------------------
   $('#sr-rules').hide(); // In any case, this must be hidden beforehand
 
   function addSearchReplaceEvents() {
