@@ -39,3 +39,12 @@ Useful shortcuts
 More shortcuts [here].
 
 [here]: ${basepath}listshortcuts/ 
+
+
+Browser compatibility
+---------------------
+
+Note that this demo has been optimized for [Firefox] and [Chrome]. Other browsers might not be supported.
+
+[Firefox]: http://www.mozilla.org
+[Chrome]:  https://www.google.com/chrome
