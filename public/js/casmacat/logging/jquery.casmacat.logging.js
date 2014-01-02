@@ -32,6 +32,7 @@
     /*#######################################################################*/
     /*################################### Private variables of the plugin ###*/
     /*#######################################################################*/
+    var undefined;
 
     // Create the defaults once
     var pluginName = "logModule",
@@ -175,8 +176,8 @@
 //                    return;   // TODO not necessary any more, remove this whole 'if' someday
                 };
                 logList = [];
-                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.START_SESSION, "window"));   // initialise with 'start session'
-                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.INITIAL_CONFIG, "window", config));   // initialise with initial configuration from config object
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.START_SESSION, undefined, "window"));   // initialise with 'start session'
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.INITIAL_CONFIG, undefined, "window", config));   // initialise with initial configuration from config object
                 windowResized();   // ... and window size
                 isLogging = true;
 
@@ -202,7 +203,7 @@
                     $.fn.showOverlay("<br><br>Waiting for log chunk upload to complete...", "chunksUpload");
                     debug(pluginName + ": Waiting for log chunk upload to complete...");
 
-                    storeLogEvent(logEventFactory.newLogEvent(logEventFactory.STOP_SESSION, window));
+                    storeLogEvent(logEventFactory.newLogEvent(logEventFactory.STOP_SESSION, undefined, window));
 
                     if (logList.length > 0) {
                         debug(pluginName + ": Uploading remaining 'logList'...");
@@ -765,13 +766,13 @@
     /**
      * Logs a selection event if the selected text is not empty.
      */
-    var logSelectionEvent = function(element) {
+    var logSelectionEvent = function(element, timeStamp) {
         var range = $(element).getSelection();
 
         if (range !== null) {
 //        if (range.selectedText !== "") {
             debug(pluginName + ": Logging selection...");
-            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SELECTION, element, range));
+            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SELECTION, timeStamp, element, range));
         }
         else {
 //            debug(pluginName + ": Ignoring empty selection.");
@@ -804,7 +805,7 @@
             altKey = e.altKey;
         }
 
-        storeLogEvent(logEventFactory.newLogEvent(type, e.target,
+        storeLogEvent(logEventFactory.newLogEvent(type, e.timeStamp, e.target,
             e.which, e.clientX, e.clientY, shiftKey, ctrlKey, e.altKey, pos));
     };
 
@@ -836,7 +837,7 @@
     var mouseLeave = function(e) {
 //        debug(pluginName + ": Mouse leave.");
         if (e.which != 0) {
-            logSelectionEvent(e.target);
+            logSelectionEvent(e.target, e.timeStamp);
         }
     };
 
@@ -871,7 +872,7 @@
 
         // TODO manage selections correctly
         if (!e.shiftKey) {
-            logSelectionEvent(e.target);
+            logSelectionEvent(e.target, e.timeStamp);
         }
 
         if (settings.logMouse) {
@@ -918,7 +919,7 @@
                 altKey = e.altKey;
             }
 
-            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.KEY_DOWN, e.target,
+            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.KEY_DOWN, e.timeStamp, e.target,
                 pos, e.which, $.fn.keyCodeToKey(e.which), shiftKey, ctrlKey, altKey));
         }
     };
@@ -937,7 +938,7 @@
 
         // TODO manage selections correctly
         if (shiftKey && !e.shiftKey) {
-            logSelectionEvent(e.target);
+            logSelectionEvent(e.target, e.timeStamp);
             shiftKey = false;
         }
 
@@ -950,7 +951,7 @@
                 altKey = e.altKey;
             }
 
-            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.KEY_UP, e.target,
+            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.KEY_UP, e.timeStamp, e.target,
                 pos, e.which, $.fn.keyCodeToKey(e.which), shiftKey, ctrlKey, altKey));
         }
     };
@@ -966,13 +967,13 @@
             contentBeforeCut = $(e.target).val();
         }
 
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.BEFORE_CUT, e.target));
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.BEFORE_CUT, e.timeStamp, e.target));
     };
 
     var beforeCopy = function(e) {  // TODO how about CTRL+X or CTRL+V?
 //        debug(pluginName + ": Copy.");
 
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.BEFORE_COPY, e.target));
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.BEFORE_COPY, e.timeStamp, e.target));
     };
 
     var pasted = false;
@@ -989,7 +990,7 @@
             contentBeforePaste = $(e.target).val();
         }
 
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.BEFORE_PASTE, e.target));
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.BEFORE_PASTE, e.timeStamp, e.target));
     };
 
     // called on 'input'
@@ -1042,7 +1043,7 @@
         // write log event if changes detected
         if (changes) {
 //            debug(pluginName + ": Text changed.");
-            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.TEXT, e.target,
+            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.TEXT, e.timeStamp, e.target,
                 changes.cursorPosition, changes.deleted, changes.inserted, e.data.isManual));
 
             // (re-)set cursor position (because of sanitize)
@@ -1068,7 +1069,7 @@
     var scrollableMoved = function(e) {
         debug(pluginName + ": Scroll moved.");
 
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SCROLL, e.target, $(e.target).scrollTop()));
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SCROLL, e.timeStamp, e.target, $(e.target).scrollTop()));
     };
 
     //var lw = -1, lh = -1; // width and height from last resize
@@ -1076,7 +1077,7 @@
 
         if ( w.width !== $(window).width() && w.height !== $(window).height()) {
             debug(pluginName + ": Window resized.");
-            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.RESIZE, window,
+            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.RESIZE, (typeof(e)=='undefined')?undefined:e.timeStamp, window,
                 $(window).width(), $(window).height()));
             w.width = $(window).width();
             w.height = $(window).height();
@@ -1094,37 +1095,37 @@
     var drafted = function(e, data) {
         debug(pluginName + ": Segment drafted.");
 
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.DRAFTED, data.segment));
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.DRAFTED, e.timeStamp, data.segment));
     };
 
     var translated = function(e, data) {
         debug(pluginName + ": Segment translated.");
 
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.TRANSLATED, data.segment));
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.TRANSLATED, e.timeStamp, data.segment));
     };
 
     var approved = function(e, data) {
         debug(pluginName + ": Segment approved.");
 
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.APPROVED, data.segment));
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.APPROVED, e.timeStamp, data.segment));
     };
 
     var rejected = function(e, data) {
         debug(pluginName + ": Segment rejected.");
 
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.REJECTED, data.segment));
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.REJECTED, e.timeStamp, data.segment));
     };
 
     var viewportToSegment = function(e, data) {
         debug(pluginName + ": Viewport moved to segment.");
 
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.VIEWPORT_TO_SEGMENT, data.segment));
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.VIEWPORT_TO_SEGMENT, e.timeStamp, data.segment));
     };
 
     var sourceCopied = function(e, data) {
         debug(pluginName + ": Segment source copied.");
 
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SOURCE_COPIED, data.segment));
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SOURCE_COPIED, e.timeStamp, data.segment));
 
         textChanged({
              target: $(".editarea", data.segment)[0],
@@ -1135,13 +1136,13 @@
     var segmentOpened = function(e, data) {
         debug(pluginName + ": Segment opened: '" + data.segment.id + "'.");
 
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SEGMENT_OPENED, data.segment));
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SEGMENT_OPENED, e.timeStamp, data.segment));
     };
 
     var segmentClosed = function(e, data) {
         debug(pluginName + ": Segment closed: '" + data.segment.id + "'.");
 
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SEGMENT_CLOSED, data.segment));
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SEGMENT_CLOSED, e.timeStamp, data.segment));
 
         if (logList.length >= 100) {
             debug(pluginName + ": Forcing upload of 'logList'...");
@@ -1153,20 +1154,20 @@
     var loadingSuggestions = function(e, data) {
         debug(pluginName + ": Loading suggestions.");
 
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.LOADING_SUGGESTIONS, data.segment));
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.LOADING_SUGGESTIONS, e.timeStamp, data.segment));
     };
 
     var suggestionsLoaded = function(e, data) {
         debug(pluginName + ": Suggestions loaded.");
 
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SUGGESTIONS_LOADED, data.segment,
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SUGGESTIONS_LOADED, e.timeStamp, data.segment,
             data.matches));
     };
 
     var suggestionChosen = function(e, data) {
         debug(pluginName + ": Suggestion chosen.");
 
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SUGGESTION_CHOSEN, data.segment,
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SUGGESTION_CHOSEN, e.timeStamp, data.segment,
             data.which, data.translation));
 
             textChanged({
@@ -1189,19 +1190,19 @@
     var deletingSuggestion = function(e, data) {
         debug(pluginName + ": Deleting suggestion: '" + data.which + "'.");
 
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.DELETING_SUGGESTION, data.segment, data.which));
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.DELETING_SUGGESTION, e.timeStamp, data.segment, data.which));
     };
 
     var suggestionDeleted = function(e, data) {
         debug(pluginName + ": Suggestion deleted.");
 
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SUGGESTION_DELETED, data.segment));
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SUGGESTION_DELETED, e.timeStamp, data.segment));
     };
 
     var statsUpdated = function(e, data) {
         debug(pluginName + ": Statistics updated.");
 
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.STATS_UPDATED, data.segment,
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.STATS_UPDATED, e.timeStamp, data.segment,
             data.stats));
     };
 
@@ -1211,7 +1212,7 @@
         switch (data.type) {
             case "decode":
                 t = logEventFactory.DECODE;
-                storeLogEvent(logEventFactory.newLogEvent(t, data.element, data.data));
+                storeLogEvent(logEventFactory.newLogEvent(t, e.timeStamp, data.element, data.data));
 
                 textChanged({
                     target: data.element,
@@ -1221,11 +1222,11 @@
             case "alignments":
                 t = logEventFactory.ALIGNMENTS;
 
-                storeLogEvent(logEventFactory.newLogEvent(t, data.element, data.data));
+                storeLogEvent(logEventFactory.newLogEvent(t, e.timeStamp, data.element, data.data));
                 break;
             case "suffixchange":
                 t = logEventFactory.SUFFIX_CHANGE;
-                storeLogEvent(logEventFactory.newLogEvent(t, data.element, data.data));
+                storeLogEvent(logEventFactory.newLogEvent(t, e.timeStamp, data.element, data.data));
 
                 textChanged({
                     target: data.element,
@@ -1234,11 +1235,11 @@
                 break;
             case "confidences":
                 t = logEventFactory.CONFIDENCES;
-                storeLogEvent(logEventFactory.newLogEvent(t, data.element, data.data));
+                storeLogEvent(logEventFactory.newLogEvent(t, e.timeStamp, data.element, data.data));
                 break;
             case "tokens":
                 t = logEventFactory.TOKENS;
-                storeLogEvent(logEventFactory.newLogEvent(t, data.element, data.data));
+                storeLogEvent(logEventFactory.newLogEvent(t, e.timeStamp, data.element, data.data));
                 break;
         }
 
@@ -1247,38 +1248,38 @@
 
     var alignmentShownByMouse = function(e, data) {
 //        debug(pluginName + ": Alignment shown by mouse.");
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SHOW_ALIGNMENT_BY_MOUSE, data.target));
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SHOW_ALIGNMENT_BY_MOUSE, e.timeStamp, data.target));
     };
 
     var alignmentHiddenByMouse = function(e, data) {
 //        debug(pluginName + ": Alignment hidden by mouse.");
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HIDE_ALIGNMENT_BY_MOUSE, data));
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HIDE_ALIGNMENT_BY_MOUSE, e.timeStamp, data));
     };
 
     var alignmentShownByKey = function(e, data) {
 //        debug(pluginName + ": Alignment shown by key.");
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SHOW_ALIGNMENT_BY_KEY, data.element, data.data));
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SHOW_ALIGNMENT_BY_KEY, e.timeStamp, data.element, data.data));
     };
 
     var alignmentHiddenByKey = function(e, data) {
 //        debug(pluginName + ": Alignment hidden by key.");
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HIDE_ALIGNMENT_BY_KEY, data.element, data.data));
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HIDE_ALIGNMENT_BY_KEY, e.timeStamp, data.element, data.data));
     };
 
     var visMenuDisplayed = function(e, data) {
         debug(pluginName + ": Visualization menu displayed.");
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.VIS_MENU_DISPLAYED, data.segment));
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.VIS_MENU_DISPLAYED, e.timeStamp, data.segment));
     };
 
     var visMenuHidden = function(e, data) {
         debug(pluginName + ": Visualization menu hidden.");
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.VIS_MENU_HIDDEN, data.segment));
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.VIS_MENU_HIDDEN, e.timeStamp, data.segment));
     };
 
     var configChanged = function(e, data) {
         // TODO ignore events when nothing changed? (especially when initializing...)
         debug(pluginName + ": Configuration changed: '" + JSON.stringify(data.config) + "'.");
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.CONFIG_CHANGED, data.segment, data.config));
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.CONFIG_CHANGED, e.timeStamp, data.segment, data.config));
     };
 
     var mouseWheelCommon = function(e, data) {
@@ -1288,7 +1289,7 @@
             case logEventFactory.MOUSE_WHEEL_UP:
                 if (getFieldContents($(".editarea", data.segment)[0]) != $(".editarea", data.segment).text()) {
                     debug(pluginName + ": Mouse wheel up event: Changes detected.");
-                    storeLogEvent(logEventFactory.newLogEvent(logEventFactory.MOUSE_WHEEL_UP, data.segment));
+                    storeLogEvent(logEventFactory.newLogEvent(logEventFactory.MOUSE_WHEEL_UP, e.timeStamp, data.segment));
                     textChanged({
                         target: $(".editarea", data.segment)[0],
                         data: {isManual: false},
@@ -1300,7 +1301,7 @@
                 break;
             case logEventFactory.MOUSE_WHEEL_DOWN:
                 if (getFieldContents($(".editarea", data.segment)[0]) != $(".editarea", data.segment).text()) {
-                    storeLogEvent(logEventFactory.newLogEvent(logEventFactory.MOUSE_WHEEL_DOWN, data.segment));
+                    storeLogEvent(logEventFactory.newLogEvent(logEventFactory.MOUSE_WHEEL_DOWN, e.timeStamp, data.segment));
                     textChanged({
                         target: $(".editarea", data.segment)[0],
                         data: {isManual: false},
@@ -1311,7 +1312,7 @@
                 }
                 break;
             case logEventFactory.MOUSE_WHEEL_INVALIDATE:    // TODO seems not really needed
-                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.MOUSE_WHEEL_INVALIDATE, data.segment));
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.MOUSE_WHEEL_INVALIDATE, e.timeStamp, data.segment));
                 break;
         }
     };
@@ -1321,13 +1322,13 @@
 
         switch (e.type) {
             case logEventFactory.MEMENTO_UNDO:
-                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.MEMENTO_UNDO, data.segment));
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.MEMENTO_UNDO, e.timeStamp, data.segment));
                 break;
             case logEventFactory.MEMENTO_REDO:
-                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.MEMENTO_REDO, data.segment));
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.MEMENTO_REDO, e.timeStamp, data.segment));
                 break;
             case logEventFactory.MEMENTO_INVALIDATE:    // TODO seems not really needed
-                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.MEMENTO_INVALIDATE, data.segment));
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.MEMENTO_INVALIDATE, e.timeStamp, data.segment));
                 break;
         }
     };
@@ -1337,26 +1338,26 @@
 
         switch (e.type) {
             case logEventFactory.SR_MENU_DISPLAYED:
-                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_MENU_DISPLAYED, data.segment));
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_MENU_DISPLAYED, e.timeStamp, data.segment));
                 break;
             case logEventFactory.SR_MENU_HIDDEN:
-                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_MENU_HIDDEN, data.segment));
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_MENU_HIDDEN, e.timeStamp, data.segment));
                 break;
             case logEventFactory.SR_MATCH_CASE_ON:
-                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_MATCH_CASE_ON, data.segment));
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_MATCH_CASE_ON, e.timeStamp, data.segment));
                 break;
             case logEventFactory.SR_MATCH_CASE_OFF:
-                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_MATCH_CASE_OFF, data.segment));
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_MATCH_CASE_OFF, e.timeStamp, data.segment));
                 break;
             case logEventFactory.SR_REG_EXP_ON:
-                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_REG_EXP_ON, data.segment));
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_REG_EXP_ON, e.timeStamp, data.segment));
                 break;
             case logEventFactory.SR_REG_EXP_OFF:
-                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_REG_EXP_OFF, data.segment));
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_REG_EXP_OFF, e.timeStamp, data.segment));
                 break;
 
             case logEventFactory.SR_RULES_SETTING:
-                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_RULES_SETTING, data.segment));
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_RULES_SETTING, e.timeStamp, data.segment));
                 break;
             case logEventFactory.SR_RULES_SET:
                 debug(pluginName + ": SR rules set to:");
@@ -1364,11 +1365,11 @@
 //                if (data.rules === null) {
 //                    data.rules = "";
 //                }
-                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_RULES_SET, data.segment, data.rules));
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_RULES_SET, e.timeStamp, data.segment, data.rules));
                 break;
             case logEventFactory.SR_RULES_APPLIED:
                 if (getFieldContents($(".editarea", data.segment)[0]) != $(".editarea", data.segment).text()) {
-                    storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_RULES_APPLIED, data.segment));
+                    storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_RULES_APPLIED, e.timeStamp, data.segment));
                     textChanged({
                          target: $(".editarea", data.segment)[0],
                          data: {isManual: false},
@@ -1379,7 +1380,7 @@
                 }
                 break;
             case logEventFactory.SR_RULE_DELETED:
-                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_RULE_DELETED, data.segment));
+                storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_RULE_DELETED, e.timeStamp, data.segment));
                 break;
         }
     };
@@ -1441,7 +1442,7 @@
 //            debug(pluginName + ": left char offset: '" + lCharInfo.offset + "', left char: '" + lCharInfo.character + "'.");
 //            debug(pluginName + ": right char offset: '" + rCharInfo.offset + "', right char: '" + rCharInfo.character + "'.");
 
-            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.GAZE, rCharInfo.element, trackerTime, lrx, lry, rrx, rry,
+            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.GAZE, undefined, rCharInfo.element, trackerTime, lrx, lry, rrx, rry,
                 leftDilation, rightDilation, lCharInfo.character, lCharInfo.offset, rCharInfo.character, rCharInfo.offset));
         }
         else {
@@ -1476,7 +1477,7 @@
 //debug("*** fix exec: " + executionTime);
 
 //            debug(pluginName + ": char offset: '" + charInfo.offset + "', char: '" + charInfo.character + "'.");
-            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FIXATION, charInfo.element, trackerTime, rx, ry, duration,
+            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FIXATION, undefined, charInfo.element, trackerTime, rx, ry, duration,
                 charInfo.character, charInfo.offset));
         }
         else {

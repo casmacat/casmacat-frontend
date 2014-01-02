@@ -77,12 +77,14 @@ var LogEventFactory = function(elementIdMode) {
 /**
  * Constructs a new concrete logevent
  */
-LogEventFactory.prototype.newLogEvent = function(type, element) {
+LogEventFactory.prototype.newLogEvent = function(type, timeStamp, element) {
 
     var logEvent = new Object();
     logEvent.type = type;                   // type of the event
-    logEvent.time = (new Date()).getTime(); // exact time when the event occured (formerly: time offset in ms from the
+                                            // exact time when the event occured (formerly: time offset in ms from the
                                             // start time of this logging session)
+                                            // if timeStamp not present assign new timestamp
+    logEvent.time = (typeof(timeStamp) != 'undefied')?timeStamp:(new Date()).getTime(); 
     logEvent.elementId = null;              // id of the element in the UI
     logEvent.xPath = null;                  // XPath-like expression giving the path to the element. Absolute, when
                                             // running in 'elementIdDetection=xPath' mode, relative to the next parent
@@ -125,12 +127,12 @@ LogEventFactory.prototype.newLogEvent = function(type, element) {
             break;
 
         case this.TEXT:    // cursorPosition, deleted, inserted
-            logEvent.cp = arguments[2];
-            logEvent.d = arguments[3];
-            logEvent.i = arguments[4];
+            logEvent.cp = arguments[3];
+            logEvent.d = arguments[4];
+            logEvent.i = arguments[5];
             break;
         case this.SELECTION:    // range
-            var range = arguments[2];
+            var range = arguments[3];
             logEvent.startNodeId = range.startNodeId;
             logEvent.startNodeXPath = range.startNodeXPath;
             logEvent.sCursorPosition = range.sCursorPosition;
@@ -141,33 +143,33 @@ LogEventFactory.prototype.newLogEvent = function(type, element) {
             break;
 
         case this.GAZE: // time, leftX, leftY, rightX, rightY, leftDilation, rightDilation
-            logEvent.tt = arguments[2];
-            logEvent.lx = arguments[3];
-            logEvent.ly = arguments[4];
-            logEvent.rx = arguments[5];
-            logEvent.ry = arguments[6];
-            logEvent.ld = arguments[7];
-            logEvent.rd = arguments[8];
-            logEvent.lc = arguments[9];
-            logEvent.lo = arguments[10];
-            logEvent.rc = arguments[11];
-            logEvent.ro = arguments[12];
+            logEvent.tt = arguments[3];
+            logEvent.lx = arguments[4];
+            logEvent.ly = arguments[5];
+            logEvent.rx = arguments[6];
+            logEvent.ry = arguments[7];
+            logEvent.ld = arguments[8];
+            logEvent.rd = arguments[9];
+            logEvent.lc = arguments[10];
+            logEvent.lo = arguments[11];
+            logEvent.rc = arguments[12];
+            logEvent.ro = arguments[13];
             break;
         case this.FIXATION: // time, x, y, duration
-            logEvent.tt = arguments[2];
-            logEvent.x = arguments[3];
-            logEvent.y = arguments[4];
-            logEvent.d = arguments[5];
-            logEvent.c = arguments[6];
-            logEvent.o = arguments[7];
+            logEvent.tt = arguments[3];
+            logEvent.x = arguments[4];
+            logEvent.y = arguments[5];
+            logEvent.d = arguments[6];
+            logEvent.c = arguments[7];
+            logEvent.o = arguments[8];
             break;
 
         case this.SCROLL:    // offset
-            logEvent.offset = arguments[2];
+            logEvent.offset = arguments[3];
             break;
         case this.RESIZE:    // width, height
-            logEvent.width = arguments[2];
-            logEvent.height = arguments[3];
+            logEvent.width = arguments[3];
+            logEvent.height = arguments[4];
             break;
 
         case this.DRAFTED:
@@ -191,20 +193,20 @@ LogEventFactory.prototype.newLogEvent = function(type, element) {
         case this.LOADING_SUGGESTIONS:
             break;
         case this.SUGGESTIONS_LOADED:    // matches
-            logEvent.matches = arguments[2];
+            logEvent.matches = arguments[3];
             break;
         case this.SUGGESTION_CHOSEN:    // which, translation
-            logEvent.which = arguments[2];
-            logEvent.translation = arguments[3];
+            logEvent.which = arguments[3];
+            logEvent.translation = arguments[4];
             break;
         case this.DELETING_SUGGESTION:
-            logEvent.which = arguments[2];
+            logEvent.which = arguments[3];
             break;
         case this.SUGGESTION_DELETED:    // matches
             break;
 
         case this.STATS_UPDATED:
-            logEvent.stats = arguments[2];
+            logEvent.stats = arguments[3];
             break;
 
         case this.DECODE:    // data
@@ -214,7 +216,7 @@ LogEventFactory.prototype.newLogEvent = function(type, element) {
         case this.TOKENS:    // data
         case this.SHOW_ALIGNMENT_BY_KEY:
         case this.HIDE_ALIGNMENT_BY_KEY:
-            logEvent.data = arguments[2];
+            logEvent.data = arguments[3];
             break;
         case this.SHOW_ALIGNMENT_BY_MOUSE:
         case this.HIDE_ALIGNMENT_BY_MOUSE:
@@ -222,26 +224,26 @@ LogEventFactory.prototype.newLogEvent = function(type, element) {
 
         case this.KEY_DOWN:
         case this.KEY_UP:
-            logEvent.cursorPosition = arguments[2];
-            logEvent.which = arguments[3];
-            //logEvent.character = arguments[4];
-            logEvent.mappedKey = arguments[4];
-            logEvent.shift = arguments[5];
-            logEvent.ctrl = arguments[6];
-            logEvent.alt = arguments[7];
+            logEvent.cursorPosition = arguments[3];
+            logEvent.which = arguments[4];
+            //logEvent.character = arguments[5];
+            logEvent.mappedKey = arguments[5];
+            logEvent.shift = arguments[6];
+            logEvent.ctrl = arguments[7];
+            logEvent.alt = arguments[8];
             break;
 
         case this.MOUSE_DOWN:
         case this.MOUSE_UP:
         case this.MOUSE_CLICK:
         case this.MOUSE_MOVE:
-            logEvent.which = arguments[2];
-            logEvent.x = arguments[3];
-            logEvent.y = arguments[4];
-            logEvent.shift = arguments[5];
-            logEvent.ctrl = arguments[6];
-            logEvent.alt = arguments[7];
-            logEvent.cursorPosition = arguments[8];
+            logEvent.which = arguments[3];
+            logEvent.x = arguments[4];
+            logEvent.y = arguments[5];
+            logEvent.shift = arguments[6];
+            logEvent.ctrl = arguments[7];
+            logEvent.alt = arguments[8];
+            logEvent.cursorPosition = arguments[9];
             break;
 
         case this.BEFORE_CUT:
@@ -254,7 +256,7 @@ LogEventFactory.prototype.newLogEvent = function(type, element) {
             break;
         case this.INITIAL_CONFIG:
         case this.CONFIG_CHANGED:
-            logEvent.config = arguments[2];
+            logEvent.config = arguments[3];
             break;
         case this.MOUSE_WHEEL_UP:
         case this.MOUSE_WHEEL_DOWN:
@@ -274,7 +276,7 @@ LogEventFactory.prototype.newLogEvent = function(type, element) {
         case this.SR_RULES_SETTING:
             break;
         case this.SR_RULES_SET:
-            logEvent.rules = arguments[2];
+            logEvent.rules = arguments[3];
             break;
         case this.SR_RULES_APPLIED:
         case this.SR_RULE_DELETED:
