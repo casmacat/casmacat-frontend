@@ -186,10 +186,11 @@ var Memento = require("module.memento");
         //console.log('contribution changed', data);
         var bestResult = data.nbest[0];
    
-        if (!config.floatPredictions)
+        if (!config.floatPredictions) {
           // if we're using the floating box for displaying predictions, don't
           // paste the decoded text into the box
           self.vis.updateSuggestions(data);
+        }
         
         //var conf = userCfg();
         //if (conf.mode != 'PE') {
@@ -209,7 +210,9 @@ var Memento = require("module.memento");
         // herve - this ensures that the prediction popup shows up before the
         // user starts translating
         $target.focus();
-        self.vis.FloatingPrediction.setPredictedText (bestResult.target);
+        if (config.floatPredictions) {
+          self.vis.FloatingPrediction.setPredictedText(bestResult.target);
+        }
       });
     
       itp.on('startSessionResult', function(data, err) {
@@ -320,8 +323,11 @@ var Memento = require("module.memento");
           return;
         }
 
-        if (!config.floatPredictions)
+        if (!config.floatPredictions) {
+          // if we're using the floating box for displaying predictions, don't
+          // paste the decoded text into the box
           self.vis.updateSuggestions(data);
+        }
         
         self.mousewheel.addElement(data);
         $target.trigger('suffixchange', [data, err]);
@@ -596,8 +602,9 @@ var Memento = require("module.memento");
   
        
           if (isPrintableChar(e)) {
-            if (config.floatPredictions)
+            if (config.floatPredictions) {
               self.vis.FloatingPrediction.setPredictedText (null);
+            }
             throttle(function() {
               if (data.str !== source) {
                 var query = {
@@ -637,8 +644,9 @@ var Memento = require("module.memento");
         //$('#caret').html('<span class="prefix">' + text.substr(0, d.pos) + '</span>' + '<span class="suffix">' + text.substr(d.pos) + "</span>");
         forgetState(d.pos);
         self.currentCaretPos = d;
-        if (config.floatPredictions)
+        if (config.floatPredictions) {
           self.vis.FloatingPrediction.adjustPosition();
+        }
       })
       // on ctrl+click reject suffix 
       .bind('click' + nsClass, function(e) {
