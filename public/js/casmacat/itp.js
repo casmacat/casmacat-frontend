@@ -75,6 +75,19 @@ $(function(){
     $('header .breadcrumbs').prepend($listDocs).append($shortCut);
   //}
 
+
+  // forward events to the logger through window 
+  function forwardEvent(eventName, originalEvent, parameters, eventExtensions) {
+    var event = $.Event(eventName);
+    for (var ext in originalEvent) {
+      event[ext] = originalEvent[ext];
+    }
+    for (var ext in eventExtensions) {
+      event[ext] = eventExtensions[ext];
+    }
+    $(window).trigger(event, parameters);
+  }
+
   // Overwrite UI methods ------------------------------------------------------
 
   UI.callbacks = {};
@@ -183,14 +196,10 @@ $(function(){
 
             // logging
             if ($(".vis-options").is(":hidden")) {
-                var event = $.Event("visMenuDisplayed");
-                event.segment = UI.currentSegment[0];
-                $(window).trigger("visMenuDisplayed", event);
+                forwardEvent('visMenuDisplayed', {}, {}, {segment: UI.currentSegment[0]});
             }
             else {
-                var event = $.Event("visMenuHidden");
-                event.segment = UI.currentSegment[0];
-                $(window).trigger("visMenuHidden", event);
+                forwardEvent('visMenuHidden', {}, {}, {segment: UI.currentSegment[0]});
             }
             // logging
 
@@ -209,68 +218,44 @@ $(function(){
             name = '#segment-' + sid + '-' + toggle;
         $indicator.find(name).attr('checked', value);
 
-        var event = $.Event("configChanged");
-        event.segment = UI.currentSegment[0];
-        event.config = JSON.parse("{ \"prefs\": { \"" + toggle + "\": \"" + value + "\" } }");
-        $(window).trigger("configChanged", event);
+        forwardEvent('configChanged', ev, {}, {segment: UI.currentSegment[0], config: JSON.parse("{ \"prefs\": { \"" + toggle + "\": \"" + value + "\" } }")});
       })
       .on('itptogglechange.matecat', function (ev, pos, stack) {
-
-        var event = $.Event("configChanged");
-        event.segment = UI.currentSegment[0];
-        event.config = JSON.parse("{ \"prefs\": { \"mode\": \"" + arguments[1] + "\" } }");
-        $(window).trigger("configChanged", event);
+        forwardEvent('configChanged', ev, {}, {segment: UI.currentSegment[0], config: JSON.parse("{ \"prefs\": { \"mode\": \"" + arguments[1] + "\" } }")});
       })
       .on('mousewheelup.matecat', function (ev, pos, stack) {
-
-        var event = $.Event("mouseWheelUp");
-        event.segment = UI.currentSegment[0];
-        $(window).trigger("mouseWheelUp", event);
+        forwardEvent('mouseWheelUp', ev, {}, {segment: UI.currentSegment[0]});
       })
       .on('mousewheeldown.matecat', function (ev, pos, stack) {
-
-        var event = $.Event("mouseWheelDown");
-        event.segment = UI.currentSegment[0];
-        $(window).trigger("mouseWheelDown", event);
+        forwardEvent('mouseWheelDown', ev, {}, {segment: UI.currentSegment[0]});
       })
       .on('mousewheelinvalidate.matecat', function (ev) {
-
-        var event = $.Event("mouseWheelInvalidate");
-        event.segment = UI.currentSegment[0];
-        $(window).trigger("mouseWheelInvalidate", event);
+        forwardEvent('mouseWheelInvalidate', ev, {}, {segment: UI.currentSegment[0]});
       })
       .on('mementoundo.matecat', function (ev, pos, stack) {
-
-        var event = $.Event("mementoUndo");
-        event.segment = UI.currentSegment[0];
-        $(window).trigger("mementoUndo", event);
+        forwardEvent('mementoUndo', ev, {}, {segment: UI.currentSegment[0]});
       })
       .on('mementoredo.matecat', function (ev, pos, stack) {
-
-        var event = $.Event("mementoRedo");
-        event.segment = UI.currentSegment[0];
-        $(window).trigger("mementoRedo", event);
+        forwardEvent('mementoRedo', ev, {}, {segment: UI.currentSegment[0]});
       })
       .on('mementoinvalidate.matecat', function (ev) {
         // TODO What is this?
-        var event = $.Event("mementoInvalidate");
-        event.segment = UI.currentSegment[0];
-        $(window).trigger("mementoInvalidate", event);
+        forwardEvent('mementoInvalidate', ev, {}, {segment: UI.currentSegment[0]});
       })
       .on('decode.matecat', function (ev, data, err) {
-          $(window).trigger('translationChanged', {element: $target[0], type: "decode", data: data});
+        forwardEvent('translationChanged', ev, {element: $target[0], type: "decode", data: data}, {});
       })
       .on('suffixchange.matecat', function (ev, data, err) {
-          $(window).trigger('translationChanged', {element: $target[0], type: "suffixchange", data: data});
+        forwardEvent('translationChanged', ev, {element: $target[0], type: "suffixchange", data: data}, {});
       })
       .on('confidences.matecat', function (ev, data, err) {
-          $(window).trigger('translationChanged', {element: $target[0], type: "confidences", data: data});
+        forwardEvent('translationChanged', ev, {element: $target[0], type: "confidences", data: data}, {});
       })
       .on('tokens.matecat', function (ev, data, err) {
-          $(window).trigger('translationChanged', {element: $target[0], type: "tokens", data: data});
+        forwardEvent('translationChanged', ev, {element: $target[0], type: "tokens", data: data}, {});
       })
       .on('alignments.matecat', function (ev, data, err) {
-          $(window).trigger('translationChanged', {element: $target[0], type: "alignments", data: data});
+          forwardEvent('translationChanged', ev, {element: $target[0], type: "alignments", data: data}, {});
 
           $target.find('span.editable-token')
           .off('mouseenter.matecat mouseleave.matecat caretenter.matecat caretleave.matecat')
@@ -281,23 +266,23 @@ $(function(){
                 x: ev.clientX,
                 y: ev.clientY
             };
-            $(window).trigger('showAlignmentByMouse', data);
+            forwardEvent('showAlignmentByMouse', ev, data, {});
           })
           .on('mouseleave.matecat', function (ev) {
             if (!settings.visualization.displayMouseAlign) return;
-            $(window).trigger('hideAlignmentByMouse', ev.target);
+            forwardEvent('hideAlignmentByMouse', ev, ev.target, {});
           })
           .on('caretenter.matecat', function (ev, data) {
             if (!settings.visualization.displayCaretAlign) return;
             // change dom node in data by its id to avoid circular problem when converting to JSON
             var d = jQuery.extend({}, data); d.token = '#'+d.token.id;
-            $(window).trigger('showAlignmentByKey', {element: $target[0], type: "caretenter", data: d});
+            forwardEvent('showAlignmentByKey', ev, {element: $target[0], type: "caretenter", data: d}, {});
           })
           .on('caretleave.matecat', function (ev, data) {
             if (!settings.visualization.displayCaretAlign) return;
             // change dom node in data by its id to avoid circular problem when converting to JSON
             var d = jQuery.extend({}, data); d.token = '#'+d.token.id;
-            if (config.displayCaretAlign) $(window).trigger('hideAlignmentByKey', {element: $target[0], type: "caretleave", data: d});
+            if (config.displayCaretAlign) forwardEvent('hideAlignmentByKey', ev, {element: $target[0], type: "caretleave", data: d}, {});
           })
 
           $source.find('span.editable-token').off('mouseenter.matecat mouseleave.matecat')
@@ -308,11 +293,11 @@ $(function(){
                 x: ev.clientX,
                 y: ev.clientY
             };
-            $(window).trigger('showAlignmentByMouse', data);
+            forwardEvent('showAlignmentByMouse', ev, data, {});
           })
           .on('mouseleave.matecat', function (ev) {
             if (!settings.visualization.displayMouseAlign) return;
-            $(window).trigger('hideAlignmentByMouse', ev.target);
+            forwardEvent('hideAlignmentByMouse', ev, ev.target, {});
           })
       });
 
@@ -424,25 +409,16 @@ $(function(){
 
     itpServer.on('setReplacementRuleResult', function(data, err) {
       itpServer.getReplacementRules();
-
-        var event = $.Event("srRulesSetting");
-        event.segment = UI.currentSegment[0];
-        $(window).trigger("srRulesSetting", event);
+      forwardEvent('srRulesSetting', {}, {}, {segment: UI.currentSegment[0]});
     });
 
     itpServer.on('delReplacementRuleResult', function(data, err) {
-        itpServer.getReplacementRules();
-
-        var event = $.Event("srRuleDeleted");
-        event.segment = UI.currentSegment[0];
-        $(window).trigger("srRuleDeleted", event);
+      itpServer.getReplacementRules();
+      forwardEvent('srRuleDeleted', {}, {}, {segment: UI.currentSegment[0]});
     });
 
     itpServer.on('applyReplacementRulesResult', function(data, err) {
-
-        var event = $.Event("srRulesApplied");
-        event.segment = UI.currentSegment[0];
-        $(window).trigger("srRulesApplied", event);
+      forwardEvent('srRulesApplied', {}, {}, {segment: UI.currentSegment[0]});
     });
 
     itpServer.on('getReplacementRulesResult', function(data, err) {
@@ -452,10 +428,7 @@ $(function(){
         processRule(data.rules[i]);
       }
 
-        var event = $.Event("srRulesSet");
-        event.segment = UI.currentSegment[0];
-        event.rules = data.rules;
-        $(window).trigger("srRulesSet", event);
+      forwardEvent('srRulesSet', {}, {}, {segment: UI.currentSegment[0], rules: data.rules});
     });
   };
 
@@ -494,18 +467,14 @@ $(function(){
   };
 
   function setupSearchReplace() {
-    $('#sr-viewreplaceBtn').click(function(e){
+    $('#sr-viewreplaceBtn').click(function(ev){
 
         // logging
         if ($("#sr-rules").is(":hidden")) {
-            var event = $.Event("srMenuDisplayed");
-            event.segment = UI.currentSegment[0];
-            $(window).trigger("srMenuDisplayed", event);
+          forwardEvent('srMenuDisplayed', ev, {}, {segment: UI.currentSegment[0]});
         }
         else {
-            var event = $.Event("srMenuHidden");
-            event.segment = UI.currentSegment[0];
-            $(window).trigger("srMenuHidden", event);
+          forwardEvent('srMenuHidden', ev, {}, {segment: UI.currentSegment[0]});
         }
         // logging
 
@@ -513,22 +482,18 @@ $(function(){
     });
 
     // logging
-    $("#sr-matchCase, #sr-isRegExp").click(function(e) {
+    $("#sr-matchCase, #sr-isRegExp").click(function(ev) {
 
         if ($(this).prop("checked")) {
-            var event = $.Event(this.name + "On");
-            event.segment = UI.currentSegment[0];
-            $(window).trigger(this.name + "On", event);
+          forwardEvent(this.name + "On", ev, {}, {segment: UI.currentSegment[0]});
         }
         else {
-            var event = $.Event(this.name + "Off");
-            event.segment = UI.currentSegment[0];
-            $(window).trigger(this.name + "Off", event);
+          forwardEvent(this.name + "Off", ev, {}, {segment: UI.currentSegment[0]});
         }
     });
     // logging
 
-    $('#sr-addreplaceBtn').click(function(e){
+    $('#sr-addreplaceBtn').click(function(ev){
       var rule = {};
       $("#sr-replace :input").each(function(){
         var $this = $(this);
