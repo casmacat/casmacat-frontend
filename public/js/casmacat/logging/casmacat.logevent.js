@@ -84,7 +84,8 @@ LogEventFactory.prototype.newLogEvent = function(type, timeStamp, element) {
                                             // exact time when the event occured (formerly: time offset in ms from the
                                             // start time of this logging session)
                                             // if timeStamp not present assign new timestamp
-    logEvent.time = (typeof(timeStamp) != 'undefied')?timeStamp:(new Date()).getTime(); 
+    var newTimeStamp = (new Date()).getTime();
+    logEvent.time = (typeof(timeStamp) != 'undefined')?timeStamp:newTimeStamp; 
     logEvent.elementId = null;              // id of the element in the UI
     logEvent.xPath = null;                  // XPath-like expression giving the path to the element. Absolute, when
                                             // running in 'elementIdDetection=xPath' mode, relative to the next parent
