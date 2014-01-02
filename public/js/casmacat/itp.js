@@ -77,14 +77,9 @@ $(function(){
 
 
   // forward events to the logger through window 
-  function forwardEvent(eventName, originalEvent, parameters, eventExtensions) {
-    var event = $.Event(eventName);
-    for (var ext in originalEvent) {
-      event[ext] = originalEvent[ext];
-    }
-    for (var ext in eventExtensions) {
-      event[ext] = eventExtensions[ext];
-    }
+  function forwardEvent(eventName, originalEvent, parameters) {
+    var event = $.Event(eventName, originalEvent);
+    event.type = eventName;
     $(window).trigger(event, parameters);
   }
 
@@ -196,10 +191,10 @@ $(function(){
 
             // logging
             if ($(".vis-options").is(":hidden")) {
-                forwardEvent('visMenuDisplayed', {}, {}, {segment: UI.currentSegment[0]});
+                forwardEvent('visMenuDisplayed', {}, {segment: UI.currentSegment[0]});
             }
             else {
-                forwardEvent('visMenuHidden', {}, {}, {segment: UI.currentSegment[0]});
+                forwardEvent('visMenuHidden', {}, {segment: UI.currentSegment[0]});
             }
             // logging
 
@@ -218,44 +213,44 @@ $(function(){
             name = '#segment-' + sid + '-' + toggle;
         $indicator.find(name).attr('checked', value);
 
-        forwardEvent('configChanged', ev, {}, {segment: UI.currentSegment[0], config: JSON.parse("{ \"prefs\": { \"" + toggle + "\": \"" + value + "\" } }")});
+        forwardEvent('configChanged', ev, {segment: UI.currentSegment[0], config: JSON.parse("{ \"prefs\": { \"" + toggle + "\": \"" + value + "\" } }")});
       })
       .on('itptogglechange.matecat', function (ev, pos, stack) {
-        forwardEvent('configChanged', ev, {}, {segment: UI.currentSegment[0], config: JSON.parse("{ \"prefs\": { \"mode\": \"" + arguments[1] + "\" } }")});
+        forwardEvent('configChanged', ev, {segment: UI.currentSegment[0], config: JSON.parse("{ \"prefs\": { \"mode\": \"" + arguments[1] + "\" } }")});
       })
       .on('mousewheelup.matecat', function (ev, pos, stack) {
-        forwardEvent('mouseWheelUp', ev, {}, {segment: UI.currentSegment[0]});
+        forwardEvent('mouseWheelUp', ev, {segment: UI.currentSegment[0]});
       })
       .on('mousewheeldown.matecat', function (ev, pos, stack) {
-        forwardEvent('mouseWheelDown', ev, {}, {segment: UI.currentSegment[0]});
+        forwardEvent('mouseWheelDown', ev, {segment: UI.currentSegment[0]});
       })
       .on('mousewheelinvalidate.matecat', function (ev) {
-        forwardEvent('mouseWheelInvalidate', ev, {}, {segment: UI.currentSegment[0]});
+        forwardEvent('mouseWheelInvalidate', ev, {segment: UI.currentSegment[0]});
       })
       .on('mementoundo.matecat', function (ev, pos, stack) {
-        forwardEvent('mementoUndo', ev, {}, {segment: UI.currentSegment[0]});
+        forwardEvent('mementoUndo', ev, {segment: UI.currentSegment[0]});
       })
       .on('mementoredo.matecat', function (ev, pos, stack) {
-        forwardEvent('mementoRedo', ev, {}, {segment: UI.currentSegment[0]});
+        forwardEvent('mementoRedo', ev, {segment: UI.currentSegment[0]});
       })
       .on('mementoinvalidate.matecat', function (ev) {
         // TODO What is this?
-        forwardEvent('mementoInvalidate', ev, {}, {segment: UI.currentSegment[0]});
+        forwardEvent('mementoInvalidate', ev, {segment: UI.currentSegment[0]});
       })
       .on('decode.matecat', function (ev, data, err) {
-        forwardEvent('translationChanged', ev, {element: $target[0], type: "decode", data: data}, {});
+        forwardEvent('translationChanged', ev, {element: $target[0], type: "decode", data: data});
       })
       .on('suffixchange.matecat', function (ev, data, err) {
-        forwardEvent('translationChanged', ev, {element: $target[0], type: "suffixchange", data: data}, {});
+        forwardEvent('translationChanged', ev, {element: $target[0], type: "suffixchange", data: data});
       })
       .on('confidences.matecat', function (ev, data, err) {
-        forwardEvent('translationChanged', ev, {element: $target[0], type: "confidences", data: data}, {});
+        forwardEvent('translationChanged', ev, {element: $target[0], type: "confidences", data: data});
       })
       .on('tokens.matecat', function (ev, data, err) {
-        forwardEvent('translationChanged', ev, {element: $target[0], type: "tokens", data: data}, {});
+        forwardEvent('translationChanged', ev, {element: $target[0], type: "tokens", data: data});
       })
       .on('alignments.matecat', function (ev, data, err) {
-          forwardEvent('translationChanged', ev, {element: $target[0], type: "alignments", data: data}, {});
+          forwardEvent('translationChanged', ev, {element: $target[0], type: "alignments", data: data});
 
           $target.find('span.editable-token')
           .off('mouseenter.matecat mouseleave.matecat caretenter.matecat caretleave.matecat')
@@ -266,23 +261,23 @@ $(function(){
                 x: ev.clientX,
                 y: ev.clientY
             };
-            forwardEvent('showAlignmentByMouse', ev, data, {});
+            forwardEvent('showAlignmentByMouse', ev, data);
           })
           .on('mouseleave.matecat', function (ev) {
             if (!settings.visualization.displayMouseAlign) return;
-            forwardEvent('hideAlignmentByMouse', ev, ev.target, {});
+            forwardEvent('hideAlignmentByMouse', ev, ev.target);
           })
           .on('caretenter.matecat', function (ev, data) {
             if (!settings.visualization.displayCaretAlign) return;
             // change dom node in data by its id to avoid circular problem when converting to JSON
             var d = jQuery.extend({}, data); d.token = '#'+d.token.id;
-            forwardEvent('showAlignmentByKey', ev, {element: $target[0], type: "caretenter", data: d}, {});
+            forwardEvent('showAlignmentByKey', ev, {element: $target[0], type: "caretenter", data: d});
           })
           .on('caretleave.matecat', function (ev, data) {
             if (!settings.visualization.displayCaretAlign) return;
             // change dom node in data by its id to avoid circular problem when converting to JSON
             var d = jQuery.extend({}, data); d.token = '#'+d.token.id;
-            if (config.displayCaretAlign) forwardEvent('hideAlignmentByKey', ev, {element: $target[0], type: "caretleave", data: d}, {});
+            if (config.displayCaretAlign) forwardEvent('hideAlignmentByKey', ev, {element: $target[0], type: "caretleave", data: d});
           })
 
           $source.find('span.editable-token').off('mouseenter.matecat mouseleave.matecat')
@@ -293,11 +288,11 @@ $(function(){
                 x: ev.clientX,
                 y: ev.clientY
             };
-            forwardEvent('showAlignmentByMouse', ev, data, {});
+            forwardEvent('showAlignmentByMouse', ev, data);
           })
           .on('mouseleave.matecat', function (ev) {
             if (!settings.visualization.displayMouseAlign) return;
-            forwardEvent('hideAlignmentByMouse', ev, ev.target, {});
+            forwardEvent('hideAlignmentByMouse', ev, ev.target);
           })
       });
 
@@ -409,16 +404,16 @@ $(function(){
 
     itpServer.on('setReplacementRuleResult', function(data, err) {
       itpServer.getReplacementRules();
-      forwardEvent('srRulesSetting', {}, {}, {segment: UI.currentSegment[0]});
+      forwardEvent('srRulesSetting', {}, {segment: UI.currentSegment[0]});
     });
 
     itpServer.on('delReplacementRuleResult', function(data, err) {
       itpServer.getReplacementRules();
-      forwardEvent('srRuleDeleted', {}, {}, {segment: UI.currentSegment[0]});
+      forwardEvent('srRuleDeleted', {}, {segment: UI.currentSegment[0]});
     });
 
     itpServer.on('applyReplacementRulesResult', function(data, err) {
-      forwardEvent('srRulesApplied', {}, {}, {segment: UI.currentSegment[0]});
+      forwardEvent('srRulesApplied', {}, {segment: UI.currentSegment[0]});
     });
 
     itpServer.on('getReplacementRulesResult', function(data, err) {
@@ -428,7 +423,7 @@ $(function(){
         processRule(data.rules[i]);
       }
 
-      forwardEvent('srRulesSet', {}, {}, {segment: UI.currentSegment[0], rules: data.rules});
+      forwardEvent('srRulesSet', {}, {segment: UI.currentSegment[0], rules: data.rules});
     });
   };
 
@@ -471,10 +466,10 @@ $(function(){
 
         // logging
         if ($("#sr-rules").is(":hidden")) {
-          forwardEvent('srMenuDisplayed', ev, {}, {segment: UI.currentSegment[0]});
+          forwardEvent('srMenuDisplayed', ev, {segment: UI.currentSegment[0]});
         }
         else {
-          forwardEvent('srMenuHidden', ev, {}, {segment: UI.currentSegment[0]});
+          forwardEvent('srMenuHidden', ev, {segment: UI.currentSegment[0]});
         }
         // logging
 
@@ -485,10 +480,10 @@ $(function(){
     $("#sr-matchCase, #sr-isRegExp").click(function(ev) {
 
         if ($(this).prop("checked")) {
-          forwardEvent(this.name + "On", ev, {}, {segment: UI.currentSegment[0]});
+          forwardEvent(this.name + "On", ev, {segment: UI.currentSegment[0]});
         }
         else {
-          forwardEvent(this.name + "Off", ev, {}, {segment: UI.currentSegment[0]});
+          forwardEvent(this.name + "Off", ev, {segment: UI.currentSegment[0]});
         }
     });
     // logging
