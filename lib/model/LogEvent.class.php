@@ -102,15 +102,22 @@ class LogEvent {
     }
 
     public function textData($object) {
+        //log::doLog("object: ", print_r($object, true));
         if (isset($object->cp)) {
             $this->cursorPosition = $object->cp;
             $this->deleted = $object->d;
             $this->inserted = $object->i;
+            $this->previous = $object->p;
+            $this->text = $object->t;
+            $this->edition = $object->e;
         }
         else {
             $this->cursorPosition = $object->cursorPosition;
             $this->deleted = $object->deleted;
             $this->inserted = $object->inserted;
+            $this->previous = $object->previous;
+            $this->text = $object->text;
+            $this->edition = $object->edition;
         }
     }
 

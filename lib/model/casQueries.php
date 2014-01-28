@@ -863,7 +863,11 @@ function insertTextEvent($event) {
     $data["cursor_position"] = $event->cursorPosition;
     $data["deleted"] = $event->deleted;
     $data["inserted"] = $event->inserted;
-
+    $data["previous"] = $event->previous;
+    $data["text"] = $event->text;
+    $data["edition"] = $event->edition;
+    log::doLog("CASMACAT: insertTextEvent(): " . print_r($data, true));
+    
     $db = Database::obtain();
     $db->insert("text_event", $data);
 

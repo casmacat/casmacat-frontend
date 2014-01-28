@@ -131,6 +131,11 @@ LogEventFactory.prototype.newLogEvent = function(type, timeStamp, element) {
             logEvent.cp = arguments[3];
             logEvent.d = arguments[4];
             logEvent.i = arguments[5];
+            //logEvent.e = arguments[6];
+            logEvent.p = arguments[6];
+            logEvent.t = arguments[7];
+            logEvent.e = arguments[8];
+            console.log("arguments: ", arguments);
             break;
         case this.SELECTION:    // range
             var range = arguments[3];

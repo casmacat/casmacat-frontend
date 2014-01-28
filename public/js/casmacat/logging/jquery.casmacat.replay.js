@@ -659,7 +659,9 @@
 
         var itpData = null;
 
+        alert(event.type);
         switch (event.type) {
+            
             case logEventFactory.START_SESSION:
                 // nothing to do here right now
                 break;

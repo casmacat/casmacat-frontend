@@ -431,7 +431,7 @@
         // attach to input (happens after the content changed)
         $(settings.logRootElement).find("input:text").each(function(index, value) {
             setFieldContents(this, $(this).val());
-            $(this).on("input." + pluginName, {isManual: true}, textChanged);
+            $(this).on("input." + pluginName, {edition: "manual"}, textChanged);
 
             // this is needed in order to track selections properly
             $(this).on("mouseleave." + pluginName, mouseLeave);
@@ -442,7 +442,7 @@
         });
         $(settings.logRootElement).find("textarea").each(function(index, value) {
             setFieldContents(this, $(this).val());
-            $(this).on("input." + pluginName, {isManual: true}, textChanged);
+            $(this).on("input." + pluginName, {edition: "manual"}, textChanged);
 
 //            debugAttachedTo("textarea", this);
         });
@@ -464,7 +464,7 @@
             setFieldContents(this, $(this).text());
             if ($.browser.msie) {   // Special treatment for IE needed, because DOMSubtreeModified fires on user AND on
                                     // programmatic changes, see textChanged()
-                $(this).on("DOMSubtreeModified." + pluginName, {isManual: true}, textChanged);
+                $(this).on("DOMSubtreeModified." + pluginName, {edition: "manual"}, textChanged);
             }
             else if ($.browser.opera) { // TODO fix this in the future when Opera supports 'oninput'/
                                         // 'DOMSubtreeModified' or implement something manually with 'onkeydown' stuff
@@ -473,7 +473,7 @@
                     + "'contenteditable=true'");
             }
             else {
-                $(this).on("input." + pluginName, {isManual: true}, textChanged);
+                $(this).on("input." + pluginName, {edition: "manual"}, textChanged);
             }
 
 //            debugAttachedTo("contenteditable=true", this);
@@ -1003,6 +1003,8 @@
         }
 
         var changes = null; // holds the diff
+        var previous = null; //previous text in the target window
+        var text = null; //text in the target window
 
         // calculate diff and update field content to the new value
         if (e.target.hasAttribute("contenteditable")) {
@@ -1019,6 +1021,8 @@
 
             if (getFieldContents(e.target) != $(e.target).text()) {
                 changes = $.fn.getChanges( getFieldContents(e.target), $(e.target).text() );
+                previous =getFieldContents(e.target);
+                text = $(e.target).text();
 
 //                debug(pluginName + ": Text changed: "
 //                    + "\n\told text: '" + getFieldContents(e.target) + "', "
@@ -1043,8 +1047,11 @@
         // write log event if changes detected
         if (changes) {
 //            debug(pluginName + ": Text changed.");
+            //console.log("previous: ", previous);
+            //console.log("text: ", text);
             storeLogEvent(logEventFactory.newLogEvent(logEventFactory.TEXT, e.timeStamp, e.target,
-                changes.cursorPosition, changes.deleted, changes.inserted, e.data.isManual));
+                //changes.cursorPosition, changes.deleted, changes.inserted, e.data.edition));
+                changes.cursorPosition, changes.deleted, changes.inserted, previous, text, e.data.edition));
 
             // (re-)set cursor position (because of sanitize)
             if (settings.doSanitize && pasted) {
@@ -1129,7 +1136,7 @@
 
         textChanged({
              target: $(".editarea", data.segment)[0],
-             data: {isManual: true},
+             data: {edition: "sourceCopied"},
          });
     };
 
@@ -1172,7 +1179,7 @@
 
             textChanged({
                 target: $(data.element, ".editarea")[0],
-                data: {isManual: true},
+                data: {edition: "suggestionChosen"},
             });
 
         // update field content to the new value (for textChanged to work properly)
@@ -1216,7 +1223,7 @@
 
                 textChanged({
                     target: data.element,
-                    data: {isManual: false},
+                    data: {edition: "translationChanged"},
                 });
                 break;
             case "alignments":
@@ -1230,7 +1237,7 @@
 
                 textChanged({
                     target: data.element,
-                    data: {isManual: false},
+                    data: {edition: "suffixChange"},
                 });
                 break;
             case "confidences":
@@ -1292,7 +1299,7 @@
                     storeLogEvent(logEventFactory.newLogEvent(logEventFactory.MOUSE_WHEEL_UP, e.timeStamp, data.segment));
                     textChanged({
                         target: $(".editarea", data.segment)[0],
-                        data: {isManual: false},
+                        data: {edition: "mouseWheelUp"},
                     });
                 }
                 else {    // TODO that is unsatisfying: one doesn't know if the user tried to use the option...
@@ -1304,7 +1311,7 @@
                     storeLogEvent(logEventFactory.newLogEvent(logEventFactory.MOUSE_WHEEL_DOWN, e.timeStamp, data.segment));
                     textChanged({
                         target: $(".editarea", data.segment)[0],
-                        data: {isManual: false},
+                        data: {edition: "mouseWheelDown"},
                     });
                 }
                 else {    // TODO that is unsatisfying: one doesn't know if the user tried to use the option...
@@ -1372,7 +1379,7 @@
                     storeLogEvent(logEventFactory.newLogEvent(logEventFactory.SR_RULES_APPLIED, e.timeStamp, data.segment));
                     textChanged({
                          target: $(".editarea", data.segment)[0],
-                         data: {isManual: false},
+                         data: {edition: "searchReplace"},
                     });
                 }
                 else {    // TODO that is unsatisfying: one doesn't know if the user tried to use the option...
