@@ -742,7 +742,7 @@ else {
     
     //text_event 
     $queryId = $db->query("SELECT h.id as id, h.job_id, h.file_id, h.element_id, h.x_path, h.time, h.type"
-            . ", t.cursor_position, t.deleted, t.inserted"
+            . ", t.cursor_position, t.deleted, t.inserted, t.previous, t.text, t.edition"
         . " FROM log_event_header h, text_event t WHERE h.job_id = '$jobId' AND h.file_id = '$fileId' AND h.id = t.header_id ORDER BY h.time, h.id ASC");
     
     
