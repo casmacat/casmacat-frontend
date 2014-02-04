@@ -119,17 +119,30 @@
         // The prefix in the sentence does not match the prefix in the prediction.
         var matchPrefix = match.target.substr(0, d.pos);
         if (targetPrefix === matchPrefix && (!match.author || conf.mode === match.author)) {
-          $target.editable('setText', match.target, match.targetSegmentation);
+          var doUpdate = true;
 
-          self.updateValidated(data.caretPos);
+          if (conf.avoidLowConfidencePredictions) {
+            var quality = parseInt(match.quality * 100);
+            var percentageClass = UI.getPercentuageClass(quality);
+            console.log('PERCENT', percentageClass, $('#' + $(UI.currentSegment).attr("id") + '-header .percentuage'));
+            $('#' + $(UI.currentSegment).attr("id") + '-header .percentuage').text(quality).removeClass('per-orange per-green per-blue per-yellow').addClass(percentageClass).addClass('visible');
 
-          if (match.priorities) {
-            self.updateWordPriorities($target, match.priorities);
+            if (quality < 100*conf.confidencePredictionThreshold) doUpdate = false;
           }
-        
-          // requests the server for new alignment and confidence info
-          var nmatch = $.extend({source: data.source, sourceSegmentation: data.sourceSegmentation}, match);
-          self.updateOptional(nmatch);
+
+          if (doUpdate) {
+            $target.editable('setText', match.target, match.targetSegmentation);
+
+            self.updateValidated(data.caretPos);
+
+            if (match.priorities) {
+              self.updateWordPriorities($target, match.priorities);
+            }
+
+            // requests the server for new alignment and confidence info
+            var nmatch = $.extend({source: data.source, sourceSegmentation: data.sourceSegmentation}, match);
+            self.updateOptional(nmatch);
+          }
           break;
         }
       }

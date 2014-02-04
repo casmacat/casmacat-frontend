@@ -98,6 +98,9 @@
                 highlightLastValidated: false,
                 highlightPrefix: false,
                 limitSuffixLength: false,
+                floatPredictionDiff: false,
+                confidencePredictionThreshold: 0.5,
+                avoidLowConfidencePredictions: false,
               })
             };
 
