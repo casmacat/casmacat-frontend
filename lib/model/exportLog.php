@@ -66,7 +66,7 @@ else {
     $writer->startElement('logfile'); 
     $writer->writeAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance'); 
     $writer->writeAttribute('xmlns:xsd', 'http://www.w3.org/2001/XMLSchema');              
-    $writer->writeElement('version', 'CASMACAT2');
+    $writer->writeElement('version', 'CASMACAT3');
     $writer->writeElement('jobId', $jobId);         
     $writer->writeElement('username', 'test');        
     $writer->writeElement('fileId', $fileId);
