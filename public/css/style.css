@@ -1,5 +1,5 @@
 body{min-width:980px;position:relative;background:#fff;text-align:center;margin:0;padding:75px 0 120px 0;font-family:calibri, Arial, Helvetica, sans-serif;-webkit-transition: all  100ms ease-in; -moz-transition: all  100ms ease-in; }
-input, textarea{font-family:calibri, Arial, Helvetica, sans-serif;font-size:16px;}
+button, input, textarea{font-family:calibri, Arial, Helvetica, sans-serif;font-size:16px;}
 /*header*/
 header{background:#6d6e71;top:0;left:0;width:100%;position:fixed;z-index:999999999;border-bottom:1px solid #333;padding:0px 0 2px 0;}
 header * { vertical-align:middle; }
