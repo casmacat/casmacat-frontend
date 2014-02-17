@@ -207,6 +207,11 @@ function resetDocument($jobId, $fileId) {
             case LogEvent::SR_RULES_APPLIED:
             case LogEvent::SR_RULE_DELETED:
                 break;
+            // merc - adding float prediction and biconcordancer
+            case LogEvent::FLOAT_PREDICTION:
+                break;
+            case LogEvent::BICONCOR:
+                break;
 
             default:
                 log::doLog("CASMACAT: resetDocument(): Unknown log event type: '$logEvent->type', header id: '$logEvent->id'");
@@ -438,6 +443,13 @@ log::doLog($endOffset);
                 break;
             case LogEvent::SR_RULES_APPLIED:
             case LogEvent::SR_RULE_DELETED:
+                break;
+            // merc - adding float prediction and biconcordancer
+            case LogEvent::FLOAT_PREDICTION:
+                break;
+            case LogEvent::BICONCOR:
+                $eventRow = fetchEventRow($logEvent->id, "biconcor");
+                $logEvent->biconcorData($eventRow);
                 break;
 
             default:
@@ -953,6 +965,28 @@ function insertSrEvent($event) {
     if ($errno != 0) {
         log::doLog("CASMACAT: insertSrEvent(): " . print_r($err, true));
         throw new Exception("CASMACAT: insertSrEvent(): " . print_r($err, true));
+//        return $errno * -1;
+    }
+}
+
+//  merc - adding biconcor insertion
+  function insertBiconcorEvent($event) {
+    $headerId = insertLogEventHeader($event);
+
+    $data = array();
+    $data["id"] = "NULL";
+    $data["header_id"] = $headerId;
+    $data["word"] = json_encode($event->word);
+    $data["info"] = json_encode($event->info);
+
+    $db = Database::obtain();
+    $db->insert("biconcor_event", $data);
+
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: insertBiconcorEvent(): " . print_r($err, true));
+        throw new Exception("CASMACAT: insertBiconcorEvent(): " . print_r($err, true));
 //        return $errno * -1;
     }
 }

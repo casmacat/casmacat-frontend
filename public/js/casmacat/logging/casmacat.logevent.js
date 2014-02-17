@@ -38,7 +38,7 @@ var LogEventFactory = function(elementIdMode) {
     this.HIDE_ALIGNMENT_BY_MOUSE = "hideAlignmentByMouse";
     this.SHOW_ALIGNMENT_BY_KEY = "showAlignmentByKey";
     this.HIDE_ALIGNMENT_BY_KEY = "hideAlignmentByKey";
-
+    
     this.KEY_DOWN = "keyDown";
     this.KEY_UP = "keyUp";
 
@@ -72,6 +72,10 @@ var LogEventFactory = function(elementIdMode) {
     this.SR_RULES_SET = "srRulesSet";
     this.SR_RULES_APPLIED = "srRulesApplied";
     this.SR_RULE_DELETED = "srRuleDeleted";
+    
+     // merc - adding floatprediction and biconcordancer
+    this.FLOAT_PREDICTION = "floatPrediction";
+    this.BICONCOR = "biconcor";
 };
 
 /**
@@ -286,6 +290,13 @@ LogEventFactory.prototype.newLogEvent = function(type, timeStamp, element) {
             break;
         case this.SR_RULES_APPLIED:
         case this.SR_RULE_DELETED:
+            break;
+        // merc - adding float prediction and biconcordancer
+        case this.FLOAT_PREDICTION:
+            break;
+        case this.BICONCOR:
+            logEvent.word = arguments[3].srcPhrase; 
+            logEvent.info = arguments[3].concorStruct;        
             break;
 
         default:

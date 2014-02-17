@@ -575,6 +575,10 @@
             $(window).on("mementoUndo." + pluginName, mementoCommon);
             $(window).on("mementoRedo." + pluginName, mementoCommon);
             $(window).on("mementoInvalidate." + pluginName, mementoCommon);
+            
+            // merc - adding floatPrediction and biconcordander
+            $(window).on("floatPrediction." + pluginName, floatPrediction);
+            $(window).on("biconcor." + pluginName, biconcor);
         }
 
         if (settings.logSearchAndReplace) {
@@ -1248,6 +1252,10 @@
                 t = logEventFactory.TOKENS;
                 storeLogEvent(logEventFactory.newLogEvent(t, e.timeStamp, data.element, data.data));
                 break;
+            case "floatprediction":
+                t = logEventFactory.FLOAT_PREDICTION;
+                storeLogEvent(logEventFactory.newLogEvent(t, e.timeStamp, data.element, data.data));
+                break;
         }
 
 //        debug(pluginName + ": ITP event: '" + t + "'.");
@@ -1491,7 +1499,18 @@
             debug(pluginName + ": 'window' position is not valid, fixation discarded!");
         }
     };
-
+    
+    // merc - adding float prediction and biconcordancer
+    var floatPrediction = function(e, data) {
+        debug(pluginName + ": Float prediction event: type: '" + e.type + "'.");
+        //storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FLOAT_PREDICTION, e.timeStamp, data.element, data.data));
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FLOAT_PREDICTION, data.segment));   
+    }
+    
+    var biconcor = function(e, data) {
+        debug(pluginName + ": Biconcordancer event: type: '" + e.type + "'.");
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.BICONCOR, e.timeStamp, e.target, data));   
+    }
     // Just to now that everything has been parsed...
     debug(pluginName + ": Plugin codebase loaded.");
 

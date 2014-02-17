@@ -68,6 +68,10 @@ class LogEvent {
     const SR_RULES_SET = "srRulesSet";
     const SR_RULES_APPLIED = "srRulesApplied";
     const SR_RULE_DELETED = "srRuleDeleted";
+    
+    // merc - adding floatprediction and biconcor
+    const FLOAT_PREDICTION = "floatPrediction";
+    const BICONCOR = "biconcor";
 
     public $id;
     public $jobId;
@@ -235,7 +239,13 @@ class LogEvent {
     public function srRulesSetData($object) {
         $this->rules = $object->rules;
     }
-
+    
+    // merc - adding biconcor
+    public function biconcorData($object) {
+        $this->word = $object->word;
+        $this->info = $object->info;
+    }
+    
     public function toString() {
         return print_r($this, true);
     }

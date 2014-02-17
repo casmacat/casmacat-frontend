@@ -775,6 +775,44 @@ else {
         //print "len_texts: ".$len_texts."\n";
     }
     else $len_texts = 0;
+    
+    //-------------------------------------------------------------------------------------------
+    
+    //biconcor_event 
+    $queryId = $db->query("SELECT h.id as id, h.job_id, h.file_id, h.element_id, h.x_path, h.time, h.type"
+            . ", b.word, b.info"
+        . " FROM log_event_header h, biconcor_event b WHERE h.job_id = '$jobId' AND h.file_id = '$fileId' AND h.id = b.header_id ORDER BY h.time, h.id ASC");
+    
+    
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: fetchLogChunk(): " . print_r($err, true));
+        throw new Exception("CASMACAT: fetchLogChunk(): " . print_r($err, true));
+
+    }
+        
+    $biconcorRow = null;
+    $biconcorEvents = array();
+    while ( ($biconcorRow = $db->fetch($queryId)) != false ) {
+        
+        $biconcorRowAsObject = snakeToCamel($biconcorRow);        
+        //log::doLog("CASMACAT: fetchLogChunk(): Next headerRow: " . print_r($textRowAsObject, true));
+
+        $biconcorEvent = new LogEvent($jobId, $fileId, $biconcorRowAsObject);     
+        $biconcorEvent->biconcorData($biconcorRowAsObject);
+        
+        array_push($biconcorEvents, $biconcorEvent); 
+    }
+    
+    if(!empty($biconcorEvents))
+    {
+        //log::doLog("CASMACAT: textEvents: " . print_r($textEvents, true));
+        $count_biconcors = 0;
+        $len_biconcors = count($biconcorEvents);
+        //print "len_texts: ".$len_texts."\n";
+    }
+    else $len_biconcors = 0;
         
     
         
@@ -1040,6 +1078,23 @@ else {
                 
             }
         }
+        
+        elseif ($len_biconcors != 0 && $headerRowAsObject->id == $biconcorEvents[$count_biconcors]->id){
+            
+            //log::doLog("CASMACAT: Row text: " . print_r($textEvents[$count_texts],true));   
+            
+            foreach($biconcorEvents[$count_biconcors] as $attribute => $val){                
+                
+                if ($attribute != 'jobId' && $attribute != 'fileId' && $attribute != 'type'){
+                    $writer->writeAttribute($attribute, $val);
+                }
+            }
+            if ($count_biconcors < $len_biconcors-1){
+                $count_biconcors = $count_biconcors + 1;
+                
+            }
+        }
+        
         else
         {   
 
