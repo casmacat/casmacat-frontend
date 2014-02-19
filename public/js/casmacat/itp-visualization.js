@@ -415,7 +415,7 @@
       function adjustPosition () {
         var coord = getCaretPixelCoords();
         if (coord && coord[0] && coord[1]) {
-          elFloatPred.style.top  = (coord[1]+15) + 'px';
+          elFloatPred.style.top  = (coord[1]+20) + 'px';
           elFloatPred.style.left = (coord[0]+10) + 'px';
           showPredictedText();
         } else {
@@ -504,6 +504,8 @@
         $target.editable ('setText', newText);
         goToPos (pos + insText.length + 1);
         showPredictedText();
+        // merc - adding trigger to float predictions   
+        $target.trigger('floatPrediction', [insText]);        
       }
 
       function destroy () {

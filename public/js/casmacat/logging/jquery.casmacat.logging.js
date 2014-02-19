@@ -1252,10 +1252,6 @@
                 t = logEventFactory.TOKENS;
                 storeLogEvent(logEventFactory.newLogEvent(t, e.timeStamp, data.element, data.data));
                 break;
-            case "floatprediction":
-                t = logEventFactory.FLOAT_PREDICTION;
-                storeLogEvent(logEventFactory.newLogEvent(t, e.timeStamp, data.element, data.data));
-                break;
         }
 
 //        debug(pluginName + ": ITP event: '" + t + "'.");
@@ -1503,8 +1499,12 @@
     // merc - adding float prediction and biconcordancer
     var floatPrediction = function(e, data) {
         debug(pluginName + ": Float prediction event: type: '" + e.type + "'.");
-        //storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FLOAT_PREDICTION, e.timeStamp, data.element, data.data));
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FLOAT_PREDICTION, data.segment));   
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FLOAT_PREDICTION, e.timeStamp, e.target, data));
+        
+        textChanged({
+            target: e.target,
+            data: {edition: "floatPrediction"},
+        });        
     }
     
     var biconcor = function(e, data) {
