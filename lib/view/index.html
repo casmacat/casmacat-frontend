@@ -61,6 +61,12 @@
             }
             //			console.log('Server time: ' + Math.round(config.server_load_time));
             var renderStart = new Date();
+            
+            function calibrate() {
+                $.fn.getETPlugin().stop(); 
+                if($.fn.getETPlugin().calibrate() === true) $.fn.getETPlugin().start(); 
+            }
+            
         </script>
         <script src="${basepath}public/js/loader.js?build=${build_number}"></script>
     </head>
@@ -83,6 +89,7 @@
 
         <header>
             <div class="wrapper">
+                <a tal:attributes="class string:downloadtr-button ${job_stats/DOWNLOAD_STATUS}" onclick="calibrate()" href="javascript:void(0);">Re-calibrate</a>
                 <a tal:attributes="class string:downloadtr-button ${job_stats/DOWNLOAD_STATUS}" href="${basepath}help" target="_blank">HELP</a>
                 
 
@@ -98,7 +105,7 @@
                 <a href="#" class="filter"> <span class="arrow-top "></span></a>
 
 
-                <!-- viewer icons
+                <!-- viewer icons 
 
                     <a href="#" class="notification m-notification" title="click to view notifications">2</a>
                     <span class="text">+ you
