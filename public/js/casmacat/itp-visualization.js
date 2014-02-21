@@ -3,6 +3,9 @@
 (function(module, global){
   var NLP = require('nlp-utils');
 
+  // singleton instance of the FloatingPrediction 'class'
+  var floatingPredItpVis;
+
   /*******************************************************************************/
   /*           update the HTML display and attach events                         */
   /*******************************************************************************/
@@ -363,10 +366,8 @@
 
     // the "floating prediction" displays the predicted next word next to the
     // user's text caret
-    var floatingPredItpVis; // singleton instance
     self.FloatingPrediction = (function () {
       var NUM_WORDS_LOOKAHEAD = 3;
-      var HIDDEN = top.location.href.indexOf ('/translate-no-itp/') >= 0;
 
       if (floatingPredItpVis)
         // there can only be one
@@ -374,8 +375,7 @@
       floatingPredItpVis = self;
 
       var elFloatPred = document.createElement ('div');
-      if (!HIDDEN)
-        document.body.appendChild (elFloatPred);
+      document.body.appendChild (elFloatPred);
 
       var predictedText = null;
       setPredictedText (null);
@@ -414,10 +414,12 @@
 
       function adjustPosition () {
         var coord = getCaretPixelCoords();
-        if (coord) {
-          elFloatPred.style.top  = (coord[1]+10) + 'px';
+        if (coord && coord[0] && coord[1]) {
+          elFloatPred.style.top  = (coord[1]+20) + 'px';
           elFloatPred.style.left = (coord[0]+10) + 'px';
           showPredictedText();
+        } else {
+          setVisible (false);
         }
       }
 
@@ -502,6 +504,8 @@
         $target.editable ('setText', newText);
         goToPos (pos + insText.length + 1);
         showPredictedText();
+        // merc - adding trigger to float predictions   
+        $target.trigger('floatPrediction', [insText]);        
       }
 
       function destroy () {

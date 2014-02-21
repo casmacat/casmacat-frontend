@@ -232,6 +232,16 @@ class saveLogChunkController extends ajaxcontroller {
                     case LogEvent::SR_RULE_DELETED:
                         insertLogEventHeader($logEvent);
                         break;
+                    // merc - adding float prediction and biconcordancer
+                    case LogEvent::FLOAT_PREDICTION:
+                        log::doLog("Float prediction");
+                        insertLogEventHeader($logEvent);
+                        break;
+                    case LogEvent::BICONCOR:
+                        log::doLog("Biconcor");
+                        $logEvent->biconcorData($value);
+                        insertBiconcorEvent($logEvent);
+                        break;
 
                     default:
 //                        $db->query("COMMIT");   // at least, store what was ok

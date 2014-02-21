@@ -1,3 +1,5 @@
+// -*- js-indent-level: 2 -*-
+
 // UI events -----------------------------------------------------------------
 var ItpVisulization = require('itp-visualization');
 var MouseWheel = require("module.mousewheel");
@@ -323,11 +325,10 @@ var Memento = require("module.memento");
           return;
         }
 
-        if (!config.floatPredictions) {
-          // if we're using the floating box for displaying predictions, don't
-          // paste the decoded text into the box
-          self.vis.updateSuggestions(data);
-        }
+        if (config.floatPredictions)
+          self.vis.FloatingPrediction.setPredictedText (data.nbest[0].target);
+        else
+          self.vis.updateSuggestions (data);
         
         self.mousewheel.addElement(data);
         $target.trigger('suffixchange', [data, err]);
