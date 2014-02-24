@@ -82,6 +82,14 @@ else {
         break;
     }
     
+    //Check if it is Edinburgh ITP
+    $edi = 0;
+    $queryId = $db->query("SELECT element_id FROM `log_event_header` l WHERE l.type = 'floatPrediction' AND l.job_id = ".$jobId." AND l.file_id = ".$fileId." LIMIT 1,1");
+    while ( ($row = $db->fetch($queryId)) != false ) {
+        $edi = 1;
+        break;
+    }
+    
     $writer->startElement('Languages');
     $writer->writeAttribute('source', $src_lang);
 	
@@ -98,7 +106,12 @@ else {
     $writer->writeAttribute('task', "post-editing");
 	
     if ($itp == 1){
-	$writer->writeAttribute('gui', "ITP");
+        if ($edi == 0){
+            $writer->writeAttribute('gui', "ITP_VLC");
+        }
+        else{
+            $writer->writeAttribute('gui', "ITP_EDI");
+        }
     }
 	
     $writer->endElement(); 
@@ -127,14 +140,25 @@ else {
     //initial target
     $writer->startElement('initialTargetText');
         
-    if ($itp == 1) {
-        $queryId = $db->query("SELECT element_id, data FROM `log_event_header` l, itp_event i WHERE l.type = 'decode' AND l.job_id = ".$jobId." AND l.file_id = ".$fileId." AND i.header_id = l.id ORDER BY element_id");
+    if ($itp == 1 && $edi == 0) {
+        $queryId = $db->query("SELECT DISTINCT element_id, data FROM `log_event_header` l, itp_event i WHERE l.type = 'decode' AND l.job_id = ".$jobId." AND l.file_id = ".$fileId." AND i.header_id = l.id ORDER BY element_id");
         while ( ($row = $db->fetch($queryId)) != false ) {
             $itp = 1;
             $json = $row["data"];
             $obj = json_decode($json);
             $nbest = $obj->{'nbest'};
             $inisuggestion = $nbest[0]->target;
+            $writer->startElement('segment');
+            list($segment, $id, $editarea) = explode("-",$row['element_id']);
+            $writer->writeAttribute('id', $id);
+            $writer->text($inisuggestion);  
+            $writer->endElement();
+        }
+    }
+    if ($edi == 1) {
+        $queryId = $db->query("SELECT DISTINCT element_id, data FROM `log_event_header` l, itp_event i WHERE l.type = 'decodeResult' AND l.job_id = ".$jobId." AND l.file_id = ".$fileId." AND i.header_id = l.id ORDER BY element_id");
+        while ( ($row = $db->fetch($queryId)) != false ) {
+            $inisuggestion = json_decode($row["data"]);
             $writer->startElement('segment');
             list($segment, $id, $editarea) = explode("-",$row['element_id']);
             $writer->writeAttribute('id', $id);
