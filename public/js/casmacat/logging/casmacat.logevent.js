@@ -73,9 +73,10 @@ var LogEventFactory = function(elementIdMode) {
     this.SR_RULES_APPLIED = "srRulesApplied";
     this.SR_RULE_DELETED = "srRuleDeleted";
     
-     // merc - adding floatprediction and biconcordancer
+     // merc - adding floatPrediction, biconcordancer and decodeResult
     this.FLOAT_PREDICTION = "floatPrediction";
     this.BICONCOR = "biconcor";
+    this.DECODE_RESULT = "decodeResult";
 };
 
 /**
@@ -219,6 +220,9 @@ LogEventFactory.prototype.newLogEvent = function(type, timeStamp, element) {
             logEvent.stats = arguments[3];
             break;
 
+        case this.DECODE_RESULT:
+            logEvent.data = arguments[3][0].target;
+            break;
         case this.DECODE:    // data
         case this.ALIGNMENTS:    // data
         case this.SUFFIX_CHANGE:    // data
@@ -291,7 +295,7 @@ LogEventFactory.prototype.newLogEvent = function(type, timeStamp, element) {
         case this.SR_RULES_APPLIED:
         case this.SR_RULE_DELETED:
             break;
-        // merc - adding float prediction and biconcordancer
+        // merc - adding floatPrediction, biconcordancer and decodeResult
         case this.FLOAT_PREDICTION:
             break;
         case this.BICONCOR:

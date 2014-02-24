@@ -175,6 +175,7 @@ var Memento = require("module.memento");
       
       // Handle translation responses
       itp.on('decodeResult', function(data, err) {
+        $target.trigger('decodeResult', [data, err]);
         if (err.length > 0) {
           return
         }
@@ -187,7 +188,7 @@ var Memento = require("module.memento");
  
         //console.log('contribution changed', data);
         var bestResult = data.nbest[0];
-   
+        
         if (!config.floatPredictions) {
           // if we're using the floating box for displaying predictions, don't
           // paste the decoded text into the box

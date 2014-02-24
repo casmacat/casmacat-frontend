@@ -576,9 +576,10 @@
             $(window).on("mementoRedo." + pluginName, mementoCommon);
             $(window).on("mementoInvalidate." + pluginName, mementoCommon);
             
-            // merc - adding floatPrediction and biconcordander
+            // merc - adding floatPrediction, biconcordander and decodeResult
             $(window).on("floatPrediction." + pluginName, floatPrediction);
             $(window).on("biconcor." + pluginName, biconcor);
+            $(window).on("decodeResult." + pluginName, decodeResult);
         }
 
         if (settings.logSearchAndReplace) {
@@ -1496,9 +1497,9 @@
         }
     };
     
-    // merc - adding float prediction and biconcordancer
+    // merc - adding float prediction, biconcordancer and decode result
     var floatPrediction = function(e, data) {
-        debug(pluginName + ": Float prediction event: type: '" + e.type + "'.");
+        debug(pluginName + ": FloatPrediction event: type: '" + e.type + "'.");
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FLOAT_PREDICTION, e.timeStamp, e.target, data));
         
         textChanged({
@@ -1511,6 +1512,12 @@
         debug(pluginName + ": Biconcordancer event: type: '" + e.type + "'.");
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.BICONCOR, e.timeStamp, e.target, data));   
     }
+    
+    var decodeResult = function(e, data) {
+        debug(pluginName + ": DecodeResult event: type: '" + e.type + "'.");
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.DECODE_RESULT, e.timeStamp, e.target, data.nbest));   
+    }
+    
     // Just to now that everything has been parsed...
     debug(pluginName + ": Plugin codebase loaded.");
 
