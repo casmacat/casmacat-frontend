@@ -173,6 +173,10 @@ LogEventFactory.prototype.newLogEvent = function(type, timeStamp, element) {
             logEvent.d = arguments[6];
             logEvent.c = arguments[7];
             logEvent.o = arguments[8];
+            logEvent.a = arguments[9];  //dan
+            logEvent.ao = arguments[10];  //dan
+            logEvent.b = arguments[11];  //dan
+            logEvent.bo = arguments[12]; //dan
             break;
 
         case this.SCROLL:    // offset

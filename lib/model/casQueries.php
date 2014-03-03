@@ -591,6 +591,10 @@ function insertFixationEvent($event) {
     $data["duration"] = $event->duration;
     $data["character"] = $event->character;
     $data["offset"] = $event->offset;
+    $data["above_char"] = $event->aboveChar; //dan
+    $data["above_offset"] = $event->aboveOffset; //dan
+    $data["below_char"] = $event->belowChar; //dan
+    $data["below_offset"] = $event->belowOffset; //dan
 
     $db = Database::obtain();
     $db->insert("fixation_event", $data);

@@ -62,11 +62,6 @@
             //			console.log('Server time: ' + Math.round(config.server_load_time));
             var renderStart = new Date();
             
-            function calibrate() {
-                $.fn.getETPlugin().stop(); 
-                if($.fn.getETPlugin().calibrate() === true) $.fn.getETPlugin().start(); 
-            }
-            
         </script>
         <script src="${basepath}public/js/loader.js?build=${build_number}"></script>
     </head>

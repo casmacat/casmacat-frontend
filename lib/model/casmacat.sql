@@ -114,6 +114,11 @@ CREATE TABLE `fixation_event` (
   `duration` VARCHAR(20) NOT NULL COMMENT 'Duration of the fixation',
   `character` VARCHAR(4) NOT NULL COMMENT 'The character fixated',
   `offset` INT(5) NOT NULL COMMENT 'The offset of the character within the HTML element',
+  `above_char` VARCHAR(4) NOT NULL COMMENT 'The character above the fixation',
+  `below_char` VARCHAR(4) NOT NULL COMMENT 'The character below the fixation',
+  `above_offset` INT(5) NOT NULL COMMENT 'The offset of the character above the fixation within the HTML element',  
+  `below_offset` INT(5) NOT NULL COMMENT 'The offset of the character below the fixation within the HTML element',
+  `gold_offset` INT(5) NOT NULL COMMENT 'The corrected offset of fixation',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores fixation events.';
 

@@ -296,8 +296,8 @@ else {
     
     //fixation_event 
     $queryId = $db->query("SELECT h.id as id, h.job_id as job_id, h.file_id as file_id, h.element_id as element_id, h.x_path as x_path, h.time as time, h.type as type, "
-            . "f.t_time as t_time, f.x as x, f.y as y, f.duration as duration, f.character, f.offset as offset"
-        . " FROM log_event_header h, fixation_event f WHERE h.job_id = '$jobId' AND h.file_id = '$fileId' AND h.id = f.header_id ORDER BY h.time, h.id ASC");
+            . "f.t_time as t_time, f.x as x, f.y as y, f.duration as duration, f.character, f.offset as offset, f.above_char as aboveChar, f.below_char as belowChar, f.above_offset as aboveOffset, f.below_offset as belowOffset, f.gold_offset as goldOffset"
+        . " FROM log_event_header h, fixation_event f WHERE h.job_id = '$jobId' AND h.file_id = '$fileId' AND h.id = f.header_id ORDER BY h.time, h.id ASC"); //dan: added f.above_char, f.below_char, f.above_offset, f.below_offset, f.gold_offset 
     
     $err = $db->get_error();
     $errno = $err["error_code"];

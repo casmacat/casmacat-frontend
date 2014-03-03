@@ -90,7 +90,9 @@
         vsReady = false,        // indicates the virtual screen (iframe) is ready for operation
         vsDocument = null,      // the native document object of the virtual screen
         vsWindow = null,        // the native window object of the virtual screen
-        vsContents = null      // jQuery's 'contents()' of the virtual screen
+        vsContents = null,      // jQuery's 'contents()' of the virtual screen
+        
+        gazeMap = false         // value if gaze mapping is enabled
     ; // var
 
     /*################################################################################################################*/
@@ -393,12 +395,58 @@
             etXOffset = $("#etXOffset").val();
             etYOffset = $("#etYOffset").val();
             updateUIStatus("Updated ET offsets.");
+        },
+        showGazeMap: function() {
+            if(!gazeMap) { 
+                gazeMap = true;
+            } else {
+                gazeMap = false;
+                $('#virtualScreen').contents().find("#gold, #original, #above, #below").contents().unwrap();
+            }
         }
     };
 
     /*################################################################################################################*/
     /*###################################################################### Private methods/objects of the plugin ###*/
     /*################################################################################################################*/
+    var generateGazeMap = function(ev, el) {
+            //Dan: added background-color to character fixation      
+                 $('#virtualScreen').contents().find("#gold, #original, #above, #below").contents().unwrap();
+                 if(gazeMap){
+                 //remove old atributes
+
+                    var textNow = el.text();
+                    var textNew = '';
+                    debug(textNow, el.text())
+                    if(ev.character !== '' && ev.elementId !== '') {    
+                    var splitT = textNow.split('');
+                    for(var i = 0; i < splitT.length; i++) {
+                            if(i === parseInt(ev.offset)) {
+                                if(i === parseInt(ev.goldOffset)) {
+                                    textNew += '<span id="gold" style="background-color: #FF3; border: 2px solid #3C3; cursor:pointer;" >' + splitT[i] + '</span>'; 
+                                } else {
+                                    textNew += '<span id="original" style="background-color: #FF3; cursor:pointer;" onclick="goldOffset('+ i + ',' + ev.id + ')"  >' + splitT[i] + '</span>'; 
+                                }
+                            } else if (i === parseInt(ev.aboveOffset)){
+                                if(i === parseInt(ev.goldOffset)) {
+                                    textNew += '<span id="gold" style="background-color: #F3F; border: 2px solid #3C3; cursor:pointer;" >' + splitT[i] + '</span>'; 
+                                } else {
+                                textNew += '<span id="above" style="background-color: #F3F; cursor:pointer;" onclick="goldOffset('+ i + ',' + ev.id + ')"  >' + splitT[i] + '</span>';
+                                }
+                            } else if (i === parseInt(ev.belowOffset)){
+                                if(i === parseInt(ev.goldOffset)) {
+                                    textNew += '<span id="gold" style="background-color: #3FF; border: 2px solid #3C3; cursor:pointer;" >' + splitT[i] + '</span>'; 
+                                } else {
+                                    textNew += '<span id="below" style="background-color: #3FF; cursor:pointer;" onclick="goldOffset(' + i + ',' + ev.id + ')" >' + splitT[i] + '</span>';
+                                }
+                            } else {
+                            textNew += splitT[i];
+                            }
+                        }
+                        if(textNew !== '') return el.html(textNew); 
+                    }
+                } 
+        };
 
     var tick = function(newTime) {
         updateUIStatus("Replaying...");
@@ -944,6 +992,8 @@ debug(endNode);*/
                 if (settings.etShowData) {
                     target.html("<br>" + event.x + "," + event.y + "," + event.offset + ",'" + event.character + "'");
                 }
+               
+               element = generateGazeMap(event, element);
 
 //                if (settings.etRemapAOI) {
 //                    var src = vsWindow.$("#segment-" + vsWindow.UI.currentSegmentId + "-source");

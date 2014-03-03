@@ -1485,12 +1485,14 @@
 //            }
 //var startTime = new Date().getTime();
             var charInfo = $.fn.characterFromPoint(rx, ry);
+            var aboveChar = $.fn.characterFromPoint(rx, ry-30); //text size = 20 pt ~ 30 px
+            var belowChar = $.fn.characterFromPoint(rx, ry+30);
 //var executionTime = new Date().getTime() - startTime;
 //debug("*** fix exec: " + executionTime);
 
 //            debug(pluginName + ": char offset: '" + charInfo.offset + "', char: '" + charInfo.character + "'.");
             storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FIXATION, undefined, charInfo.element, trackerTime, rx, ry, duration,
-                charInfo.character, charInfo.offset));
+                charInfo.character, charInfo.offset, aboveChar.character, aboveChar.offset, belowChar.character, belowChar.offset)); //dan: added aboveChar.character, aboveChar.offset, belowChar.character, belowChar.offset
         }
         else {
             debug(pluginName + ": 'window' position is not valid, fixation discarded!");

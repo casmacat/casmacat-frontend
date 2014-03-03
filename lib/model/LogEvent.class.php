@@ -177,6 +177,11 @@ class LogEvent {
             $this->duration = $object->d;
             $this->character = $object->c;
             $this->offset = $object->o;
+            $this->aboveChar = $object->a;       //dan
+            $this->aboveOffset = $object->ao; //dan
+            $this->belowChar = $object->b;     //dan
+            $this->belowOffset = $object->bo; //dan
+            
         }
         else {
             $this->tTime = $object->tTime;
@@ -185,6 +190,11 @@ class LogEvent {
             $this->duration = $object->duration;
             $this->character = $object->character;
             $this->offset = $object->offset;
+            $this->aboveChar = $object->aboveChar;       //dan
+            $this->aboveOffset = $object->aboveOffset; //dan
+            $this->belowChar = $object->belowChar;     //dan
+            $this->belowOffset = $object->belowOffset; //dan
+            $this->goldOffset = $object->goldOffset; //dan
         }
     }
 
