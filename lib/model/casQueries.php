@@ -451,7 +451,7 @@ log::doLog($endOffset);
             case LogEvent::FLOAT_PREDICTION:
                 break;
             case LogEvent::BICONCOR:
-                $eventRow = fetchEventRow($logEvent->id, "biconcor");
+                $eventRow = fetchEventRow($logEvent->id, "biconcor_event");
                 $logEvent->biconcorData($eventRow);
                 break;
 

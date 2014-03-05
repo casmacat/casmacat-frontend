@@ -1395,6 +1395,9 @@ debug(event);
             case logEventFactory.MEMENTO_UNDO:
             case logEventFactory.MEMENTO_REDO:
                 break;
+            // TODO do we want to replay the biconcordancer?
+            case logEventFactory.BINCONCOR:
+                break;
 
             default:
                 alert("Unknown event type: '" + event.type + "'.");
