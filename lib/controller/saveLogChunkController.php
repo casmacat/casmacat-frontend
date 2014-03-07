@@ -159,7 +159,9 @@ class saveLogChunkController extends ajaxcontroller {
                         $logEvent->statsUpdatedData($value);
                         insertStatsUpdatedEvent($logEvent);
                         break;
-
+                    
+                    // merc - adding decode result
+                    case LogEvent::DECODE_RESULT:
                     case LogEvent::DECODE:
                     case LogEvent::ALIGNMENTS:
                     case LogEvent::SUFFIX_CHANGE:
@@ -232,7 +234,15 @@ class saveLogChunkController extends ajaxcontroller {
                     case LogEvent::SR_RULE_DELETED:
                         insertLogEventHeader($logEvent);
                         break;
-
+                    // merc - adding float prediction and biconcordancer
+                    case LogEvent::FLOAT_PREDICTION:
+                        insertLogEventHeader($logEvent);
+                        break;
+                    case LogEvent::BICONCOR:
+                        $logEvent->biconcorData($value);
+                        insertBiconcorEvent($logEvent);
+                        break;
+                    
                     default:
 //                        $db->query("COMMIT");   // at least, store what was ok
 //                        $db->query("SET AUTOCOMMIT=1");

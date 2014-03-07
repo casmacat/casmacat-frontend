@@ -66,7 +66,7 @@ else {
     $writer->startElement('logfile'); 
     $writer->writeAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance'); 
     $writer->writeAttribute('xmlns:xsd', 'http://www.w3.org/2001/XMLSchema');              
-    $writer->writeElement('version', 'CASMACAT2');
+    $writer->writeElement('version', 'CASMACAT3');
     $writer->writeElement('jobId', $jobId);         
     $writer->writeElement('username', 'test');        
     $writer->writeElement('fileId', $fileId);
@@ -79,6 +79,14 @@ else {
     $queryId = $db->query("SELECT element_id FROM `log_event_header` l, itp_event i WHERE l.type = 'decode' AND l.job_id = ".$jobId." AND l.file_id = ".$fileId." AND i.header_id = l.id LIMIT 1,1");
     while ( ($row = $db->fetch($queryId)) != false ) {
         $itp = 1;
+        break;
+    }
+    
+    //Check if it is Edinburgh ITP
+    $edi = 0;
+    $queryId = $db->query("SELECT element_id FROM `log_event_header` l WHERE l.type = 'floatPrediction' AND l.job_id = ".$jobId." AND l.file_id = ".$fileId." LIMIT 1,1");
+    while ( ($row = $db->fetch($queryId)) != false ) {
+        $edi = 1;
         break;
     }
     
@@ -98,7 +106,12 @@ else {
     $writer->writeAttribute('task', "post-editing");
 	
     if ($itp == 1){
-	$writer->writeAttribute('gui', "ITP");
+        if ($edi == 0){
+            $writer->writeAttribute('gui', "ITP_VLC");
+        }
+        else{
+            $writer->writeAttribute('gui', "ITP_EDI");
+        }
     }
 	
     $writer->endElement(); 
@@ -127,14 +140,25 @@ else {
     //initial target
     $writer->startElement('initialTargetText');
         
-    if ($itp == 1) {
-        $queryId = $db->query("SELECT element_id, data FROM `log_event_header` l, itp_event i WHERE l.type = 'decode' AND l.job_id = ".$jobId." AND l.file_id = ".$fileId." AND i.header_id = l.id ORDER BY element_id");
+    if ($itp == 1 && $edi == 0) {
+        $queryId = $db->query("SELECT DISTINCT element_id, data FROM `log_event_header` l, itp_event i WHERE l.type = 'decode' AND l.job_id = ".$jobId." AND l.file_id = ".$fileId." AND i.header_id = l.id ORDER BY element_id");
         while ( ($row = $db->fetch($queryId)) != false ) {
             $itp = 1;
             $json = $row["data"];
             $obj = json_decode($json);
             $nbest = $obj->{'nbest'};
             $inisuggestion = $nbest[0]->target;
+            $writer->startElement('segment');
+            list($segment, $id, $editarea) = explode("-",$row['element_id']);
+            $writer->writeAttribute('id', $id);
+            $writer->text($inisuggestion);  
+            $writer->endElement();
+        }
+    }
+    if ($edi == 1) {
+        $queryId = $db->query("SELECT DISTINCT element_id, data FROM `log_event_header` l, itp_event i WHERE l.type = 'decodeResult' AND l.job_id = ".$jobId." AND l.file_id = ".$fileId." AND i.header_id = l.id ORDER BY element_id");
+        while ( ($row = $db->fetch($queryId)) != false ) {
+            $inisuggestion = json_decode($row["data"]);
             $writer->startElement('segment');
             list($segment, $id, $editarea) = explode("-",$row['element_id']);
             $writer->writeAttribute('id', $id);
@@ -272,8 +296,8 @@ else {
     
     //fixation_event 
     $queryId = $db->query("SELECT h.id as id, h.job_id as job_id, h.file_id as file_id, h.element_id as element_id, h.x_path as x_path, h.time as time, h.type as type, "
-            . "f.t_time as t_time, f.x as x, f.y as y, f.duration as duration, f.character, f.offset as offset"
-        . " FROM log_event_header h, fixation_event f WHERE h.job_id = '$jobId' AND h.file_id = '$fileId' AND h.id = f.header_id ORDER BY h.time, h.id ASC");
+            . "f.t_time as t_time, f.x as x, f.y as y, f.duration as duration, f.character, f.offset as offset, f.above_char as aboveChar, f.below_char as belowChar, f.above_offset as aboveOffset, f.below_offset as belowOffset, f.gold_offset as goldOffset"
+        . " FROM log_event_header h, fixation_event f WHERE h.job_id = '$jobId' AND h.file_id = '$fileId' AND h.id = f.header_id ORDER BY h.time, h.id ASC"); //dan: added f.above_char, f.below_char, f.above_offset, f.below_offset, f.gold_offset 
     
     $err = $db->get_error();
     $errno = $err["error_code"];
@@ -742,7 +766,7 @@ else {
     
     //text_event 
     $queryId = $db->query("SELECT h.id as id, h.job_id, h.file_id, h.element_id, h.x_path, h.time, h.type"
-            . ", t.cursor_position, t.deleted, t.inserted"
+            . ", t.cursor_position, t.deleted, t.inserted, t.previous, t.text, t.edition"
         . " FROM log_event_header h, text_event t WHERE h.job_id = '$jobId' AND h.file_id = '$fileId' AND h.id = t.header_id ORDER BY h.time, h.id ASC");
     
     
@@ -775,6 +799,44 @@ else {
         //print "len_texts: ".$len_texts."\n";
     }
     else $len_texts = 0;
+    
+    //-------------------------------------------------------------------------------------------
+    
+    //biconcor_event 
+    $queryId = $db->query("SELECT h.id as id, h.job_id, h.file_id, h.element_id, h.x_path, h.time, h.type"
+            . ", b.word, b.info"
+        . " FROM log_event_header h, biconcor_event b WHERE h.job_id = '$jobId' AND h.file_id = '$fileId' AND h.id = b.header_id ORDER BY h.time, h.id ASC");
+    
+    
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: fetchLogChunk(): " . print_r($err, true));
+        throw new Exception("CASMACAT: fetchLogChunk(): " . print_r($err, true));
+
+    }
+        
+    $biconcorRow = null;
+    $biconcorEvents = array();
+    while ( ($biconcorRow = $db->fetch($queryId)) != false ) {
+        
+        $biconcorRowAsObject = snakeToCamel($biconcorRow);        
+        //log::doLog("CASMACAT: fetchLogChunk(): Next headerRow: " . print_r($textRowAsObject, true));
+
+        $biconcorEvent = new LogEvent($jobId, $fileId, $biconcorRowAsObject);     
+        $biconcorEvent->biconcorData($biconcorRowAsObject);
+        
+        array_push($biconcorEvents, $biconcorEvent); 
+    }
+    
+    if(!empty($biconcorEvents))
+    {
+        //log::doLog("CASMACAT: textEvents: " . print_r($textEvents, true));
+        $count_biconcors = 0;
+        $len_biconcors = count($biconcorEvents);
+        //print "len_texts: ".$len_texts."\n";
+    }
+    else $len_biconcors = 0;
         
     
         
@@ -1040,6 +1102,23 @@ else {
                 
             }
         }
+        
+        elseif ($len_biconcors != 0 && $headerRowAsObject->id == $biconcorEvents[$count_biconcors]->id){
+            
+            //log::doLog("CASMACAT: Row text: " . print_r($textEvents[$count_texts],true));   
+            
+            foreach($biconcorEvents[$count_biconcors] as $attribute => $val){                
+                
+                if ($attribute != 'jobId' && $attribute != 'fileId' && $attribute != 'type'){
+                    $writer->writeAttribute($attribute, $val);
+                }
+            }
+            if ($count_biconcors < $len_biconcors-1){
+                $count_biconcors = $count_biconcors + 1;
+                
+            }
+        }
+        
         else
         {   
 

@@ -132,4 +132,24 @@ $(function() {
   });
 });
 
-
+function goldOffset(clickedOffset, id){
+                    var data = {
+                    action: "saveGoldOffset",
+                    id: id,
+                    gold_offset: clickedOffset  
+                    };
+                    console.log(data);
+                    
+                    $.ajax({
+                    url:config.basepath + 'index.php?action=saveGoldOffset',
+                    data: data,
+                    type: "POST",
+                    dataType: "json",
+                    cache: false
+                    });
+                }
+                
+function calibrate() {
+                $.fn.getETPlugin().stop(); 
+                if($.fn.getETPlugin().calibrate() === true) $.fn.getETPlugin().start(); 
+            }

@@ -77,12 +77,14 @@
             value: data.srcPhrase || '',
             onkeypress: function (evt) {
                 if ((evt || window.event).keyCode == 13)
-                    getClient().biconcor (this.value);
-            }
+                    getClient().biconcor (this.value);                
+            }            
         });
         if (data.warm) {
-            if (data.concorStruct.length > 0) {
-                buildConcordanceGUI (data.concorStruct);
+            //merc - trigger logging
+            $('.buttons', UI.currentSegment).trigger("biconcor", [data]);
+            if (data.concorStruct.length > 0) {                
+                buildConcordanceGUI (data.concorStruct);              
             } else {
                 buildTextOnlyDialog ("No matches found for '" + data.srcPhrase + "'");
             }

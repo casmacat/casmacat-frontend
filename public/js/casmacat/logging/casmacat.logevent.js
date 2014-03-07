@@ -38,7 +38,7 @@ var LogEventFactory = function(elementIdMode) {
     this.HIDE_ALIGNMENT_BY_MOUSE = "hideAlignmentByMouse";
     this.SHOW_ALIGNMENT_BY_KEY = "showAlignmentByKey";
     this.HIDE_ALIGNMENT_BY_KEY = "hideAlignmentByKey";
-
+    
     this.KEY_DOWN = "keyDown";
     this.KEY_UP = "keyUp";
 
@@ -72,6 +72,11 @@ var LogEventFactory = function(elementIdMode) {
     this.SR_RULES_SET = "srRulesSet";
     this.SR_RULES_APPLIED = "srRulesApplied";
     this.SR_RULE_DELETED = "srRuleDeleted";
+    
+     // merc - adding floatPrediction, biconcordancer and decodeResult
+    this.FLOAT_PREDICTION = "floatPrediction";
+    this.BICONCOR = "biconcor";
+    this.DECODE_RESULT = "decodeResult";
 };
 
 /**
@@ -131,6 +136,11 @@ LogEventFactory.prototype.newLogEvent = function(type, timeStamp, element) {
             logEvent.cp = arguments[3];
             logEvent.d = arguments[4];
             logEvent.i = arguments[5];
+            //logEvent.e = arguments[6];
+            logEvent.p = arguments[6];
+            logEvent.t = arguments[7];
+            logEvent.e = arguments[8];
+            console.log("arguments: ", arguments);
             break;
         case this.SELECTION:    // range
             var range = arguments[3];
@@ -163,6 +173,10 @@ LogEventFactory.prototype.newLogEvent = function(type, timeStamp, element) {
             logEvent.d = arguments[6];
             logEvent.c = arguments[7];
             logEvent.o = arguments[8];
+            logEvent.a = arguments[9];  //dan
+            logEvent.ao = arguments[10];  //dan
+            logEvent.b = arguments[11];  //dan
+            logEvent.bo = arguments[12]; //dan
             break;
 
         case this.SCROLL:    // offset
@@ -210,6 +224,9 @@ LogEventFactory.prototype.newLogEvent = function(type, timeStamp, element) {
             logEvent.stats = arguments[3];
             break;
 
+        case this.DECODE_RESULT:
+            logEvent.data = arguments[3][0].target;
+            break;
         case this.DECODE:    // data
         case this.ALIGNMENTS:    // data
         case this.SUFFIX_CHANGE:    // data
@@ -281,6 +298,13 @@ LogEventFactory.prototype.newLogEvent = function(type, timeStamp, element) {
             break;
         case this.SR_RULES_APPLIED:
         case this.SR_RULE_DELETED:
+            break;
+        // merc - adding floatPrediction, biconcordancer and decodeResult
+        case this.FLOAT_PREDICTION:
+            break;
+        case this.BICONCOR:
+            logEvent.word = arguments[3].srcPhrase; 
+            logEvent.info = arguments[3].concorStruct;        
             break;
 
         default:

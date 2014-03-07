@@ -46,7 +46,9 @@ $(function() {
     $("#toggleInput").click(function(e) {
         $(window).replaying("toggleInput");
     });
-
+    $("#showGazeMap").click(function(e) {
+       $(window).replaying("showGazeMap"); 
+    });
     var oldSpeed = "1.00";
     $("#selectSpeed").click(function(e) {
         oldSpeed = $(this).val();
