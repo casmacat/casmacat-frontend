@@ -672,19 +672,7 @@ UI = {
 		if (!config.translationOptions){
            return;
 		}
-        if ($(n).hasClass('loaded')) {
-            if (next) {
-                this.nextIsLoaded = true;
-            } else {
-                this.currentIsLoaded = true;
-            }
-            if (this.currentIsLoaded)
-                this.blockButtons = false;
-            if (this.currentSegmentId == this.nextSegmentId)
-                this.blockButtons = false;
-            if(!next) this.currentSegmentQA();
-            return false;
-        }
+
         if ((!n.length) && (next)) {
             return false;
         }
@@ -1330,9 +1318,9 @@ UI = {
 		
 		appendOptions = '<div id="options">';
         if(d.data.options.length) {
-			/*if(!$('.sub-editor.translationOptions',segment).length) {
-				UI.createFooter(segment);
-			}*/
+			if(!$('.sub-editor',segment).length) {
+                UI.createFooter(segment);
+            }
 
 			// find which positions are covered by phrases that start earlier
 			var overlap = [];
