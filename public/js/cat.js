@@ -376,6 +376,19 @@ UI = {
         }).on('click','a.close',function(e) {
             e.preventDefault();
             UI.closeSegment(UI.currentSegment,1);
+        //}); // added for tab switcher;
+		}).on('click', '.tab-switcher-tm', function(e) {
+            e.preventDefault();
+            $('.editor .submenu .active').removeClass('active');
+            $(this).addClass('active');
+            $('.editor .sub-editor').hide();
+            $('.editor .sub-editor.matches').show();
+        }).on('click', '.tab-switcher-to', function(e) {
+            e.preventDefault();
+            $('.editor .submenu .active').removeClass('active');
+            $(this).addClass('active');
+            $('.editor .sub-editor').hide();
+            $('.editor .sub-editor.translationOptions').show();
         });
 
         UI.toSegment = true;
@@ -597,12 +610,20 @@ UI = {
           $('#segment-'+this.currentSegmentId+'-buttons').append(buttons);
         }
     },
-
-    createFooter: function(segment) {
-        if($('.footer', segment).text() != '') return false;
-        var footer = '<ul class="submenu"><li class="active" id="segment-'+this.currentSegmentId+'-tm"><a tabindex="-1" href="#">Translation matches</a></li></ul><div class="tab sub-editor matches" id="segment-'+this.currentSegmentId+'-matches"><div class="overflow"></div></div>';
+	
+	createFooter: function(segment) {
+		if($('.footer', segment).text() != '') return false;
+		var footer = '<ul class="submenu">';
+		if (!config.hideContributions){
+			footer += '<li class="'+ ((!config.translationOptions) ? 'active': '') +' tab-switcher-tm" id="segment-' + this.currentSegmentId + '-tm"><a tabindex="-1" href="#">Translation matches</a></li>';
+		}
+		if (config.translationOptions){
+			footer += '<li class="active tab-switcher-to" id="segment-' + this.currentSegmentId + '-to"><a tabindex="-2" href="#">Translation Options</a></li>';
+		}
+		footer += '</ul><div class="tab sub-editor matches" id="segment-' + this.currentSegmentId + '-matches"><div class="overflow"></div></div><div class="tab sub-editor translationOptions" id="segment-' + this.currentSegmentId + '-translationOptions"><div class="results"></div></div>';
+		
         $('.footer', segment).html(footer);
-    },
+	},	
 
     createHeader: function() {
         if ($('h2.percentuage', this.currentSegment).length){
@@ -644,6 +665,85 @@ UI = {
 		$('#outer').append('<div id="downloadNotifier"></div>');
     },
 
+	getTranslationOptions: function(segment,next) {
+		console.log('getTranslationOptions');
+		var n = (next) ? $('#segment-' + this.nextSegmentId) : $(segment);
+
+		if (!config.translationOptions){
+           return;
+		}
+        if ($(n).hasClass('loaded')) {
+            if (next) {
+                this.nextIsLoaded = true;
+            } else {
+                this.currentIsLoaded = true;
+            }
+            if (this.currentIsLoaded)
+                this.blockButtons = false;
+            if (this.currentSegmentId == this.nextSegmentId)
+                this.blockButtons = false;
+            if(!next) this.currentSegmentQA();
+            return false;
+        }
+        if ((!n.length) && (next)) {
+            return false;
+        }
+        var id = n.attr('id');
+        var id_segment = id.split('-')[1];
+        var txt = $('.source', n).text();
+        txt = view2rawxliff(txt);
+
+        if (!next) {
+            $(".loader", n).addClass('loader_on');
+        }
+
+		// CASMACAT extension start
+        if (config.replay == 1) {
+            debug("cat.js: Skipping loading of options in getTranslationOptions()...");
+            return false;
+        }
+        var ctx = $('#'+id);
+		//if (typeof d !== 'undefined'){
+			this.doRequest({
+				data: {
+					action: 'getTranslationOptions',
+					id_segment: id_segment,
+					text: txt,
+					id_job: config.job_id,
+					num_results: ctx.numMatchesResults,
+					id_translator: config.id_translator
+				},
+				context: $('#' + id),
+				success: function(d) {
+					UI.getTranslationOptionsSuccess(d, ctx, segment, next, n, txt, id_segment);
+				},
+				complete: function(d) {
+					$(".loader", n).removeClass('loader_on'); 
+				}
+			});
+		/*} else {
+			$(".loader", n).removeClass('loader_on'); 
+		}*/
+	},
+	getTranslationOptionsSuccess: function(d, ctx, segment, next, n, txt, id_segment){
+	console.log('getTranslationOptionsSuccess');
+        if (config.replay != 1) {
+            var event = $.Event("translationOptionsLoaded");
+            if (next == 0) {
+                event.segment = segment[0];
+            }
+            else {
+                event.segment = n[0];
+            }
+            event.options = d.data.options;
+            //$(window).trigger("translationOptionsLoaded", event); 
+        }
+        else {
+            $(".loader",n).removeClass('loader_on');
+        }
+      UI.renderTranslationOptions(d, ctx, txt, id_segment);
+	},
+	
     getContribution: function(segment,next) {
       console.log("get contribution");
 // prova per anticipare l'indent
@@ -657,9 +757,13 @@ UI = {
             if (editareaLength==0) editarea.addClass("indent");
         }
 */
-
-
         var n = (next)? $('#segment-'+this.nextSegmentId) : $(segment);
+		
+		if (config.hideContributions){
+			//$(".loader", n).removeClass('loader_on'); 
+			return;
+		}
+		
         if($(n).hasClass('loaded')) {
             if(next) {
                 this.nextIsLoaded = true;
@@ -681,9 +785,9 @@ UI = {
         // Attention: As for copysource, what is the correct file format in attributes? I am assuming html encoded and "=>&quot;
         //txt = txt.replace(/&quot;/g,'"');
 
-        if(!next) {
-            $(".loader",n).addClass('loader_on')
-        }
+        /*if(!next) {
+            $(".loader",n).addClass('loader_on');
+        }*/
 
         // CASMACAT extension start
         if (config.replay == 1) {
@@ -787,7 +891,6 @@ UI = {
             $(".sbm > .matches", ctx).hide();
       }
     },
-
 
     getMoreSegments: function(where) {
         if((where == 'after')&&(this.noMoreSegmentsAfter)) return;
@@ -1023,7 +1126,9 @@ UI = {
 
         this.getNextSegment(this.currentSegment,'untranslated');
         this.setCurrentSegment(segment);
-
+		
+		 
+		
         this.focusEditarea = setTimeout(function(){
             UI.editarea.focus();
             clearTimeout(UI.focusEditarea);
@@ -1031,8 +1136,14 @@ UI = {
         this.currentIsLoaded = false;
         this.nextIsLoaded = false;
         this.getContribution(segment,0);
+		this.getTranslationOptions(segment,0);
+		if (!config.hideContributions || config.translationOptions){
+			var n = $(segment);
+			$(".loader", n).addClass('loader_on');
+		}
         this.opening = true;
 
+		
         // CASMACAT extension start
 //        AND sanitize problem
 //if (config.enable_itp)
@@ -1200,7 +1311,120 @@ UI = {
 
     triggerSuggestionChosen: function(segment, which, translation) {
     },
+	
+	renderTranslationOptions: function(d, segment, input, id_segment) {
+		console.log('renderTranslationOptions');
+		// add css file
+		$('head').append('<link rel="stylesheet" href="/public/css/options.css" type="text/css" />');
+		
+        var editarea = $('.editarea', segment);
+		var targetId = editarea.selector; 
+		
+		var max_level = 6;
 
+		$(segment).removeClass('loaded').addClass('loaded');
+        $('.sub-editor.translationOptions .results',segment).empty();
+		
+		var inputWord = tokenizer(d.sourceSegmentation, input); 
+		var sentenceLength = inputWord.length;
+		
+		appendOptions = '<div id="options">';
+        if(d.data.options.length) {
+			/*if(!$('.sub-editor.translationOptions',segment).length) {
+				UI.createFooter(segment);
+			}*/
+
+			// find which positions are covered by phrases that start earlier
+			var overlap = [];
+			for (var i=0; i < sentenceLength; i++){
+				overlap[i] = 0
+			}
+			$.each(d.data.options, function(index) {
+				for (var i= this['start']+1; i<= this['end']; i++){
+					overlap[i] = 1;
+				}
+			});
+
+			// use overlap information to break up sentence into blocks (and for multi-line display)
+			var block = [0];
+			for (var i=1; i < sentenceLength; i++){ 
+				if (overlap[i] == 0)
+					block.push(i);
+			}
+			block.push(sentenceLength)
+			
+			// create options table
+			for (var b=0; b < (block.length)-1; b++){ // for every source token
+				// source tokens go on top
+				appendOptions += '<table cellspacing="0" style="display:inline; float:left;">';
+				appendOptions += '<tr>';
+				for (var i = block[b]; i < block[b+1]; i++){
+					appendOptions += '<th>'+ inputWord[i] + '</th>';
+				}
+				appendOptions += '</tr>';
+				
+				// start appending options.
+				for (var level=0; level < max_level; level++){
+					
+					startPos = block[b];
+					endPos = block[b+1];
+					var currentBlockSize = parseInt(endPos - startPos) ;
+				
+					var optionExists = false;
+					appendOptional = '<tr>';
+					$.each(d.data.options, function(index) { 
+						if (this['level'] == level) {
+							//if (this['start'] >= block[b] && this['end'] <= block[b+1]-1){
+							if (this['start'] >= block[b] && this['end'] < block[b+1]){
+								// filler slot, if necessary, for blocks with multiple tokens
+								for (var f=startPos; f < this['start']; f++)
+								{
+										appendOptional += '<td class="option0"><div class="option-filler" id="of'+ f +'-'+ level+ '">&nbsp;</div></td>';
+								}
+								optionExists = true;
+
+								var probability = 0;
+								if (parseFloat(this['cost']) < - 1)
+									probability = 4;
+								else if (parseFloat(this['cost']) < - 0.5)
+									probability = 3;
+								else if (parseFloat(this['cost']) < - 0.2)
+									probability = 2;
+								else if (parseFloat(this['cost']) < - 0.1)
+									probability = 1;
+								
+								var colspan = parseInt(this['end']) - parseInt(this['start']) + 1;
+								
+								
+								var optionPhrase = this['phrase'].replace(/(\s)([;,.:!])/, '$2'); // remove unnecessary space before special chars 
+								
+								appendOptional += '<td align=center nowrap ';
+								appendOptional += 'colspan=' + colspan;
+								appendOptional += ' class="option'+probability.toString()+'"><a id="'+this['end']+this['start']+this['level']+'-'+id_segment+'" onclick="appendTranslationOption(this,\''+targetId+'\')">'+ optionPhrase +'</a></td>';  
+								
+								startPos = this['end']+1;
+							}
+						}
+					}); 
+					
+					if (optionExists){
+						appendOptions += appendOptional + '</tr>';
+					}
+				}
+				appendOptions += '</table>';
+			}
+			appendOptions += '</div>';
+			
+			// Attention Bug: We are mixing the view mode and the raw data mode.
+            // before doing a enanched view you will need to add a data-original tag
+			$('.sub-editor.translationOptions .results',segment).append(appendOptions);
+        } else {
+            if(UI.debug) console.log('no translation options');
+            $(segment).removeClass('loaded').addClass('loaded');
+            $('.sub-editor.translationOptions .results',segment).append('<ul class="graysmall message"><li>Sorry. Can\'t help you this time.</li></ul>');
+        }
+    },
+	
     renderContributions: function(d,segment) {
         if (config.hideContributions)
             return;
@@ -1386,7 +1610,7 @@ UI = {
     },
 
     scrollSegment: function(segment) {
-console.trace();
+		console.trace();
         var spread = 23;
         var current = this.currentSegment;
         var previousSegment = $(segment).prev('section');
@@ -2101,4 +2325,57 @@ function rawxliff2rawview(segment){ // currently unused
     return segment;
 }
 
+// tokenize source phrase according to decodeResult info
+function tokenizer(sourceSegmentation, input){
+	console.log('source segmentation');
+	console.log(sourceSegmentation);
+	var tokenizedSource = [];
+	var unsegmentedInput = input.replace(/ /g,"");
+	if (unsegmentedInput){
+		var length = 0;
+		for(var i = 0; i < sourceSegmentation.length; i++){
+			length = sourceSegmentation[i][1] - sourceSegmentation[i][0];
+			tokenizedSource.push(unsegmentedInput.substr(0, length));
+			unsegmentedInput = unsegmentedInput.substr(length);
+		}
+	}
+	return tokenizedSource;
+}
 
+function appendTranslationOption(option, targetId){
+	console.log('append translation option');
+	var id = option.id;
+	try{
+		var insText = $('#'+id+'').text();  // selected option
+	} catch(err) {
+		var insText = '';
+		console.log('option id not recognized');
+	}
+	
+	try{
+		var $target =  $(targetId);
+		var pos = $target.editable('getCaretPos');
+		var oldText = $target.text();
+		
+		var newText = oldText.substring (0, pos);
+		if (newText==''){ // capitalize first letter if option is at the beginning of the sentence
+			newText = insText.charAt(0).toUpperCase() + insText.slice(1);
+		} else {
+			newText += insText;
+		}
+		newText += ' ';
+		newText = newText.replace(/(\s)([;,).:!])/, '$2'); // remove unnecessary space before special chars 
+		
+		$target.editable('setText', newText);
+	} catch(err) {
+		console.log('unknown target in appendTranslationOption');
+	}
+	
+	// hide the floating prediction whenever the user pastes into the textbox by clicking
+	try{
+		var visibleFloat = document.getElementsByClassName('floating-prediction');
+		visibleFloat[0].setAttribute("class", "floating-prediction-hidden");
+	} catch(err){
+		console.log('No floating prediction in appendTranslationOption');
+	}
+}
