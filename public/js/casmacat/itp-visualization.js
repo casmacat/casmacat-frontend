@@ -3,6 +3,9 @@
 (function(module, global){
   var NLP = require('nlp-utils');
 
+  // singleton instance of the FloatingPrediction 'class'
+  var floatingPredItpVis;
+
   /*******************************************************************************/
   /*           update the HTML display and attach events                         */
   /*******************************************************************************/
@@ -119,17 +122,30 @@
         // The prefix in the sentence does not match the prefix in the prediction.
         var matchPrefix = match.target.substr(0, d.pos);
         if (targetPrefix === matchPrefix && (!match.author || conf.mode === match.author)) {
-          $target.editable('setText', match.target, match.targetSegmentation);
+          var doUpdate = true;
 
-          self.updateValidated(data.caretPos);
+          if (conf.avoidLowConfidencePredictions) {
+            var quality = parseInt(match.quality * 100);
+            var percentageClass = UI.getPercentuageClass(quality);
+            console.log('PERCENT', percentageClass, $('#' + $(UI.currentSegment).attr("id") + '-header .percentuage'));
+            $('#' + $(UI.currentSegment).attr("id") + '-header .percentuage').text(quality).removeClass('per-orange per-green per-blue per-yellow').addClass(percentageClass).addClass('visible');
 
-          if (match.priorities) {
-            self.updateWordPriorities($target, match.priorities);
+            if (quality < 100*conf.confidencePredictionThreshold) doUpdate = false;
           }
-        
-          // requests the server for new alignment and confidence info
-          var nmatch = $.extend({source: data.source, sourceSegmentation: data.sourceSegmentation}, match);
-          self.updateOptional(nmatch);
+
+          if (doUpdate) {
+            $target.editable('setText', match.target, match.targetSegmentation);
+
+            self.updateValidated(data.caretPos);
+
+            if (match.priorities) {
+              self.updateWordPriorities($target, match.priorities);
+            }
+
+            // requests the server for new alignment and confidence info
+            var nmatch = $.extend({source: data.source, sourceSegmentation: data.sourceSegmentation}, match);
+            self.updateOptional(nmatch);
+          }
           break;
         }
       }
@@ -363,10 +379,8 @@
 
     // the "floating prediction" displays the predicted next word next to the
     // user's text caret
-    var floatingPredItpVis; // singleton instance
     self.FloatingPrediction = (function () {
       var NUM_WORDS_LOOKAHEAD = 3;
-      var HIDDEN = top.location.href.indexOf ('/translate-no-itp/') >= 0;
 
       if (floatingPredItpVis)
         // there can only be one
@@ -374,8 +388,7 @@
       floatingPredItpVis = self;
 
       var elFloatPred = document.createElement ('div');
-      if (!HIDDEN)
-        document.body.appendChild (elFloatPred);
+      document.body.appendChild (elFloatPred);
 
       var predictedText = null;
       setPredictedText (null);
@@ -414,10 +427,12 @@
 
       function adjustPosition () {
         var coord = getCaretPixelCoords();
-        if (coord) {
-          elFloatPred.style.top  = (coord[1]+10) + 'px';
+        if (coord && coord[0] && coord[1]) {
+          elFloatPred.style.top  = (coord[1]+20) + 'px';
           elFloatPred.style.left = (coord[0]+10) + 'px';
           showPredictedText();
+        } else {
+          setVisible (false);
         }
       }
 
@@ -502,6 +517,8 @@
         $target.editable ('setText', newText);
         goToPos (pos + insText.length + 1);
         showPredictedText();
+        // merc - adding trigger to float predictions   
+        $target.trigger('floatPrediction', [insText]);        
       }
 
       function destroy () {

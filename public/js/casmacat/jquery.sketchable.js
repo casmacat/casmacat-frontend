@@ -322,7 +322,6 @@
     data.canvas.closePath();
     data.strokes.push(data.coords);
     data.coords = [];
-    data.timestamp = 0;
     if (typeof options.events.mouseUp === 'function') {
       options.events.mouseUp(e);
     }

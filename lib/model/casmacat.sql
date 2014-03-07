@@ -17,6 +17,9 @@ CREATE TABLE `text_event` (
   `cursor_position` int(5) NOT NULL COMMENT 'Cursor position where the change occured',
   `deleted` text NOT NULL COMMENT 'Deleted text, if any',
   `inserted` text NOT NULL COMMENT 'Inserted text, if any',
+  `previous` varchar(500) NOT NULL 'Previous full target text',
+  `text` varchar(500) NOT NULL 'Full target text',
+  `edition` varchar(45) NOT NULL 'Type of edition',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores text changed events.';
 
@@ -111,6 +114,11 @@ CREATE TABLE `fixation_event` (
   `duration` VARCHAR(20) NOT NULL COMMENT 'Duration of the fixation',
   `character` VARCHAR(4) NOT NULL COMMENT 'The character fixated',
   `offset` INT(5) NOT NULL COMMENT 'The offset of the character within the HTML element',
+  `above_char` VARCHAR(4) NOT NULL COMMENT 'The character above the fixation',
+  `below_char` VARCHAR(4) NOT NULL COMMENT 'The character below the fixation',
+  `above_offset` INT(5) NOT NULL COMMENT 'The offset of the character above the fixation within the HTML element',  
+  `below_offset` INT(5) NOT NULL COMMENT 'The offset of the character below the fixation within the HTML element',
+  `gold_offset` INT(5) NOT NULL COMMENT 'The corrected offset of fixation',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores fixation events.';
 
@@ -158,6 +166,16 @@ CREATE TABLE `sr_event` (
   `rules` text NOT NULL COMMENT 'JSON array of rules set for sr',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores sr rules events.';
+
+CREATE TABLE IF NOT EXISTS `biconcor_event` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `header_id` int(11) NOT NULL,
+  `word` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
+  `info` text COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `id` (`id`),
+  KEY `header_id` (`header_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=28 ;
 
 ALTER TABLE config_event ADD FOREIGN KEY (header_id) REFERENCES log_event_header(id) ON UPDATE CASCADE ON DELETE CASCADE;
 ALTER TABLE deleting_suggestion_event ADD FOREIGN KEY (header_id) REFERENCES log_event_header(id) ON UPDATE CASCADE ON DELETE CASCADE;

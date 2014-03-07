@@ -68,6 +68,11 @@ class LogEvent {
     const SR_RULES_SET = "srRulesSet";
     const SR_RULES_APPLIED = "srRulesApplied";
     const SR_RULE_DELETED = "srRuleDeleted";
+    
+    // merc - adding floatprediction, biconcor and decode_result
+    const FLOAT_PREDICTION = "floatPrediction";
+    const BICONCOR = "biconcor";
+    const DECODE_RESULT = "decodeResult";
 
     public $id;
     public $jobId;
@@ -102,15 +107,22 @@ class LogEvent {
     }
 
     public function textData($object) {
+        //log::doLog("object: ", print_r($object, true));
         if (isset($object->cp)) {
             $this->cursorPosition = $object->cp;
             $this->deleted = $object->d;
             $this->inserted = $object->i;
+            $this->previous = $object->p;
+            $this->text = $object->t;
+            $this->edition = $object->e;
         }
         else {
             $this->cursorPosition = $object->cursorPosition;
             $this->deleted = $object->deleted;
             $this->inserted = $object->inserted;
+            $this->previous = $object->previous;
+            $this->text = $object->text;
+            $this->edition = $object->edition;
         }
     }
 
@@ -165,6 +177,11 @@ class LogEvent {
             $this->duration = $object->d;
             $this->character = $object->c;
             $this->offset = $object->o;
+            $this->aboveChar = $object->a;       //dan
+            $this->aboveOffset = $object->ao; //dan
+            $this->belowChar = $object->b;     //dan
+            $this->belowOffset = $object->bo; //dan
+            
         }
         else {
             $this->tTime = $object->tTime;
@@ -173,6 +190,11 @@ class LogEvent {
             $this->duration = $object->duration;
             $this->character = $object->character;
             $this->offset = $object->offset;
+            $this->aboveChar = $object->aboveChar;       //dan
+            $this->aboveOffset = $object->aboveOffset; //dan
+            $this->belowChar = $object->belowChar;     //dan
+            $this->belowOffset = $object->belowOffset; //dan
+            $this->goldOffset = $object->goldOffset; //dan
         }
     }
 
@@ -228,7 +250,13 @@ class LogEvent {
     public function srRulesSetData($object) {
         $this->rules = $object->rules;
     }
-
+    
+    // merc - adding biconcor
+    public function biconcorData($object) {
+        $this->word = $object->word;
+        $this->info = $object->info;
+    }
+    
     public function toString() {
         return print_r($this, true);
     }
