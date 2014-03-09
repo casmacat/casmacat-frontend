@@ -62,6 +62,20 @@ $(function(){
     return { matches: matches };
   };
 
+  function formatTranslationOptions(data) {
+    var options = [];
+    for (var d, i = 0; i < data.options.length; ++i) {
+      d = data.options[i];
+      options.push({
+           level: d.level,
+           start: d.start,
+			 end: d.end,
+			cost: d.full_cost,
+		  phrase: d.phrase
+      });
+    }
+    return { options: options };
+  };
  
   //if (config.debug) {
     var $listDocs = $('<span style="float:left"><a href="'+config.basepath+'listdocuments/">Document list</a> &gt;</span>');
@@ -343,13 +357,24 @@ $(function(){
           req.complete(d);
         }
         break;
+	  case "getTranslationOptions":
+        $ea.unbind('decode').bind('decode', function(e, data, err){
+          UI.executeCallback(a, {
+            data: formatTranslationOptions(data),
+			sourceSegmentation:  data.sourceSegmentation
+          });
+		});
+		// Edge case: Loading a DRAFTed segment should fire the complete UI callback
+        if (typeof d.options === 'undefined') {
+          req.complete(d);
+        }
+	  break;
       case "setContribution":
         $ea.unbind('validate').bind('validate', function(e, data, err){
           UI.executeCallback(a, {
             data: formatItpMatches(data)
           });
         });
-
         break;
       default:
         console.log("Forwarding request 'as is':", a);

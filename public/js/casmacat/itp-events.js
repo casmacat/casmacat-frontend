@@ -194,7 +194,10 @@ var Memento = require("module.memento");
           // paste the decoded text into the box
           self.vis.updateSuggestions(data);
         }
-        
+		
+        /*if (config.translationOptions){  
+		}*/
+		
         //var conf = userCfg();
         //if (conf.mode != 'PE') {
         //  itp.startSession({source: data.source});
