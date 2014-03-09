@@ -49,6 +49,7 @@ class INIT {
     public static $BICONCOR_ENABLED;
     public static $HIDE_CONTRIBUTIONS;
     public static $FLOAT_PREDICTIONS;
+	public static $TRANSLATION_OPTIONS;
     public static $ET_TYPE;
 
 
@@ -108,6 +109,7 @@ class INIT {
         self::$BICONCOR_ENABLED = self::getConfigBool('biconcorenabled');
         self::$HIDE_CONTRIBUTIONS = self::getConfigBool('hidecontributions');
         self::$FLOAT_PREDICTIONS = self::getConfigBool('floatpredictions');
+		self::$TRANSLATION_OPTIONS = self::getConfigBool('translationoptions');
         self::$ET_TYPE     = self::getConfig('ettype', "casmacat", 0);
         self::$DEBUG       = self::getConfigBool('debug', "debug");
     }

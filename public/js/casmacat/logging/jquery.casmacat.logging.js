@@ -543,6 +543,12 @@
             $(window).on("suggestionsLoaded." + pluginName, suggestionsLoaded);
 //            debugAttachedTo("suggestionsLoaded", window);
 
+            $(window).on("loadingTranslationOptions." + pluginName, loadingTranslationOptions);
+//            debugAttachedTo("loadingTranslationOptions", window);
+
+            $(window).on("translationOptionsLoaded." + pluginName, translationOptionsLoaded);
+//            debugAttachedTo("translationOptionsLoaded", window);
+
             $(window).on("suggestionChosen." + pluginName, suggestionChosen);
 //            debugAttachedTo("suggestionChosen", window);
 
@@ -1163,6 +1169,19 @@
         }
     };
 
+	var loadingTranslationOptions = function(e, data) {
+        debug(pluginName + ": Loading translation options.");
+
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.LOADING_TRANSLATION_OPTIONS, e.timeStamp, data.segment));
+    };
+
+    var translationOptionsLoaded = function(e, data) {
+        debug(pluginName + ": Translation options loaded.");
+
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.TRANSLATION_OPTIONS_LOADED, e.timeStamp, data.segment,
+            data.matches));
+    };
+	
     var loadingSuggestions = function(e, data) {
         debug(pluginName + ": Loading suggestions.");
 

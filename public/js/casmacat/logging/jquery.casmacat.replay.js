@@ -1101,7 +1101,20 @@ debug(event);
 //debug(event);
                 vsWindow.UI.closeSegment(element, false);
                 break;
-
+			// log translation options	
+			case logEventFactory.LOADING_TRANSLATION_OPTIONS:
+                //vsWindow.UI.getTranslationOptions(element);
+                break;
+            case logEventFactory.TRANSLATION_OPTIONS_LOADED:
+//debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
+//debug(event);
+                /*var d =  {  // pseudo return value
+                    data: {
+                        options: JSON.parse(event.options)
+                    }
+                };
+                vsWindow.UI.getTranslationOptionsSuccess(d, element, element, 0, element, , ); */
+                break; 
             case logEventFactory.LOADING_SUGGESTIONS:
                 vsWindow.UI.getContribution(element);
                 break;

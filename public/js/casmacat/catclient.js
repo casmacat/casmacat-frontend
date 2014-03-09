@@ -217,6 +217,13 @@
     *     source {String}
     *     sourceSegmentation {Array} Verified source segmentation
     *     elapsedTime {Number} ms
+	*	  options {Array} List of objects
+	*	  @setup options
+    *       phrase {String} Translation Option
+    *       start {Number} start of covered
+    *       end {Number} end of covered
+	*       full_cost {Number} full option cost
+	*       level {Number} level of option
     *     nbest {Array} List of objects
     *     @setup nbest
     *       target {String} Result
