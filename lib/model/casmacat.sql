@@ -17,9 +17,9 @@ CREATE TABLE `text_event` (
   `cursor_position` int(5) NOT NULL COMMENT 'Cursor position where the change occured',
   `deleted` text NOT NULL COMMENT 'Deleted text, if any',
   `inserted` text NOT NULL COMMENT 'Inserted text, if any',
-  `previous` varchar(500) NOT NULL 'Previous full target text',
-  `text` varchar(500) NOT NULL 'Full target text',
-  `edition` varchar(45) NOT NULL 'Type of edition',
+  `previous` varchar(500) NOT NULL COMMENT 'Previous full target text',
+  `text` varchar(500) NOT NULL COMMENT 'Full target text',
+  `edition` varchar(45) NOT NULL COMMENT 'Type of edition',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stores text changed events.';
 
