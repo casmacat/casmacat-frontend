@@ -586,6 +586,7 @@
             $(window).on("floatPrediction." + pluginName, floatPrediction);
             $(window).on("biconcor." + pluginName, biconcor);
             $(window).on("decodeResult." + pluginName, decodeResult);
+            $(window).on("translationOption." + pluginName, translationOption);
         }
 
         if (settings.logSearchAndReplace) {
@@ -1518,7 +1519,7 @@
         }
     };
     
-    // merc - adding float prediction, biconcordancer and decode result
+    // merc - adding float prediction, biconcordancer, decode result and translation option
     var floatPrediction = function(e, data) {
         debug(pluginName + ": FloatPrediction event: type: '" + e.type + "'.");
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FLOAT_PREDICTION, e.timeStamp, e.target, data));
@@ -1537,6 +1538,16 @@
     var decodeResult = function(e, data) {
         debug(pluginName + ": DecodeResult event: type: '" + e.type + "'.");
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.DECODE_RESULT, e.timeStamp, e.target, data.nbest));   
+    }
+    
+    var translationOption = function(e, data) {
+        debug(pluginName + ": translationOption event: type: '" + e.type + "'.");
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.TRANSLATION_OPTION, e.timeStamp, e.target, data));  
+        
+        textChanged({
+            target: e.target,
+            data: {edition: "translationOption"},
+        });   
     }
     
     // Just to now that everything has been parsed...
