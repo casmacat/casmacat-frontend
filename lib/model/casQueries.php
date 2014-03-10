@@ -207,12 +207,14 @@ function resetDocument($jobId, $fileId) {
             case LogEvent::SR_RULES_APPLIED:
             case LogEvent::SR_RULE_DELETED:
                 break;
-            // merc - adding floatPrediction, biconcordancer and decodeResult
+            // merc - adding floatPrediction, biconcordancer, decodeResult and translationOption
             case LogEvent::FLOAT_PREDICTION:
                 break;
             case LogEvent::BICONCOR:
                 break;
             case LogEvent::DECODE_RESULT:
+                break;
+            case LogEvent::TRANSLATION_OPTION:
                 break;
 
             default:
@@ -447,12 +449,14 @@ log::doLog($endOffset);
             case LogEvent::SR_RULES_APPLIED:
             case LogEvent::SR_RULE_DELETED:
                 break;
-            // merc - adding floatPrediction, biconcordancer and decodeResult
+            // merc - adding floatPrediction, biconcordancer, decodeResult and translationOption
             case LogEvent::FLOAT_PREDICTION:
                 break;
             case LogEvent::BICONCOR:
                 $eventRow = fetchEventRow($logEvent->id, "biconcor_event");
                 $logEvent->biconcorData($eventRow);
+                break;
+            case LogEvent::TRANSLATION_OPTION:
                 break;
 
             default:

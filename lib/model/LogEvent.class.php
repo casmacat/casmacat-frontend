@@ -69,10 +69,11 @@ class LogEvent {
     const SR_RULES_APPLIED = "srRulesApplied";
     const SR_RULE_DELETED = "srRuleDeleted";
     
-    // merc - adding floatprediction, biconcor and decode_result
+    // merc - adding floatprediction, biconcor, decodeResult and translationOption
     const FLOAT_PREDICTION = "floatPrediction";
     const BICONCOR = "biconcor";
     const DECODE_RESULT = "decodeResult";
+    const TRANSLATION_OPTION = "TranslationOption";
 
     public $id;
     public $jobId;

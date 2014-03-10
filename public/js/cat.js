@@ -2366,4 +2366,7 @@ function appendTranslationOption(option, targetId){
 	} catch(err){
 		console.log('No floating prediction in appendTranslationOption');
 	}
+        //trigger logging
+        console.log("translation option inserted: "+insText);
+        $target.trigger('translationOption', [insText]);
 }
