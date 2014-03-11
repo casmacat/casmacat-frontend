@@ -123,6 +123,8 @@ $(function(){
   var original_copySuggestionInEditarea = UI.copySuggestionInEditarea;
   var original_setTranslation = UI.setTranslation;
 
+  var pretranslatedSents = {};
+
   UI.openSegment = function(editarea) {
     original_openSegment.call(UI, editarea);
     // XXX: in ITP mode Matecat does not clear blockButtons
@@ -316,6 +318,7 @@ $(function(){
     else {
       //console.log("***ALREADY OPENED SEGMENT***", $target[0], trace())
     }
+    UI.pretranslateNextFewSentences();
   };
 
   UI.closeSegment = function(segment, bybutton) {
@@ -412,6 +415,28 @@ $(function(){
     if (status === 'translated') {
       getEditArea().editableItp('validate');
     }
+  };
+
+  UI.pretranslateNextFewSentences = function () {
+      try {
+          var NUM_PREFETCH = 3;
+          var itpServer = getEditArea().editableItp('itpServer');
+          var segElem = $(UI.currentSegment);
+          for (var i = 0; i < NUM_PREFETCH; i++) {
+              segElem = segElem.next('section');
+              var segElemId = segElem.attr('id');
+              if (!segElemId)
+                  break;
+              var segId = segElemId.split('-')[1];
+              var src = $("#segment-" + segId + "-source").text();
+              if (!pretranslatedSents.hasOwnProperty(src)) {
+                  itpServer.decode({source: src, segId:segId, isPreFetch:true});
+                  pretranslatedSents[src] = true;
+              }
+          }
+      } catch (e) {
+          console.log (['pretranslateNextFewSentences failed', e.toString(), e]);
+      }
   };
 
   if (!config.replay && config.debug) { // enable reset document button

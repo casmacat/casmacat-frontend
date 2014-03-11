@@ -22,7 +22,7 @@ var Memento = require("module.memento");
     if (typeof evt.which == "undefined") {
       return true;
     } else if (typeof evt.which == "number" && evt.which > 0) {
-      return evt.which == 32 || evt.which == 13 || evt.which > 46;
+      return evt.which == 46 || evt.which == 8 || evt.which == 32 || evt.which == 13 || evt.which > 46;
     }
     return false;
   };
@@ -182,7 +182,8 @@ var Memento = require("module.memento");
 
         // make sure new data still applies to current source
         if (data.source !== $source().editable('getText')) {
-          console.warn("Current source and received source do not match");
+          if (!data.isPreFetch)
+            console.warn("Current source and received source do not match");
           return;
         }
  
@@ -606,10 +607,10 @@ var Memento = require("module.memento");
               source = $this.editable('getText');
   
        
+          if (config.floatPredictions) {
+            self.vis.FloatingPrediction.setPredictedText (null);
+          }
           if (isPrintableChar(e)) {
-            if (config.floatPredictions) {
-              self.vis.FloatingPrediction.setPredictedText (null);
-            }
             throttle(function() {
               if (data.str !== source) {
                 var query = {
