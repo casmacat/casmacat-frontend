@@ -382,6 +382,11 @@
     // user's text caret
     self.FloatingPrediction = (function () {
       var NUM_WORDS_LOOKAHEAD = 3;
+      var visibility = {
+        havePixelCoord: false,
+        preconditionsMet: false,
+        haveText: false
+      };
 
       if (floatingPredItpVis)
         // there can only be one
@@ -428,12 +433,13 @@
 
       function adjustPosition () {
         var coord = getCaretPixelCoords();
-        if (coord && coord[0] && coord[1]) {
+        visibility.havePixelCoord = coord && coord[0] && coord[1];
+        if (visibility.havePixelCoord) {
           elFloatPred.style.top  = (coord[1]+20) + 'px';
           elFloatPred.style.left = (coord[0]+10) + 'px';
           showPredictedText();
         } else {
-          setVisible (false);
+          setVisible();
         }
       }
 
@@ -453,7 +459,11 @@
         return pos;
       }
 
-      function setVisible (visible) {
+      function setVisible () {
+        var visible = true;
+        for (var cond in visibility)
+          if (visibility.hasOwnProperty(cond) && !visibility[cond])
+            visible = false;
         elFloatPred.className =
             'floating-prediction'
             + (visible ? '' : ' floating-prediction-hidden');
@@ -466,14 +476,27 @@
 
       function showPredictedText () {
         if (!$target.editable('hasFocus')) {
-          setVisible (false);
+          visibility.preconditionsMet = false;
+          setVisible();
           return;
         }
         var txt = predictedText;
         var floatHtmlStr;
         if (txt) {
-          var boldStart = $target.editable('getCaretPos');
-          var predStart = skipBack (/^\S/, boldStart);
+          var caretPos = $target.editable('getCaretPos');
+          var userInput = $target.editable('getText');
+          if (userInput && (
+              userInput.length < caretPos
+              || txt.length < caretPos
+              || userInput.length >= txt.length
+              || userInput.substring(0,caretPos) != txt.substring(0,caretPos)
+              )) {
+            visibility.preconditionsMet = false;
+            setVisible();
+            return;
+          }
+          var boldStart = caretPos;
+          var predStart = skipBack (/^\S/, skip (/^\s/, boldStart));
           var boldEnd = skip (/^\S/, boldStart);
           var predEnd = predStart;
           // predStart = skip (/^\s/, predStart);
@@ -489,7 +512,9 @@
         if (floatHtmlStr) {
           elFloatPred.innerHTML = floatHtmlStr;
         }
-        setVisible (!!floatHtmlStr);
+        visibility.preconditionsMet = true;
+        visibility.haveText = !!floatHtmlStr;
+        setVisible();
       }
 
       function goToPos (pos) {
