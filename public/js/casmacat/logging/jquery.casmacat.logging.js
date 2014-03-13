@@ -1537,7 +1537,7 @@
     
     var decodeResult = function(e, data) {
         debug(pluginName + ": DecodeResult event: type: '" + e.type + "'.");
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.DECODE_RESULT, e.timeStamp, e.target, data.nbest));   
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.DECODE_RESULT, e.timeStamp, e.target, data.nbest, data.options));   
     }
     
     var translationOption = function(e, data) {

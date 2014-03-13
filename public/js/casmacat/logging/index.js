@@ -82,7 +82,7 @@ $(function() {
 //        });
 
         if (config.etEnabled) {
-            $('head').append("<link rel='stylesheet' href='" + config.basepath + "/public/css/et.css' type='text/css' />");
+            $('head').append("<link rel='stylesheet' href='" + config.basepath + "public/css/et.css' type='text/css' />");
         }
 
         $(window).logging({
@@ -124,7 +124,7 @@ $(function() {
 
         if (config.etEnabled) {
 //            $('head').append("<link rel='stylesheet' href='" + config.basepath + "/public/css/et.css' type='text/css' />");
-            $('head').append("<link rel='stylesheet' href='" + config.basepath + "/public/css/etReplay.css' type='text/css' />");
+            $('head').append("<link rel='stylesheet' href='" + config.basepath + "public/css/etReplay.css' type='text/css' />");
         }
 
         $.fn.hideOverlay();

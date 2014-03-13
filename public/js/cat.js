@@ -1303,7 +1303,7 @@ UI = {
 	renderTranslationOptions: function(d, segment, input, id_segment) {
 		console.log('renderTranslationOptions');
 		// add css file
-		$('head').append('<link rel="stylesheet" href="/public/css/options.css" type="text/css" />');
+		$('head').append('<link rel="stylesheet" href="'+config.basepath+'public/css/options.css" type="text/css" />');
 		
         var editarea = $('.editarea', segment);
 		var targetId = editarea.selector; 
@@ -1384,7 +1384,7 @@ UI = {
 								var colspan = parseInt(this['end']) - parseInt(this['start']) + 1;
 								
 								
-								var optionPhrase = this['phrase'].replace(/(\s)([;,.:!])/, '$2'); // remove unnecessary space before special chars 
+								var optionPhrase = this['phrase'].replace(/(\s)([;,.:!])/, '$2').replace('@-@','-'); // remove unnecessary space before special chars 
 								
 								appendOptional += '<td align=center nowrap ';
 								appendOptional += 'colspan=' + colspan;

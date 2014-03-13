@@ -228,7 +228,15 @@ LogEventFactory.prototype.newLogEvent = function(type, timeStamp, element) {
             break;
 
         case this.DECODE_RESULT:
-            logEvent.data = arguments[3][0].target;
+            console.log("Options: "+arguments[4]);
+            logEvent.data =
+                {
+                    "nbest": arguments[3][0].target,
+                    "options": arguments[4]
+                }           
+                    
+            //arguments[3][0].target;
+            //logEvent.options = arguments[4];
             break;
         case this.DECODE:    // data
         case this.ALIGNMENTS:    // data
