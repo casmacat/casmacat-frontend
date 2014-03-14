@@ -771,10 +771,14 @@ catch (e) {
                     charInfo.element = p[0];
                     charInfo.offset = $(p).getOffsetContenteditable(range);
                 }
-                else if ( ($(range.endContainer.parentNode).is(".editarea") || $(range.endContainer.parentNode).is(".source"))
+                else if ( (r.is(".editarea") || 
+                        r.is(".source") || 
+                        r.is(".floating-prediction"))
                         && config.itpEnabled ) {   // TODO
 //                    debug("$.fn.characterFromPoint: In text?...");
-                    charInfo.element = range.endContainer;
+                    if(r.is(".floating-prediction")) charInfo.element = $(range.endContainer).parents(".floating-prediction")[0];
+                    else if(r.is(".results"));
+                    else charInfo.element = range.endContainer;
                     charInfo.offset = $(range.endContainer.parentNode).getOffsetContenteditable(range);
                 }
                 else {
