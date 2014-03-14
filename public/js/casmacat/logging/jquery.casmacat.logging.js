@@ -355,7 +355,11 @@
 //                    debug(pluginName + ": Returning from 'bindToEvents()' because 'window' position is not yet calibrated...");
 //                    return false;
 //                }
-
+                if(!plugin.isConnected) { 
+                    alert("Eyetracker not connected!");
+                    debug("Eyetracker not connected!")
+                    return; 
+                }
                 $.fn.attachToETPluginEvent(plugin, "state", state);
                 $.fn.attachToETPluginEvent(plugin, "gaze", gaze);
                 $.fn.attachToETPluginEvent(plugin, "fixation", fixation);
@@ -363,12 +367,12 @@
                 plugin.setDeviceAndConnect(settings.etType);
 
                 if (!settings.etExternalControl) {
-                    while (!plugin.calibrate()) {
+                    while (!plugin.calibrate()) { //TODO: fix so cancel work when not having a eyetracker
                         var answer = confirm("Calibration failed, trying again?");
                         if (!answer) {
                             alert("Calibration failed, logging aborted!");
                             $.error("Calibration failed, logging aborted!");
-    //                        return;
+                            //return;
                         }
                     }
                 }
