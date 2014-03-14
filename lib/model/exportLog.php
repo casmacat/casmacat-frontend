@@ -140,7 +140,7 @@ else {
     //initial target
     $writer->startElement('initialTargetText');
         
-    if ($itp == 1 && $edi == 0) {
+    if ($itp == 1) {
         $queryId = $db->query("SELECT DISTINCT element_id, data FROM `log_event_header` l, itp_event i WHERE l.type = 'decode' AND l.job_id = ".$jobId." AND l.file_id = ".$fileId." AND i.header_id = l.id ORDER BY element_id");
         while ( ($row = $db->fetch($queryId)) != false ) {
             $json = $row["data"];
@@ -154,19 +154,7 @@ else {
             $writer->endElement();
         }
     }
-    if ($edi == 1) {
-        $queryId = $db->query("SELECT DISTINCT element_id, data FROM `log_event_header` l, itp_event i WHERE l.type = 'decodeResult' AND l.job_id = ".$jobId." AND l.file_id = ".$fileId." AND i.header_id = l.id ORDER BY element_id");
-        while ( ($row = $db->fetch($queryId)) != false ) {
-            $json = $row["data"];
-            $obj = json_decode($json);
-            $inisuggestion = $obj->{'nbest'};
-            $writer->startElement('segment');
-            list($segment, $id, $editarea) = explode("-",$row['element_id']);
-            $writer->writeAttribute('id', $id);
-            $writer->text($inisuggestion);  
-            $writer->endElement();
-        }
-    }
+
     if ($itp == 0) {
 	$queryId = $db->query("SELECT id_segment, suggestion FROM `segment_translations` st, `files_job` fj WHERE st.id_job = fj.id_job AND fj.id_job = ".$jobId." AND fj.id_file = ".$fileId." ORDER BY id_segment");
         $err = $db->get_error();

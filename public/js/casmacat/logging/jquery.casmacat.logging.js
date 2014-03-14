@@ -582,10 +582,9 @@
             $(window).on("mementoRedo." + pluginName, mementoCommon);
             $(window).on("mementoInvalidate." + pluginName, mementoCommon);
             
-            // merc - adding floatPrediction, biconcordander and decodeResult
+            // merc - adding floatPrediction, biconcordander and translationOption
             $(window).on("floatPrediction." + pluginName, floatPrediction);
             $(window).on("biconcor." + pluginName, biconcor);
-            $(window).on("decodeResult." + pluginName, decodeResult);
             $(window).on("translationOption." + pluginName, translationOption);
         }
 
@@ -1536,12 +1535,7 @@
         debug(pluginName + ": Biconcordancer event: type: '" + e.type + "'.");
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.BICONCOR, e.timeStamp, e.target, data));   
     }
-    
-    var decodeResult = function(e, data) {
-        debug(pluginName + ": DecodeResult event: type: '" + e.type + "'.");
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.DECODE_RESULT, e.timeStamp, e.target, data.nbest, data.options));   
-    }
-    
+        
     var translationOption = function(e, data) {
         debug(pluginName + ": translationOption event: type: '" + e.type + "'.");
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.TRANSLATION_OPTION, e.timeStamp, e.target, data));  

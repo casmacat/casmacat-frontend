@@ -160,8 +160,6 @@ class saveLogChunkController extends ajaxcontroller {
                         insertStatsUpdatedEvent($logEvent);
                         break;
                     
-                    // merc - adding decode result
-                    case LogEvent::DECODE_RESULT:
                     case LogEvent::DECODE:
                     case LogEvent::ALIGNMENTS:
                     case LogEvent::SUFFIX_CHANGE:
