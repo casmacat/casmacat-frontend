@@ -766,6 +766,7 @@ catch (e) {
             if (range !== null) {
 
                 var p = $(range.endContainer.parentNode).parents();
+                var r = $(range.endContainer).parents();
                 if (p.is(".editarea") || p.is(".source")) {
 //                    debug("$.fn.characterFromPoint: In token...");
                     charInfo.element = p[0];
