@@ -774,11 +774,12 @@ catch (e) {
                 }
                 else if ( (r.is(".editarea") || 
                         r.is(".source") || 
-                        r.is(".floating-prediction"))
+                        r.is(".floating-prediction") ||
+                        r.is("#options"))
                         && config.itpEnabled ) {   // TODO
 //                    debug("$.fn.characterFromPoint: In text?...");
                     if(r.is(".floating-prediction")) charInfo.element = $(range.endContainer).parents(".floating-prediction")[0];
-                    else if(r.is(".results"));
+                    else if(r.is("#options")) charInfo.element = range.endContainer.parentNode;
                     else charInfo.element = range.endContainer;
                     charInfo.offset = $(range.endContainer.parentNode).getOffsetContenteditable(range);
                 }
