@@ -24,6 +24,12 @@
     background-image: url(../img/casTarget.png);
 }
 
+.floating-prediction {
+    font-size: 15pt !important;
+    margin-top: 0.5em;
+    padding: 0.2em 0.4em;
+}
+
 /*#fixationTarget > text {
     text-indent: 10px;
 }*/

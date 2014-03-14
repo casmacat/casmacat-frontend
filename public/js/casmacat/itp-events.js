@@ -175,7 +175,6 @@ var Memento = require("module.memento");
       
       // Handle translation responses
       itp.on('decodeResult', function(data, err) {
-        $target.trigger('decodeResult', [data, err]);
         if (err.length > 0) {
           return
         }
