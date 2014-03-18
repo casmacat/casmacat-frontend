@@ -355,16 +355,17 @@
 //                    debug(pluginName + ": Returning from 'bindToEvents()' because 'window' position is not yet calibrated...");
 //                    return false;
 //                }
-                if(!plugin.isConnected) { 
-                    alert("Eyetracker not connected!");
-                    debug("Eyetracker not connected!")
-                    return; 
-                }
                 $.fn.attachToETPluginEvent(plugin, "state", state);
                 $.fn.attachToETPluginEvent(plugin, "gaze", gaze);
                 $.fn.attachToETPluginEvent(plugin, "fixation", fixation);
 
                 plugin.setDeviceAndConnect(settings.etType);
+                
+                //continue to translation screen but alert that the eyetracker is connected to casmacat
+                if(typeof plugin.state === 'undefined' && plugin.state !== 'Ready' && plugin.state !== 'Tracking' ) { 
+                    alert(plugin.state);
+                    debug(plugin.state);
+                    return;  }
 
                 if (!settings.etExternalControl) {
                     while (!plugin.calibrate()) { //TODO: fix so cancel work when not having a eyetracker
