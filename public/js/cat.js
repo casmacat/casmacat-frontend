@@ -1384,12 +1384,12 @@ UI = {
 								var colspan = parseInt(this['end']) - parseInt(this['start']) + 1;
 								
 								
-								var optionPhrase = this['phrase'].replace(/(\s)([;,.:!])/, '$2').replace('@-@','-'); // remove unnecessary space before special chars 
+								var optionPhrase = this['phrase'].replace(/(\s)([;,.:!?])/, '$2').replace('@-@','-'); // remove unnecessary space before special chars 
 								
 								appendOptional += '<td align=center nowrap ';
 								appendOptional += 'colspan=' + colspan;
-								appendOptional += ' class="option'+probability.toString()+'"><a id="'+this['end']+this['start']+this['level']+'-'+id_segment+'" onclick="appendTranslationOption(this,\''+targetId+'\')">'+ optionPhrase +'</a></td>';  
-								
+								//appendOptional += ' class="option'+probability.toString()+'"><a id="'+this['end']+this['start']+this['level']+'-'+id_segment+'" onclick="appendTranslationOption(this,\''+targetId+'\')">'+ optionPhrase +'</a></td>';  
+								appendOptional += ' class="option'+probability.toString()+'"><a id="options-'+this['end']+this['start']+this['level']+'-'+id_segment+'" onclick="appendTranslationOption(this,\''+targetId+'\')">'+ optionPhrase +'</a></td>';  
 								startPos = this['end']+1;
 							}
 						}
@@ -2330,7 +2330,7 @@ function tokenizer(sourceSegmentation, input){
 	return tokenizedSource;
 }
 
-function appendTranslationOption(option, targetId){
+function appendTranslationOption(option, target_segment){
 	console.log('append translation option');
 	var id = option.id;
 	try{
@@ -2341,7 +2341,7 @@ function appendTranslationOption(option, targetId){
 	}
 	
 	try{
-		var $target =  $(targetId);
+		var $target =  $(target_segment);
 		var pos = $target.editable('getCaretPos');
 		var oldText = $target.text();
 		
@@ -2352,21 +2352,46 @@ function appendTranslationOption(option, targetId){
 			newText += insText;
 		}
 		newText += ' ';
-		newText = newText.replace(/(\s)([;,).:!])/, '$2'); // remove unnecessary space before special chars 
+		newText = newText.replace(/(\s)([;,).:!?])/, '$2'); // remove unnecessary space before special chars 
 		
 		$target.editable('setText', newText);
+		
+		$target.focus();
+		var charCount = newText.length;
+		moveCaret(charCount);
 	} catch(err) {
 		console.log('unknown target in appendTranslationOption');
 	}
 	
 	// hide the floating prediction whenever the user pastes into the textbox by clicking
-	try{
-		var visibleFloat = document.getElementsByClassName('floating-prediction');
-		visibleFloat[0].setAttribute("class", "floating-prediction-hidden");
-	} catch(err){
-		console.log('No floating prediction in appendTranslationOption');
+	if (config.floatPredictions){
+		try{
+			var visibleFloat = document.getElementsByClassName('floating-prediction');
+			visibleFloat[0].setAttribute("class", "floating-prediction-hidden");
+		} catch(err){
+			console.log('No floating prediction in appendTranslationOption');
+		}
 	}
-        //trigger logging
-        console.log("translation option inserted: "+insText);
-        $target.trigger('translationOption', [insText]);
+	//trigger logging
+	console.log("translation option inserted: "+insText);
+	$target.trigger('translationOption', [insText]);
+}
+
+function moveCaret(charCount) {
+	console.log('moveCaret');
+    var sel, range;
+    if (window.getSelection) {
+        sel = window.getSelection();
+        if (sel.rangeCount > 0) {
+            var textNode = sel.focusNode;
+            var newOffset = sel.focusOffset + charCount;
+            sel.collapse(textNode, Math.min(textNode.length, newOffset));
+        }
+    } else if ( (sel = window.document.selection) ) {
+        if (sel.type != "Control") {
+            range = sel.createRange();
+            range.move("character", charCount);
+            range.select();
+        }
+    }
 }
