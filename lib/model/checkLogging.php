@@ -48,29 +48,17 @@ else {
     $row = $db->fetch($queryId);
     
     $src_lang = $row["source_language"];
+    $to_print = "";
+    $to_print = $to_print. "File name: ".$row["filename"]."\n";
+    $filename ="checkLogging_FileID".$fileId."_JobID".$jobId.".txt";
+    if (!file_exists(INIT::$LOG_DOWNLOAD) || !is_dir(INIT::$LOG_DOWNLOAD)) {
+        mkdir(INIT::$LOG_DOWNLOAD);
+    }
+    $file = INIT::$LOG_DOWNLOAD . "/" . $filename;
+    $to_print = $to_print. "File: ".$file."\n";
+    $fp = fopen($file, 'w');
 
-
-//    $filename ="log_id".$fileId."_".$row["filename"].".xml";
-//	
-//    if (!file_exists(INIT::$LOG_DOWNLOAD) || !is_dir(INIT::$LOG_DOWNLOAD)) {
-//        mkdir(INIT::$LOG_DOWNLOAD);
-//    }
-//    $file = INIT::$LOG_DOWNLOAD . "/" . $filename;
-    //print "File: ".$file."\n";
-	
-//    $writer = new XMLWriter(); 
-//    $writer->openURI($file);
-//    $writer->setIndent(true);
-//    $writer->startDocument('1.0', 'UTF-8');
-//    $writer->startElement('logfile'); 
-//    $writer->writeAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance'); 
-//    $writer->writeAttribute('xmlns:xsd', 'http://www.w3.org/2001/XMLSchema');              
-//    $writer->writeElement('version', 'CASMACAT3');
-//    $writer->writeElement('jobId', $jobId);         
-//    $writer->writeElement('username', 'test');        
-//    $writer->writeElement('fileId', $fileId);
-//    $writer->writeElement('documentName', $row["filename"]);
-     
+	    
     
     
     //Check if it is ITP
@@ -89,8 +77,6 @@ else {
         break;
     }
     
-//    $writer->startElement('Languages');
-//    $writer->writeAttribute('source', $src_lang);
 	
     // target language
     $queryId = $db->query("SELECT target FROM `files_job` fj, `jobs` j WHERE j.id = fj.id_job AND fj.id_file = ".$fileId." AND fj.id_job = ".$jobId);
@@ -101,34 +87,21 @@ else {
     }
     $row = $db->fetch($queryId);    
     
-    //Printing elements
-    print "fileId:".$fileId." jobId:".$jobId."\n";
-    print "Src_lang:".$src_lang." Trg_lang:".$row['target']."\n";
+    $to_print = $to_print. "fileId:".$fileId." jobId:".$jobId."\n";
+    $to_print = $to_print. "Src_lang:".$src_lang." Trg_lang:".$row['target']."\n";
+
     if ($itp == 1){
         if ($edi == 0){
-            print "ITP_VLC\n";
+            $to_print = $to_print. "ITP_VLC\n";
         }
         else{
-            print "ITP_EDI\n";
+            $to_print = $to_print. "ITP_EDI\n";
         }
     }
     else{
-        print "NO ITP\n";
+        $to_print = $to_print. "NO ITP\n";
     }
     
-//    $writer->writeAttribute('target', $row['target']);		
-//    $writer->writeAttribute('task', "post-editing");
-	
-//    if ($itp == 1){
-//        if ($edi == 0){
-//            $writer->writeAttribute('gui', "ITP_VLC");
-//        }
-//        else{
-//            $writer->writeAttribute('gui', "ITP_EDI");
-//        }
-//    }
-	
-//    $writer->endElement(); 
 	
     //Source text
     $queryId = $db->query("SELECT s.segment, s.id FROM `files_job` fj, `segments` s WHERE s.id_file = ".$fileId." AND fj.id_file = ".$fileId." AND fj.id_job = ".$jobId);
@@ -138,7 +111,6 @@ else {
         return $errno * -1;
     }
 
-//    $writer->startElement('sourceText');
 
     $logSegments = array();
     $row = null;
@@ -148,16 +120,10 @@ else {
         $countSrc = $countSrc + 1;; 
     //    print "id:".$row['id']." ".html_entity_decode($row['segment'], ENT_QUOTES, 'UTF-8')."\n";
     }
-    print "Source text: ".$countSrc." segments\n";
-//	$writer->startElement('segment');
-//        $writer->writeAttribute('id', $row['id']);
-//        $writer->text(html_entity_decode($row['segment'], ENT_QUOTES, 'UTF-8'));
-//        $writer->endElement();      
-//    }        
-//    $writer->endElement(); 
-//
+    $to_print = $to_print. "Source text: ".$countSrc." segments\n";
+
     //initial target
-//    $writer->startElement('initialTargetText');
+
     $countIni = 0;    
     if ($itp == 1) {
         $queryId = $db->query("SELECT DISTINCT element_id, data FROM `log_event_header` l, itp_event i WHERE l.type = 'decode' AND l.job_id = ".$jobId." AND l.file_id = ".$fileId." AND i.header_id = l.id ORDER BY element_id");
@@ -166,18 +132,14 @@ else {
             $obj = json_decode($json);
             $nbest = $obj->{'nbest'};
             $inisuggestion = $nbest[0]->target;
-//            $writer->startElement('segment');
             list($segment, $id, $editarea) = explode("-",$row['element_id']);
-//            $writer->writeAttribute('id', $id);
-//            $writer->text($inisuggestion);  
-//            $writer->endElement();
             $countIni = $countIni + 1;            
         }
         if ($countIni > 0) {
-            print "Initial suggestions: Yes\n";
+            $to_print = $to_print. "Initial suggestions: Yes\n";
         }
         else {
-            print "Initial suggestions: No\n";
+            $to_print = $to_print. "Initial suggestions: No\n";
         }
     }
 
@@ -191,24 +153,18 @@ else {
         }        
         $logSegments = array();
         $row = null;
-        while ( ($row = $db->fetch($queryId)) != false ) {              
-//            $writer->startElement('segment');
-//            $writer->writeAttribute('id', $row['id_segment']);
-//            $writer->text(html_entity_decode($row['suggestion']));
-//            $writer->endElement();  
+        while ( ($row = $db->fetch($queryId)) != false ) {               
              $countIni = $countIni + 1;  
         }            
         if ($countIni > 0) {
-            print "Initial suggestions: Yes\n";
+            $to_print = $to_print. "Initial suggestions: Yes\n";
         }
         else {
-            print "Initial suggestions: No\n";
+            $to_print = $to_print. "Initial suggestions: No\n";
         }
     }                 
-//    $writer->endElement();  
 
-    //target
-//    $writer->startElement('finalTargetText');        
+    //target       
     $queryId = $db->query("SELECT id_segment, translation FROM `segment_translations` st, `files_job` fj WHERE st.id_job = fj.id_job AND fj.id_job = ".$jobId." AND fj.id_file = ".$fileId." ORDER BY id_segment");
     $err = $db->get_error();
     $errno = $err["error_code"];
@@ -218,71 +174,24 @@ else {
     $logSegments = array();
     $row = null;
     $countTrans = 0;
-    while ( ($row = $db->fetch($queryId)) != false ) {
-//	$writer->startElement('segment');
-//        $writer->writeAttribute('id', $row['id_segment']);
-//        $writer->text(html_entity_decode($row['translation'], ENT_NOQUOTES, 'UTF-8'));  
-//        $writer->endElement();      
+    while ( ($row = $db->fetch($queryId)) != false ) {    
         $countTrans = $countTrans + 1;
     }      
     if ($countTrans > 0){
-        print "Final translations: ".$countTrans."\n"; 
+        $to_print = $to_print. "Final translations: ".$countTrans."\n"; 
     }
     else{
-        print "Final translations: No\n";
+        $to_print = $to_print. "Final translations: No\n";
     }
     
-//    $writer->endElement();   
-//
-//    
+ 
+//    -------------------------------------------------------------------------------------------------------------------------
     //events
         
     
-//    $writer->startElement('events');
-//  
-//   
-//    $writer->flush();
-//    
-//    //config_event 
-//    $q = "SELECT h.id as id, h.job_id as job_id, h.file_id as file_id, h.element_id as element_id, h.x_path as x_path, h.time as time, h.type as type, "
-//            . "c.config"
-//        . " FROM log_event_header h, config_event c WHERE h.job_id = '$jobId' AND h.file_id = '$fileId' AND h.id = c.header_id ORDER BY h.time, h.id ASC";
-//
-//    $queryId = $db->query($q); 
-//    
-//    $err = $db->get_error();
-//    $errno = $err["error_code"];
-//    if ($errno != 0) {
-//        log::doLog("CASMACAT: fetchLogChunk(): " . print_r($err, true));
-//        throw new Exception("CASMACAT: fetchLogChunk(): " . print_r($err, true));
-//
-//    }
-//       
-//     
-//    $configRow = null;
-//    $configEvents = array();
-//    while ( ($configRow = $db->fetch($queryId)) != false ) {
-//        
-//        $configRowAsObject = snakeToCamel($configRow);        
-//        //log::doLog("CASMACAT: fetchLogChunk(): Next headerRow: " . print_r($configRowAsObject, true));
-//
-//        $configEvent = new LogEvent($jobId, $fileId, $configRowAsObject);     
-//        $configEvent->configData($configRowAsObject);
-//        //log::doLog("CASMACAT: fetchLogChunk(): configEvent: " . print_r($configEvent,true));
-//        
-//        array_push($configEvents, $configEvent); 
-//    }
-//    
-//    if(!empty($configEvents))
-//    {
-//        //log::doLog("CASMACAT: configEvents: " . print_r($configEvents, true));
-//        $count_config = 0;
-//        $len_config = count($configEvents);
-//    }
-//    else $len_config = 0;
-//    
-//    
-//     //-------------------------------------------------------------------------------
+
+    
+     //-------------------------------------------------------------------------------
 //    
 //    //deleting_suggestion_event 
 //    $queryId = $db->query("SELECT h.id as id, h.job_id as job_id, h.file_id as file_id, h.element_id as element_id, h.x_path as x_path, h.time as time, h.type as type, "
@@ -351,11 +260,11 @@ else {
     {
         $countFixations = 0;
         $lenFixations = count($fixationEvents);
-        print "Fixations: ".$lenFixations."\n";
+        $to_print = $to_print. "Fixations: ".$lenFixations."\n";
     }
     else {
         $lenFixations = 0;
-        print "Fixations: No\n";
+        $to_print = $to_print. "Fixations: No\n";
     }
  
 //    //-------------------------------------------------------------------------------
@@ -654,11 +563,11 @@ else {
         //log::doLog("CASMACAT: srEvents: " . print_r($srEvents, true));
         $count_srs = 0;
         $len_srs = count($srEvents);
-        print "Search and replace events: ".$len_srs."\n";
+        $to_print = $to_print. "Search and replace events: ".$len_srs."\n";
     }
     else {
         $len_srs = 0;
-        print "Search and replace events: No\n";
+        $to_print = $to_print. "Search and replace events: No\n";
     }
   
     
@@ -818,11 +727,11 @@ else {
         //log::doLog("CASMACAT: textEvents: " . print_r($textEvents, true));
         $count_texts = 0;
         $len_texts = count($textEvents);
-        print "Text events: ".$len_texts."\n";
+        $to_print = $to_print. "Text events: ".$len_texts."\n";
     }
     else {
         $len_texts = 0;
-        print "Text events: No\n";
+        $to_print = $to_print. "Text events: No\n";
     }
     
 //    //-------------------------------------------------------------------------------------------
@@ -878,8 +787,63 @@ else {
 //        log::doLog("CASMACAT: fetchLogChunk(): " . print_r($err, true));
 //        throw new Exception("CASMACAT: fetchLogChunk(): " . print_r($err, true));
 //    }
+    
+    //------------------------------------------------------------------------------------------------
+ 
+     //config_event 
+    $to_print = $to_print. "Configuration:\n";
+    $q = "SELECT h.id as id, h.job_id as job_id, h.file_id as file_id, h.element_id as element_id, h.x_path as x_path, h.time as time, h.type as type, "
+            . "c.config"
+        . " FROM log_event_header h, config_event c WHERE h.job_id = '$jobId' AND h.file_id = '$fileId' AND h.id = c.header_id ORDER BY h.time, h.id ASC";
+
+    $queryId = $db->query($q); 
+    
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: fetchLogChunk(): " . print_r($err, true));
+        throw new Exception("CASMACAT: fetchLogChunk(): " . print_r($err, true));
+
+    }       
+     
+    $configRow = null;
+    $configEvents = array();
+    while ( ($configRow = $db->fetch($queryId)) != false ) {
+        
+        $configRowAsObject = snakeToCamel($configRow);        
+        //log::doLog("CASMACAT: fetchLogChunk(): Next headerRow: " . print_r($configRowAsObject, true));
+
+        $configEvent = new LogEvent($jobId, $fileId, $configRowAsObject);     
+        $configEvent->configData($configRowAsObject);
+        //log::doLog("CASMACAT: fetchLogChunk(): configEvent: " . print_r($configEvent,true));
+        
+        $configs = explode(",", $configEvent->config);
+        foreach ($configs as $c) {
+            $to_print = $to_print. "$c\n";
+        }
+        //$to_print = $to_print. $configEvent->config."\n";
+        array_push($configEvents, $configEvent); 
+    }
+    
+    if(!empty($configEvents))
+    {
+        //log::doLog("CASMACAT: configEvents: " . print_r($configEvents, true));
+        $count_config = 0;
+        $len_config = count($configEvents);
+        //print "configEvents: " . print_r($configEvents->config, true);
+    }
+    else {
+        $len_config = 0;
+        $to_print = $to_print. "Conf events: No\n";
+    }
+    
+    //-------------------------------------------------------------------------
+    
   
 //    ini_set('memory_limit', '128M');
+    fwrite($fp, $to_print);
+    fclose($fp);
+    print $to_print;
     print "END";
     return 0;
   

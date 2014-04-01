@@ -136,7 +136,7 @@
     ";
     $rResult = $db->query($sQuery);
 //    $rResult = mysql_query( $sQuery, $mysql_link );
-log::doLog($sQuery);
+//log::doLog($sQuery);
 //log::doLog(mysql_affected_rows());
     /* Data set length after filtering */
     
@@ -198,7 +198,7 @@ log::doLog($sQuery);
         $output['aaData'][] = $row;
     }
      
-    log::doLog($output);
+    //log::doLog($output);
     
 //    echo json_encode( $output );
 //    $this->result["code"] = 0;

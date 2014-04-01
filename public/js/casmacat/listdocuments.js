@@ -34,6 +34,7 @@
                     $('#startTranslation').attr('disabled', true);
                     $('#replay').attr('disabled', true);
                     $('#download').attr('disabled', true);
+                    $('#checkLogging').attr('disabled', true);
                     //$('#downloadForm input[id=download]').attr('disabled','disabled');
                     //$('#deleteDocForm input[id=deleteDoc]').attr('disabled','disabled');
                 }
@@ -55,6 +56,7 @@
                     $('#startTranslation').attr('disabled', false);
                     $('#replay').attr('disabled', false);
                     $('#download').attr('disabled', false);
+                    $('#checkLogging').attr('disabled', false);
                     //$('#downloadForm input[id=download]').attr('disabled',false);
                     //$('#deleteDocForm input[id=deleteDoc]').attr('disabled', false);
                 } }
@@ -91,6 +93,41 @@
                                                 
                         if (result.data && result.data === "OK") {
                             alert("Executing export log file");
+                        }
+                        else if (result.errors) {    
+                            alert("Server error");
+                        }
+                    },
+                    
+                    error: function(request, status, error) {
+
+                        alert("Error': '" + error + "'");
+                        
+                    }
+                 
+                });
+
+            }
+            
+            function checkLogging() {
+                var data = {
+                    action: "checkLogging",
+                    fileid: fileid,
+                    jobid: jobid,
+                   
+                };
+                $.ajax({
+                    url:config.basepath + 'index.php?action=checkLogging',
+                    data: data,
+                    type: "POST",
+                    dataType: "json",
+                    cache: false,
+                    
+                   
+                    success: function(result) {
+                                                
+                        if (result.data && result.data === "OK") {
+                            alert("Executing check logging");
                         }
                         else if (result.errors) {    
                             alert("Server error");
