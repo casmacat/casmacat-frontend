@@ -2,7 +2,7 @@
 
 
 if ($argc < 3) {
-    print("Usage: exportLog.php <fileId> <jobId>");
+    print("Usage: checkLogging.php <fileId> <jobId>");
 }
 else {
     if ($argc == 3) {
