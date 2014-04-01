@@ -234,6 +234,7 @@
     $(function () {
         elDialog = buildNode (
             'div', {
+                id: 'biconcor-dialog',
                 style: {
                     display: 'none',
                     maxHeight: '20em',
