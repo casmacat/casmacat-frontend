@@ -84,7 +84,11 @@ $(function() {
         if (config.etEnabled) {
             $('head').append("<link rel='stylesheet' href='" + config.basepath + "public/css/et.css' type='text/css' />");
         }
-
+        if(config.etType === 100 && config.etEnabled) { 
+            $("#edf").removeClass('disabled').click(saveEdf); 
+            $("#calibrate").removeClass('disabled').click(calibrate); 
+        }
+        
         $(window).logging({
             "fileId": config.file_id,
             "jobId": config.job_id,
@@ -126,6 +130,10 @@ $(function() {
 //            $('head').append("<link rel='stylesheet' href='" + config.basepath + "/public/css/et.css' type='text/css' />");
             $('head').append("<link rel='stylesheet' href='" + config.basepath + "public/css/etReplay.css' type='text/css' />");
         }
+        if(config.etType === 100 && config.etEnabled) { 
+            $("#edf").removeClass('disabled').click(saveEdf); 
+            $("#calibrate").removeClass('disabled').click(calibrate); 
+        }
 
         $.fn.hideOverlay();
     }
@@ -153,3 +161,8 @@ function calibrate() {
                 $.fn.getETPlugin().stop(); 
                 if($.fn.getETPlugin().calibrate() === true) $.fn.getETPlugin().start(); 
             }
+            
+function saveEdf(){
+    console.log("saving Edf file.");
+    return $.fn.getETPlugin().saveData();
+}

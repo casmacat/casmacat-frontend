@@ -1518,7 +1518,7 @@
             storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FIXATION, undefined, charInfo.element, trackerTime, rx, ry, duration,
                 charInfo.character, charInfo.offset, aboveChar.character, aboveChar.offset, belowChar.character, belowChar.offset)); //dan: added aboveChar.character, aboveChar.offset, belowChar.character, belowChar.offset
         
-        //    debug("id: " + charInfo.element.id + " - parent:" + charInfo.element.parentNode.className + " - element:" + charInfo.element + " tagName: " + charInfo.element.tagName); //TODO: check if floating-prediciton is logged
+           debug("id: " + charInfo.element.id + " - parent:" + charInfo.element.parentNode.className + " - element:" + charInfo.element + " tagName: " + charInfo.element.tagName); //TODO: check if floating-prediciton is logged
         }
         else {
             debug(pluginName + ": 'window' position is not valid, fixation discarded!");
