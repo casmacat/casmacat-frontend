@@ -668,7 +668,8 @@ var Memento = require("module.memento");
       // on keyup throttle a new translation
       .bind('keyup' + nsClass, function(e) {
         var conf = userCfg();
-        if (true) { // also update in PE to update tokenization and validated tokens || conf.mode != 'PE') {
+        // XXX: if (true) { // also update in PE to update tokenization and validated tokens || conf.mode != 'PE') {
+        if (conf.mode != 'PE') {
           var $this = $(this),
               data = $this.data('editable'),
               target = $this.editable('getText'),

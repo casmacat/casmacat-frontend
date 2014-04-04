@@ -39,7 +39,10 @@ $(function(){
     }
 
   if (config.catsetting) {
-    jQuery.extend(settings, require(config.basepath + '/' + config.catsetting));
+    var catsettingUrl = config.basepath + '/' + config.catsetting;
+    var customSettings = require(catsettingUrl);
+    jQuery.extend(settings, customSettings);
+    console.log('Loading configuration "' + catsettingUrl +'"', settings, customSettings);
   }
 
   function getEditArea() {
@@ -153,13 +156,20 @@ $(function(){
         if (config.itpEnabled) {
           if ($indicator.length === 0) {
             $indicator = $('<li/>').html('<a href="#" class="itp-btn itp-indicator">'+settings.itp.mode+'</a><p>ESC</p>');
-            $indicator.click(function(e){
-              e.preventDefault();
-              UI.toggleItp(e);
-            });
+            if ((settings.itp.hasOwnProperty('allowToggleMode') && !settings.itp.allowToggleMode)) {
+              $indicator.click(function(e){e.preventDefault();});
+              $indicator.css("opacity", 0.5);
+            }
+            else {
+              $indicator.click(function(e){
+                e.preventDefault();
+                UI.toggleItp(e);
+              });
+            }
             $('.buttons', UI.currentSegment).prepend($indicator);
           }
         }
+
         // A button to toggle e-pen mode
         $indicator = $('.buttons', UI.currentSegment).find('.pen-indicator');
         if (config.htrserver && config.penEnabled) {
@@ -216,6 +226,10 @@ $(function(){
 
             $(this).next().toggle("fast");
           });
+
+          if ((settings.itp.hasOwnProperty('allowChangeVisualizationOptions') && !settings.itp.allowChangeVisualizationOptions)) {
+            $indicator.css('display', 'none');
+          }
         }
       })
       .editableItp({

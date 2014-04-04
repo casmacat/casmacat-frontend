@@ -82,6 +82,8 @@
     e.preventDefault();
     var $ea = getEditArea(),
         currentMode = $ea.editableItp('getConfig').mode;
+     
+    if (!$ea.editableItp('getConfig').allowToggleMode) return
 
     if (currentMode == "manual") {
       return false;
