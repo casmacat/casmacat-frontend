@@ -55,7 +55,7 @@ else {
         mkdir(INIT::$LOG_DOWNLOAD);
     }
     $file = INIT::$LOG_DOWNLOAD . "/" . $filename;
-    $to_print = $to_print. "File: ".$file."\n";
+    //$to_print = $to_print. "File: ".$file."\n";
     $fp = fopen($file, 'w');
 
 	    
