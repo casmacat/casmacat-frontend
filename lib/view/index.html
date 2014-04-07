@@ -90,7 +90,7 @@
 
         <header>
             <div class="wrapper">
-                <a tal:attributes="class string:downloadtr-button ${job_stats/DOWNLOAD_STATUS}" onclick="calibrate()" href="javascript:void(0);">Re-calibrate</a>
+                
                 <a tal:attributes="class string:downloadtr-button ${job_stats/DOWNLOAD_STATUS}" href="${basepath}help" target="_blank">HELP</a>
                 
 
@@ -103,7 +103,12 @@
                     <input type="hidden" name="download_type" value="all" />
                     <input id="downloadProject" name="submit" type="submit" value="DOWNLOAD PROJECT" tal:attributes="class string:downloadtr-button  ${job_stats/DOWNLOAD_STATUS}" />
                 </form>
+                
+                <a tal:attributes="class string:downloadtr-button disabled ${job_stats/DOWNLOAD_STATUS}" id="edf">Download edf-file</a>
+                <a tal:attributes="class string:downloadtr-button disabled ${job_stats/DOWNLOAD_STATUS}" id="calibrate" >Re-calibrate</a>
+                
                 <a href="#" class="filter"> <span class="arrow-top "></span></a>
+                
 
 
                 <!-- viewer icons 

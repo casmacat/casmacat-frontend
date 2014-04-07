@@ -766,19 +766,25 @@ catch (e) {
             if (range !== null) {
 
                 var p = $(range.endContainer.parentNode).parents();
-                if (p.is(".editarea") || p.is(".source")) {
-//                    debug("$.fn.characterFromPoint: In token...");
-                    charInfo.element = p[0];
-                    charInfo.offset = $(p).getOffsetContenteditable(range);
+                var r = $(range.endContainer).parents();
+                if (r.is(".editarea") || r.is(".source")) {                    
+                    //debug("$.fn.characterFromPoint: In token...");
+                    charInfo.element = r[0];
+                    charInfo.offset = $(r).getOffsetContenteditable(range);
                 }
-                else if ( ($(range.endContainer.parentNode).is(".editarea") || $(range.endContainer.parentNode).is(".source"))
-                        && config.itpEnabled ) {   // TODO
-//                    debug("$.fn.characterFromPoint: In text?...");
-                    charInfo.element = range.endContainer;
+                else if ( (r.is(".editarea") || 
+                        r.is(".source") || 
+                        r.is(".floating-prediction") ||
+                        r.is("#options"))
+                        && config.itpEnabled ) {                     
+                    // debug("$.fn.characterFromPoint: In text?...");
+                    if(r.is(".floating-prediction")) charInfo.element = $(range.endContainer).parents(".floating-prediction")[0];
+                    //else /*if (r.is("#options"))*/ charInfo.element = range.endContainer.parentNode;
+                    else charInfo.element = range.endContainer;
                     charInfo.offset = $(range.endContainer.parentNode).getOffsetContenteditable(range);
                 }
                 else {
-//                    debug("$.fn.characterFromPoint: Elsewhere...");
+                    //debug("$.fn.characterFromPoint: Elsewhere...");
                     charInfo.element = range.endContainer;
                     charInfo.offset = range.startOffset;
                 }
@@ -789,8 +795,8 @@ catch (e) {
                 }
                 catch (eRight) {
                     try {
-                        var p = $(range.endContainer.parentNode).parents();
-                        if (p.is(".editarea") || p.is(".source")) {
+                        var r = $(range.endContainer.parentNode).parents();
+                        if (r.is(".editarea") || r.is(".source")) {
 //                            debug("$.fn.characterFromPoint: In token (ALT)...");
                             var textNodes = getTextNodesIn(range.endContainer.parentNode.parentNode, true); // TODO merge with code below
                             for (var i = 0; i < textNodes.length; i++) {

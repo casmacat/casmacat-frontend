@@ -355,20 +355,25 @@
 //                    debug(pluginName + ": Returning from 'bindToEvents()' because 'window' position is not yet calibrated...");
 //                    return false;
 //                }
-
                 $.fn.attachToETPluginEvent(plugin, "state", state);
                 $.fn.attachToETPluginEvent(plugin, "gaze", gaze);
                 $.fn.attachToETPluginEvent(plugin, "fixation", fixation);
 
                 plugin.setDeviceAndConnect(settings.etType);
+                
+                //continue to translation screen but alert that the eyetracker is connected to casmacat
+                if(typeof plugin.state === 'undefined' && plugin.state !== 'Ready' && plugin.state !== 'Tracking' ) { 
+                    alert(plugin.state);
+                    debug(plugin.state);
+                    return;  }
 
                 if (!settings.etExternalControl) {
-                    while (!plugin.calibrate()) {
+                    while (!plugin.calibrate()) { //TODO: fix so cancel work when not having a eyetracker
                         var answer = confirm("Calibration failed, trying again?");
                         if (!answer) {
                             alert("Calibration failed, logging aborted!");
                             $.error("Calibration failed, logging aborted!");
-    //                        return;
+                            //return;
                         }
                     }
                 }
@@ -582,10 +587,9 @@
             $(window).on("mementoRedo." + pluginName, mementoCommon);
             $(window).on("mementoInvalidate." + pluginName, mementoCommon);
             
-            // merc - adding floatPrediction, biconcordander and decodeResult
+            // merc - adding floatPrediction, biconcordander and translationOption
             $(window).on("floatPrediction." + pluginName, floatPrediction);
             $(window).on("biconcor." + pluginName, biconcor);
-            $(window).on("decodeResult." + pluginName, decodeResult);
             $(window).on("translationOption." + pluginName, translationOption);
         }
 
@@ -1513,6 +1517,8 @@
 //            debug(pluginName + ": char offset: '" + charInfo.offset + "', char: '" + charInfo.character + "'.");
             storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FIXATION, undefined, charInfo.element, trackerTime, rx, ry, duration,
                 charInfo.character, charInfo.offset, aboveChar.character, aboveChar.offset, belowChar.character, belowChar.offset)); //dan: added aboveChar.character, aboveChar.offset, belowChar.character, belowChar.offset
+        
+           debug("id: " + charInfo.element.id + " - parent:" + charInfo.element.parentNode.className + " - element:" + charInfo.element + " tagName: " + charInfo.element.tagName); //TODO: check if floating-prediciton is logged
         }
         else {
             debug(pluginName + ": 'window' position is not valid, fixation discarded!");
@@ -1534,12 +1540,7 @@
         debug(pluginName + ": Biconcordancer event: type: '" + e.type + "'.");
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.BICONCOR, e.timeStamp, e.target, data));   
     }
-    
-    var decodeResult = function(e, data) {
-        debug(pluginName + ": DecodeResult event: type: '" + e.type + "'.");
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.DECODE_RESULT, e.timeStamp, e.target, data.nbest));   
-    }
-    
+        
     var translationOption = function(e, data) {
         debug(pluginName + ": translationOption event: type: '" + e.type + "'.");
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.TRANSLATION_OPTION, e.timeStamp, e.target, data));  

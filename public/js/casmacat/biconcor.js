@@ -17,7 +17,6 @@
                     true // i.e. do print debug mesgs to console
                 );
                 client.connect (config.itpserver);
-                registerHandlers (client);
             }
             return client;
         };
@@ -41,6 +40,7 @@
             });
             $('.buttons', UI.currentSegment).prepend($indicator);
         }
+        registerHandlers (getClient());
     };
 
     // Button click handler
@@ -234,6 +234,7 @@
     $(function () {
         elDialog = buildNode (
             'div', {
+                id: 'biconcor-dialog',
                 style: {
                     display: 'none',
                     maxHeight: '20em',

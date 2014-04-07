@@ -75,10 +75,9 @@ var LogEventFactory = function(elementIdMode) {
     this.SR_RULES_APPLIED = "srRulesApplied";
     this.SR_RULE_DELETED = "srRuleDeleted";
     
-     // merc - adding floatPrediction, biconcordancer, decodeResult and translationOption
+     // merc - adding floatPrediction, biconcordancer and translationOption
     this.FLOAT_PREDICTION = "floatPrediction";
     this.BICONCOR = "biconcor";
-    this.DECODE_RESULT = "decodeResult";
     this.TRANSLATION_OPTION = "translationOption";
 };
 
@@ -139,11 +138,10 @@ LogEventFactory.prototype.newLogEvent = function(type, timeStamp, element) {
             logEvent.cp = arguments[3];
             logEvent.d = arguments[4];
             logEvent.i = arguments[5];
-            //logEvent.e = arguments[6];
             logEvent.p = arguments[6];
             logEvent.t = arguments[7];
             logEvent.e = arguments[8];
-            console.log("arguments: ", arguments);
+            //console.log("arguments: ", arguments);
             break;
         case this.SELECTION:    // range
             var range = arguments[3];
@@ -227,9 +225,6 @@ LogEventFactory.prototype.newLogEvent = function(type, timeStamp, element) {
             logEvent.stats = arguments[3];
             break;
 
-        case this.DECODE_RESULT:
-            logEvent.data = arguments[3][0].target;
-            break;
         case this.DECODE:    // data
         case this.ALIGNMENTS:    // data
         case this.SUFFIX_CHANGE:    // data
@@ -302,7 +297,7 @@ LogEventFactory.prototype.newLogEvent = function(type, timeStamp, element) {
         case this.SR_RULES_APPLIED:
         case this.SR_RULE_DELETED:
             break;
-        // merc - adding floatPrediction, biconcordancer, decodeResult and translationOption
+        // merc - adding floatPrediction, biconcordancer and translationOption
         case this.FLOAT_PREDICTION:
             break;
         case this.BICONCOR:

@@ -394,6 +394,7 @@
       floatingPredItpVis = self;
 
       var elFloatPred = document.createElement ('div');
+	  elFloatPred.id = 'el-float-pred';
       document.body.appendChild (elFloatPred);
 
       var predictedText = null;
