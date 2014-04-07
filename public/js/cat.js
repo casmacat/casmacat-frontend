@@ -1115,8 +1115,6 @@ UI = {
         this.getNextSegment(this.currentSegment,'untranslated');
         this.setCurrentSegment(segment);
 		
-		 
-		
         this.focusEditarea = setTimeout(function(){
             UI.editarea.focus();
             clearTimeout(UI.focusEditarea);
@@ -1138,6 +1136,8 @@ UI = {
             if(!(this.currentSegment.is(this.lastOpenedSegment))) this.closeSegment(this.lastOpenedSegment,0); // Luis: 1, but breaks buttons
 //        }
         // CASMACAT extension end
+
+		UI.blockButtons = false; // without this, buttons are blocked when translating FS
 
         this.opening = false;
         this.body.addClass('editing');
