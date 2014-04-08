@@ -228,7 +228,7 @@ $(function(){
           });
 
           if ((settings.itp.hasOwnProperty('allowChangeVisualizationOptions') && !settings.itp.allowChangeVisualizationOptions)) {
-            $indicator.css('display', 'none');
+            $indicator.hide();
           }
         }
       })
@@ -326,7 +326,9 @@ $(function(){
           })
       });
 
-      $('.text', UI.currentSegment).find('.vis-commands').show();
+      if ((!settings.itp.hasOwnProperty('allowChangeVisualizationOptions') || settings.itp.allowChangeVisualizationOptions)) {
+        $('.text', UI.currentSegment).find('.vis-commands').show();
+      }
       addSearchReplaceEvents();
     }
     else {
