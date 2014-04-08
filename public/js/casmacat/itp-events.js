@@ -689,27 +689,29 @@ var Memento = require("module.memento");
           }
           
           if (isPrintableChar(e)) {
-            throttle(function () {
-              if (data.str !== target) {
-                // Predict from last edited token onwards
-                $target.find('span').each(function(i, elem){
-                  // TODO
-                });
-                var query = {
-                  source: source,
-                  target: target,
-                  caretPos: pos,
-                  numResults: 1
-                }
-                var itpCfg = cfg(), itp = itpCfg.itpServer;
-                if (suffixHasUserCorrections.length === 0 && conf.mode != 'PE') {
-                  itp.setPrefix(query);
-                }
-                else {
-                  itp.getTokens(query);
+            throttle(function (predict) {
+              return function() {
+                if (data.str !== target) {
+                  // Predict from last edited token onwards
+                  $target.find('span').each(function(i, elem){
+                    // TODO
+                  });
+                  var query = {
+                    source: source,
+                    target: target,
+                    caretPos: pos,
+                    numResults: 1
+                  }
+                  var itpCfg = cfg(), itp = itpCfg.itpServer;
+                  if (predict) {
+                    itp.setPrefix(query);
+                  }
+                  else {
+                    itp.getTokens(query);
+                  }
                 }
               }
-            }, throttle_ms);
+            }(suffixHasUserCorrections.length === 0 && conf.mode != 'PE'), throttle_ms);
           }
         }
       });
