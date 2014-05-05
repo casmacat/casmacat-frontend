@@ -48,19 +48,23 @@
     },
 
     getTokenAtCaretPos: function(pos) {
-      var $this = $(this),
-          node = $this.get(0),
-          elem;
-
-      var walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, null, false)
-
-      // find HTML text element in cursor position
-      while (walker.nextNode()) {
-        elem = walker.currentNode;
-        if ((pos - elem.length) >= 0) pos -= elem.length;
-        else break;
+      var node = $(this), len = node.text().length, elem, pos;
+      if (pos < 0 || pos > len || len === 0) { // caret is out of the element
       }
+      else if (pos == len) { // caret at the end of the element
+        elem = node.get(0).lastChild;
+        pos = elem.length;
+      } 
+      else { // find the actual element
+        var walker = document.createTreeWalker(node.get(0), NodeFilter.SHOW_TEXT, null, false)
 
+        // find HTML text element in cursor position
+        while (walker.nextNode()) {
+          elem = walker.currentNode;
+          if ((pos - elem.length) >= 0) pos -= elem.length;
+          else break;
+        }
+      }
       return {elem: elem, pos: pos};
     },
 
@@ -224,7 +228,7 @@
           data = $this.data('editable'),
           node = $this.get(0);
 
-      var caretOffset = 0;
+      var caretOffset = -1;
       try {
         if (typeof window.getSelection != "undefined") {
           var range = window.getSelection().getRangeAt(0);
@@ -270,6 +274,10 @@
       }
  
       return { pos: absolutePos, token: token, caretRect: caretRect }
+    },
+
+    getTokenXY: function($token) {
+        return jQuery.extend({}, $token.get(0).getClientRects()[0]);
     },
 
     getTokenPos: function(token) { 
