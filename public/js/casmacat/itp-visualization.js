@@ -437,9 +437,9 @@
           elFloatPred.style.top  = (coord[1]+20) + 'px';
           elFloatPred.style.left = (coord[0]+10) + 'px';
           showPredictedText();
-        } else {
-          setVisible();
-        }
+        } /*else {    // this will hide the floating prediction the first time the segment opens
+			setVisible();
+        } */
       }
 
       function skip (regex, pos, txt) {
