@@ -372,8 +372,8 @@
                         var answer = confirm("Calibration failed, trying again?");
                         if (!answer) {
                             alert("Calibration failed, logging aborted!");
-                            $.error("Calibration failed, logging aborted!");
-                            //return;
+                            //$.error("Calibration failed, logging aborted!");
+                            return;
                         }
                     }
                 }

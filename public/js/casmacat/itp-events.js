@@ -50,8 +50,6 @@ var Memento = require("module.memento");
         });
       }
     };
-  
-  
  
     // Load modules --------------------------------------
     
@@ -194,9 +192,6 @@ var Memento = require("module.memento");
           // paste the decoded text into the box
           self.vis.updateSuggestions(data);
         }
-		
-        /*if (config.translationOptions){  
-		}*/
 		
         //var conf = userCfg();
         //if (conf.mode != 'PE') {
