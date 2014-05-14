@@ -16,7 +16,7 @@
                 client = new BiconcorClient (
                     true // i.e. do print debug mesgs to console
                 );
-                client.connect (config.itpserver);
+                client.connect (config.biconcorserver);
             }
             return client;
         };
