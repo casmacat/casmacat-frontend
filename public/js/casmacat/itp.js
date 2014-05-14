@@ -130,12 +130,9 @@ $(function(){
 
   UI.openSegment = function(editarea) {
     original_openSegment.call(UI, editarea);
-    // XXX: in ITP mode Matecat does not clear blockButtons
-    UI.blockButtons = false;
+
     var $target = $(editarea), sid = $target.data('sid'), $source = $("#segment-" + sid + "-source");
     if (!$target.data('itp')) {
-      //console.log("***OPEN SEGMENT***", $target[0], trace())
-
       $target.on('ready.matecat', function() {
         var $indicator;
         if (typeof(settings.itp) === 'undefined') {
@@ -146,9 +143,9 @@ $(function(){
           setupSearchReplace();
         }
 
-        if ($.trim($target.text()).length === 0 && settings.itp.mode != "manual") {
+        //if ($.trim($target.text()).length === 0 && settings.itp.mode != "manual") {
           $target.editableItp('decode');
-        }
+        //}
         $target.editableItp('startSession');
         $target.editableItp('updateConfig', settings.itp);
         // A button to toggle ITP mode
