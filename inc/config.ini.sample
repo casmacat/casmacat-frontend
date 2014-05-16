@@ -35,6 +35,7 @@ matchthreshold = 50
 [casmacat]
 itpserver = "my.cat.server:8080"
 htrserver = "my.htr.server:8080"
+biconcorserver = "my.biconcor.server:8080"
 itpenabled = 1 ; enable ITP
 penenabled = 0 ; enable e-pen interaction
 etenabled  = 1 ; enable eye tracking
