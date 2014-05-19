@@ -360,10 +360,12 @@
                 $.fn.attachToETPluginEvent(plugin, "fixation", fixation);
 
                 plugin.setDeviceAndConnect(settings.etType);
+                
+                var state = plugin.state
 
-                if (plugin.state === "No tracker available") {
-                  debug("Eyetracker not connected")
-                  alert("Eyetracker not connected");
+                if (state === "No tracker available" || state === "Not connected to tracker") {
+                  debug("state")
+                  alert("state");
                   config.etEnabled = false;
                   unbindFromEvents();
                   return;
