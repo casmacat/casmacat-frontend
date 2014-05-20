@@ -360,23 +360,16 @@
                 $.fn.attachToETPluginEvent(plugin, "fixation", fixation);
 
                 plugin.setDeviceAndConnect(settings.etType);
+                var pluginState = plugin.state;
                 
-                var state = plugin.state
-
-                if (state === "No tracker available" || state === "Not connected to tracker") {
-                  debug("state")
-                  alert("state");
+                //continue to translation screen but alert that the eyetracker is connected to casmacat
+                if (pluginState !== "Ready" && pluginState !== "Tracking" && pluginState !== 'Not calibrated' || typeof(pluginState) === 'undefined') {
+                  debug(pluginState);
+                  alert(pluginState);
                   config.etEnabled = false;
-                  unbindFromEvents();
                   return;
                 }
                 
-                //continue to translation screen but alert that the eyetracker is connected to casmacat
-                if(typeof plugin.state === 'undefined' && plugin.state !== 'Ready' && plugin.state !== 'Tracking' ) { 
-                    alert(plugin.state);
-                    debug(plugin.state);
-                    return;  }
-
                 if (!settings.etExternalControl) {
                     while (!plugin.calibrate()) { //TODO: fix so cancel work when not having a eyetracker
                         var answer = confirm("Calibration failed, trying again?");
