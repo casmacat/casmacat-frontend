@@ -81,14 +81,7 @@ $(function() {
 //            $(".graysmall li span").css("font-size", "20pt");
 //        });
 
-        if (config.etEnabled) {
-            $('head').append("<link rel='stylesheet' href='" + config.basepath + "public/css/et.css' type='text/css' />");
-        }
-        if(config.etType === 100 && config.etEnabled) { 
-            $("#edf").removeClass('disabled').click(saveEdf); 
-            $("#calibrate").removeClass('disabled').click(calibrate); 
-        }
-        
+       
         $(window).logging({
             "fileId": config.file_id,
             "jobId": config.job_id,
@@ -105,6 +98,14 @@ $(function() {
             "etExternalControl": false
         });
         $(window).logging("start");
+
+        if (config.etEnabled) {
+            $('head').append("<link rel='stylesheet' href='" + config.basepath + "public/css/et.css' type='text/css' />");
+        }
+        if(config.etType === 100 && config.etEnabled) { 
+            $("#edf").removeClass('disabled').click(saveEdf); 
+            $("#calibrate").removeClass('disabled').click(calibrate); 
+        }
 
         $.fn.hideOverlay();
     }

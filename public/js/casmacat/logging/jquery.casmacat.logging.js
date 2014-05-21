@@ -360,6 +360,14 @@
                 $.fn.attachToETPluginEvent(plugin, "fixation", fixation);
 
                 plugin.setDeviceAndConnect(settings.etType);
+
+                if (plugin.state === "No tracker available") {
+                  debug("Eyetracker not connected")
+                  alert("Eyetracker not connected");
+                  config.etEnabled = false;
+                  unbindFromEvents();
+                  return;
+                }
                 
                 //continue to translation screen but alert that the eyetracker is connected to casmacat
                 if(typeof plugin.state === 'undefined' && plugin.state !== 'Ready' && plugin.state !== 'Tracking' ) { 
@@ -372,8 +380,8 @@
                         var answer = confirm("Calibration failed, trying again?");
                         if (!answer) {
                             alert("Calibration failed, logging aborted!");
-                            $.error("Calibration failed, logging aborted!");
-                            //return;
+                            //$.error("Calibration failed, logging aborted!");
+                            return;
                         }
                     }
                 }
@@ -382,6 +390,7 @@
             }
             else {
                 settings.logEyeTracker = false;
+                config.etEnabled = false;
                 alert("Eye tracking plugin is not valid!");
                 debug(pluginName + ": Eye tracking plugin is not valid!");
 //                $.error("Eye tracking plugin is not valid");

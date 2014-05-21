@@ -42,6 +42,7 @@ class INIT {
     public static $LOG_MAXCHUNKSIZE;
     public static $ITP_SERVER;
     public static $HTR_SERVER;
+    public static $BICONCOR_SERVER;
     public static $ITP_ENABLED;
     public static $PEN_ENABLED;
     public static $ET_ENABLED;
@@ -102,6 +103,7 @@ class INIT {
         // Casmacat customizations
         self::$ITP_SERVER  = self::getConfig('itpserver');
         self::$HTR_SERVER  = self::getConfig('htrserver');
+        self::$BICONCOR_SERVER  = self::getConfig('biconcorserver');
         self::$ITP_ENABLED = self::getConfigBool('itpenabled');
         self::$PEN_ENABLED = self::getConfigBool('penenabled');
         self::$ET_ENABLED  = self::getConfigBool('etenabled');
