@@ -34,7 +34,7 @@ $(function(){
 
 
   var settings = {
-      itp: undefined,
+      itp: {},
       visualization: config.prefs
     }
 
@@ -135,7 +135,7 @@ $(function(){
     if (!$target.data('itp')) {
       $target.on('ready.matecat', function() {
         var $indicator;
-        if (typeof(settings.itp) === 'undefined') {
+        if (typeof(settings.itp) === 'undefined' || $.isEmptyObject(settings.itp)) {
           settings.itp = $target.editableItp('getConfig');
         }
         // enable S&R if server supports it and configuration is set 
