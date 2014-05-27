@@ -72,6 +72,7 @@ class LogEvent {
     // merc - adding floatprediction, biconcor and translationOption
     const FLOAT_PREDICTION = "floatPrediction";
     const BICONCOR = "biconcor";
+    const BICONCOR_CLOSED = "biconcorClosed";
     const TRANSLATION_OPTION = "TranslationOption";
     
     // merc - adding e-pen

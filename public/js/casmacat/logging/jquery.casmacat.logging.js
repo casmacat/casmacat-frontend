@@ -595,6 +595,7 @@
             // merc - adding floatPrediction, biconcordander and translationOption
             $(window).on("floatPrediction." + pluginName, floatPrediction);
             $(window).on("biconcor." + pluginName, biconcor);
+            $(window).on("biconcorClosed." + pluginName, biconcorClosed);
             $(window).on("translationOption." + pluginName, translationOption);
         }
 
@@ -1550,6 +1551,11 @@
         debug(pluginName + ": Biconcordancer event: type: '" + e.type + "'.");
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.BICONCOR, e.timeStamp, e.target, data));   
     }
+    
+    var biconcorClosed = function(e, data) {
+        debug(pluginName + ": event type: '" + e.type + "'.");
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.BICONCOR_CLOSED, e.timeStamp, e.target, data));   
+    }
         
     var translationOption = function(e, data) {
         debug(pluginName + ": translationOption event: type: '" + e.type + "'.");
@@ -1576,13 +1582,11 @@
     
     $(window).blur(function(e, data){
         debug(pluginName + ": event type: '" + e.type + "'.");
-        console.log(e);
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.BLUR, e.timeStamp, e.target, data)); 
     });
     
     $(window).focus(function(e, data){
         debug(pluginName + ": event type: '" + e.type + "'.");
-        console.log(e);
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FOCUS, e.timeStamp, e.target, data)); 
 //        $(window).trigger("blur", [value, $target]);
         

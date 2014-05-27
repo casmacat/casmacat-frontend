@@ -212,6 +212,8 @@ function resetDocument($jobId, $fileId) {
                 break;
             case LogEvent::BICONCOR:
                 break;
+            case LogEvent::BICONCOR_CLOSED:
+                break;
             case LogEvent::TRANSLATION_OPTION:
                 break;
             // merc - adding epen
@@ -221,10 +223,8 @@ function resetDocument($jobId, $fileId) {
                 break;
             // merc - blur/focus
             case LogEvent::BLUR:
-                log::doLog("BLURRR");
                 break;
             case LogEvent::FOCUS:
-                log::doLog("FOCUSSSS");
                 break;
 
             default:
@@ -464,6 +464,8 @@ log::doLog($endOffset);
             case LogEvent::BICONCOR:
                 $eventRow = fetchEventRow($logEvent->id, "biconcor_event");
                 $logEvent->biconcorData($eventRow);
+                break;
+            case LogEvent::BICONCOR_CLOSED:
                 break;
             case LogEvent::TRANSLATION_OPTION:
                 break;

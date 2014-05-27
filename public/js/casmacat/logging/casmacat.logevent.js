@@ -78,6 +78,7 @@ var LogEventFactory = function(elementIdMode) {
      // merc - adding floatPrediction, biconcordancer and translationOption
     this.FLOAT_PREDICTION = "floatPrediction";
     this.BICONCOR = "biconcor";
+    this.BICONCOR_CLOSED = "biconcorClosed";
     this.TRANSLATION_OPTION = "translationOption";
     
     // merc - adding e-pen
@@ -312,6 +313,8 @@ LogEventFactory.prototype.newLogEvent = function(type, timeStamp, element) {
             logEvent.word = arguments[3].srcPhrase; 
             logEvent.info = arguments[3].concorStruct;        
             break;
+        case this.BICONCOR_CLOSED:
+            break;
         case this.TRANSLATION_OPTION:      
             break;
         // merc - adding e-pen
@@ -330,7 +333,7 @@ LogEventFactory.prototype.newLogEvent = function(type, timeStamp, element) {
             break;
 
         default:
-            alert("Unknown event type: '" + $(element).getAbsoluteXPath() + "'!");
+            console.log("Unknown event type: '" + $(element).getAbsoluteXPath() + "'!");
             $.error("Unknown event type: '" + $(element).getAbsoluteXPath() + "'");
     }
 

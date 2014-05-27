@@ -240,6 +240,9 @@ class saveLogChunkController extends ajaxcontroller {
                         $logEvent->biconcorData($value);
                         insertBiconcorEvent($logEvent);
                         break;
+                    case LogEvent::BICONCOR_CLOSED:
+                        insertLogEventHeader($logEvent);
+                        break;
                     case LogEvent::TRANSLATION_OPTION:
                         insertLogEventHeader($logEvent);
                         break;
