@@ -79,6 +79,14 @@ var LogEventFactory = function(elementIdMode) {
     this.FLOAT_PREDICTION = "floatPrediction";
     this.BICONCOR = "biconcor";
     this.TRANSLATION_OPTION = "translationOption";
+    
+    // merc - adding e-pen
+    this.EPEN_OPENED = "epenOpened";
+    this.EPEN_CLOSED = "epenClosed";
+//    this.GESTURE = "gesture";
+    // merc - blur/focus
+    this.BLUR = "blur";
+    this.FOCUS = "focus";
 };
 
 /**
@@ -305,6 +313,20 @@ LogEventFactory.prototype.newLogEvent = function(type, timeStamp, element) {
             logEvent.info = arguments[3].concorStruct;        
             break;
         case this.TRANSLATION_OPTION:      
+            break;
+        // merc - adding e-pen
+        case this.EPEN_OPENED:
+            break;
+        case this.EPEN_CLOSED:
+            break;
+//        case this.GESTURE:
+//            console.log("TEST: "+arguments[3]);
+//            logEvent.info = arguments[3];  
+//            break;
+        // merc - blur/focus
+        case this.BLUR:
+            break;
+        case this.FOCUS:
             break;
 
         default:

@@ -73,6 +73,14 @@ class LogEvent {
     const FLOAT_PREDICTION = "floatPrediction";
     const BICONCOR = "biconcor";
     const TRANSLATION_OPTION = "TranslationOption";
+    
+    // merc - adding e-pen
+//    const GESTURE = "gesture";
+    const EPEN_OPENED = "epenOpened";
+    const EPEN_CLOSED = "epenClosed";
+    // merc - blur/focus
+    const BLUR = "blur";
+    const FOCUS = "focus";
 
     public $id;
     public $jobId;
@@ -254,6 +262,12 @@ class LogEvent {
     // merc - adding biconcor
     public function biconcorData($object) {
         $this->word = $object->word;
+        $this->info = $object->info;
+    }
+    
+    // merc - adding epen
+    public function epenData($object) {
+        log::doLog("TEST3: ".print_r($object,true));
         $this->info = $object->info;
     }
     

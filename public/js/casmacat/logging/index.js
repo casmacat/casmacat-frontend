@@ -1,5 +1,5 @@
 $(function() {
-
+    
   $.fn.showOverlay();
 
   $(window).on("articleloaded", function () {
@@ -95,7 +95,8 @@ $(function() {
             "logSearchAndReplace": config.srEnabled,    // when ET enabled, set this to true, set to false otherwise
             "etDiscardInvalid": false,       // do not discard gaze samples/fixations outside of tracker area
             "etType": config.etType,
-            "etExternalControl": false
+            "etExternalControl": false,
+            "logEpen": config.penenabled
         });
         $(window).logging("start");
 

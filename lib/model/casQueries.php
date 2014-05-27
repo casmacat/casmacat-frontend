@@ -214,6 +214,18 @@ function resetDocument($jobId, $fileId) {
                 break;
             case LogEvent::TRANSLATION_OPTION:
                 break;
+            // merc - adding epen
+            case LogEvent::EPEN_OPENED:
+                break;
+            case LogEvent::EPEN_CLOSED:
+                break;
+            // merc - blur/focus
+            case LogEvent::BLUR:
+                log::doLog("BLURRR");
+                break;
+            case LogEvent::FOCUS:
+                log::doLog("FOCUSSSS");
+                break;
 
             default:
                 log::doLog("CASMACAT: resetDocument(): Unknown log event type: '$logEvent->type', header id: '$logEvent->id'");
@@ -454,6 +466,20 @@ log::doLog($endOffset);
                 $logEvent->biconcorData($eventRow);
                 break;
             case LogEvent::TRANSLATION_OPTION:
+                break;
+            // merc - adding epen
+            case LogEvent::EPEN_OPENED:
+                break;
+            case LogEvent::EPEN_CLOSED:
+                break;
+//            case LogEvent::GESTURE:
+//                $eventRow = fetchEventRow($logEvent->id, "epen_event");
+//                $logEvent->epenData($eventRow);
+//                break;
+            // merc - blur/focus
+            case LogEvent::BLUR:
+                break;
+            case LogEvent::FOCUS:
                 break;
 
             default:
@@ -995,6 +1021,29 @@ function insertSrEvent($event) {
     if ($errno != 0) {
         log::doLog("CASMACAT: insertBiconcorEvent(): " . print_r($err, true));
         throw new Exception("CASMACAT: insertBiconcorEvent(): " . print_r($err, true));
+//        return $errno * -1;
+    }
+}
+
+//  merc - adding epen insertion
+  function insertEpenEvent($event) {
+    $headerId = insertLogEventHeader($event);
+
+    $data = array();
+    $data["id"] = "NULL";
+    $data["header_id"] = $headerId;
+    log::doLog("TEST: ".print_r($data, true));
+    log::doLog("TEST2: ".print_r($data["info"], true));
+    $data["info"] = json_encode($event->info);
+
+    $db = Database::obtain();
+    $db->insert("epen_event", $data);
+
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: insertEpenEvent(): " . print_r($err, true));
+        throw new Exception("CASMACAT: insertEpenEvent(): " . print_r($err, true));
 //        return $errno * -1;
     }
 }

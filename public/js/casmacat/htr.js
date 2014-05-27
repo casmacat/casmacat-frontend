@@ -290,6 +290,7 @@
           events: {
           
             mouseDown: function(e) {
+              console.log("helloooo");
               e.stopPropagation();
               clearTimeout(decoderTimer);
               clearTimeout(doubleClickTimer);
@@ -306,6 +307,8 @@
 
                 gesture = gestureRecognizer.recognize(strokes);
                 console.log("GESTURE", gesture);
+                //merc - trigger epen logging
+//                $('.buttons', UI.currentSegment).trigger("gesture", [gesture]);
                 // first HTR stroke
                 if (!gesture || typeof(insert_after_token) !== 'undefined') {
                   var centroid = getAbsoluteXY(MathLib.centroid(strokes[0].slice(0, 20)));
@@ -519,6 +522,8 @@
     $source.toggleClass("epen-source", animMs, function(){}, value);
     $target.toggleClass("epen-target", animMs, function(){
       var $canvas = $targetParent.find('canvas'), $clearBtn = $('.buttons', UI.currentSegment).find('.pen-clear-indicator');
+      //merc - trigger logging
+      $('.buttons', UI.currentSegment).trigger("epen", [value, $target]);
       // Create canvas on top
       if ($canvas.length === 0) {
         var geom = require('geometry-utils'),
