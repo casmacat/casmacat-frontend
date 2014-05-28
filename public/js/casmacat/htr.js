@@ -290,7 +290,6 @@
           events: {
           
             mouseDown: function(e) {
-              console.log("helloooo");
               e.stopPropagation();
               clearTimeout(decoderTimer);
               clearTimeout(doubleClickTimer);
@@ -308,7 +307,7 @@
                 gesture = gestureRecognizer.recognize(strokes);
                 console.log("GESTURE", gesture);
                 //merc - trigger epen logging
-//                $('.buttons', UI.currentSegment).trigger("gesture", [gesture]);
+                $target.trigger("gesture", [gesture]);
                 // first HTR stroke
                 if (!gesture || typeof(insert_after_token) !== 'undefined') {
                   var centroid = getAbsoluteXY(MathLib.centroid(strokes[0].slice(0, 20)));
@@ -388,6 +387,8 @@
       casmacatHtr.on('endSessionResult', function(data, errors) {
         console.log('recognized', data);
         update_htr_suggestions(data, true);
+        //merc - saving nbest in logging
+        $target.trigger('recogEpen', [data, $target]);
         //$('#btn-clear').trigger('click');
         if (insertion_token && insertion_token.text().length === 0) {
           insertion_token.remove();
@@ -420,7 +421,9 @@
         //$replaced = $target.editable('replaceText', result.test, result.textSegmentation, $replaced, false && is_final);
  
         var cursorPos = $target.editable('getTokenPos', $nextToken);
-        $target.editableItp('setPrefix', cursorPos)
+        $target.editableItp('setPrefix', cursorPos);
+        // merc - adding updating to logging
+        $target.trigger('updateEpen', [result.text, $target]);
         console.log('update at', cursorPos, $nextToken);
       }
 

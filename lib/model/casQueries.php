@@ -221,6 +221,12 @@ function resetDocument($jobId, $fileId) {
                 break;
             case LogEvent::EPEN_CLOSED:
                 break;
+            case LogEvent::RECOG_EPEN:
+                break;
+            case LogEvent::UPDATE_EPEN:
+                break;
+            case LogEvent::GESTURE:
+                break;
             // merc - blur/focus
             case LogEvent::BLUR:
                 break;
@@ -474,10 +480,18 @@ log::doLog($endOffset);
                 break;
             case LogEvent::EPEN_CLOSED:
                 break;
-//            case LogEvent::GESTURE:
-//                $eventRow = fetchEventRow($logEvent->id, "epen_event");
-//                $logEvent->epenData($eventRow);
-//                break;
+            case LogEvent::RECOG_EPEN:
+                $eventRow = fetchEventRow($logEvent->id, "epen_event");
+                $logEvent->epenData($eventRow);
+                break;
+            case LogEvent::UPDATE_EPEN:
+                $eventRow = fetchEventRow($logEvent->id, "epen_event");
+                $logEvent->epenData($eventRow);
+                break;
+            case LogEvent::GESTURE:
+                $eventRow = fetchEventRow($logEvent->id, "epen_event");
+                $logEvent->epenData($eventRow);
+                break;
             // merc - blur/focus
             case LogEvent::BLUR:
                 break;
@@ -914,7 +928,7 @@ function insertTextEvent($event) {
     $data["previous"] = $event->previous;
     $data["text"] = $event->text;
     $data["edition"] = $event->edition;
-    log::doLog("CASMACAT: insertTextEvent(): " . print_r($data, true));
+    //log::doLog("CASMACAT: insertTextEvent(): " . print_r($data, true));
     
     $db = Database::obtain();
     $db->insert("text_event", $data);
@@ -1034,8 +1048,6 @@ function insertSrEvent($event) {
     $data = array();
     $data["id"] = "NULL";
     $data["header_id"] = $headerId;
-    log::doLog("TEST: ".print_r($data, true));
-    log::doLog("TEST2: ".print_r($data["info"], true));
     $data["info"] = json_encode($event->info);
 
     $db = Database::obtain();

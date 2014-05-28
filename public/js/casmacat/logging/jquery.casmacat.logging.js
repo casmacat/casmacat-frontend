@@ -618,7 +618,9 @@
         // merc- adding epen logging
         if (settings.logEpen) {
             $(window).on("epen." + pluginName, epen);
-//            $(window).on("gesture." + pluginName, gesture);
+            $(window).on("recogEpen." + pluginName, recogEpen);
+            $(window).on("updateEpen." + pluginName, updateEpen);
+            $(window).on("gesture." + pluginName, gesture);
         }
 
         $(window).on("statsUpdated." + pluginName, statsUpdated);
@@ -1569,7 +1571,6 @@
     // merc - adding epen
     var epen = function(e, data) {
         debug(pluginName + ": epen event: type: '" + e.type + "'.");
-        //console.log("TESTING: ",settings.visualization.epenEnabled);
         if (data === true){
             console.log("epenOpened");
             storeLogEvent(logEventFactory.newLogEvent(logEventFactory.EPEN_OPENED, e.timeStamp, e.target, data)); 
@@ -1580,6 +1581,25 @@
         }
     };
     
+    var recogEpen = function(e, data) {
+        debug(pluginName + ": event type: '" + e.type + "'.");
+        if (data !== null){
+            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.RECOG_EPEN, e.timeStamp, e.target, data.nbest));
+        }
+    };
+    
+    var updateEpen = function(e, token) {
+        debug(pluginName + ": event type: '" + e.type + "'.");
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.UPDATE_EPEN, e.timeStamp, e.target, token));
+    };
+    
+    var gesture = function(e, gesture) {
+        debug(pluginName + ": gesture event: type: '" + e.type + "'.");
+        if (gesture !== null){
+            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.GESTURE, e.timeStamp, e.target, gesture)); 
+        }
+    };
+    
     $(window).blur(function(e, data){
         debug(pluginName + ": event type: '" + e.type + "'.");
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.BLUR, e.timeStamp, e.target, data)); 
@@ -1587,16 +1607,9 @@
     
     $(window).focus(function(e, data){
         debug(pluginName + ": event type: '" + e.type + "'.");
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FOCUS, e.timeStamp, e.target, data)); 
-//        $(window).trigger("blur", [value, $target]);
-        
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FOCUS, e.timeStamp, e.target, data));        
     });
-    
-//    var gesture = function(e, data) {
-//        debug(pluginName + ": gesture event: type: '" + e.type + "'.");
-//        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.GESTURE, e.timeStamp, e.target, data)); 
-//    };
-    
+        
     // Just to now that everything has been parsed...
     debug(pluginName + ": Plugin codebase loaded.");
 

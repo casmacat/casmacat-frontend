@@ -177,6 +177,13 @@ CREATE TABLE IF NOT EXISTS `biconcor_event` (
   KEY `header_id` (`header_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=28 ;
 
+CREATE TABLE IF NOT EXISTS `epen_event` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `header_id` int(11) NOT NULL,
+  `info` text NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=8 ;
+
 ALTER TABLE config_event ADD FOREIGN KEY (header_id) REFERENCES log_event_header(id) ON UPDATE CASCADE ON DELETE CASCADE;
 ALTER TABLE deleting_suggestion_event ADD FOREIGN KEY (header_id) REFERENCES log_event_header(id) ON UPDATE CASCADE ON DELETE CASCADE;
 ALTER TABLE fixation_event ADD FOREIGN KEY (header_id) REFERENCES log_event_header(id) ON UPDATE CASCADE ON DELETE CASCADE;

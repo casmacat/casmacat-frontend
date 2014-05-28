@@ -76,9 +76,11 @@ class LogEvent {
     const TRANSLATION_OPTION = "TranslationOption";
     
     // merc - adding e-pen
-//    const GESTURE = "gesture";
     const EPEN_OPENED = "epenOpened";
     const EPEN_CLOSED = "epenClosed";
+    const RECOG_EPEN = "recogEpen";
+    const UPDATE_EPEN = "updateEpen";
+    const GESTURE = "gesture";
     // merc - blur/focus
     const BLUR = "blur";
     const FOCUS = "focus";
@@ -268,7 +270,6 @@ class LogEvent {
     
     // merc - adding epen
     public function epenData($object) {
-        log::doLog("TEST3: ".print_r($object,true));
         $this->info = $object->info;
     }
     

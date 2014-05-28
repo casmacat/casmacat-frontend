@@ -84,7 +84,9 @@ var LogEventFactory = function(elementIdMode) {
     // merc - adding e-pen
     this.EPEN_OPENED = "epenOpened";
     this.EPEN_CLOSED = "epenClosed";
-//    this.GESTURE = "gesture";
+    this.RECOG_EPEN = "recogEpen";
+    this.UPDATE_EPEN = "updateEpen";
+    this.GESTURE = "gesture";
     // merc - blur/focus
     this.BLUR = "blur";
     this.FOCUS = "focus";
@@ -322,10 +324,15 @@ LogEventFactory.prototype.newLogEvent = function(type, timeStamp, element) {
             break;
         case this.EPEN_CLOSED:
             break;
-//        case this.GESTURE:
-//            console.log("TEST: "+arguments[3]);
-//            logEvent.info = arguments[3];  
-//            break;
+        case this.RECOG_EPEN:
+            logEvent.info = arguments[3]; 
+            break;
+        case this.UPDATE_EPEN:
+            logEvent.info = arguments[3]; 
+            break;
+        case this.GESTURE:
+            logEvent.info = arguments[3];  
+            break;
         // merc - blur/focus
         case this.BLUR:
             break;

@@ -253,9 +253,18 @@ class saveLogChunkController extends ajaxcontroller {
                     case LogEvent::EPEN_CLOSED:
                         insertLogEventHeader($logEvent);
                         break;
-//                    case LogEvent::GESTURE:
-//                        insertEpenEvent($logEvent);
-//                        break;
+                    case LogEvent::RECOG_EPEN:
+                        $logEvent->epenData($value);
+                        insertEpenEvent($logEvent);
+                        break;
+                    case LogEvent::UPDATE_EPEN:
+                        $logEvent->epenData($value);
+                        insertEpenEvent($logEvent);
+                        break;
+                    case LogEvent::GESTURE:
+                        $logEvent->epenData($value);
+                        insertEpenEvent($logEvent);
+                        break;
                     // merc - blur/focus
                     case LogEvent::BLUR:
                         insertLogEventHeader($logEvent);
