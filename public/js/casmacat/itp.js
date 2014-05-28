@@ -374,9 +374,9 @@ $(function(){
         }
         break;
 	  case "getTranslationOptions":
-        $ea.unbind('decode').bind('decode', function(e, data, err){
+        $ea.bind('decode', function(e, data, err){
           UI.executeCallback(a, {
-            data: formatTranslationOptions(data),
+            dopt: formatTranslationOptions(data),
 			sourceSegmentation:  data.sourceSegmentation
           });
 		});

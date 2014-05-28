@@ -79,6 +79,7 @@
   
   // Expose this function to other modules
   UI.toggleItp = function(e) {
+	console.log(UI.toggleItp);
     e.preventDefault();
     var $ea = getEditArea(),
         currentMode = $ea.editableItp('getConfig').mode;
@@ -97,11 +98,20 @@
     // Inform user via UI
     // FIXME: Selecting by ID doesn't work (!?) We must specify also the node type: a#id
     $('.itp-indicator').text(newMode);
+	console.log('new mode:', newMode);
     if (newMode === "PE") {
-      getEditArea().editableItp('toggle', 'limitSuffixLength', false);
+		getEditArea().editableItp('toggle', 'limitSuffixLength', false);
+		if (getEditArea().text().length == 0)
+		UI.chooseSuggestion('1'); // if textarea is empty, insert best translation to Post-Edit
+		if (config.floatPredictions){
+			document.getElementById("el-float-pred").className = 'floating-prediction floating-prediction-hidden';  //setVisible();
+		}
     }
-    else {
+    else { // newMode == "ITP"
       getEditArea().editableItp('toggle', 'limitSuffixLength', true);
+	  if (config.floatPredictions){
+		document.getElementById("el-float-pred").className = 'floating-prediction'; //setVisible();
+	  }
     }
     $ea.trigger('itptogglechange', [newMode]);
   };
