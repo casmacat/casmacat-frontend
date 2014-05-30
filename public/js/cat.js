@@ -626,7 +626,7 @@ UI = {
 		if (config.translationOptions){
 			footer += '<li class="active tab-switcher-to" id="segment-' + this.currentSegmentId + '-to"><a tabindex="-2" href="#">Translation Options</a></li>';
 		}
-		footer += '</ul><div class="tab sub-editor matches" '+ ((config.translationOptions) ? 'style="visibility:hidden;display:none;"': '') +'" id="segment-' + this.currentSegmentId + '-matches"><div class="overflow"></div></div><div class="tab sub-editor translationOptions" id="segment-' + this.currentSegmentId + '-translationOptions"><div class="results"></div></div>';		
+		footer += '</ul><div class="tab sub-editor matches" '+ ((config.translationOptions || config.hideContributions) ? 'style="visibility:hidden;display:none;"': '') +'" id="segment-' + this.currentSegmentId + '-matches"><div class="overflow"></div></div><div class="tab sub-editor translationOptions" id="segment-' + this.currentSegmentId + '-translationOptions"><div class="results"></div></div>';		
         $('.footer', segment).html(footer);
 	},		
 
