@@ -141,7 +141,7 @@ else {
     $writer->startElement('initialTargetText');
         
     if ($itp == 1) {
-        $queryId = $db->query("SELECT DISTINCT element_id, data FROM `log_event_header` l, itp_event i WHERE l.type = 'decode' AND l.job_id = ".$jobId." AND l.file_id = ".$fileId." AND i.header_id = l.id ORDER BY element_id");
+        $queryId = $db->query("SELECT MIN(element_id) AS element_id, data FROM `log_event_header` l, itp_event i WHERE l.type = 'decode' AND l.job_id = ".$jobId." AND l.file_id = ".$fileId." AND i.header_id = l.id GROUP BY element_id");
         while ( ($row = $db->fetch($queryId)) != false ) {
             $json = $row["data"];
             $obj = json_decode($json);
