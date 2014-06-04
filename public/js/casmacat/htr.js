@@ -16,6 +16,8 @@
       var HC = require("htrclient");
       var GU = require("geometry-utils");
 
+      var fpsText = "";
+
       // Setup -----------------------------------------------------------------
       var gestureRecognizer = new MG();
       
@@ -340,7 +342,27 @@
                   skanvas.sketchable('clear');
                 }, timerMs);
               }
-            },
+              { // draw fps
+                var fps = 0, sd = 0, n = 0;
+                for (var s = 0; s < strokes.length; s+=2) {
+                  for (var i = 1; i < strokes[s].length; ++i) {
+                    var hz = 1000.0/(strokes[s][i][2] - strokes[s][i-1][2]);
+                    fps += hz; 
+                    n++;
+                  }
+                }
+                fps /= n;
+                for (var s = 0; s < strokes.length; s+=2) {
+                  for (var i = 1; i < strokes[s].length; ++i) {
+                    var hz = 1000.0/(strokes[s][i][2] - strokes[s][i-1][2]);
+                    sd += (hz - fps) * (hz - fps)
+                  }
+                }
+                sd = Math.sqrt(sd/n);
+                fpsText = "[ " + Math.round(fps - sd) + " , " + Math.round(fps + sd) + " ] hz";
+              }
+             },
+
 
             clear: function(elem, data) {
               // skanvas.removeData('htr');
@@ -439,7 +461,7 @@
           replace_suggestion(best);
 
           var $options = $canvas.next('.canvas-options');
-          $options.html('<ul/>'); 
+          $options.html('<span id="fps">' + fpsText + '</span><ul/>'); 
 
           var $list = $('ul', $options).on('click', function(e) { 
             var result = $(e.target).data('result');
@@ -470,6 +492,7 @@
       }
 
       $(window).resize(resizeHandler);
+      // onresize does not work for elements so we use the trick with DOMSubtreeModified
       $target[0].addEventListener('DOMSubtreeModified', resizeHandler);
     }
 

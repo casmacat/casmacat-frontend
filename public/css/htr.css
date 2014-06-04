@@ -91,6 +91,11 @@
   border-right: 1px solid #ccc;
 }
 
+.epen-wrap .canvas-options #fps { 
+  float: right;
+  margin: 4px;
+}
+
 .epen-closest {
   background-color: lightblue;
 }
