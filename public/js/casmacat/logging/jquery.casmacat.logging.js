@@ -1595,7 +1595,7 @@
     
     var gesture = function(e, gesture) {
         debug(pluginName + ": gesture event: type: '" + e.type + "'.");
-        if (gesture !== null){
+        if (gesture !== undefined){
             storeLogEvent(logEventFactory.newLogEvent(logEventFactory.GESTURE, e.timeStamp, e.target, gesture)); 
         }
     };
