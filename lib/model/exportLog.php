@@ -141,7 +141,7 @@ else {
     $writer->startElement('initialTargetText');
         
     if ($itp == 1) {
-        $queryId = $db->query("SELECT DISTINCT element_id, data FROM `log_event_header` l, itp_event i WHERE l.type = 'decode' AND l.job_id = ".$jobId." AND l.file_id = ".$fileId." AND i.header_id = l.id ORDER BY element_id");
+        $queryId = $db->query("SELECT MIN(element_id) AS element_id, data FROM `log_event_header` l, itp_event i WHERE l.type = 'decode' AND l.job_id = ".$jobId." AND l.file_id = ".$fileId." AND i.header_id = l.id GROUP BY element_id");
         while ( ($row = $db->fetch($queryId)) != false ) {
             $json = $row["data"];
             $obj = json_decode($json);
@@ -277,6 +277,44 @@ else {
         //print $lenDeletes;
     }
     else $lenDeletes = 0;
+    
+    
+    //-------------------------------------------------------------------------------
+    
+    //epen_event 
+    $queryId = $db->query("SELECT h.id as id, h.job_id as job_id, h.file_id as file_id, h.element_id as element_id, h.x_path as x_path, h.time as time, h.type as type, "
+            . "e.info"
+        . " FROM log_event_header h, epen_event e WHERE h.job_id = '$jobId' AND h.file_id = '$fileId' AND h.id = e.header_id ORDER BY h.time, h.id ASC");
+    
+    
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: fetchLogChunk(): " . print_r($err, true));
+        throw new Exception("CASMACAT: fetchLogChunk(): " . print_r($err, true));
+
+    }
+        
+    $epenRow = null;
+    $epenEvents = array();
+    while ( ($epenRow = $db->fetch($queryId)) != false ) {
+        
+        $epenRowAsObject = snakeToCamel($epenRow);        
+        //log::doLog("CASMACAT: fetchLogChunk(): Next headerRow: " . print_r($deleteRowAsObject, true));
+
+        $epenEvent = new LogEvent($jobId, $fileId, $epenRowAsObject);     
+        $epenEvent->epenData($epenRowAsObject);
+        
+        array_push($epenEvents, $epenEvent); 
+    }
+    if(!empty($epenEvents))
+    {
+        //log::doLog("CASMACAT: deleteEvents: " . print_r($deleteEvents, true));
+        $countEpen = 0;
+        $lenEpen = count($epenEvents);
+        //print $lenDeletes;
+    }
+    else $lenEpen = 0;
     
    
     
@@ -1104,6 +1142,22 @@ else {
             }
             if ($count_biconcors < $len_biconcors-1){
                 $count_biconcors = $count_biconcors + 1;
+                
+            }
+        }
+        
+        elseif ($lenEpen != 0 && $headerRowAsObject->id == $epenEvents[$countEpen]->id){
+            
+            //log::doLog("CASMACAT: Row text: " . print_r($textEvents[$count_texts],true));   
+            
+            foreach($epenEvents[$countEpen] as $attribute => $val){                
+                
+                if ($attribute != 'jobId' && $attribute != 'fileId' && $attribute != 'type'){
+                    $writer->writeAttribute($attribute, $val);
+                }
+            }
+            if ($countEpen < $lenEpen-1){
+                $countEpen = $countEpen + 1;
                 
             }
         }

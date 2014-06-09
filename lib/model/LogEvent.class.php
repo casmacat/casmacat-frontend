@@ -72,7 +72,18 @@ class LogEvent {
     // merc - adding floatprediction, biconcor and translationOption
     const FLOAT_PREDICTION = "floatPrediction";
     const BICONCOR = "biconcor";
+    const BICONCOR_CLOSED = "biconcorClosed";
     const TRANSLATION_OPTION = "TranslationOption";
+    
+    // merc - adding e-pen
+    const EPEN_OPENED = "epenOpened";
+    const EPEN_CLOSED = "epenClosed";
+    const RECOG_EPEN = "recogEpen";
+    const UPDATE_EPEN = "updateEpen";
+    const GESTURE = "gesture";
+    // merc - blur/focus
+    const BLUR = "blur";
+    const FOCUS = "focus";
 
     public $id;
     public $jobId;
@@ -254,6 +265,11 @@ class LogEvent {
     // merc - adding biconcor
     public function biconcorData($object) {
         $this->word = $object->word;
+        $this->info = $object->info;
+    }
+    
+    // merc - adding epen
+    public function epenData($object) {
         $this->info = $object->info;
     }
     

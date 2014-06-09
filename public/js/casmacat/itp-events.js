@@ -186,8 +186,7 @@ var Memento = require("module.memento");
  
         //console.log('contribution changed', data);
         var bestResult = data.nbest[0];
-        
-        if (!config.floatPredictions) {
+        if (!config.floatPredictions || config.prefs.mode == 'PE') {
           // if we're using the floating box for displaying predictions, don't
           // paste the decoded text into the box
           self.vis.updateSuggestions(data);

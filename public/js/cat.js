@@ -379,15 +379,21 @@ UI = {
         //}); // added for tab switcher;
 		}).on('click', '.tab-switcher-tm', function(e) {
             e.preventDefault();
+			$('.editor .submenu .active').addClass('not-active');
             $('.editor .submenu .active').removeClass('active');
+			$('.sub-editor.matches').css('visibility','visible');
+			$('.sub-editor.matches').css('display','block');
+			$(this).removeClass('not-active');
             $(this).addClass('active');
-            $('.editor .sub-editor').hide();
+            $('.editor .sub-editor.translationOptions').hide();
             $('.editor .sub-editor.matches').show();
         }).on('click', '.tab-switcher-to', function(e) {
             e.preventDefault();
+			$('.editor .submenu .active').addClass('not-active');
             $('.editor .submenu .active').removeClass('active');
+			$(this).removeClass('not-active');
             $(this).addClass('active');
-            $('.editor .sub-editor').hide();
+            $('.editor .sub-editor.matches').hide();
             $('.editor .sub-editor.translationOptions').show();
         });
 
@@ -613,17 +619,16 @@ UI = {
 	
 	createFooter: function(segment) {
 		if($('.footer', segment).text() != '') return false;
-		var footer = '<ul class="submenu">';
+		var footer = '<ul class="submenu" '+ ((config.hideContributions && !config.translationOptions) ? 'style="visibility:hidden;display:none;"': '') +'>';
 		if (!config.hideContributions){
-			footer += '<li class="'+ ((!config.translationOptions) ? 'active': '') +' tab-switcher-tm" id="segment-' + this.currentSegmentId + '-tm"><a tabindex="-1" href="#">Translation matches</a></li>';
+			footer += '<li class="'+ ((!config.translationOptions) ? 'active': 'not-active') +' tab-switcher-tm" id="segment-' + this.currentSegmentId + '-tm"><a tabindex="-1" href="#">Translation matches</a></li>';
 		}
 		if (config.translationOptions){
 			footer += '<li class="active tab-switcher-to" id="segment-' + this.currentSegmentId + '-to"><a tabindex="-2" href="#">Translation Options</a></li>';
 		}
-		footer += '</ul><div class="tab sub-editor matches" id="segment-' + this.currentSegmentId + '-matches"><div class="overflow"></div></div><div class="tab sub-editor translationOptions" id="segment-' + this.currentSegmentId + '-translationOptions"><div class="results"></div></div>';
-		
+		footer += '</ul><div class="tab sub-editor matches" '+ ((config.translationOptions || config.hideContributions) ? 'style="visibility:hidden;display:none;"': '') +'" id="segment-' + this.currentSegmentId + '-matches"><div class="overflow"></div></div><div class="tab sub-editor translationOptions" id="segment-' + this.currentSegmentId + '-translationOptions"><div class="results"></div></div>';		
         $('.footer', segment).html(footer);
-	},	
+	},		
 
     createHeader: function() {
         if ($('h2.percentuage', this.currentSegment).length){
@@ -668,7 +673,6 @@ UI = {
 	getTranslationOptions: function(segment,next) {
 		console.log('getTranslationOptions');
 		var n = (next) ? $('#segment-' + this.nextSegmentId) : $(segment);
-
 		if (!config.translationOptions){
            return;
 		}
@@ -691,27 +695,19 @@ UI = {
             return false;
         }
         var ctx = $('#'+id);
-		//if (typeof d !== 'undefined'){
-			this.doRequest({
-				data: {
-					action: 'getTranslationOptions',
-					id_segment: id_segment,
-					text: txt,
-					id_job: config.job_id,
-					num_results: ctx.numMatchesResults,
-					id_translator: config.id_translator
-				},
-				context: $('#' + id),
-				success: function(d) {
-					UI.getTranslationOptionsSuccess(d, ctx, segment, next, n, txt, id_segment);
-				},
-				complete: function(d) {
-					$(".loader", n).removeClass('loader_on'); 
-				}
-			});
-		/*} else {
-			$(".loader", n).removeClass('loader_on'); 
-		}*/
+		UI.doRequest({
+			data: {
+				action: 'getTranslationOptions',
+				id_segment: id_segment,
+				text: txt
+			},
+			success: function(d) {
+				UI.getTranslationOptionsSuccess(d, ctx, segment, next, n, txt, id_segment);
+			},
+			complete: function(d) {
+				$(".loader", n).removeClass('loader_on'); 
+			}
+		});
 	},
 	getTranslationOptionsSuccess: function(d, ctx, segment, next, n, txt, id_segment){
 	console.log('getTranslationOptionsSuccess');
@@ -723,7 +719,7 @@ UI = {
             else {
                 event.segment = n[0];
             }
-            event.options = d.data.options;
+            event.options = d.dopt.options;
             //$(window).trigger("translationOptionsLoaded", event); 
         }
         else {
@@ -733,7 +729,7 @@ UI = {
 	},
 	
     getContribution: function(segment,next) {
-      console.log("get contribution");
+      console.log("getContribution");
 // prova per anticipare l'indent
 /*
         var isActiveSegment = $(segment).hasClass('editor');
@@ -746,11 +742,6 @@ UI = {
         }
 */
         var n = (next)? $('#segment-'+this.nextSegmentId) : $(segment);
-		
-		if (config.hideContributions){
-			//$(".loader", n).removeClass('loader_on'); 
-			return;
-		}
 		
         if($(n).hasClass('loaded')) {
             if(next) {
@@ -782,7 +773,7 @@ UI = {
             debug("cat.js: Skipping loading of suggestion in getContribution()...");
             return false;
         }
-
+		
         if (config.debug && !config.logEnabled) { // enable reset document button
             $("#resetDocument").text('Reset Document').on("click", function(e) {
                 e.preventDefault();
@@ -822,8 +813,8 @@ UI = {
                     }
                 });
             });
-        }
-
+        } 
+		
         var event = $.Event("loadingSuggestions");
         if (next == 0) {
             event.segment = segment[0];
@@ -833,8 +824,7 @@ UI = {
         }
         $(window).trigger("loadingSuggestions", event);
         // CASMACAT extension end
-
-    var ctx = $('#'+id);
+		var ctx = $('#'+id);
 		this.doRequest({
 			data: {
 				action:         'getContribution',
@@ -845,7 +835,7 @@ UI = {
 				id_translator:  config.id_translator
 			},
 			success: function(d){
-        UI.getContributionSuccess(d, ctx, segment, next, n);
+				UI.getContributionSuccess(d, ctx, segment, next, n);
 			},
 			complete: function(d){
 			    $(".loader", n).removeClass('loader_on');
@@ -854,6 +844,7 @@ UI = {
     },
 
     getContributionSuccess: function(d, ctx, segment, next, n){
+		console.log('getContributionSuccess');
         // CASMACAT extension start
         if (config.replay != 1) {
             var event = $.Event("suggestionsLoaded");
@@ -870,14 +861,13 @@ UI = {
             $(".loader",n).removeClass('loader_on');
         }
         // CASMACAT extension end
-
-      UI.renderContributions(d, ctx);
-      UI.blockButtons = false;
-          if (d.data.matches.length > 0) {
-            $('.submenu li.matches a span', ctx).text('('+d.data.matches.length+')');
-      } else {
-            $(".sbm > .matches", ctx).hide();
-      }
+		UI.renderContributions(d, ctx);
+		UI.blockButtons = false;
+		if (d.data.matches.length > 0) {
+			$('.submenu li.matches a span', ctx).text('('+d.data.matches.length+')');
+		} else {
+			$(".sbm > .matches", ctx).hide();
+		}
     },
 
     getMoreSegments: function(where) {
@@ -1121,8 +1111,9 @@ UI = {
         },100);
         this.currentIsLoaded = false;
         this.nextIsLoaded = false;
-        this.getContribution(segment,0);
+		this.getContribution(segment,0);
 		this.getTranslationOptions(segment,0);
+
 		if (!config.hideContributions || config.translationOptions){
 			var n = $(segment);
 			$(".loader", n).addClass('loader_on');
@@ -1317,7 +1308,7 @@ UI = {
 		var sentenceLength = inputWord.length;
 		
 		appendOptions = '<div id="options">';
-        if(d.data.options.length) {
+        if(d.dopt.options.length) {
 			if(!$('.sub-editor',segment).length) {
                 UI.createFooter(segment);
             }
@@ -1327,7 +1318,7 @@ UI = {
 			for (var i=0; i < sentenceLength; i++){
 				overlap[i] = 0
 			}
-			$.each(d.data.options, function(index) {
+			$.each(d.dopt.options, function(index) {
 				for (var i= this['start']+1; i<= this['end']; i++){
 					overlap[i] = 1;
 				}
@@ -1360,7 +1351,7 @@ UI = {
 				
 					var optionExists = false;
 					appendOptional = '<tr>';
-					$.each(d.data.options, function(index) { 
+					$.each(d.dopt.options, function(index) { 
 						if (this['level'] == level) {
 							//if (this['start'] >= block[b] && this['end'] <= block[b+1]-1){
 							if (this['start'] >= block[b] && this['end'] < block[b+1]){
@@ -1414,13 +1405,9 @@ UI = {
     },
 	
     renderContributions: function(d,segment) {
-        if (config.hideContributions)
-            return;
-
-//        console.log("renderContributions:", d, segment)
+        console.log("renderContributions:", d, segment)
         var isActiveSegment = $(segment).hasClass('editor');
         var editarea = $('.editarea', segment);
-
 
         if(d.data.matches.length) {
             var editareaLength = editarea.text().length;
@@ -1435,35 +1422,37 @@ UI = {
 
             $(".percentuage",segment).attr("title",''+perc_t + "Created by " + d.data.matches[0].created_by);
             var match = d.data.matches[0].match;
-
-            if (editareaLength==0){
-                UI.copySuggestionInEditarea(segment,translation,editarea,match,true);
-                // CASMACAT extension start
-                if (config.replay != 1) {
-                    UI.triggerSuggestionChosen(segment, 0, translation);
-                }
-                // CASMACAT extension end
-
-            }
-            var parsedId = /[0-9]+/.exec(segment.attr('id'));
-            var segment_id = parsedId[0];
-            $(segment).removeClass('loaded').addClass('loaded');
-            $('.sub-editor .overflow',segment).empty();
-
-            $.each(d.data.matches, function(index) {
-                var disabled = (segment_id=='0')? true : false;
-                cb= this['created_by'];
-                cl_suggestion=UI.getPercentuageClass(this['match']);
-
-                if(!$('.sub-editor',segment).length) {
-                    UI.createFooter(segment);
-                }
-                // Attention Bug: We are mixing the view mode and the raw data mode.
-                // before doing a enanched view you will need to add a data-original tag
-                $('.sub-editor .overflow',segment).append('<ul class="graysmall" data-item="'+(index+1)+'" data-id="'+segment_id+'"><li >'+((disabled)?'':' <a id="'+segment_id+'-tm-'+segment_id+'-delete" href="#" class="trash" title="delete this row"></a>')+'<span id="'+segment_id+'-tm-'+segment_id+'-source-' + (index+1) + '" class="suggestion_source">'+this.segment+'</span></li><li class="b"><span class="graysmall-message">Ctrl+'+(index+1)+'</span><span id="'+segment_id+'-tm-'+segment_id+'-translation" class="translation">'+this.translation+'</span></li><ul class="graysmall-details"><li class="percent ' + cl_suggestion + '">'+(this.match)+'</li><li>'+this['last_update_date']+'</li><li class="graydesc">Source: <span class="bold">'+cb+'</span></li></ul></ul>');
-            });
-            UI.setDeleteSuggestion(segment);
-
+						
+			var currentMode = editarea.editableItp('getConfig').mode;
+			if (editareaLength==0 && (!config.floatPredictions || currentMode == 'PE' ) ){
+				UI.copySuggestionInEditarea(segment,translation,editarea,match,true);
+				// CASMACAT extension start
+				if (config.replay != 1) {
+					UI.triggerSuggestionChosen(segment, 0, translation);
+				}
+				// CASMACAT extension end
+			}
+			var parsedId = /[0-9]+/.exec(segment.attr('id'));
+			var segment_id = parsedId[0];
+				
+			
+			$(segment).removeClass('loaded').addClass('loaded');
+			$('.sub-editor .overflow',segment).empty();
+			$.each(d.data.matches, function(index) {
+				var disabled = (segment_id=='0')? true : false;
+				cb= this['created_by'];
+				cl_suggestion=UI.getPercentuageClass(this['match']);
+				//if (!config.hideContributions) {
+				if(!$('.sub-editor',segment).length) {
+					UI.createFooter(segment);
+				}
+			
+				// Attention Bug: We are mixing the view mode and the raw data mode.
+				// before doing a enanched view you will need to add a data-original tag
+				$('.sub-editor .overflow',segment).append('<ul class="graysmall" data-item="'+(index+1)+'" data-id="'+segment_id+'"><li >'+((disabled)?'':' <a id="'+segment_id+'-tm-'+segment_id+'-delete" href="#" class="trash" title="delete this row"></a>')+'<span id="'+segment_id+'-tm-'+segment_id+'-source-' + (index+1) + '" class="suggestion_source">'+this.segment+'</span></li><li class="b"><span class="graysmall-message">Ctrl+'+(index+1)+'</span><span id="'+segment_id+'-tm-'+segment_id+'-translation" class="translation">'+this.translation+'</span></li><ul class="graysmall-details"><li class="percent ' + cl_suggestion + '">'+(this.match)+'</li><li>'+this['last_update_date']+'</li><li class="graydesc">Source: <span class="bold">'+cb+'</span></li></ul></ul>');
+				//}
+			});
+			UI.setDeleteSuggestion(segment);
             $('.translated',segment).removeAttr('disabled');
             $('.draft',segment).removeAttr('disabled');
         } else {
@@ -2315,8 +2304,8 @@ function rawxliff2rawview(segment){ // currently unused
 
 // tokenize source phrase according to decodeResult info
 function tokenizer(sourceSegmentation, input){
-	console.log('source segmentation');
-	console.log(sourceSegmentation);
+	//console.log('source segmentation');
+	//console.log(sourceSegmentation);
 	var tokenizedSource = [];
 	var unsegmentedInput = input.replace(/ /g,"");
 	if (unsegmentedInput){

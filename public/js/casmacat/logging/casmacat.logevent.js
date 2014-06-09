@@ -78,7 +78,18 @@ var LogEventFactory = function(elementIdMode) {
      // merc - adding floatPrediction, biconcordancer and translationOption
     this.FLOAT_PREDICTION = "floatPrediction";
     this.BICONCOR = "biconcor";
+    this.BICONCOR_CLOSED = "biconcorClosed";
     this.TRANSLATION_OPTION = "translationOption";
+    
+    // merc - adding e-pen
+    this.EPEN_OPENED = "epenOpened";
+    this.EPEN_CLOSED = "epenClosed";
+    this.RECOG_EPEN = "recogEpen";
+    this.UPDATE_EPEN = "updateEpen";
+    this.GESTURE = "gesture";
+    // merc - blur/focus
+    this.BLUR = "blur";
+    this.FOCUS = "focus";
 };
 
 /**
@@ -304,11 +315,32 @@ LogEventFactory.prototype.newLogEvent = function(type, timeStamp, element) {
             logEvent.word = arguments[3].srcPhrase; 
             logEvent.info = arguments[3].concorStruct;        
             break;
+        case this.BICONCOR_CLOSED:
+            break;
         case this.TRANSLATION_OPTION:      
+            break;
+        // merc - adding e-pen
+        case this.EPEN_OPENED:
+            break;
+        case this.EPEN_CLOSED:
+            break;
+        case this.RECOG_EPEN:
+            logEvent.info = arguments[3]; 
+            break;
+        case this.UPDATE_EPEN:
+            logEvent.info = arguments[3]; 
+            break;
+        case this.GESTURE:
+            logEvent.info = arguments[3];  
+            break;
+        // merc - blur/focus
+        case this.BLUR:
+            break;
+        case this.FOCUS:
             break;
 
         default:
-            alert("Unknown event type: '" + $(element).getAbsoluteXPath() + "'!");
+            console.log("Unknown event type: '" + $(element).getAbsoluteXPath() + "'!");
             $.error("Unknown event type: '" + $(element).getAbsoluteXPath() + "'");
     }
 

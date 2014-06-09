@@ -240,10 +240,39 @@ class saveLogChunkController extends ajaxcontroller {
                         $logEvent->biconcorData($value);
                         insertBiconcorEvent($logEvent);
                         break;
+                    case LogEvent::BICONCOR_CLOSED:
+                        insertLogEventHeader($logEvent);
+                        break;
                     case LogEvent::TRANSLATION_OPTION:
                         insertLogEventHeader($logEvent);
                         break;
-                    
+                    // merc - adding epen
+                    case LogEvent::EPEN_OPENED:
+                        insertLogEventHeader($logEvent);
+                        break;
+                    case LogEvent::EPEN_CLOSED:
+                        insertLogEventHeader($logEvent);
+                        break;
+                    case LogEvent::RECOG_EPEN:
+                        $logEvent->epenData($value);
+                        insertEpenEvent($logEvent);
+                        break;
+                    case LogEvent::UPDATE_EPEN:
+                        $logEvent->epenData($value);
+                        insertEpenEvent($logEvent);
+                        break;
+                    case LogEvent::GESTURE:
+                        $logEvent->epenData($value);
+                        insertEpenEvent($logEvent);
+                        break;
+                    // merc - blur/focus
+                    case LogEvent::BLUR:
+                        insertLogEventHeader($logEvent);
+                        break;
+                    case LogEvent::FOCUS:
+                        insertLogEventHeader($logEvent);
+                        break;
+                                        
                     default:
 //                        $db->query("COMMIT");   // at least, store what was ok
 //                        $db->query("SET AUTOCOMMIT=1");

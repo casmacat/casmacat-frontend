@@ -70,6 +70,7 @@
             logShortcuts: true,
             logItp: true,
             logSearchAndReplace: false,
+            logEpen: true,
             doSanitize: true,   // TODO check how this could be done generally (which events fires first, when multiple
                                 // listeners are attached to the same event source??)
             maxChunkSize: 3000  // maximum size of the log list before the automatic upload is triggered
@@ -594,6 +595,7 @@
             // merc - adding floatPrediction, biconcordander and translationOption
             $(window).on("floatPrediction." + pluginName, floatPrediction);
             $(window).on("biconcor." + pluginName, biconcor);
+            $(window).on("biconcorClosed." + pluginName, biconcorClosed);
             $(window).on("translationOption." + pluginName, translationOption);
         }
 
@@ -612,6 +614,13 @@
 
             // TODO this one is found by find(scrollable(vertical) but no event is attached. why?
             $("#sr-rules").on("scroll." + pluginName, scrollableMoved);
+        }
+        // merc- adding epen logging
+        if (settings.logEpen) {
+            $(window).on("epen." + pluginName, epen);
+            $(window).on("recogEpen." + pluginName, recogEpen);
+            $(window).on("updateEpen." + pluginName, updateEpen);
+            $(window).on("gesture." + pluginName, gesture);
         }
 
         $(window).on("statsUpdated." + pluginName, statsUpdated);
@@ -1043,7 +1052,7 @@
                 changes = $.fn.getChanges( getFieldContents(e.target), $(e.target).text() );
                 previous =getFieldContents(e.target);
                 text = $(e.target).text();
-
+                
 //                debug(pluginName + ": Text changed: "
 //                    + "\n\told text: '" + getFieldContents(e.target) + "', "
 //                    + "\n\tnew text: '" + $(e.target).text() + "', "
@@ -1544,6 +1553,11 @@
         debug(pluginName + ": Biconcordancer event: type: '" + e.type + "'.");
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.BICONCOR, e.timeStamp, e.target, data));   
     }
+    
+    var biconcorClosed = function(e, data) {
+        debug(pluginName + ": event type: '" + e.type + "'.");
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.BICONCOR_CLOSED, e.timeStamp, e.target, data));   
+    }
         
     var translationOption = function(e, data) {
         debug(pluginName + ": translationOption event: type: '" + e.type + "'.");
@@ -1554,7 +1568,48 @@
             data: {edition: "translationOption"},
         });   
     }
+    // merc - adding epen
+    var epen = function(e, data) {
+        debug(pluginName + ": epen event: type: '" + e.type + "'.");
+        if (data === true){
+            console.log("epenOpened");
+            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.EPEN_OPENED, e.timeStamp, e.target, data)); 
+        }
+        else {
+            console.log("epenClosed");
+            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.EPEN_CLOSED, e.timeStamp, e.target, data)); 
+        }
+    };
     
+    var recogEpen = function(e, data) {
+        debug(pluginName + ": event type: '" + e.type + "'.");
+        if (data !== null){
+            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.RECOG_EPEN, e.timeStamp, e.target, data.nbest));
+        }
+    };
+    
+    var updateEpen = function(e, token) {
+        debug(pluginName + ": event type: '" + e.type + "'.");
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.UPDATE_EPEN, e.timeStamp, e.target, token));
+    };
+    
+    var gesture = function(e, gesture) {
+        debug(pluginName + ": gesture event: type: '" + e.type + "'.");
+        if (gesture !== undefined){
+            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.GESTURE, e.timeStamp, e.target, gesture)); 
+        }
+    };
+    
+    $(window).blur(function(e, data){
+        debug(pluginName + ": event type: '" + e.type + "'.");
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.BLUR, e.timeStamp, e.target, data)); 
+    });
+    
+    $(window).focus(function(e, data){
+        debug(pluginName + ": event type: '" + e.type + "'.");
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FOCUS, e.timeStamp, e.target, data));        
+    });
+        
     // Just to now that everything has been parsed...
     debug(pluginName + ": Plugin codebase loaded.");
 

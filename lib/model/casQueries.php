@@ -212,7 +212,25 @@ function resetDocument($jobId, $fileId) {
                 break;
             case LogEvent::BICONCOR:
                 break;
+            case LogEvent::BICONCOR_CLOSED:
+                break;
             case LogEvent::TRANSLATION_OPTION:
+                break;
+            // merc - adding epen
+            case LogEvent::EPEN_OPENED:
+                break;
+            case LogEvent::EPEN_CLOSED:
+                break;
+            case LogEvent::RECOG_EPEN:
+                break;
+            case LogEvent::UPDATE_EPEN:
+                break;
+            case LogEvent::GESTURE:
+                break;
+            // merc - blur/focus
+            case LogEvent::BLUR:
+                break;
+            case LogEvent::FOCUS:
                 break;
 
             default:
@@ -453,7 +471,31 @@ log::doLog($endOffset);
                 $eventRow = fetchEventRow($logEvent->id, "biconcor_event");
                 $logEvent->biconcorData($eventRow);
                 break;
+            case LogEvent::BICONCOR_CLOSED:
+                break;
             case LogEvent::TRANSLATION_OPTION:
+                break;
+            // merc - adding epen
+            case LogEvent::EPEN_OPENED:
+                break;
+            case LogEvent::EPEN_CLOSED:
+                break;
+            case LogEvent::RECOG_EPEN:
+                $eventRow = fetchEventRow($logEvent->id, "epen_event");
+                $logEvent->epenData($eventRow);
+                break;
+            case LogEvent::UPDATE_EPEN:
+                $eventRow = fetchEventRow($logEvent->id, "epen_event");
+                $logEvent->epenData($eventRow);
+                break;
+            case LogEvent::GESTURE:
+                $eventRow = fetchEventRow($logEvent->id, "epen_event");
+                $logEvent->epenData($eventRow);
+                break;
+            // merc - blur/focus
+            case LogEvent::BLUR:
+                break;
+            case LogEvent::FOCUS:
                 break;
 
             default:
@@ -886,7 +928,7 @@ function insertTextEvent($event) {
     $data["previous"] = $event->previous;
     $data["text"] = $event->text;
     $data["edition"] = $event->edition;
-    log::doLog("CASMACAT: insertTextEvent(): " . print_r($data, true));
+    //log::doLog("CASMACAT: insertTextEvent(): " . print_r($data, true));
     
     $db = Database::obtain();
     $db->insert("text_event", $data);
@@ -995,6 +1037,27 @@ function insertSrEvent($event) {
     if ($errno != 0) {
         log::doLog("CASMACAT: insertBiconcorEvent(): " . print_r($err, true));
         throw new Exception("CASMACAT: insertBiconcorEvent(): " . print_r($err, true));
+//        return $errno * -1;
+    }
+}
+
+//  merc - adding epen insertion
+  function insertEpenEvent($event) {
+    $headerId = insertLogEventHeader($event);
+
+    $data = array();
+    $data["id"] = "NULL";
+    $data["header_id"] = $headerId;
+    $data["info"] = json_encode($event->info);
+
+    $db = Database::obtain();
+    $db->insert("epen_event", $data);
+
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: insertEpenEvent(): " . print_r($err, true));
+        throw new Exception("CASMACAT: insertEpenEvent(): " . print_r($err, true));
 //        return $errno * -1;
     }
 }

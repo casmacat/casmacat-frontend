@@ -107,12 +107,15 @@
             title: title
         });
         $(elDialog).on ("dialogclose", function () {
+            //merc - biconcor closed logging
+            $(elDialog).trigger("biconcorClosed", [data]);
             // 2013-11-28 - herve - need to explicitly bring focus back
             // somewhere, else it seems to go into limbo and no keyboard
             // shortcuts work anymore. The edit box seems like a decent
             // candidate for focusing.
-            if (UI.editarea)
+            if (UI.editarea){
                 UI.editarea.focus();
+            }
         });
         elDialog.parentNode.style.zIndex = 10000; // 1000 not enough
         if (!title) {
