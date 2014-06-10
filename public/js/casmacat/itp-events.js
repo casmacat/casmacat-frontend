@@ -18,11 +18,11 @@ var Memento = require("module.memento");
   })();
   
   // This function only works with keypress events
-  function isPrintableChar(evt) {
+  function doesTriggerInteraction(evt) {
     if (typeof evt.which == "undefined") {
       return true;
     } else if (typeof evt.which == "number" && evt.which > 0) {
-      return evt.which == 46 || evt.which == 8 || evt.which == 32 || evt.which == 13 || evt.which > 46;
+      return evt.which == 32 || evt.which > 46;
     }
     return false;
   };
@@ -603,7 +603,7 @@ var Memento = require("module.memento");
           if (config.floatPredictions) {
             self.vis.FloatingPrediction.setPredictedText (null);
           }
-          if (isPrintableChar(e)) {
+          if (doesTriggerInteraction(e)) {
             throttle(function() {
               if (data.str !== source) {
                 var query = {
@@ -682,7 +682,7 @@ var Memento = require("module.memento");
             self.typedWords[ $(spanElem).attr('id') ] = true;
           }
           
-          if (isPrintableChar(e)) {
+          if (doesTriggerInteraction(e)) {
             throttle(function () {
               if (data.str !== target) {
                 // Predict from last edited token onwards
