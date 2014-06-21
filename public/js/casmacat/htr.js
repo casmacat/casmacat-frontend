@@ -299,7 +299,7 @@
             
             mouseUp: function(e) {
               e.preventDefault();
-              var gesture, strokes = skanvas.sketchable('strokes');
+              var gesture = false, strokes = skanvas.sketchable('strokes');
               if (!strokes || !strokes[0]) return false;
               // one stroke means either gesture or first HTR stroke
               if (strokes.length === 1) {
@@ -340,26 +340,28 @@
                 decoderTimer = setTimeout(function () {
                   //$('#btn-decode').trigger('click');
                   skanvas.sketchable('clear');
+                  { // draw fps
+                    var fps = 0, sd = 0, n = 0;
+                    for (var s = 0; s < strokes.length; s+=2) {
+                      for (var i = 1; i < strokes[s].length; ++i) {
+                        var hz = 1000.0/(strokes[s][i][2] - strokes[s][i-1][2]);
+                        fps += hz; 
+                        n++;
+                      }
+                    }
+                    fps /= n;
+                    for (var s = 0; s < strokes.length; s+=2) {
+                      for (var i = 1; i < strokes[s].length; ++i) {
+                        var hz = 1000.0/(strokes[s][i][2] - strokes[s][i-1][2]);
+                        sd += (hz - fps) * (hz - fps)
+                      }
+                    }
+                    sd = Math.sqrt(sd/n);
+                    //fpsText = "[ " + Math.round(fps - sd) + " , " + Math.round(fps + sd) + " ] hz";
+                    fpsText = Math.round(fps) + " hz";
+                  }
+
                 }, timerMs);
-              }
-              { // draw fps
-                var fps = 0, sd = 0, n = 0;
-                for (var s = 0; s < strokes.length; s+=2) {
-                  for (var i = 1; i < strokes[s].length; ++i) {
-                    var hz = 1000.0/(strokes[s][i][2] - strokes[s][i-1][2]);
-                    fps += hz; 
-                    n++;
-                  }
-                }
-                fps /= n;
-                for (var s = 0; s < strokes.length; s+=2) {
-                  for (var i = 1; i < strokes[s].length; ++i) {
-                    var hz = 1000.0/(strokes[s][i][2] - strokes[s][i-1][2]);
-                    sd += (hz - fps) * (hz - fps)
-                  }
-                }
-                sd = Math.sqrt(sd/n);
-                fpsText = "[ " + Math.round(fps - sd) + " , " + Math.round(fps + sd) + " ] hz";
               }
              },
 
