@@ -720,7 +720,7 @@
 
         var itpData = null;
 
-        alert(event.type);
+        //alert(event.type);
         switch (event.type) {
             
             case logEventFactory.START_SESSION:
@@ -1361,7 +1361,7 @@ debug(event);
 
             case logEventFactory.INITIAL_CONFIG:
                 // TODO use this correctly
-                alert("Warning! Using initial config not yet implemented! Set the correct configuration manually in the config.ini file.");
+                //alert("Warning! Using initial config not yet implemented! Set the correct configuration manually in the config.ini file.");
                 debug(pluginName + ": Warning! Using initial config not yet supported! Set the correct configuration manually in the config.ini file.");
 //                vsWindow.$.extend(true, vsWindow.config, JSON.parse(event.config));
                 break;
@@ -1418,7 +1418,13 @@ debug(event);
             case logEventFactory.MEMENTO_REDO:
                 break;
             // TODO do we want to replay the biconcordancer?
-            case logEventFactory.BINCONCOR:
+            case logEventFactory.BICONCOR:
+                break;
+            case logEventFactory.BICONCOR_CLOSED:
+                break;
+            case logEventFactory.BLUR:
+                break;
+            case logEventFactory.FOCUS:
                 break;
 
             default:
