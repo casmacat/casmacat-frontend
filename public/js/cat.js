@@ -1512,7 +1512,7 @@ UI = {
 
                 '			<div class="wrap">'+
 
-                '				<div class="source item" id="segment-' + this.sid + '-source" data-original="' + escapedSegment + '">'+ this.segment +'</div> <!-- .source -->'+
+                '				<div class="source item" id="segment-' + this.sid + '-source" data-original="' + escapedSegment + '">'+ escapedSegment +'</div> <!-- .source -->' + //+ this.segment +'</div> <!-- .source -->'+
 
                 '				<div class="target item" id="segment-' + this.sid + '-target">'+
 

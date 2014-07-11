@@ -178,7 +178,7 @@ var Memento = require("module.memento");
         }
 
         // make sure new data still applies to current source
-        if (data.source !== $source().editable('getText')) {
+        if (data.source !== $source().editable('getOriginalText') && data.source !== $source().editable('getText')) {
           if (!data.isPreFetch)
             console.warn("Current source and received source do not match");
           return;
@@ -234,7 +234,7 @@ var Memento = require("module.memento");
           return
         }
 
-        if (data.source !== $source().editable('getText')) return;
+        if (data.source !== $source().editable('getOriginalText') && data.source !== $source().editable('getText')) return;
         
       	self.vis.updateTranslationDisplay(data);
 
@@ -252,7 +252,7 @@ var Memento = require("module.memento");
         }
 
         // make sure new data still applies to current source and target texts
-        if (data.source !== $source().editable('getText')) return;
+        if (data.source !== $source().editable('getOriginalText') && data.source !== $source().editable('getText')) return;
         if (data.target !== $target.editable('getText')) return;
 
 
@@ -318,7 +318,7 @@ var Memento = require("module.memento");
         }
 
         // make sure new data still applies to current source
-        if (data.source !== $source().editable('getText')) {
+        if (data.source !== $source().editable('getOriginalText') && data.source !== $source().editable('getText')) {
           console.warn("Current source and received source do not match");
           return;
         }
@@ -411,7 +411,7 @@ var Memento = require("module.memento");
           if (conf.displayCaretAlign || conf.displayMouseAlign) {
             var validated_words = $('.editable-token', $target).map(function() { return this.dataset.validated === "true"; }).get();
             var query = {
-              source: $source.editable('getText'),
+              source: $source.editable('getOriginalText'),
               target: $target.editable('getText'),
               validated_words: validated_words, 
             }
@@ -426,7 +426,7 @@ var Memento = require("module.memento");
           if (conf.displayConfidences) {
             var validated_words = $('.editable-token', $target).map(function() { return this.dataset.validated === "true"; }).get();
             var query = {
-              source: $source.editable('getText'),
+              source: $source.editable('getOriginalText'),
               target: $target.editable('getText'),
               validated_words: validated_words, 
             }
@@ -666,7 +666,7 @@ var Memento = require("module.memento");
           var $this = $(this),
               data = $this.data('editable'),
               target = $this.editable('getText'),
-              source = $source.editable('getText'),
+              source = $source.editable('getOriginalText'),
               pos = $target.editable('getCaretPos');
 
           var spanElem = $target.editable('getTokenAtCaretPos', pos).elem;

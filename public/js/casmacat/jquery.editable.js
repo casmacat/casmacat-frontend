@@ -311,6 +311,14 @@
 	  }
     },
 
+    getOriginalText: function() {
+      var source = this.attr('data-original'); 
+      if (typeof source === 'undefined') {
+        source = this.editable('getText');
+      }
+      return source;
+    },
+
     getText: function() {
       return $(this).text();
     },
