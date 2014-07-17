@@ -697,7 +697,8 @@ var Memento = require("module.memento");
                   numResults: 1
                 }
                 var itpCfg = cfg(), itp = itpCfg.itpServer;
-                if (suffixHasUserCorrections.length === 0 && conf.mode != 'PE') {
+                var isDraft = ($this.closest('section.status-draft').length);
+                if (suffixHasUserCorrections.length === 0 && conf.mode != 'PE' && isDraft) {
                   itp.setPrefix(query);
                 }
                 else {
