@@ -22,7 +22,8 @@ var Memento = require("module.memento");
     if (typeof evt.which == "undefined") {
       return true;
     } else if (typeof evt.which == "number" && evt.which > 0) {
-      return evt.which == 32 || evt.which > 46;
+      if (evt.ctrlKey || evt.altKey) return false;
+      return evt.which == 32 || evt.which == 13 || evt.which > 46;
     }
     return false;
   };
@@ -696,7 +697,8 @@ var Memento = require("module.memento");
                   numResults: 1
                 }
                 var itpCfg = cfg(), itp = itpCfg.itpServer;
-                if (suffixHasUserCorrections.length === 0 && conf.mode != 'PE') {
+                var isDraft = ($this.closest('section.status-draft').length);
+                if (suffixHasUserCorrections.length === 0 && conf.mode != 'PE' && isDraft) {
                   itp.setPrefix(query);
                 }
                 else {
