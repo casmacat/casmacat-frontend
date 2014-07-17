@@ -22,7 +22,8 @@ var Memento = require("module.memento");
     if (typeof evt.which == "undefined") {
       return true;
     } else if (typeof evt.which == "number" && evt.which > 0) {
-      return evt.which == 32 || evt.which > 46;
+      if (evt.ctrlKey || evt.altKey) return false;
+      return evt.which == 32 || evt.which == 13 || evt.which > 46;
     }
     return false;
   };
