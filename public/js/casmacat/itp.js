@@ -424,7 +424,6 @@ $(function(){
 
   UI.setTranslation = function(segment, status) {
     original_setTranslation.call(UI, segment, status);
-
     if (status === 'translated') {
       getEditArea().editableItp('validate');
     }

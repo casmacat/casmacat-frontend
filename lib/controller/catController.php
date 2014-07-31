@@ -339,7 +339,9 @@ class catController extends viewcontroller {
         $this->template->biconcorEnabled = INIT::$BICONCOR_ENABLED;
         $this->template->hideContributions = INIT::$HIDE_CONTRIBUTIONS;
         $this->template->floatPredictions = INIT::$FLOAT_PREDICTIONS;
-		$this->template->translationOptions = INIT::$TRANSLATION_OPTIONS;
+        $this->template->translationOptions = INIT::$TRANSLATION_OPTIONS;
+        $this->template->allowChangeVisualizationOptions = INIT::$ALLOW_CHANGE_VISUALIZATION_OPTIONS;
+        $this->template->itpDraftOnly = INIT::$ITP_DRAFT_ONLY;
         log::doLog("CASMACAT: itpEnabled: " . INIT::$ITP_ENABLED);
         log::doLog("CASMACAT: etEnabled: " . INIT::$ET_ENABLED);
         if (INIT::$LOG_ENABLED) {

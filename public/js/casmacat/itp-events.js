@@ -436,9 +436,6 @@ var Memento = require("module.memento");
         }
       }
 
-
-
-
       function shouldUpdate($elem, opt, value) {
         if (typeof value === "undefined") value = true;
         var old = ($elem[0].getAttribute("data-" + opt) === "true")
@@ -698,7 +695,8 @@ var Memento = require("module.memento");
                 }
                 var itpCfg = cfg(), itp = itpCfg.itpServer;
                 var isDraft = ($this.closest('section.status-draft').length);
-                if (suffixHasUserCorrections.length === 0 && conf.mode != 'PE' && isDraft) {
+                if (suffixHasUserCorrections.length === 0 && conf.mode != 'PE' && (isDraft || !config.itpDraftOnly)) {
+                  console.log("setPrefix");
                   itp.setPrefix(query);
                 }
                 else {

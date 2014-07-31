@@ -64,54 +64,14 @@
             <div class="translate-box">
                 <h2>Source language</h2>
                 <select name="source-lang" id="source-lang">
-                    <option value="" selected="selected">Autodetect</option>
-                	  <option value="zh-CN">Chinese</option>
-                    <option value="cs-CZ">Czech</option>
-                    <option value="da-DK">Danish</option>
-                    <option value="nl-NL">Dutch</option>
-                    <option value="en-GB">English</option>
-                    <option value="fr-FR">French</option>
-                    <option value="fi-FI">Finnish</option>
-                    <option value="de-DE">German</option>
-                    <option value="el-GR">Greek</option>
-                    <option value="he-IL">Hebrew</option>
-                    <option value="ja-JA">Japanese</option>
-                    <option value="ko-KR">Korean</option>
-                    <option value="it-IT">Italian</option>
-                    <option value="no-NO">Norwegian</option>
-                    <option value="pl-PL">Polish</option>
-                    <option value="pt-PT">Portuguese</option>
-                    <option value="ru-RU">Russian</option>
-                    <option value="es-ES">Spanish</option>
-                    <option value="sw-SE">Swedish</option>
-
+                    <option tal:repeat="l source_languages" tal:attributes="value l/code; selected l/default" tal:content="l/name"></option>
 		</select>
             </div>
 
             <div class="translate-box" style="margin-left:0;">
                 <h2>Target language</h2>
                 <select name="target-lang" id="target-lang">
-                    <option value="" selected="selected">Autodetect</option>
-                	  <option value="zh-CN">Chinese</option>
-                    <option value="cs-CZ">Czech</option>
-                    <option value="da-DK">Danish</option>
-                    <option value="nl-NL">Dutch</option>
-                    <option value="en-GB">English</option>
-                    <option value="fr-FR">French</option>
-                    <option value="fi-FI">Finnish</option>
-                    <option value="de-DE">German</option>
-                    <option value="el-GR">Greek</option>
-                    <option value="he-IL">Hebrew</option>
-                    <option value="ja-JA">Japanese</option>
-                    <option value="ko-KR">Korean</option>
-                    <option value="it-IT">Italian</option>
-                    <option value="no-NO">Norwegian</option>
-                    <option value="pl-PL">Polish</option>
-                    <option value="pt-PT">Portuguese</option>
-                    <option value="ru-RU">Russian</option>
-                    <option value="es-ES">Spanish</option>
-                    <option value="sw-SE">Swedish</option>
-
+                    <option tal:repeat="l target_languages" tal:attributes="value l/code; selected l/default" tal:content="l/name"></option>
 		</select>
                 <br />
                 <!--<a href="#" id="multiple-link">Multiple languages?</a>-->
