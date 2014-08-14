@@ -316,7 +316,7 @@
       if (typeof source === 'undefined') {
         source = this.editable('getText');
       }
-      return source;
+      return source.replace(/\&quot;/g,'"');
     },
 
     getText: function() {

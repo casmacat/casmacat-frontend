@@ -3,6 +3,8 @@ require_once 'inc/config.inc.php';
 
 INIT::obtain();
 
+//error_log(print_r($_POST,true));
+
 require_once INIT::$UTILS_ROOT.'/log.class.php';
 require_once INIT::$CONTROLLER_ROOT.'/frontController.php';
 require_once INIT::$MODEL_ROOT.'/Database.class.php';

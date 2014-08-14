@@ -1512,7 +1512,7 @@ UI = {
 
                 '			<div class="wrap">'+
 
-                '				<div class="source item" id="segment-' + this.sid + '-source" data-original="' + escapedSegment + '">'+ escapedSegment +'</div> <!-- .source -->' + //+ this.segment +'</div> <!-- .source -->'+
+                '				<div class="source item" id="segment-' + this.sid + '-source" data-original="' + escapedSegment + '">'+ this.segment +'</div> <!-- .source -->' + //+ this.segment +'</div> <!-- .source -->'+
 
                 '				<div class="target item" id="segment-' + this.sid + '-target">'+
 
@@ -2307,7 +2307,7 @@ function tokenizer(sourceSegmentation, input){
 	//console.log('source segmentation');
 	//console.log(sourceSegmentation);
 	var tokenizedSource = [];
-	var unsegmentedInput = input.replace(/ /g,"");
+        var unsegmentedInput = $('<textarea/>').html(input).text().replace(/\s/g,"");
 	if (unsegmentedInput){
 		var length = 0;
 		for(var i = 0; i < sourceSegmentation.length; i++){

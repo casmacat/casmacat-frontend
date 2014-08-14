@@ -194,7 +194,7 @@ return $xliff;
 }
 
 public static function fix_non_well_formed_xml($content) {
-	
+	return $content;
 	/*
 	This function exists because many developers started adding html tags directly into the XLIFF source since:
 	 1) XLIFF tag remapping is too complex for them
