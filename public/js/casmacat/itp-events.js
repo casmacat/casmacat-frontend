@@ -211,7 +211,7 @@ var Memento = require("module.memento");
         // herve - this ensures that the prediction popup shows up before the
         // user starts translating
         $target.focus();
-        if (config.floatPredictions) {
+        if (userCfg().mode == 'ITP' && config.floatPredictions) {
           self.vis.FloatingPrediction.setPredictedText(data);
         }
       });
@@ -324,7 +324,7 @@ var Memento = require("module.memento");
           return;
         }
 
-        if (config.floatPredictions)
+        if (userCfg().mode == 'ITP' && config.floatPredictions)
           self.vis.FloatingPrediction.setPredictedText (data);
         else
           self.vis.updateSuggestions (data);
@@ -412,8 +412,8 @@ var Memento = require("module.memento");
           if (conf.displayCaretAlign || conf.displayMouseAlign) {
             var validated_words = $('.editable-token', $target).map(function() { return this.dataset.validated === "true"; }).get();
             var tgtText = $target.editable('getText');
-            if (config.floatPredictions) {
-              tgtText = self.vis.FloatingPrediction.setPredictedText();
+            if (conf.mode == 'ITP' && config.floatPredictions) {
+              tgtText = self.vis.FloatingPrediction.getPredictedText();
               if (tgtText == null) { return; }
             }
             var query = {
@@ -462,7 +462,6 @@ var Memento = require("module.memento");
         toggleOpt($source, "opt-caret-align", cfg.displayCaretAlign);
         if (update) {
           updateAlignments();
-
           $target.one('alignments', function() {
             $target.editable('refreshCaret');
           });
@@ -603,7 +602,7 @@ var Memento = require("module.memento");
               source = $this.editable('getText');
   
        
-          if (config.floatPredictions) {
+          if (userCfg().mode == 'ITP' && config.floatPredictions) {
             self.vis.FloatingPrediction.setPredictedText (null);
           }
           if (doesTriggerInteraction(e)) {
@@ -623,7 +622,7 @@ var Memento = require("module.memento");
         });
       }
 
-      if (config.floatPredictions) {
+      if (userCfg().mode == 'ITP' && config.floatPredictions) {
         $(window).scroll (function () {
           self.vis.FloatingPrediction.adjustPosition();
         });
@@ -646,7 +645,7 @@ var Memento = require("module.memento");
         //$('#caret').html('<span class="prefix">' + text.substr(0, d.pos) + '</span>' + '<span class="suffix">' + text.substr(d.pos) + "</span>");
         forgetState(d.pos);
         self.currentCaretPos = d;
-        if (config.floatPredictions) {
+        if (userCfg().mode == 'ITP' && config.floatPredictions) {
           self.vis.FloatingPrediction.adjustPosition();
         }
       })

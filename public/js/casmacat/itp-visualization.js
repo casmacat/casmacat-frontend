@@ -419,7 +419,6 @@
           }
         } else if (window.getSelection) {
           sel = window.getSelection();
-          console.log(sel);
           if (sel.rangeCount) {
             range = sel.getRangeAt(0).cloneRange();
             if (range.getClientRects) {
@@ -485,7 +484,8 @@
       }
 
       function setVisible () {
-        var visible = true;
+        var conf = userCfg();
+        var visible = (conf.mode == 'ITP');
         for (var cond in visibility)
           if (visibility.hasOwnProperty(cond) && !visibility[cond]) {
             //console.log("cond " + cond + " failed.");
@@ -506,7 +506,6 @@
           predictedSegmentation = data.nbest[0].targetSegmentation;
 
           // update token information (includes predicted suffix)
-          console.log("target.data.editable: " + $target.editable('getText'));
           $target.editable('setText', $target.editable('getText'), predictedSegmentation);
 
           // request the server for new alignment and confidence info
