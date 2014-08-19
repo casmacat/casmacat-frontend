@@ -212,7 +212,7 @@ var Memento = require("module.memento");
         // user starts translating
         $target.focus();
         if (config.floatPredictions) {
-          self.vis.FloatingPrediction.setPredictedText(bestResult.target);
+          self.vis.FloatingPrediction.setPredictedText(data);
         }
       });
     
@@ -325,7 +325,7 @@ var Memento = require("module.memento");
         }
 
         if (config.floatPredictions)
-          self.vis.FloatingPrediction.setPredictedText (data.nbest[0].target);
+          self.vis.FloatingPrediction.setPredictedText (data);
         else
           self.vis.updateSuggestions (data);
         
@@ -411,9 +411,14 @@ var Memento = require("module.memento");
         if (conf.useAlignments) {
           if (conf.displayCaretAlign || conf.displayMouseAlign) {
             var validated_words = $('.editable-token', $target).map(function() { return this.dataset.validated === "true"; }).get();
+            var tgtText = $target.editable('getText');
+            if (config.floatPredictions) {
+              tgtText = self.vis.FloatingPrediction.setPredictedText();
+              if (tgtText == null) { return; }
+            }
             var query = {
               source: $source.editable('getOriginalText'),
-              target: $target.editable('getText'),
+              target: tgtText,
               validated_words: validated_words, 
             }
             itp.getAlignments(query);

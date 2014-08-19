@@ -174,7 +174,7 @@
     // get the aligned html ids for source and target tokens
     self.getAlignmentIds = function(alignments, sourcespans, targetspans) {
       if (alignments.length !== sourcespans.length || alignments[0].length !== targetspans.length) {
-        console.warn("Alignments do not match!!!", alignments, sourcespans, targetspans); 
+        console.warn("Alignments do not match!!!", alignments.length, "=", sourcespans.length, ", ", alignments[0].length, "=", targetspans.length, alignments, sourcespans, targetspans); 
         return;
       }
 
@@ -252,6 +252,7 @@
 
     // updates the alignment display with new alignment info      
     self.updateAlignmentDisplay = function(data) {
+      var conf = userCfg();
       var alignments = data.alignments
         , source = data.source
         , sourceSegmentation = data.sourceSegmentation
@@ -262,7 +263,8 @@
       // make sure new data still applies to current text
       if (!(alignments.length > 0 && alignments[0].length > 0)) return;
       if (source !== $source().editable('getText')) return;
-      if (target !== $target.editable('getText')) return;
+      if (!config.floatPredictions && target !== $target.editable('getText')) return;
+      if ( config.floatPredictions && target != self.FloatingPrediction.getPredictedText()) return;
 
       // get span tokens 
       var sourcespans = $('.editable-token', $source());
@@ -396,14 +398,15 @@
       document.body.appendChild (elFloatPred);
 
       var predictedText = null;
-      setPredictedText (null);
+      var predictedSegmentation = [];
+      setPredictedText(null);
 
       function getCaretPixelCoords () {
         // returns the X/Y coordinates, in fixed window pixels, of the text
         // caret
         // 
-        // FIXME shouldn't this use getCaretXY() from jquery.editable.js ?
-        // 
+        // note: does not use getCaretXY() from jquery.editable.js 
+        //       because that is unreliable
         var sel = document.selection;
         var x = 0, y = 0;
         var range;
@@ -416,6 +419,7 @@
           }
         } else if (window.getSelection) {
           sel = window.getSelection();
+          console.log(sel);
           if (sel.rangeCount) {
             range = sel.getRangeAt(0).cloneRange();
             if (range.getClientRects) {
@@ -423,6 +427,26 @@
               var rect = range.getClientRects()[0];
               x = rect && rect.left;
               y = rect && rect.top;
+
+              // Fall back to inserting a temporary element
+              // http://stackoverflow.com/questions/6846230/coordinates-of-selected-text-in-browser-page
+              if (x == undefined) {
+                var span = document.createElement("span");
+                if (span.getClientRects) {
+                  // Ensure span has dimensions and position by
+                  // adding a zero-width space character
+                  span.appendChild( document.createTextNode("\u200b") );
+                  range.insertNode(span);
+                  rect = span.getClientRects()[0];
+                  x = rect.left;
+                  y = rect.top;
+                  var spanParent = span.parentNode;
+                  spanParent.removeChild(span);
+
+                  // Glue any broken text nodes back together
+                  spanParent.normalize();
+                }
+              }
             }
           }
         }
@@ -432,8 +456,10 @@
 
       function adjustPosition () {
         var coord = getCaretPixelCoords();
-        visibility.havePixelCoord = coord && coord[0] && coord[1];
-        if (visibility.havePixelCoord) {
+        visibility.havePixelCoord = true; // always true -> reuse old
+        //visibility.havePixelCoord = coord && coord[0] && coord[1];
+        if (coord && coord[0] && coord[1]) {
+        //if (visibility.havePixelCoord) {
           elFloatPred.style.top  = (coord[1]+20) + 'px';
           elFloatPred.style.left = (coord[0]+10) + 'px';
           showPredictedText();
@@ -461,16 +487,38 @@
       function setVisible () {
         var visible = true;
         for (var cond in visibility)
-          if (visibility.hasOwnProperty(cond) && !visibility[cond])
+          if (visibility.hasOwnProperty(cond) && !visibility[cond]) {
+            //console.log("cond " + cond + " failed.");
             visible = false;
+          }
         elFloatPred.className =
             'floating-prediction'
             + (visible ? '' : ' floating-prediction-hidden');
       }
 
-      function setPredictedText (txt) {
-        predictedText = txt;
+      function setPredictedText (data) {
+        if (data == null) {
+          predictedText = null;
+          predictedSegmentation = [];
+        }
+        else {
+          predictedText = data.nbest[0].target;
+          predictedSegmentation = data.nbest[0].targetSegmentation;
+
+          // update token information (includes predicted suffix)
+          console.log("target.data.editable: " + $target.editable('getText'));
+          $target.editable('setText', $target.editable('getText'), predictedSegmentation);
+
+          // request the server for new alignment and confidence info
+          var nmatch = $.extend({source: data.source, sourceSegmentation: data.sourceSegmentation}, data.nbest[0]);
+          self.updateOptional(nmatch);
+        }
+        adjustPosition();
         showPredictedText();
+      }
+
+      function getPredictedText () {
+        return predictedText;
       }
 
       function showPredictedText () {
@@ -490,6 +538,7 @@
               || userInput.length >= txt.length
               || userInput.substring(0,caretPos) != txt.substring(0,caretPos)
               )) {
+            console.log("preconditionsMet = false");
             visibility.preconditionsMet = false;
             setVisible();
             return;
@@ -508,6 +557,10 @@
               '</b>' +
               txt.substring (boldEnd, predEnd);
         }
+        else {
+          // spinner if no prediction so far
+          floatHtmlStr = "<img src=\"/public/img/loader.gif\" width=\"16\" height=\"16\">";
+        }
         if (floatHtmlStr) {
           elFloatPred.innerHTML = floatHtmlStr;
         }
@@ -519,7 +572,10 @@
       function goToPos (pos) {
         // I thought this would be enough:
         //   $target.editable ('setCaretPos', $target.text().length);
-        // but I can't get it to work.
+        // but I can't get it to work. (Herve)
+        // works for me (Phi)
+        $target.editable ('setCaretPos', $target.text().length);
+        return;
         var token = $target.editable ('getTokenAtCaret', 0);
         var range = document.createRange();
         range.setStart (token.elem, pos);
@@ -539,7 +595,8 @@
         if (sufText.indexOf(insText) === 0)
           sufText = sufText.substring(insText.length).trim();
         var newText = oldText.substring (0, pos) + insText + ' ' + sufText;
-        $target.editable ('setText', newText);
+        $target.editable ('setText', newText, predictedSegmentation);
+        // $target.editable ('setText', newText);
         goToPos (pos + insText.length + 1);
         showPredictedText();
         // merc - adding trigger to float predictions   
@@ -554,6 +611,7 @@
       return {
         adjustPosition: adjustPosition,
         setPredictedText: setPredictedText,
+        getPredictedText: getPredictedText,
         acceptNextWord: acceptNextWord,
         destroy: destroy
       };
