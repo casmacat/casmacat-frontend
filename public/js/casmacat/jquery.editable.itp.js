@@ -92,6 +92,7 @@
                 priorityLength: 1,
                 confidenceThresholds: { doubt: 0.4, bad: 0.03 },
                 displayCaretAlign: false,
+                displayShadeOffTranslatedSource: false,
                 displayMouseAlign: false,
                 displayConfidences: false,
                 highlightValidated: false,
@@ -122,7 +123,6 @@
         if (itpRes.doTriggerConnect) itpServer.trigger('connect');
 
         itpCount++;
-        //console.log("**** CREATE ****", itpCount);
       });
     },
 

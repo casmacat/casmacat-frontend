@@ -87,7 +87,7 @@
         validated_words: validated_words, 
       }
       var conf = userCfg(), itp = cfg().itpServer;
-      if (conf.useAlignments && (conf.displayCaretAlign || conf.displayMouseAlign)) {
+      if (conf.useAlignments && (conf.displayCaretAlign || conf.displayMouseAlign || conf.displayShadeOffTranslatedSource)) {
         if (match.alignments) {
           itp.trigger('getAlignmentsResult', {data: match, errors: []});
         }
@@ -231,10 +231,12 @@
           $span.on('mouseenter.alignments', function (e) {
             var aligs = $(e.target).data('alignments').alignedIds;
             self.showAlignments(aligs, 'mouse-align');
+	    $(this).toggleClass('mouse-align',true);
           });
           $span.on('mouseleave.alignments', function (e) {
             var aligs = $(e.target).data('alignments').alignedIds;
             self.hideAlignments(aligs, 'mouse-align');
+	    $(this).toggleClass('mouse-align',false);
           });
         }
         else {
@@ -248,6 +250,85 @@
         $span[0].addEventListener('DOMNodeRemoved', data.onremove, false);
         $span.data('alignments', data);
       } 
+    }
+
+    self.updateShadeOffTranslatedSource = function() {
+      console.log($target.data.alignments);
+      console.log("self.updateShadeOffTranslatedSource();");
+      var transopt_id_prefix = "#" + $(UI.currentSegment).attr("id") + "-translation-option-input-";
+      var sourcespans = $('.editable-token', $source());
+      var targetspans = $('.editable-token', $target);
+      if (! (userCfg().useAlignments && userCfg().displayShadeOffTranslatedSource)) {
+        for (var i = 0; i < sourcespans.length; i++) {
+          $(sourcespans[i]).toggleClass('shade-off-translated', false);
+          $(sourcespans[i]).toggleClass('shade-off-next', false);
+          if (config.translationOptions && $(transopt_id_prefix + i)) { // also in translation option display
+            $(transopt_id_prefix + i).toggleClass('shade-off-translated', false);
+            $(transopt_id_prefix + i).toggleClass('shade-off-next', false);
+          }
+        }
+      }
+      else {
+        if (!$target.data.alignments) {
+          return;
+        }
+        // get span tokens 
+        var last_covered = -1;
+        for (var i = 0; i < targetspans.length; i++) {
+           if ($('#'+targetspans[i].id).text() != "") {
+             // console.log("i = " + i + ", " + targetspans[i].id + " has text " + $('#'+targetspans[i].id).text());
+             last_covered = i;
+           }
+        }
+        console.log("last covered: " + last_covered);
+        // loop over source words
+        var previous_covered_by_any = false;
+        var previous_covered_by_next = false;
+        for (var s=0; s<$target.data.alignments.length; s++) {
+          var covered_by_any = false;
+          var covered_by_next = false;
+          var log_aligned = "";
+          for (var t=0; t<$target.data.alignments[s].length && t<=last_covered+1; t++) {
+            if ($target.data.alignments[s][t]) {
+              if (t == last_covered+1) {
+                covered_by_next = true;
+              }
+              else {
+                covered_by_any = true;
+              }
+              log_aligned += " " + $('#'+targetspans[t].id).text()
+            }
+          }
+          if (covered_by_any || covered_by_next) { 
+            console.log($(sourcespans[s]).text() + " --- " + log_aligned);
+          }
+          if (covered_by_next) { covered_by_any = false; }
+
+          // got all the information, let's color some input tokens
+          $(sourcespans[s]).toggleClass('shade-off-translated', covered_by_any);
+          $(sourcespans[s]).toggleClass('shade-off-next', covered_by_next);
+          if (s>0) { // also the spaces between them
+            $('#'+sourcespans[s-1].id+"-space").toggleClass('shade-off-translated', previous_covered_by_any && covered_by_any);
+            $('#'+sourcespans[s-1].id+"-space").toggleClass('shade-off-next', (previous_covered_by_next || previous_covered_by_any) && covered_by_next);
+          }
+
+          // shade and scroll translation option display
+          if (config.translationOptions && $(transopt_id_prefix + s)) {
+            if (covered_by_next) { // move display to show next in center
+              var currentFocusWordPosition = $(transopt_id_prefix + s).offset().left;
+              var move = currentFocusWordPosition - window.innerWidth * 0.4;
+              var currentScrollPosition = $("#" + $(UI.currentSegment).attr("id") + "-options").scrollLeft();
+              var scrollToPosition = currentScrollPosition + move;
+              if (scrollToPosition < 0) { scrollToPosition = 0; }
+              $("#" + $(UI.currentSegment).attr("id") + "-options").scrollLeft( scrollToPosition )
+            }
+            $(transopt_id_prefix + s).toggleClass('shade-off-translated', covered_by_any);
+            $(transopt_id_prefix + s).toggleClass('shade-off-next', covered_by_next);
+          }
+          previous_covered_by_next = covered_by_next;
+          previous_covered_by_any = covered_by_any;
+        }
+      }
     }
 
     // updates the alignment display with new alignment info      
@@ -265,6 +346,7 @@
       if (source !== $source().editable('getText')) return;
       if (!config.floatPredictions && target !== $target.editable('getText')) return;
       if ( config.floatPredictions && target != self.FloatingPrediction.getPredictedText()) return;
+      $target.data.alignments = alignments;
 
       // get span tokens 
       var sourcespans = $('.editable-token', $source());
@@ -281,6 +363,9 @@
   
         // add mouseenter mouseleave events to target spans
         self.addAlignmentEvents($target, targetspans, targetal);
+
+        // update shade off of translated source
+        self.updateShadeOffTranslatedSource();
       }
     }
 
@@ -598,6 +683,7 @@
         // $target.editable ('setText', newText);
         goToPos (pos + insText.length + 1);
         showPredictedText();
+        self.updateShadeOffTranslatedSource();
         // merc - adding trigger to float predictions   
         $target.trigger('floatPrediction', [insText]);        
       }

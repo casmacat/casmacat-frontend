@@ -9,8 +9,13 @@
 .editarea[data-opt-mouse-align=true] > .mouse-align { background-color: yellow !important; }
 .source[data-opt-caret-align=true]   > .caret-align { background-color: aquamarine !important; }
 .editarea[data-opt-caret-align=true] > .caret-align { background-color: aquamarine !important; }
+.source[data-opt-shade-off-translated=true]   > .shade-off-translated { background-color: #dddddd !important; }
+.editarea[data-opt-shade-off-translated=true] > .shade-off-translated { background-color: #dddddd !important; }
+.source[data-opt-shade-off-translated=true]   > .shade-off-next { background-color: #FFF3B2 !important; }
+.editarea[data-opt-shade-off-translated=true] > .shade-off-next { background-color: #FFF3B2 !important; }
 .editarea[data-opt-limit-suffix-length=true] > .editable-token:not([data-prefix=true])[data-limited=true] { opacity: 0.3; }
-
+th.shade-off-next { background-color: #FFF3B2 !important; }
+th.shade-off-translated { background-color: #dddddd !important; }
 .editarea[data-opt-last-validated=true] > .editable-token[data-last-validated=true]       { /* XXX: hack to make chrome work with attribute selectors and :after (http://code.google.com/p/chromium/issues/detail?id=125719) */ }
 .editarea[data-opt-last-validated=true] > .editable-token[data-last-validated=true]:after { content: "‸"; position: absolute; color: brown; }
 

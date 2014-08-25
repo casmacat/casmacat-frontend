@@ -1307,7 +1307,7 @@ UI = {
 		var inputWord = tokenizer(d.sourceSegmentation, input); 
 		var sentenceLength = inputWord.length;
 		
-		appendOptions = '<div id="options">';
+		appendOptions = '<div id="' + this.currentSegment.attr('id') + '-options" class="translation-options">';
         if(d.dopt.options.length) {
 			if(!$('.sub-editor',segment).length) {
                 UI.createFooter(segment);
@@ -1335,10 +1335,11 @@ UI = {
 			// create options table
 			for (var b=0; b < (block.length)-1; b++){ // for every source token
 				// source tokens go on top
-				appendOptions += '<table cellspacing="0" style="display:inline; float:left;">';
+				appendOptions += '<table cellspacing="0" style="display:inline-block;">';
 				appendOptions += '<tr>';
 				for (var i = block[b]; i < block[b+1]; i++){
-					appendOptions += '<th>'+ inputWord[i] + '</th>';
+					appendOptions += '<th id="' + this.currentSegment.attr('id') + '-translation-option-input-' + i + '">'+ inputWord[i] + '</th>';
+                                        //appendOptions += '<th id="translation-option-input-' + i + '">'+ inputWord[i] + '</th>';
 				}
 				appendOptions += '</tr>';
 				
@@ -1388,6 +1389,9 @@ UI = {
 					
 					if (optionExists){
 						appendOptions += appendOptional + '</tr>';
+					}
+					else {
+						appendOptions += appendOptional + '<td class="option0"><div class="option-filler" id="of'+ startPos +'-'+ level+ '">&nbsp;</div></td></tr>';
 					}
 				}
 				appendOptions += '</table>';

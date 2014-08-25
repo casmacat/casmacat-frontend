@@ -409,7 +409,7 @@ var Memento = require("module.memento");
       function updateAlignments() {
         var conf = userCfg();
         if (conf.useAlignments) {
-          if (conf.displayCaretAlign || conf.displayMouseAlign) {
+          if (conf.displayCaretAlign || conf.displayMouseAlign || conf.displayShadeOffTranslatedSource) {
             var validated_words = $('.editable-token', $target).map(function() { return this.dataset.validated === "true"; }).get();
             var tgtText = $target.editable('getText');
             if (conf.mode == 'ITP' && config.floatPredictions) {
@@ -456,7 +456,16 @@ var Memento = require("module.memento");
         return value
       }
 
-      $target.on('displayCaretAlignToggle' + nsClass, function(e, value) {
+      $target.on('displayShadeOffTranslatedSourceToggle' + nsClass, function(e, value) {
+        var cfg = userCfg(), update = shouldUpdate($target, "opt-shade-off-translated", value);
+        cfg.displayShadeOffTranslatedSource = toggleOpt($target, "opt-shade-off-translated", value);
+        toggleOpt($source, "opt-shade-off-translated", cfg.displayShadeOffTranslatedSource);
+        if (update) {
+          updateAlignments();
+        }
+        $target.trigger('togglechange', ['displayShadeOffTranslatedSource', cfg.displayShadeOffTranslatedSource, cfg]);
+      })
+      .on('displayCaretAlignToggle' + nsClass, function(e, value) {
         var cfg = userCfg(), update = shouldUpdate($target, "opt-caret-align", value);
         cfg.displayCaretAlign = toggleOpt($target, "opt-caret-align", value);
         toggleOpt($source, "opt-caret-align", cfg.displayCaretAlign);
