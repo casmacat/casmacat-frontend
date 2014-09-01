@@ -253,8 +253,6 @@
     }
 
     self.updateShadeOffTranslatedSource = function() {
-      console.log($target.data.alignments);
-      console.log("self.updateShadeOffTranslatedSource();");
       var transopt_id_prefix = "#" + $(UI.currentSegment).attr("id") + "-translation-option-input-";
       var sourcespans = $('.editable-token', $source());
       var targetspans = $('.editable-token', $target);
@@ -627,7 +625,7 @@
             setVisible();
             return;
           }
-          var boldStart = caretPos;
+          var boldStart = skip(/^\s/, caretPos);
           var predStart = skipBack (/^\S/, skip (/^\s/, boldStart));
           var boldEnd = skip (/^\S/, boldStart);
           var predEnd = predStart;
@@ -657,16 +655,16 @@
         // I thought this would be enough:
         //   $target.editable ('setCaretPos', $target.text().length);
         // but I can't get it to work. (Herve)
-        // works for me (Phi)
-        $target.editable ('setCaretPos', $target.text().length);
-        return;
-        var token = $target.editable ('getTokenAtCaret', 0);
-        var range = document.createRange();
-        range.setStart (token.elem, pos);
-        range.collapse();
-        var sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange (range);
+        // The following works for me (Phi)
+        $target.editable ('setCaretPos', pos);
+	// Herve's code:
+        //var token = $target.editable ('getTokenAtCaret', 0);
+        //var range = document.createRange();
+        //range.setStart (token.elem, pos);
+        //range.collapse();
+        //var sel = window.getSelection();
+        //sel.removeAllRanges();
+        //sel.addRange (range);
       }
 
       function acceptNextWord () {
