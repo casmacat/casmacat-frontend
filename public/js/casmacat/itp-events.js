@@ -22,7 +22,8 @@ var Memento = require("module.memento");
     if (typeof evt.which == "undefined") {
       return true;
     } else if (typeof evt.which == "number" && evt.which > 0) {
-      return evt.which == 32 || evt.which > 46;
+      if (evt.ctrlKey || evt.altKey) return false;
+      return evt.which == 32 || evt.which == 13 || evt.which > 46;
     }
     return false;
   };
@@ -178,7 +179,7 @@ var Memento = require("module.memento");
         }
 
         // make sure new data still applies to current source
-        if (data.source !== $source().editable('getText')) {
+        if (data.source !== $source().editable('getOriginalText') && data.source !== $source().editable('getText')) {
           if (!data.isPreFetch)
             console.warn("Current source and received source do not match");
           return;
@@ -210,8 +211,8 @@ var Memento = require("module.memento");
         // herve - this ensures that the prediction popup shows up before the
         // user starts translating
         $target.focus();
-        if (config.floatPredictions) {
-          self.vis.FloatingPrediction.setPredictedText(bestResult.target);
+        if (userCfg().mode == 'ITP' && config.floatPredictions) {
+          self.vis.FloatingPrediction.setPredictedText(data);
         }
       });
     
@@ -234,7 +235,7 @@ var Memento = require("module.memento");
           return
         }
 
-        if (data.source !== $source().editable('getText')) return;
+        if (data.source !== $source().editable('getOriginalText') && data.source !== $source().editable('getText')) return;
         
       	self.vis.updateTranslationDisplay(data);
 
@@ -252,7 +253,7 @@ var Memento = require("module.memento");
         }
 
         // make sure new data still applies to current source and target texts
-        if (data.source !== $source().editable('getText')) return;
+        if (data.source !== $source().editable('getOriginalText') && data.source !== $source().editable('getText')) return;
         if (data.target !== $target.editable('getText')) return;
 
 
@@ -318,13 +319,13 @@ var Memento = require("module.memento");
         }
 
         // make sure new data still applies to current source
-        if (data.source !== $source().editable('getText')) {
+        if (data.source !== $source().editable('getOriginalText') && data.source !== $source().editable('getText')) {
           console.warn("Current source and received source do not match");
           return;
         }
 
-        if (config.floatPredictions)
-          self.vis.FloatingPrediction.setPredictedText (data.nbest[0].target);
+        if (userCfg().mode == 'ITP' && config.floatPredictions)
+          self.vis.FloatingPrediction.setPredictedText (data);
         else
           self.vis.updateSuggestions (data);
         
@@ -408,11 +409,16 @@ var Memento = require("module.memento");
       function updateAlignments() {
         var conf = userCfg();
         if (conf.useAlignments) {
-          if (conf.displayCaretAlign || conf.displayMouseAlign) {
+          if (conf.displayCaretAlign || conf.displayMouseAlign || conf.displayShadeOffTranslatedSource) {
             var validated_words = $('.editable-token', $target).map(function() { return this.dataset.validated === "true"; }).get();
+            var tgtText = $target.editable('getText');
+            if (conf.mode == 'ITP' && config.floatPredictions) {
+              tgtText = self.vis.FloatingPrediction.getPredictedText();
+              if (tgtText == null) { return; }
+            }
             var query = {
-              source: $source.editable('getText'),
-              target: $target.editable('getText'),
+              source: $source.editable('getOriginalText'),
+              target: tgtText,
               validated_words: validated_words, 
             }
             itp.getAlignments(query);
@@ -426,7 +432,7 @@ var Memento = require("module.memento");
           if (conf.displayConfidences) {
             var validated_words = $('.editable-token', $target).map(function() { return this.dataset.validated === "true"; }).get();
             var query = {
-              source: $source.editable('getText'),
+              source: $source.editable('getOriginalText'),
               target: $target.editable('getText'),
               validated_words: validated_words, 
             }
@@ -434,9 +440,6 @@ var Memento = require("module.memento");
           }
         }
       }
-
-
-
 
       function shouldUpdate($elem, opt, value) {
         if (typeof value === "undefined") value = true;
@@ -453,13 +456,21 @@ var Memento = require("module.memento");
         return value
       }
 
-      $target.on('displayCaretAlignToggle' + nsClass, function(e, value) {
+      $target.on('displayShadeOffTranslatedSourceToggle' + nsClass, function(e, value) {
+        var cfg = userCfg(), update = shouldUpdate($target, "opt-shade-off-translated", value);
+        cfg.displayShadeOffTranslatedSource = toggleOpt($target, "opt-shade-off-translated", value);
+        toggleOpt($source, "opt-shade-off-translated", cfg.displayShadeOffTranslatedSource);
+        if (update) {
+          updateAlignments();
+        }
+        $target.trigger('togglechange', ['displayShadeOffTranslatedSource', cfg.displayShadeOffTranslatedSource, cfg]);
+      })
+      .on('displayCaretAlignToggle' + nsClass, function(e, value) {
         var cfg = userCfg(), update = shouldUpdate($target, "opt-caret-align", value);
         cfg.displayCaretAlign = toggleOpt($target, "opt-caret-align", value);
         toggleOpt($source, "opt-caret-align", cfg.displayCaretAlign);
         if (update) {
           updateAlignments();
-
           $target.one('alignments', function() {
             $target.editable('refreshCaret');
           });
@@ -600,7 +611,7 @@ var Memento = require("module.memento");
               source = $this.editable('getText');
   
        
-          if (config.floatPredictions) {
+          if (userCfg().mode == 'ITP' && config.floatPredictions) {
             self.vis.FloatingPrediction.setPredictedText (null);
           }
           if (doesTriggerInteraction(e)) {
@@ -620,7 +631,7 @@ var Memento = require("module.memento");
         });
       }
 
-      if (config.floatPredictions) {
+      if (userCfg().mode == 'ITP' && config.floatPredictions) {
         $(window).scroll (function () {
           self.vis.FloatingPrediction.adjustPosition();
         });
@@ -643,7 +654,7 @@ var Memento = require("module.memento");
         //$('#caret').html('<span class="prefix">' + text.substr(0, d.pos) + '</span>' + '<span class="suffix">' + text.substr(d.pos) + "</span>");
         forgetState(d.pos);
         self.currentCaretPos = d;
-        if (config.floatPredictions) {
+        if (userCfg().mode == 'ITP' && config.floatPredictions) {
           self.vis.FloatingPrediction.adjustPosition();
         }
       })
@@ -666,7 +677,7 @@ var Memento = require("module.memento");
           var $this = $(this),
               data = $this.data('editable'),
               target = $this.editable('getText'),
-              source = $source.editable('getText'),
+              source = $source.editable('getOriginalText'),
               pos = $target.editable('getCaretPos');
 
           var spanElem = $target.editable('getTokenAtCaretPos', pos).elem;
@@ -696,7 +707,9 @@ var Memento = require("module.memento");
                   numResults: 1
                 }
                 var itpCfg = cfg(), itp = itpCfg.itpServer;
-                if (suffixHasUserCorrections.length === 0 && conf.mode != 'PE') {
+                var isDraft = ($this.closest('section.status-draft').length);
+                if (suffixHasUserCorrections.length === 0 && conf.mode != 'PE' && (isDraft || !config.itpDraftOnly)) {
+                  console.log("setPrefix");
                   itp.setPrefix(query);
                 }
                 else {

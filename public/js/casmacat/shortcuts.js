@@ -132,12 +132,16 @@
        'ctrl+del': clearTarget,
             'esc': UI.toggleItp,
          'return': saveDraft,
-         'ctrl+b': UI.launchBiconcor,
   };
   
+  if (UI.launchBiconcor) {
+    keyBindings['ctrl+b'] = UI.launchBiconcor;
+  }
+
   var toggleKeyBindings = UI.toggleKeyBindings = {
    'ctrl+shift+1': 'displayMouseAlign',
          'ctrl+m': 'displayCaretAlign',
+   'ctrl+shift+2': 'displayShadeOffTranslatedSource',
    'ctrl+shift+3': 'displayConfidences',
    'ctrl+shift+4': 'highlightValidated',
    'ctrl+shift+5': 'highlightPrefix',

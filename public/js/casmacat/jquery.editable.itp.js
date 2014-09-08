@@ -92,6 +92,7 @@
                 priorityLength: 1,
                 confidenceThresholds: { doubt: 0.4, bad: 0.03 },
                 displayCaretAlign: false,
+                displayShadeOffTranslatedSource: false,
                 displayMouseAlign: false,
                 displayConfidences: false,
                 highlightValidated: false,
@@ -122,7 +123,6 @@
         if (itpRes.doTriggerConnect) itpServer.trigger('connect');
 
         itpCount++;
-        //console.log("**** CREATE ****", itpCount);
       });
     },
 
@@ -149,12 +149,12 @@
 
     decode: function() { 
       var data = $(this).data(namespace);
-      data.itpServer.decode({source: data.$source.editable('getText')});
+      data.itpServer.decode({source: data.$source.editable('getOriginalText')});
     },
 
     startSession: function() { 
       var data = $(this).data(namespace);
-      data.itpServer.startSession({source: data.$source.editable('getText')});
+      data.itpServer.startSession({source: data.$source.editable('getOriginalText')});
     },
 
     endSession: function() { 
@@ -172,7 +172,9 @@
 
     validate: function() { 
       var data = $(this).data(namespace);
-      data.itpServer.validate({source: data.$source.editable('getText'), target: data.$target.editable('getText')});
+      data.itpServer.validate({source: data.$source.editable('getOriginalText'), target: data.$target.editable('getText')});
+      // if (data && data.itpServer)
+      //   data.itpServer.validate({source: data.$source.editable('getText'), target: data.$target.editable('getText')});
     },
 
     getValidatedContributions: function() { 
@@ -203,14 +205,14 @@
 
     getConfig: function() {
       var data = $(this).data(namespace);
-      return data.config;
+      return data.config || undefined;
     },
     
     rejectSuffix: function(caretPos, numResults) {
       var data = $(this).data(namespace);
       if (typeof(numResults) === 'undefined') numResults = 1;
       data.itpServer.rejectSuffix({
-        source: data.$source.text(),
+        source: data.$source.editable('getOriginalText'),
         target: data.$target.text(),
         caretPos: caretPos,
         numResults: numResults,
@@ -220,7 +222,7 @@
     setPrefix: function(caretPos) {
       var data = $(this).data(namespace);
       data.itpServer.setPrefix({
-        source: data.$source.text(),
+        source: data.$source.editable('getOriginalText'),
         target:   data.$target.text(),
         caretPos: caretPos,
         numResults: 1,    

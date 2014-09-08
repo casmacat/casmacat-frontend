@@ -311,6 +311,14 @@
 	  }
     },
 
+    getOriginalText: function() {
+      var source = this.attr('data-original'); 
+      if (typeof source === 'undefined') {
+        source = this.editable('getText');
+      }
+      return source.replace(/\&quot;/g,'"');
+    },
+
     getText: function() {
       return $(this).text();
     },
@@ -325,7 +333,8 @@
 
       if (segs && segs.length > 0) {
 
-        var spans = $.makeArray($('span', $this));
+        // var spans = $.makeArray($('span', $this));
+        var spans = $.makeArray($('.editable-token', $this));
         var old_tokens = new Array();
         for (var i = 0; i < spans.length; i++) {
           spans[i] = $(spans[i]);
@@ -391,7 +400,12 @@
             spaces = str.slice(pos[1]);
           }
           //if (spaces.length > 0) {
-            tokens.append(document.createTextNode(spaces));
+            space_span = $("<span/>", {class: 'editable-space'});
+            space_span.text(spaces);
+            space_span.attr('id', id + "_" + tok_id + "-space");
+            tokens.append(space_span);
+
+            //tokens.append(document.createTextNode(spaces));
           //}
         }
 

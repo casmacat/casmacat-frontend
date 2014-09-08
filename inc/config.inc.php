@@ -42,6 +42,8 @@ class INIT {
     public static $LOG_MAXCHUNKSIZE;
     public static $ITP_SERVER;
     public static $HTR_SERVER;
+    public static $SOURCE_LANGUAGE;
+    public static $TARGET_LANGUAGE;
     public static $BICONCOR_SERVER;
     public static $ITP_ENABLED;
     public static $PEN_ENABLED;
@@ -50,9 +52,10 @@ class INIT {
     public static $BICONCOR_ENABLED;
     public static $HIDE_CONTRIBUTIONS;
     public static $FLOAT_PREDICTIONS;
-	public static $TRANSLATION_OPTIONS;
+    public static $TRANSLATION_OPTIONS;
+    public static $ALLOW_CHANGE_VISUALIZATION_OPTIONS;
+    public static $ITP_DRAFT_ONLY;
     public static $ET_TYPE;
-
 
     public static function obtain() {
         if (!self::$instance) {
@@ -104,6 +107,8 @@ class INIT {
         self::$ITP_SERVER  = self::getConfig('itpserver');
         self::$HTR_SERVER  = self::getConfig('htrserver');
         self::$BICONCOR_SERVER  = self::getConfig('biconcorserver');
+        self::$SOURCE_LANGUAGE = self::getConfig('sourcelanguage');
+        self::$TARGET_LANGUAGE = self::getConfig('targetlanguage');
         self::$ITP_ENABLED = self::getConfigBool('itpenabled');
         self::$PEN_ENABLED = self::getConfigBool('penenabled');
         self::$ET_ENABLED  = self::getConfigBool('etenabled');
@@ -111,7 +116,9 @@ class INIT {
         self::$BICONCOR_ENABLED = self::getConfigBool('biconcorenabled');
         self::$HIDE_CONTRIBUTIONS = self::getConfigBool('hidecontributions');
         self::$FLOAT_PREDICTIONS = self::getConfigBool('floatpredictions');
-		self::$TRANSLATION_OPTIONS = self::getConfigBool('translationoptions');
+        self::$TRANSLATION_OPTIONS = self::getConfigBool('translationoptions');
+        self::$ALLOW_CHANGE_VISUALIZATION_OPTIONS = self::getConfigBool('allowchangevisualizationoptions');
+        self::$ITP_DRAFT_ONLY = self::getConfigBool('itpdraftonly');
         self::$ET_TYPE     = self::getConfig('ettype', "casmacat", 0);
         self::$DEBUG       = self::getConfigBool('debug', "debug");
     }

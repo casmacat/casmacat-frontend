@@ -87,7 +87,7 @@
         validated_words: validated_words, 
       }
       var conf = userCfg(), itp = cfg().itpServer;
-      if (conf.useAlignments && (conf.displayCaretAlign || conf.displayMouseAlign)) {
+      if (conf.useAlignments && (conf.displayCaretAlign || conf.displayMouseAlign || conf.displayShadeOffTranslatedSource)) {
         if (match.alignments) {
           itp.trigger('getAlignmentsResult', {data: match, errors: []});
         }
@@ -174,7 +174,7 @@
     // get the aligned html ids for source and target tokens
     self.getAlignmentIds = function(alignments, sourcespans, targetspans) {
       if (alignments.length !== sourcespans.length || alignments[0].length !== targetspans.length) {
-        console.warn("Alignments do not match!!!", alignments, sourcespans, targetspans); 
+        console.warn("Alignments do not match!!!", alignments.length, "=", sourcespans.length, ", ", alignments[0].length, "=", targetspans.length, alignments, sourcespans, targetspans); 
         return;
       }
 
@@ -231,10 +231,12 @@
           $span.on('mouseenter.alignments', function (e) {
             var aligs = $(e.target).data('alignments').alignedIds;
             self.showAlignments(aligs, 'mouse-align');
+	    $(this).toggleClass('mouse-align',true);
           });
           $span.on('mouseleave.alignments', function (e) {
             var aligs = $(e.target).data('alignments').alignedIds;
             self.hideAlignments(aligs, 'mouse-align');
+	    $(this).toggleClass('mouse-align',false);
           });
         }
         else {
@@ -250,8 +252,86 @@
       } 
     }
 
+    self.updateShadeOffTranslatedSource = function() {
+      var transopt_id_prefix = "#" + $(UI.currentSegment).attr("id") + "-translation-option-input-";
+      var sourcespans = $('.editable-token', $source());
+      var targetspans = $('.editable-token', $target);
+      if (! (userCfg().useAlignments && userCfg().displayShadeOffTranslatedSource)) {
+        for (var i = 0; i < sourcespans.length; i++) {
+          $(sourcespans[i]).toggleClass('shade-off-translated', false);
+          $(sourcespans[i]).toggleClass('shade-off-next', false);
+          if (config.translationOptions && $(transopt_id_prefix + i)) { // also in translation option display
+            $(transopt_id_prefix + i).toggleClass('shade-off-translated', false);
+            $(transopt_id_prefix + i).toggleClass('shade-off-next', false);
+          }
+        }
+      }
+      else {
+        if (!$target.data.alignments) {
+          return;
+        }
+        // get span tokens 
+        var last_covered = -1;
+        for (var i = 0; i < targetspans.length; i++) {
+           if ($('#'+targetspans[i].id).text() != "") {
+             // console.log("i = " + i + ", " + targetspans[i].id + " has text " + $('#'+targetspans[i].id).text());
+             last_covered = i;
+           }
+        }
+        console.log("last covered: " + last_covered);
+        // loop over source words
+        var previous_covered_by_any = false;
+        var previous_covered_by_next = false;
+        for (var s=0; s<$target.data.alignments.length; s++) {
+          var covered_by_any = false;
+          var covered_by_next = false;
+          var log_aligned = "";
+          for (var t=0; t<$target.data.alignments[s].length && t<=last_covered+1; t++) {
+            if ($target.data.alignments[s][t]) {
+              if (t == last_covered+1) {
+                covered_by_next = true;
+              }
+              else {
+                covered_by_any = true;
+              }
+              log_aligned += " " + $('#'+targetspans[t].id).text()
+            }
+          }
+          if (covered_by_any || covered_by_next) { 
+            console.log($(sourcespans[s]).text() + " --- " + log_aligned);
+          }
+          if (covered_by_next) { covered_by_any = false; }
+
+          // got all the information, let's color some input tokens
+          $(sourcespans[s]).toggleClass('shade-off-translated', covered_by_any);
+          $(sourcespans[s]).toggleClass('shade-off-next', covered_by_next);
+          if (s>0) { // also the spaces between them
+            $('#'+sourcespans[s-1].id+"-space").toggleClass('shade-off-translated', previous_covered_by_any && covered_by_any);
+            $('#'+sourcespans[s-1].id+"-space").toggleClass('shade-off-next', (previous_covered_by_next || previous_covered_by_any) && covered_by_next);
+          }
+
+          // shade and scroll translation option display
+          if (config.translationOptions && $(transopt_id_prefix + s)) {
+            if (covered_by_next) { // move display to show next in center
+              var currentFocusWordPosition = $(transopt_id_prefix + s).offset().left;
+              var move = currentFocusWordPosition - window.innerWidth * 0.4;
+              var currentScrollPosition = $("#" + $(UI.currentSegment).attr("id") + "-options").scrollLeft();
+              var scrollToPosition = currentScrollPosition + move;
+              if (scrollToPosition < 0) { scrollToPosition = 0; }
+              $("#" + $(UI.currentSegment).attr("id") + "-options").scrollLeft( scrollToPosition )
+            }
+            $(transopt_id_prefix + s).toggleClass('shade-off-translated', covered_by_any);
+            $(transopt_id_prefix + s).toggleClass('shade-off-next', covered_by_next);
+          }
+          previous_covered_by_next = covered_by_next;
+          previous_covered_by_any = covered_by_any;
+        }
+      }
+    }
+
     // updates the alignment display with new alignment info      
     self.updateAlignmentDisplay = function(data) {
+      var conf = userCfg();
       var alignments = data.alignments
         , source = data.source
         , sourceSegmentation = data.sourceSegmentation
@@ -262,7 +342,9 @@
       // make sure new data still applies to current text
       if (!(alignments.length > 0 && alignments[0].length > 0)) return;
       if (source !== $source().editable('getText')) return;
-      if (target !== $target.editable('getText')) return;
+      if (!config.floatPredictions && target !== $target.editable('getText')) return;
+      if ( config.floatPredictions && target != self.FloatingPrediction.getPredictedText()) return;
+      $target.data.alignments = alignments;
 
       // get span tokens 
       var sourcespans = $('.editable-token', $source());
@@ -279,6 +361,9 @@
   
         // add mouseenter mouseleave events to target spans
         self.addAlignmentEvents($target, targetspans, targetal);
+
+        // update shade off of translated source
+        self.updateShadeOffTranslatedSource();
       }
     }
 
@@ -396,14 +481,15 @@
       document.body.appendChild (elFloatPred);
 
       var predictedText = null;
-      setPredictedText (null);
+      var predictedSegmentation = [];
+      setPredictedText(null);
 
       function getCaretPixelCoords () {
         // returns the X/Y coordinates, in fixed window pixels, of the text
         // caret
         // 
-        // FIXME shouldn't this use getCaretXY() from jquery.editable.js ?
-        // 
+        // note: does not use getCaretXY() from jquery.editable.js 
+        //       because that is unreliable
         var sel = document.selection;
         var x = 0, y = 0;
         var range;
@@ -423,6 +509,26 @@
               var rect = range.getClientRects()[0];
               x = rect && rect.left;
               y = rect && rect.top;
+
+              // Fall back to inserting a temporary element
+              // http://stackoverflow.com/questions/6846230/coordinates-of-selected-text-in-browser-page
+              if (x == undefined) {
+                var span = document.createElement("span");
+                if (span.getClientRects) {
+                  // Ensure span has dimensions and position by
+                  // adding a zero-width space character
+                  span.appendChild( document.createTextNode("\u200b") );
+                  range.insertNode(span);
+                  rect = span.getClientRects()[0];
+                  x = rect.left;
+                  y = rect.top;
+                  var spanParent = span.parentNode;
+                  spanParent.removeChild(span);
+
+                  // Glue any broken text nodes back together
+                  spanParent.normalize();
+                }
+              }
             }
           }
         }
@@ -432,8 +538,10 @@
 
       function adjustPosition () {
         var coord = getCaretPixelCoords();
-        visibility.havePixelCoord = coord && coord[0] && coord[1];
-        if (visibility.havePixelCoord) {
+        visibility.havePixelCoord = true; // always true -> reuse old
+        //visibility.havePixelCoord = coord && coord[0] && coord[1];
+        if (coord && coord[0] && coord[1]) {
+        //if (visibility.havePixelCoord) {
           elFloatPred.style.top  = (coord[1]+20) + 'px';
           elFloatPred.style.left = (coord[0]+10) + 'px';
           showPredictedText();
@@ -459,18 +567,40 @@
       }
 
       function setVisible () {
-        var visible = true;
+        var conf = userCfg();
+        var visible = (conf.mode == 'ITP');
         for (var cond in visibility)
-          if (visibility.hasOwnProperty(cond) && !visibility[cond])
+          if (visibility.hasOwnProperty(cond) && !visibility[cond]) {
+            //console.log("cond " + cond + " failed.");
             visible = false;
+          }
         elFloatPred.className =
             'floating-prediction'
             + (visible ? '' : ' floating-prediction-hidden');
       }
 
-      function setPredictedText (txt) {
-        predictedText = txt;
+      function setPredictedText (data) {
+        if (data == null) {
+          predictedText = null;
+          predictedSegmentation = [];
+        }
+        else {
+          predictedText = data.nbest[0].target;
+          predictedSegmentation = data.nbest[0].targetSegmentation;
+
+          // update token information (includes predicted suffix)
+          $target.editable('setText', $target.editable('getText'), predictedSegmentation);
+
+          // request the server for new alignment and confidence info
+          var nmatch = $.extend({source: data.source, sourceSegmentation: data.sourceSegmentation}, data.nbest[0]);
+          self.updateOptional(nmatch);
+        }
+        adjustPosition();
         showPredictedText();
+      }
+
+      function getPredictedText () {
+        return predictedText;
       }
 
       function showPredictedText () {
@@ -490,11 +620,12 @@
               || userInput.length >= txt.length
               || userInput.substring(0,caretPos) != txt.substring(0,caretPos)
               )) {
+            console.log("preconditionsMet = false");
             visibility.preconditionsMet = false;
             setVisible();
             return;
           }
-          var boldStart = caretPos;
+          var boldStart = skip(/^\s/, caretPos);
           var predStart = skipBack (/^\S/, skip (/^\s/, boldStart));
           var boldEnd = skip (/^\S/, boldStart);
           var predEnd = predStart;
@@ -508,6 +639,10 @@
               '</b>' +
               txt.substring (boldEnd, predEnd);
         }
+        else {
+          // spinner if no prediction so far
+          floatHtmlStr = "<img src=\"/public/img/loader.gif\" width=\"16\" height=\"16\">";
+        }
         if (floatHtmlStr) {
           elFloatPred.innerHTML = floatHtmlStr;
         }
@@ -519,14 +654,17 @@
       function goToPos (pos) {
         // I thought this would be enough:
         //   $target.editable ('setCaretPos', $target.text().length);
-        // but I can't get it to work.
-        var token = $target.editable ('getTokenAtCaret', 0);
-        var range = document.createRange();
-        range.setStart (token.elem, pos);
-        range.collapse();
-        var sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange (range);
+        // but I can't get it to work. (Herve)
+        // The following works for me (Phi)
+        $target.editable ('setCaretPos', pos);
+	// Herve's code:
+        //var token = $target.editable ('getTokenAtCaret', 0);
+        //var range = document.createRange();
+        //range.setStart (token.elem, pos);
+        //range.collapse();
+        //var sel = window.getSelection();
+        //sel.removeAllRanges();
+        //sel.addRange (range);
       }
 
       function acceptNextWord () {
@@ -539,9 +677,11 @@
         if (sufText.indexOf(insText) === 0)
           sufText = sufText.substring(insText.length).trim();
         var newText = oldText.substring (0, pos) + insText + ' ' + sufText;
-        $target.editable ('setText', newText);
+        $target.editable ('setText', newText, predictedSegmentation);
+        // $target.editable ('setText', newText);
         goToPos (pos + insText.length + 1);
         showPredictedText();
+        self.updateShadeOffTranslatedSource();
         // merc - adding trigger to float predictions   
         $target.trigger('floatPrediction', [insText]);        
       }
@@ -554,6 +694,7 @@
       return {
         adjustPosition: adjustPosition,
         setPredictedText: setPredictedText,
+        getPredictedText: getPredictedText,
         acceptNextWord: acceptNextWord,
         destroy: destroy
       };
