@@ -1,7 +1,19 @@
 (function(module, global) {
 
+  var throttle = (function(){
+    var timer = 0;
+    return function(callback, ms){
+      clearTimeout (timer);
+      timer = setTimeout(callback, ms);
+    };
+  })();
+ 
   var htr = module.exports = {
     init: function($canvas, $source, $target) {
+
+      function cfg()     { return $target.data('itp'); }
+      function userCfg() { return cfg().config; }
+
 
       // Ensure we receive a jQuery element
       if (!$canvas.is('canvas')) throw Error("Canvas element not defined");
@@ -369,7 +381,7 @@
             clear: function(elem, data) {
               // skanvas.removeData('htr');
               casmacatHtr.endSession({
-                maxNBests: 30,
+                maxNBests: 10,
               });
               clearTimeout(decoderTimer);
             }
@@ -377,9 +389,9 @@
          
       }).bind('mousemove', function (e) { 
         clearTimeout(canvasForwarderTimer);
-        if (canvasForwarderTimerMs > 0 && !skanvas.data('sketchable').canvas.isDrawing) {
+        if (canvasForwarderTimerMs > 0 && !skanvas.data('sketchable').canvas.isDrawing && !skanvas.sketchable('strokes').length) {
           function forwardCanvas() {
-            var tokens = $target.editable('getTokensAtXY', [e.clientX, e.clientY]);
+            var tokens = $target.editable('getTokensAtXY', [e.pageX, e.pageY]);
             var elem; 
             if (tokens.length > 0) {
               $('.editable-token', $target).toggleClass('epen-closest', false);
@@ -444,8 +456,13 @@
         $selectedToken.text(result.text);
         //$replaced = $target.editable('replaceText', result.test, result.textSegmentation, $replaced, false && is_final);
  
-        var cursorPos = $target.editable('getTokenPos', $nextToken);
-        $target.editableItp('setPrefix', cursorPos);
+        if (userCfg().mode != 'PE') {
+          var cursorPos = $target.editable('getTokenPos', $nextToken);
+          $target.editableItp('setPrefix', cursorPos);
+        }
+        else {
+          $target.editableItp('updateTokens');
+        }
         // merc - adding updating to logging
         $target.trigger('updateEpen', [result.text, $target]);
         console.log('update at', cursorPos, $nextToken);
@@ -559,7 +576,7 @@
              siz = { width: $target.outerWidth() + 20, height: $target.outerHeight() };
 
         $canvas = $('<canvas tabindex="-1" id="'+prefix+'-canvas" width="'+siz.width+'" height="'+siz.height+'"/>');
-        $canvas.prependTo($targetParent).hide().delay(10).css({
+        $canvas.prependTo($targetParent).hide().css({
             left: ($section.find('.wrap').width() - siz.width - $section.find('.status-container').width()/2) / 2,
             zIndex: geom.getNextHighestDepth(),
         }).bind('mousedown mouseup click touchstart touchend', function(e){

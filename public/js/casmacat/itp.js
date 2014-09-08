@@ -133,7 +133,8 @@ $(function(){
 
     var $target = $(editarea), sid = $target.data('sid'), $source = $("#segment-" + sid + "-source");
     if (!$target.data('itp')) {
-      $target.on('ready.matecat', function() {
+      $target.on('ready.matecat', function(ev, data) {
+        console.log('READY', ev, data);
         var $indicator;
         if (typeof(settings.itp) === 'undefined' || $.isEmptyObject(settings.itp)) {
           settings.itp = $target.editableItp('getConfig');
@@ -144,7 +145,9 @@ $(function(){
         }
 
         //if ($.trim($target.text()).length === 0 && settings.itp.mode != "manual") {
-          $target.editableItp('decode');
+        if (!settings.itp.hasOwnProperty('initialDecode') || settings.itp.initialDecode) {
+           $target.editableItp('decode');
+        }
         //}
         $target.editableItp('startSession');
         $target.editableItp('updateConfig', settings.itp);
@@ -169,7 +172,8 @@ $(function(){
 
         // A button to toggle e-pen mode
         $indicator = $('.buttons', UI.currentSegment).find('.pen-indicator');
-        if (config.htrserver && config.penEnabled) {
+        if (config.htrserver && config.penEnabled && !$target.data('htr')) {
+           $target.data('htr', true);
            htr.attachEvents($target);
 
           if ($indicator.length === 0) {
@@ -348,10 +352,11 @@ $(function(){
       if ($target.hasClass('epen-target') && bybutton) {
         getEditArea().editableItp('toggle', 'enableEpen', false);
       }
+      $target.data('htr', false);
     }
 
     $('.vis-commands').hide();
-    original_closeSegment.call(UI, segment);
+    original_closeSegment.call(UI, segment, bybutton);
   };
 
   /*UI.copySuggestionInEditarea = function(editarea) {
