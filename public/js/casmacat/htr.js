@@ -342,7 +342,7 @@
                   });
 
                   skanvas.data('isHtr', true);
-                  $target.trigger('htrstart', [{context: context, firstStroke: strokes[0]}, null]);
+                  $target.trigger('htrstart', [{context: context}, null]);
                   
                 } else {
                   $target.trigger('htrgesture', [{gesture: gesture, stroke: strokes[0]}, null]);
