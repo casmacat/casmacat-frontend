@@ -327,6 +327,36 @@ $(function(){
             if (!settings.visualization.displayMouseAlign) return;
             forwardEvent('hideAlignmentByMouse', ev, ev.target);
           })
+      })
+
+      /// Capture epen events
+      .on('htrresult.matecat', function (ev, data, err) {
+        console.log('CAPTURE HTRRESULT', ev, data, err);
+        //merc - saving nbest in logging
+        //$target.trigger('recogEpen', [data, err]);
+      })
+      .on('htrupdate.matecat', function (ev, data, err) {
+        console.log('CAPTURE HTRUPDATE', ev, data, err);
+        // merc - adding updating to logging
+        //$target.trigger('updateEpen', [data, err]);
+      })
+      .on('htrnbestclick.matecat', function (ev, data, err) {
+        console.log('CAPTURE HTRNBESTCLICK', ev, data, err);
+      })
+      .on('htrtextchange.matecat', function (ev, data, err) {
+        console.log('CAPTURE HTRTEXTCHANGE', ev, data, err);
+      })
+      .on('htrstart.matecat', function (ev, data, err) {
+        console.log('CAPTURE HTRSTART', ev, data, err);
+      })
+      .on('htraddstroke.matecat', function (ev, data, err) {
+        console.log('CAPTURE HTRADDSTROKE', ev, data, err);
+      })
+      .on('htrend.matecat', function (ev, data, err) {
+        console.log('CAPTURE HTREND', ev, data, err);
+      })
+      .on('htrgesture.matecat', function (ev, data, err) {
+        console.log('CAPTURE GESTURE', ev, data, err);
       });
 
       if ((!settings.itp.hasOwnProperty('allowChangeVisualizationOptions') || settings.itp.allowChangeVisualizationOptions)) {

@@ -145,6 +145,7 @@
         ////console.log('update at', cursorPos, '"' + $target.text().slice(0, cursorPos)  + '"');
         //$target.editableItp('setPrefix', cursorPos)
         $target.trigger('editabletextchange', [null, null]);
+        $target.trigger('htrtextchange', [{action: 'delete'}, null]);
       };
 
       function doInsertGesture($token) {
@@ -295,6 +296,7 @@
             console.log("Gesture not implemented or out of context", gesture, centroid, tokenDistances);
             break;
         }
+
       };
 
 
@@ -320,27 +322,30 @@
 
                 gesture = gestureRecognizer.recognize(strokes);
                 console.log("GESTURE", gesture);
-                //merc - trigger epen logging
-                $target.trigger("gesture", [gesture]);
                 // first HTR stroke
                 if (!gesture || typeof(insert_after_token) !== 'undefined') {
                   var centroid = getAbsoluteXY(MathLib.centroid(strokes[0].slice(0, 20)));
                   var tokenDistance = getTokenDistanceAtPointer({clientX: centroid[0], clientY: centroid[1]});
                   var caretPos = $target.editable('getTokenPos', tokenDistance.token);
                   console.log('TOKDIST', tokenDistance, caretPos);
-                  casmacatHtr.startSession({
+                  var context = {
                     source: $source.editable('getText'),
                     target: $target.editable('getText'),
                     caretPos: caretPos,
-                  });
+                  }
+                  casmacatHtr.startSession(context);
                   
                   skanvas.data('htr', { 
                     x: e.clientX, 
                     y: e.clientY, 
                     target: tokenDistance 
                   });
+
+                  skanvas.data('isHtr', true);
+                  $target.trigger('htrstart', [{context: context, firstStroke: strokes[0]}, null]);
                   
                 } else {
+                  $target.trigger('htrgesture', [{gesture: gesture, stroke: strokes[0]}, null]);
                   processGesture(gesture, strokes[0]);
                   skanvas.sketchable('clear');
                 }
@@ -349,6 +354,7 @@
                 var $options = $canvas.next('.canvas-options');
                 $options.html("<strong>Decoding strokes ...</strong>");
                 casmacatHtr.addStroke({points: strokes[strokes.length-1], is_pen_down: true});      
+                $target.trigger('htraddstroke', [{points: strokes[strokes.length-1], is_pen_down: true}, null]);
                 decoderTimer = setTimeout(function () {
                   //$('#btn-decode').trigger('click');
                   skanvas.sketchable('clear');
@@ -380,9 +386,11 @@
 
             clear: function(elem, data) {
               // skanvas.removeData('htr');
-              casmacatHtr.endSession({
-                maxNBests: 10,
-              });
+              if (skanvas.data('isHtr')) {
+                $target.trigger('htrend', [{strokes: skanvas.sketchable('strokes')}, null]);
+                casmacatHtr.endSession({ maxNBests: 10, });
+                skanvas.removeData('isHtr');
+              }
               clearTimeout(decoderTimer);
             }
          },
@@ -416,15 +424,15 @@
       });
       
       casmacatHtr.on('addStrokeResult', function(data, errors) {
-        console.log('updated', data, errors);
         update_htr_suggestions(data, false);
+        $target.trigger('htrupdate', [data, errors]);
+        $target.trigger('htrtextchange', [{action: 'update'}, null]);
       });
 
       casmacatHtr.on('endSessionResult', function(data, errors) {
         console.log('recognized', data);
         update_htr_suggestions(data, true);
-        //merc - saving nbest in logging
-        $target.trigger('recogEpen', [data, $target]);
+        $target.trigger('htrresult', [data, errors]);
         //$('#btn-clear').trigger('click');
         if (insertion_token && insertion_token.text().length === 0) {
           insertion_token.remove();
@@ -432,6 +440,8 @@
             insertion_token_space.remove();
           }
         }
+        var action = (typeof(insert_after_token) !== 'undefined')?'insert':'substitute'; 
+        $target.trigger('htrtextchange', [{action: action}, null]);
         insert_after_token = undefined;
         insertion_token = undefined;
         insertion_token_space = undefined;
@@ -463,8 +473,6 @@
         else {
           $target.editableItp('updateTokens');
         }
-        // merc - adding updating to logging
-        $target.trigger('updateEpen', [result.text, $target]);
         console.log('update at', cursorPos, $nextToken);
       }
 
@@ -482,12 +490,18 @@
           var $options = $canvas.next('.canvas-options');
           $options.html('<span id="fps">' + fpsText + '</span><ul/>'); 
 
-          var $list = $('ul', $options).on('click', function(e) { 
-            var result = $(e.target).data('result');
+          var $list = $('ul', $options).data('nbests', data.nbest).on('click', function(e) { 
+            var $this = $(e.target)
+              , result = $this.data('result')
+              , index = $this.data('index')
+              , nbests = $this.parent('ul').data('nbests');
+
             replace_suggestion(result);
+            $target.trigger('htrtextchange', [{action: 'nbestclick'}, null]);
+            $target.trigger('htrnbestclick', [{nbests: nbests, result: result, index: index}, null]);
           });
           for (var n = 0; n < data.nbest.length; n++) {
-            var $result = $('<li>' +  data.nbest[n].text + '</li>').data('result', data.nbest[n]);
+            var $result = $('<li>' +  data.nbest[n].text + '</li>').data('result', data.nbest[n]).data('index', n);
             $list.append($result);
           }
         }
