@@ -342,7 +342,7 @@ $(function(){
       })
       .on('htrnbestclick.matecat', function (ev, data, err) {
         console.log('CAPTURE HTRNBESTCLICK', ev, data, err);
-        $target.trigger('htrUpdate', [data, err]);
+        $target.trigger('htrNBestClick', [data, err]);
       })
       .on('htrtextchange.matecat', function (ev, data, err) {
         console.log('CAPTURE HTRTEXTCHANGE', ev, data, err);
@@ -358,7 +358,7 @@ $(function(){
       })
       .on('htrend.matecat', function (ev, data, err) {
         console.log('CAPTURE HTREND', ev, data, err);
-        $target.trigger('htrTrend', [data, err]);
+        $target.trigger('htrEnd', [data, err]);
       })
       .on('htrgesture.matecat', function (ev, data, err) {
         console.log('CAPTURE HTRGESTURE', ev, data, err);

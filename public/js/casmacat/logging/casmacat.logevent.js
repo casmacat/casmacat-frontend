@@ -86,9 +86,11 @@ var LogEventFactory = function(elementIdMode) {
     this.EPEN_CLOSED = "epenClosed";
     this.HTR_RESULT = "htrResult";
     this.HTR_UPDATE = "htrUpdate";
+    this.HTR_NBEST_CLICK = "htrNBestClick";
+    this.HTR_TEXT_CHANGE = "htrTextChange";
     this.HTR_START = "htrStart";
     this.HTR_ADD_STROKE = "htrAddStroke";
-    this.HTR_TREND = "htrTrend";
+    this.HTR_END = "htrEnd";
     this.HTR_GESTURE = "htrGesture";
     // merc - blur/focus
     this.BLUR = "blur";
@@ -333,13 +335,19 @@ LogEventFactory.prototype.newLogEvent = function(type, timeStamp, element) {
         case this.HTR_UPDATE:
             logEvent.info = arguments[3]; 
             break;
+        case this.HTR_NBEST_CLICK:
+            logEvent.info = arguments[3]; 
+            break;
+        case this.HTR_TEXT_CHANGE:
+            logEvent.info = arguments[3]; 
+            break;
         case this.HTR_START:
             logEvent.info = arguments[3]; 
             break;
         case this.HTR_ADD_STROKE:
             logEvent.info = arguments[3]; 
             break;
-        case this.HTR_TREND:
+        case this.HTR_END:
             logEvent.info = arguments[3]; 
             break;
         case this.HTR_GESTURE:

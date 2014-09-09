@@ -400,6 +400,14 @@ else {
                         $logEvent->epenData($value);
                         insertEpenEvent($logEvent);
                         break;
+                    case LogEvent::HTR_NBEST_CLICK:
+                        $logEvent->epenData($value);
+                        insertEpenEvent($logEvent);
+                        break;
+                    case LogEvent::HTR_TEXT_CHANGE:
+                        $logEvent->epenData($value);
+                        insertEpenEvent($logEvent);
+                        break;
                     case LogEvent::HTR_START:
                         $logEvent->epenData($value);
                         insertEpenEvent($logEvent);
@@ -408,7 +416,7 @@ else {
                         $logEvent->epenData($value);
                         insertEpenEvent($logEvent);
                         break;                   
-                    case LogEvent::HTR_TREND:
+                    case LogEvent::HTR_END:
                         $logEvent->epenData($value);
                         insertEpenEvent($logEvent);
                         break;

@@ -621,9 +621,11 @@
             $(window).on("htrTextChange." + pluginName, htrTextChange);
             $(window).on("htrResult." + pluginName, htrResult);
             $(window).on("htrUpdate." + pluginName, htrUpdate);
+            $(window).on("htrNBestClick." + pluginName, htrNBestClick);
+            $(window).on("htrTextChange." + pluginName, htrTextChange);
             $(window).on("htrStart." + pluginName, htrStart);
             $(window).on("htrAddStroke." + pluginName, htrAddStroke);
-            $(window).on("htrTrend." + pluginName, htrTrend);
+            $(window).on("htrEnd." + pluginName, htrEnd);
             $(window).on("htrGesture." + pluginName, htrGesture);
         }
 
@@ -1585,15 +1587,6 @@
         }
     };
     
-    var htrTextChange = function(e, data) {
-        debug(pluginName + ": event type: '" + e.type + "'.");
-
-        textChanged({
-            target: e.target,
-            data: {edition: "epen"},
-        });  
-    };
-    
     var htrResult = function(e, data) {
         debug(pluginName + ": event type: '" + e.type + "'.");
         if (data !== null){
@@ -1606,6 +1599,21 @@
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HTR_UPDATE, e.timeStamp, e.target, data));
     };
     
+    var htrNBestClick = function(e, data) {
+        debug(pluginName + ": event type: '" + e.type + "'.");
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HTR_NBEST_CLICK, e.timeStamp, e.target, data));
+    };
+    
+    var htrTextChange = function(e, data) {
+        debug(pluginName + ": event type: '" + e.type + "'.");
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HTR_TEXT_CHANGE, e.timeStamp, e.target, data));
+
+        textChanged({
+            target: e.target,
+            data: {edition: "epen"},
+        });  
+    };
+    
     var htrStart = function(e, data) {
         debug(pluginName + ": event type: '" + e.type + "'.");
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HTR_START, e.timeStamp, e.target, data));
@@ -1616,9 +1624,9 @@
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HTR_ADD_STROKE, e.timeStamp, e.target, data));
     };
     
-    var htrTrend = function(e, data) {
+    var htrEnd = function(e, data) {
         debug(pluginName + ": event type: '" + e.type + "'.");
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HTR_TREND, e.timeStamp, e.target, data));
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HTR_END, e.timeStamp, e.target, data));
     };
     
     var htrGesture = function(e, gesture) {
