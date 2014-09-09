@@ -78,9 +78,12 @@ class LogEvent {
     // merc - adding e-pen
     const EPEN_OPENED = "epenOpened";
     const EPEN_CLOSED = "epenClosed";
-    const RECOG_EPEN = "recogEpen";
-    const UPDATE_EPEN = "updateEpen";
-    const GESTURE = "gesture";
+    const HTR_RESULT = "htrResult";
+    const HTR_UPDATE = "htrUpdate";
+    const HTR_START = "htrStart";
+    const HTR_ADD_STROKE = "htrAddStroke";
+    const HTR_TREND = "htrTrend";    
+    const HTR_GESTURE = "htrGesture";
     // merc - blur/focus
     const BLUR = "blur";
     const FOCUS = "focus";

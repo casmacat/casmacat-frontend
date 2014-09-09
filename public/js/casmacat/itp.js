@@ -333,30 +333,36 @@ $(function(){
       .on('htrresult.matecat', function (ev, data, err) {
         console.log('CAPTURE HTRRESULT', ev, data, err);
         //merc - saving nbest in logging
-        //$target.trigger('recogEpen', [data, err]);
+        $target.trigger('htrResult', [data, err]);
       })
       .on('htrupdate.matecat', function (ev, data, err) {
         console.log('CAPTURE HTRUPDATE', ev, data, err);
         // merc - adding updating to logging
-        //$target.trigger('updateEpen', [data, err]);
+        $target.trigger('htrUpdate', [data, err]);
       })
       .on('htrnbestclick.matecat', function (ev, data, err) {
         console.log('CAPTURE HTRNBESTCLICK', ev, data, err);
+        $target.trigger('htrUpdate', [data, err]);
       })
       .on('htrtextchange.matecat', function (ev, data, err) {
         console.log('CAPTURE HTRTEXTCHANGE', ev, data, err);
+        $target.trigger('htrTextChange', [data, err]);
       })
       .on('htrstart.matecat', function (ev, data, err) {
         console.log('CAPTURE HTRSTART', ev, data, err);
+        $target.trigger('htrStart', [data, err]);
       })
       .on('htraddstroke.matecat', function (ev, data, err) {
         console.log('CAPTURE HTRADDSTROKE', ev, data, err);
+        $target.trigger('htrAddStroke', [data, err]);
       })
       .on('htrend.matecat', function (ev, data, err) {
         console.log('CAPTURE HTREND', ev, data, err);
+        $target.trigger('htrTrend', [data, err]);
       })
       .on('htrgesture.matecat', function (ev, data, err) {
-        console.log('CAPTURE GESTURE', ev, data, err);
+        console.log('CAPTURE HTRGESTURE', ev, data, err);
+        $target.trigger('htrGesture', [data, err]);
       });
 
       if ((!settings.itp.hasOwnProperty('allowChangeVisualizationOptions') || settings.itp.allowChangeVisualizationOptions)) {
