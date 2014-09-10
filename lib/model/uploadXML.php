@@ -32,17 +32,12 @@ else {
     //print $fileName."\n";
     //print "documentName: ".$xml->documentName."\n";
     $src_lang = $xml->Languages->attributes()->source;
-    print "src_languge: ".$src_lang."\n";
-    
-	
-    
+    print "src_language: ".$src_lang."\n";
+  
     //create project
     $pid = insertProject('translated_user', "uploadFile");
     print "project: ".$pid."\n";
-    
-    //create file
-    insertFile($pid, $fileName, $src_lang, "xml", "uploaded");
-    
+       
     //create pass
     $length=8;
     // Random
@@ -56,7 +51,7 @@ else {
     
     //create job and file  
     $jid = insertJob($pwd, $pid, '', $xml->Languages->attributes()->source, $xml->Languages->attributes()->target, '','');
-    $fid = insertFile($pid, $fileName, $xml->Languages->attributes()->source, 'xml', '');
+    $fid = insertFile($pid, $fileName, $xml->Languages->attributes()->source, 'xml', 'uploaded');
     insertFilesJob($jid, $fid);
     print "job_id: ".$jid."\n";
     print "file_id: ".$fid."\n";
