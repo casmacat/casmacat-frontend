@@ -77,8 +77,13 @@ class saveLogChunkController extends ajaxcontroller {
                 throw new Exception("CASMACAT: saveLogChunkController->doAction(): Not an array: '" . print_r($this->logList, true) . "'.");
             }
 
+            log::doLog("sorting!!!".print_r($this->logList, true));
+            foreach($this->logList as $obj)
+                $log_list[$obj->time] = $obj;
+            ksort($log_list);
+            log::doLog("sorting2!!!".print_r($log_list, true));
             // TODO how about transactions?
-            foreach ($this->logList as $key => $value) {
+            foreach ($log_list as $key => $value) {
 //                $value = (object) $value;
                 $logEvent = new LogEvent($this->jobId, $this->fileId, $value);
 
