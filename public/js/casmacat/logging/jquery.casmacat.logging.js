@@ -1588,9 +1588,7 @@
     
     var htrResult = function(e, data) {
         debug(pluginName + ": event type: '" + e.type + "'.");
-        if (data !== null){
-            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HTR_RESULT, e.timeStamp, e.target, data));
-        }
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HTR_RESULT, e.timeStamp, e.target, data));
     };
     
     var htrUpdate = function(e, data) {
@@ -1630,13 +1628,7 @@
     
     var htrGesture = function(e, gesture) {
         debug(pluginName + ": gesture event: type: '" + e.type + "'.");
-        if (gesture !== undefined){
             storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HTR_GESTURE, e.timeStamp, e.target, gesture)); 
-        }
-//        textChanged({
-//            target: e.target,
-//            data: {edition: "epen"},
-//        });  
     };
        
     $(window).blur(function(e, data){
