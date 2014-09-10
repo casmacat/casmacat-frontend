@@ -618,7 +618,6 @@
         // merc- adding epen logging
         if (settings.logEpen) {
             $(window).on("epen." + pluginName, epen);
-            $(window).on("htrTextChange." + pluginName, htrTextChange);
             $(window).on("htrResult." + pluginName, htrResult);
             $(window).on("htrUpdate." + pluginName, htrUpdate);
             $(window).on("htrNBestClick." + pluginName, htrNBestClick);
@@ -1610,7 +1609,7 @@
 
         textChanged({
             target: e.target,
-            data: {edition: "epen"},
+            data: {edition: "epen"}
         });  
     };
     
