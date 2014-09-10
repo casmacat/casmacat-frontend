@@ -402,7 +402,7 @@
             var tokens = $target.editable('getTokensAtXY', [e.pageX, e.pageY]);
             var elem; 
             if (tokens.length > 0) {
-              $('.editable-token', $target).toggleClass('epen-closest', false);
+              $('.editable-token, .editable-space', $target).toggleClass('epen-closest', false);
               $(tokens[0].token).toggleClass('epen-closest', true);
             }
             
