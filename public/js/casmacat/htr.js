@@ -328,10 +328,49 @@
                   var tokenDistance = getTokenDistanceAtPointer({clientX: centroid[0], clientY: centroid[1]});
                   var caretPos = $target.editable('getTokenPos', tokenDistance.token);
                   console.log('TOKDIST', tokenDistance, caretPos);
+                  var canvasRect = $canvas.get(0).getClientRects()[0];
+                  var canvasTop = canvasRect.top + parseInt($canvas.css("border-top-width"), 10);
+                  var canvasLeft = canvasRect.left + parseInt($canvas.css("border-left-width"), 10);
                   var context = {
                     source: $source.editable('getText'),
                     target: $target.editable('getText'),
                     caretPos: caretPos,
+                    extra: {
+                      canvasSize: { width: $canvas.width(), height: $canvas.height() },
+                      device: window.navigator.userAgent,
+                      sourceTokens: $('.editable-token', $source).map(function(){
+                        return {
+                          'text': $(this).text(),
+                          'font': $(this).css('font'),
+                          'area': Array.prototype.map.call(this.getClientRects(), function(rect) {
+                            return {
+                              'top': rect.top - canvasTop,
+                              'left': rect.left - canvasLeft,
+                              'right': rect.right - canvasLeft,
+                              'bottom': rect.bottom - canvasTop,
+                              'width': rect.width,
+                              'height': rect.height,
+                            };
+                          }),
+                        };
+                      }).toArray(),
+                      targetTokens: $('.editable-token', $target).map(function(){
+                        return {
+                          'text': $(this).text(),
+                          'font': $(this).css('font'),
+                          'area': Array.prototype.map.call(this.getClientRects(), function(rect) {
+                            return {
+                              'top': rect.top - canvasTop,
+                              'left': rect.left - canvasLeft,
+                              'right': rect.right - canvasLeft,
+                              'bottom': rect.bottom - canvasTop,
+                              'width': rect.width,
+                              'height': rect.height,
+                            };
+                          }),
+                        };
+                      }).toArray(), 
+                    }
                   }
                   casmacatHtr.startSession(context);
                   
