@@ -120,11 +120,11 @@
     clear: function() {
       return this.each(function() {
         var elem = $(this), data = elem.data(_ns);
-        data.canvas.clear();
-        data.strokes = [];
         if (typeof options.events.clear === 'function') {
           options.events.clear(elem, data);
         }
+        data.canvas.clear();
+        data.strokes = [];
       });
     },
     /** 

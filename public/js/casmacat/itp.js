@@ -133,7 +133,8 @@ $(function(){
 
     var $target = $(editarea), sid = $target.data('sid'), $source = $("#segment-" + sid + "-source");
     if (!$target.data('itp')) {
-      $target.on('ready.matecat', function() {
+      $target.on('ready.matecat', function(ev, data) {
+        console.log('READY', ev, data);
         var $indicator;
         if (typeof(settings.itp) === 'undefined' || $.isEmptyObject(settings.itp)) {
           settings.itp = $target.editableItp('getConfig');
@@ -144,7 +145,9 @@ $(function(){
         }
 
         //if ($.trim($target.text()).length === 0 && settings.itp.mode != "manual") {
-          $target.editableItp('decode');
+        if (!settings.itp.hasOwnProperty('initialDecode') || settings.itp.initialDecode) {
+           $target.editableItp('decode');
+        }
         //}
         $target.editableItp('startSession');
         $target.editableItp('updateConfig', settings.itp);
@@ -169,7 +172,8 @@ $(function(){
 
         // A button to toggle e-pen mode
         $indicator = $('.buttons', UI.currentSegment).find('.pen-indicator');
-        if (config.htrserver && config.penEnabled) {
+        if (config.htrserver && config.penEnabled && !$target.data('htr')) {
+           $target.data('htr', true);
            htr.attachEvents($target);
 
           if ($indicator.length === 0) {
@@ -323,6 +327,42 @@ $(function(){
             if (!settings.visualization.displayMouseAlign) return;
             forwardEvent('hideAlignmentByMouse', ev, ev.target);
           })
+      })
+
+      /// Capture epen events
+      .on('htrresult.matecat', function (ev, data, err) {
+        console.log('CAPTURE HTRRESULT', ev, data, err);
+        //merc - saving nbest in logging
+        $target.trigger('htrResult', [data, err]);
+      })
+      .on('htrupdate.matecat', function (ev, data, err) {
+        console.log('CAPTURE HTRUPDATE', ev, data, err);
+        // merc - adding updating to logging
+        $target.trigger('htrUpdate', [data, err]);
+      })
+      .on('htrnbestclick.matecat', function (ev, data, err) {
+        console.log('CAPTURE HTRNBESTCLICK', ev, data, err);
+        $target.trigger('htrNBestClick', [data, err]);
+      })
+      .on('htrtextchange.matecat', function (ev, data, err) {
+        console.log('CAPTURE HTRTEXTCHANGE', ev, data, err);
+        $target.trigger('htrTextChange', [data, err]);
+      })
+      .on('htrstart.matecat', function (ev, data, err) {
+        console.log('CAPTURE HTRSTART', ev, data, err);
+        $target.trigger('htrStart', [data, err]);
+      })
+      .on('htraddstroke.matecat', function (ev, data, err) {
+        console.log('CAPTURE HTRADDSTROKE', ev, data, err);
+        $target.trigger('htrAddStroke', [data, err]);
+      })
+      .on('htrend.matecat', function (ev, data, err) {
+        console.log('CAPTURE HTREND', ev, data, err);
+        $target.trigger('htrEnd', [data, err]);
+      })
+      .on('htrgesture.matecat', function (ev, data, err) {
+        console.log('CAPTURE HTRGESTURE', ev, data, err);
+        $target.trigger('htrGesture', [data, err]);
       });
 
       if ((!settings.itp.hasOwnProperty('allowChangeVisualizationOptions') || settings.itp.allowChangeVisualizationOptions)) {
@@ -348,10 +388,11 @@ $(function(){
       if ($target.hasClass('epen-target') && bybutton) {
         getEditArea().editableItp('toggle', 'enableEpen', false);
       }
+      $target.data('htr', false);
     }
 
     $('.vis-commands').hide();
-    original_closeSegment.call(UI, segment);
+    original_closeSegment.call(UI, segment, bybutton);
   };
 
   /*UI.copySuggestionInEditarea = function(editarea) {

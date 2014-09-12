@@ -77,6 +77,7 @@ class saveLogChunkController extends ajaxcontroller {
                 throw new Exception("CASMACAT: saveLogChunkController->doAction(): Not an array: '" . print_r($this->logList, true) . "'.");
             }
 
+            
             // TODO how about transactions?
             foreach ($this->logList as $key => $value) {
 //                $value = (object) $value;
@@ -253,15 +254,35 @@ class saveLogChunkController extends ajaxcontroller {
                     case LogEvent::EPEN_CLOSED:
                         insertLogEventHeader($logEvent);
                         break;
-                    case LogEvent::RECOG_EPEN:
+                    case LogEvent::HTR_RESULT:
                         $logEvent->epenData($value);
                         insertEpenEvent($logEvent);
                         break;
-                    case LogEvent::UPDATE_EPEN:
+                    case LogEvent::HTR_UPDATE:
                         $logEvent->epenData($value);
                         insertEpenEvent($logEvent);
                         break;
-                    case LogEvent::GESTURE:
+                    case LogEvent::HTR_NBEST_CLICK:
+                        $logEvent->epenData($value);
+                        insertEpenEvent($logEvent);
+                        break;
+                    case LogEvent::HTR_TEXT_CHANGE:
+                        $logEvent->epenData($value);
+                        insertEpenEvent($logEvent);
+                        break;
+                    case LogEvent::HTR_START:
+                        $logEvent->epenData($value);
+                        insertEpenEvent($logEvent);
+                        break;
+                    case LogEvent::HTR_ADD_STROKE:
+                        $logEvent->epenData($value);
+                        insertEpenEvent($logEvent);
+                        break;
+                    case LogEvent::HTR_END:
+                        $logEvent->epenData($value);
+                        insertEpenEvent($logEvent);
+                        break;
+                    case LogEvent::HTR_GESTURE:
                         $logEvent->epenData($value);
                         insertEpenEvent($logEvent);
                         break;

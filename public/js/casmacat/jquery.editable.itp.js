@@ -173,6 +173,8 @@
     validate: function() { 
       var data = $(this).data(namespace);
       data.itpServer.validate({source: data.$source.editable('getOriginalText'), target: data.$target.editable('getText')});
+      // if (data && data.itpServer)
+      //   data.itpServer.validate({source: data.$source.editable('getText'), target: data.$target.editable('getText')});
     },
 
     getValidatedContributions: function() { 
