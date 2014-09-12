@@ -211,8 +211,8 @@ var Memento = require("module.memento");
         // herve - this ensures that the prediction popup shows up before the
         // user starts translating
         $target.focus();
-        if (config.floatPredictions) {
-          self.vis.FloatingPrediction.setPredictedText(bestResult.target);
+        if (userCfg().mode == 'ITP' && config.floatPredictions) {
+          self.vis.FloatingPrediction.setPredictedText(data);
         }
       });
     
@@ -324,8 +324,8 @@ var Memento = require("module.memento");
           return;
         }
 
-        if (config.floatPredictions)
-          self.vis.FloatingPrediction.setPredictedText (data.nbest[0].target);
+        if (userCfg().mode == 'ITP' && config.floatPredictions)
+          self.vis.FloatingPrediction.setPredictedText (data);
         else
           self.vis.updateSuggestions (data);
         
@@ -409,11 +409,16 @@ var Memento = require("module.memento");
       function updateAlignments() {
         var conf = userCfg();
         if (conf.useAlignments) {
-          if (conf.displayCaretAlign || conf.displayMouseAlign) {
+          if (conf.displayCaretAlign || conf.displayMouseAlign || conf.displayShadeOffTranslatedSource) {
             var validated_words = $('.editable-token', $target).map(function() { return this.dataset.validated === "true"; }).get();
+            var tgtText = $target.editable('getText');
+            if (conf.mode == 'ITP' && config.floatPredictions) {
+              tgtText = self.vis.FloatingPrediction.getPredictedText();
+              if (tgtText == null) { return; }
+            }
             var query = {
               source: $source.editable('getOriginalText'),
-              target: $target.editable('getText'),
+              target: tgtText,
               validated_words: validated_words, 
             }
             itp.getAlignments(query);
@@ -436,9 +441,6 @@ var Memento = require("module.memento");
         }
       }
 
-
-
-
       function shouldUpdate($elem, opt, value) {
         if (typeof value === "undefined") value = true;
         var old = ($elem[0].getAttribute("data-" + opt) === "true")
@@ -454,13 +456,21 @@ var Memento = require("module.memento");
         return value
       }
 
-      $target.on('displayCaretAlignToggle' + nsClass, function(e, value) {
+      $target.on('displayShadeOffTranslatedSourceToggle' + nsClass, function(e, value) {
+        var cfg = userCfg(), update = shouldUpdate($target, "opt-shade-off-translated", value);
+        cfg.displayShadeOffTranslatedSource = toggleOpt($target, "opt-shade-off-translated", value);
+        toggleOpt($source, "opt-shade-off-translated", cfg.displayShadeOffTranslatedSource);
+        if (update) {
+          updateAlignments();
+        }
+        $target.trigger('togglechange', ['displayShadeOffTranslatedSource', cfg.displayShadeOffTranslatedSource, cfg]);
+      })
+      .on('displayCaretAlignToggle' + nsClass, function(e, value) {
         var cfg = userCfg(), update = shouldUpdate($target, "opt-caret-align", value);
         cfg.displayCaretAlign = toggleOpt($target, "opt-caret-align", value);
         toggleOpt($source, "opt-caret-align", cfg.displayCaretAlign);
         if (update) {
           updateAlignments();
-
           $target.one('alignments', function() {
             $target.editable('refreshCaret');
           });
@@ -601,7 +611,7 @@ var Memento = require("module.memento");
               source = $this.editable('getText');
   
        
-          if (config.floatPredictions) {
+          if (userCfg().mode == 'ITP' && config.floatPredictions) {
             self.vis.FloatingPrediction.setPredictedText (null);
           }
           if (doesTriggerInteraction(e)) {
@@ -621,7 +631,7 @@ var Memento = require("module.memento");
         });
       }
 
-      if (config.floatPredictions) {
+      if (userCfg().mode == 'ITP' && config.floatPredictions) {
         $(window).scroll (function () {
           self.vis.FloatingPrediction.adjustPosition();
         });
@@ -644,7 +654,7 @@ var Memento = require("module.memento");
         //$('#caret').html('<span class="prefix">' + text.substr(0, d.pos) + '</span>' + '<span class="suffix">' + text.substr(d.pos) + "</span>");
         forgetState(d.pos);
         self.currentCaretPos = d;
-        if (config.floatPredictions) {
+        if (userCfg().mode == 'ITP' && config.floatPredictions) {
           self.vis.FloatingPrediction.adjustPosition();
         }
       })
@@ -698,7 +708,8 @@ var Memento = require("module.memento");
                 }
                 var itpCfg = cfg(), itp = itpCfg.itpServer;
                 var isDraft = ($this.closest('section.status-draft').length);
-                if (suffixHasUserCorrections.length === 0 && conf.mode != 'PE' && isDraft) {
+                if (suffixHasUserCorrections.length === 0 && conf.mode != 'PE' && (isDraft || !config.itpDraftOnly)) {
+                  console.log("setPrefix");
                   itp.setPrefix(query);
                 }
                 else {

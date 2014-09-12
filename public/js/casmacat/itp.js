@@ -301,6 +301,8 @@ $(function(){
             forwardEvent('showAlignmentByKey', ev, {element: $target[0], type: "caretenter", data: d});
           })
           .on('caretleave.matecat', function (ev, data) {
+            if (settings.visualization.displayShadeOffTranslatedSource) {
+            }
             if (!settings.visualization.displayCaretAlign) return;
             // change dom node in data by its id to avoid circular problem when converting to JSON
             var d = jQuery.extend({}, data); d.token = '#'+d.token.id;
@@ -424,7 +426,6 @@ $(function(){
 
   UI.setTranslation = function(segment, status) {
     original_setTranslation.call(UI, segment, status);
-
     if (status === 'translated') {
       getEditArea().editableItp('validate');
     }

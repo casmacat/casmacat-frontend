@@ -409,7 +409,6 @@
       self.checkConnection();
       self.server.emit('applyReplacementRules', {data: obj});
     };    
-
   };
 
   module.exports = CatClient;

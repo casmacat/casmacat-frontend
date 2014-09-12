@@ -36,6 +36,8 @@ matchthreshold = 50
 itpserver = "my.cat.server:8080"
 htrserver = "my.htr.server:8080"
 biconcorserver = "my.biconcor.server:8080"
+sourcelanguage = ""
+targetlanguage = ""
 itpenabled = 1 ; enable ITP
 penenabled = 0 ; enable e-pen interaction
 etenabled  = 1 ; enable eye tracking
@@ -45,3 +47,5 @@ ettype = 0 ; 0 = Mouse Emulator, 100 = EyeLink 1000, 200 = Tobii 120
 hidecontributions = 1 ; hide the TM suggestions, which in most Casmacat setups are bogus anyway
 floatpredictions = 1 ; whether the ITP predictions should be displayed in a floating box rather than inserted directly into the textarea
 translationoptions = 0 ; enable translation options
+allowchangevisualizationoptions = 0 ; allow user to pick word level vizualization options (alignment, confidence)
+itpdraftonly = 1 ; only use ITP in draft stage

@@ -91,11 +91,9 @@ class CatUtils {
 		$segment=self::placehold_xliff_tags ($segment);
 		$segment = html_entity_decode($segment, ENT_NOQUOTES,'UTF-8');
 		// restore < e >
-		$segment=str_replace ("<","&lt",$segment);
-		$segment=str_replace (">","&gt",$segment);
-
-
-		$segment= preg_replace('|<(.*?)>|si', "&lt;$1&gt;",$segment);
+		//$segment=str_replace ("<","&lt",$segment);
+		//$segment=str_replace (">","&gt",$segment);
+		//$segment= preg_replace('|<(.*?)>|si', "&lt;$1&gt;",$segment);
 		$segment=self::restore_xliff_tags_for_wiew($segment);
 		return $segment;
 	}
