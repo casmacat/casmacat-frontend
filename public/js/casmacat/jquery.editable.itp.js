@@ -111,7 +111,7 @@
         $this.editable();
         $source.editable({disabled: options.sourceDisabled});
         
-        data.events = new ItpEvents($this, namespace, nsClass);
+        data.events = new ItpEvents($this, namespace, nsClass, data.config);
         data.events.attachEvents();
 
         $this.one('ready', function() {

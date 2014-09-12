@@ -5,10 +5,10 @@
 .editarea[data-opt-validated=true]   > .editable-token[data-validated=true] { color: green; }
 .source[data-opt-prefix=true]        > .editable-token[data-prefix=true] { background-color: #CCFFFF; } 
 .editarea[data-opt-prefix=true]      > .editable-token[data-prefix=true] { background-color: #CCFFFF; } 
-.source[data-opt-mouse-align=true]   > .mouse-align { background-color: yellow !important; }
-.editarea[data-opt-mouse-align=true] > .mouse-align { background-color: yellow !important; }
-.source[data-opt-caret-align=true]   > .caret-align { background-color: aquamarine !important; }
-.editarea[data-opt-caret-align=true] > .caret-align { background-color: aquamarine !important; }
+.source[data-opt-mouse-align=true]   > .mouse-align { background-color: yellow; }
+.editarea[data-opt-mouse-align=true] > .mouse-align { background-color: yellow; }
+.source[data-opt-caret-align=true]   > .caret-align { background-color: aquamarine; }
+.editarea[data-opt-caret-align=true] > .caret-align { background-color: aquamarine; }
 .editarea[data-opt-limit-suffix-length=true] > .editable-token:not([data-prefix=true])[data-limited=true] { opacity: 0.3; }
 
 .editarea[data-opt-last-validated=true] > .editable-token[data-last-validated=true]       { /* XXX: hack to make chrome work with attribute selectors and :after (http://code.google.com/p/chromium/issues/detail?id=125719) */ }
