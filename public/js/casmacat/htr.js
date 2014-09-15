@@ -338,6 +338,7 @@
                     extra: {
                       canvasSize: { width: $canvas.width(), height: $canvas.height() },
                       device: window.navigator.userAgent,
+                      location: location.href,
                       sourceTokens: $('.editable-token', $source).map(function(){
                         return {
                           'text': $(this).text(),
