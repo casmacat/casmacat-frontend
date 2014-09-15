@@ -28,10 +28,10 @@ var Memento = require("module.memento");
     return false;
   };
 
-  var ItpEvents = function($target, namespace, nsClass) {
+  var ItpEvents = function($target, namespace, nsClass, config) {
     var self = this;
 
-    self.vis = new ItpVisulization($target, namespace, nsClass);
+    self.vis = new ItpVisulization($target, namespace, nsClass, config);
 
     var lockReject = false;
     function cfg()     { return $target.data(namespace); }
@@ -716,7 +716,7 @@ var Memento = require("module.memento");
                   itp.getTokens(query);
                 }
               }
-            }, throttle_ms);
+            }(suffixHasUserCorrections.length === 0 && conf.mode != 'PE'), throttle_ms);
           }
         }
       });
