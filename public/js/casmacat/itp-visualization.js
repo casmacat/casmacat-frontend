@@ -676,6 +676,12 @@
         var sufText = oldText.substring (pos);
         if (sufText.indexOf(insText) === 0)
           sufText = sufText.substring(insText.length).trim();
+	console.log("oldText: '" + oldText.substring (0, pos) + "', insText: '" + insText + "'"); 
+	console.log("last current: '" +  oldText.substring(pos-1,pos) + "', first inserted: '" + insText.substring(0,1) + "'");
+	// no double space
+	if (pos>0 && oldText.substring(pos-1,pos) == ' ' && insText.substring(0,1) == ' ') {
+	  insText = insText.substring(1);
+	}
         var newText = oldText.substring (0, pos) + insText + ' ' + sufText;
         $target.editable ('setText', newText, predictedSegmentation);
         // $target.editable ('setText', newText);
