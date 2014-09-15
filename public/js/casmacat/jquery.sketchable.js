@@ -123,8 +123,10 @@
         if (typeof options.events.clear === 'function') {
           options.events.clear(elem, data);
         }
-        data.canvas.clear();
-        data.strokes = [];
+        if (data) {
+          if (data.canvas) data.canvas.clear();
+          data.strokes = [];
+        }
       });
     },
     /** 

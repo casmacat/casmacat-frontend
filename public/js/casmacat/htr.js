@@ -138,7 +138,7 @@
           n = $(t[0].nextSibling);
           t.remove(); 
           t = n;
-        } while (t && !t.is('.editable-token') && t[0].nextSibling);
+        } while (t && !t.is('.editable-token') && t[0] && t[0].nextSibling);
         
         // XXX: comment out prediction after delete since behaviour has not been properly defined
         //var cursorPos = $target.editable('getTokenPos', t.next());
