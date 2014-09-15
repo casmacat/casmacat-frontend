@@ -143,4 +143,68 @@
                 });
 
             }
-
+            
+//            function uploadXML() {
+//                
+//                  alert("uploadXML function javascript");
+//                
+//                //var XMLFile = $('#input').get(0).files[0];
+//            //    var XMLFile = document.getElementById('input').files[0];
+//                //console.log(XMLFile);                
+////                var data = {
+////                    'action': "uploadXML",
+////                    'xml_file': XMLFile,
+////                    'file_name': "injectionFix",
+////                    'project_name': "injectionFix",
+////                    'source_language': "src_lang",
+////                    'target_language': "tgt_lang",
+////                    'tms_engine': "",
+////                    'mt_engine': ""                   
+////                };
+////                $.ajax({
+////                    url:config.basepath + 'index.php?action=uploadXML',
+////                    data: data,
+////                    type: "POST",
+////                    processData: false,
+////                    contentType: false,
+////                    dataType: "json",
+////                    async: false,
+////                    cache: false,
+//                    
+//                  $( '#input' )
+//                    .submit( function( e ) {
+////                                var data = {
+////                    'action': "uploadXML",
+////                    'xml_file': new FormData( this ),  
+//                //};
+//                    var request = new XMLHttpRequest();
+//        request.responseType = blob;
+//        
+//         var fd = new FormData();
+//         fd.append(this,blob);
+//
+//                        $.ajax( {
+//                            url: config.basepath + 'index.php?action=uploadXML',
+//                            type: 'POST',
+//                            data: data,
+//                            processData: false,
+//                            contentType: false,
+//                            success: function(result) {                        
+//                                                
+//                                if (result.data && result.data === "OK") {
+//                                    alert("Executing upload XML");
+//                                }
+//                                else if (result.errors) {    
+//                                    alert("Server error");
+//                                }
+//                            },
+//                    
+//                            error: function(request, status, error) {
+//                                alert("Error': '" + error + "'");                    
+//                            }           
+//                        } );
+//                        e.preventDefault();
+//                    } );                 
+//                    alert("finishing uploadXML function javascript");
+//            }
+//

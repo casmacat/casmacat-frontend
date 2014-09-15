@@ -132,9 +132,12 @@
        'ctrl+del': clearTarget,
             'esc': UI.toggleItp,
          'return': saveDraft,
-         'ctrl+b': UI.launchBiconcor,
   };
   
+  if (UI.launchBiconcor) {
+    keyBindings['ctrl+b'] = UI.launchBiconcor;
+  }
+
   var toggleKeyBindings = UI.toggleKeyBindings = {
    'ctrl+shift+1': 'displayMouseAlign',
          'ctrl+m': 'displayCaretAlign',

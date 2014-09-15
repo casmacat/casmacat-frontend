@@ -326,7 +326,12 @@ class CatUtils {
 				// $job_stats['ESTIMATED_COMPLETION'] = number_format( ($job_stats['DRAFT']+$job_stats['REJECTED'])/$estimation_temp[0]['words_per_hour'],1);
 				// 1 h 32 m
 				// $job_stats['ESTIMATED_COMPLETION'] = date("G",($job_stats['DRAFT']+$job_stats['REJECTED'])/$estimation_temp[0]['words_per_hour']*3600) . "h " . date("i",($job_stats['DRAFT']+$job_stats['REJECTED'])/$estimation_temp[0]['words_per_hour']*3600) . "m";
-				$job_stats['ESTIMATED_COMPLETION'] = date("G\h i\m",($job_stats['DRAFT']+$job_stats['REJECTED'])/$estimation_temp[0]['words_per_hour']*3600-3600);
+        if ($estimation_temp[0]['words_per_hour'] > 0) {
+  				$job_stats['ESTIMATED_COMPLETION'] = date("G\h i\m",($job_stats['DRAFT']+$job_stats['REJECTED'])/$estimation_temp[0]['words_per_hour']*3600-3600);
+        }
+        else {
+  				$job_stats['ESTIMATED_COMPLETION'] = "---";
+        }
 			}
 		}
 

@@ -618,9 +618,14 @@
         // merc- adding epen logging
         if (settings.logEpen) {
             $(window).on("epen." + pluginName, epen);
-            $(window).on("recogEpen." + pluginName, recogEpen);
-            $(window).on("updateEpen." + pluginName, updateEpen);
-            $(window).on("gesture." + pluginName, gesture);
+            $(window).on("htrResult." + pluginName, htrResult);
+            $(window).on("htrUpdate." + pluginName, htrUpdate);
+            $(window).on("htrNBestClick." + pluginName, htrNBestClick);
+            $(window).on("htrTextChange." + pluginName, htrTextChange);
+            $(window).on("htrStart." + pluginName, htrStart);
+            $(window).on("htrAddStroke." + pluginName, htrAddStroke);
+            $(window).on("htrEnd." + pluginName, htrEnd);
+            $(window).on("htrGesture." + pluginName, htrGesture);
         }
 
         $(window).on("statsUpdated." + pluginName, statsUpdated);
@@ -1581,25 +1586,51 @@
         }
     };
     
-    var recogEpen = function(e, data) {
+    var htrResult = function(e, data) {
         debug(pluginName + ": event type: '" + e.type + "'.");
-        if (data !== null){
-            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.RECOG_EPEN, e.timeStamp, e.target, data.nbest));
-        }
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HTR_RESULT, e.timeStamp, e.target, data));
     };
     
-    var updateEpen = function(e, token) {
+    var htrUpdate = function(e, data) {
         debug(pluginName + ": event type: '" + e.type + "'.");
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.UPDATE_EPEN, e.timeStamp, e.target, token));
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HTR_UPDATE, e.timeStamp, e.target, data));
     };
     
-    var gesture = function(e, gesture) {
+    var htrNBestClick = function(e, data) {
+        debug(pluginName + ": event type: '" + e.type + "'.");
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HTR_NBEST_CLICK, e.timeStamp, e.target, data));
+    };
+    
+    var htrTextChange = function(e, data) {
+        debug(pluginName + ": event type: '" + e.type + "'.");
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HTR_TEXT_CHANGE, e.timeStamp, e.target, data));
+
+        textChanged({
+            target: e.target,
+            data: {edition: "epen"}
+        });  
+    };
+    
+    var htrStart = function(e, data) {
+        debug(pluginName + ": event type: '" + e.type + "'.");
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HTR_START, e.timeStamp, e.target, data));
+    };
+    
+    var htrAddStroke = function(e, data) {
+        debug(pluginName + ": event type: '" + e.type + "'.");
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HTR_ADD_STROKE, e.timeStamp, e.target, data));
+    };
+    
+    var htrEnd = function(e, data) {
+        debug(pluginName + ": event type: '" + e.type + "'.");
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HTR_END, e.timeStamp, e.target, data));
+    };
+    
+    var htrGesture = function(e, gesture) {
         debug(pluginName + ": gesture event: type: '" + e.type + "'.");
-        if (gesture !== undefined){
-            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.GESTURE, e.timeStamp, e.target, gesture)); 
-        }
+            storeLogEvent(logEventFactory.newLogEvent(logEventFactory.HTR_GESTURE, e.timeStamp, e.target, gesture)); 
     };
-    
+       
     $(window).blur(function(e, data){
         debug(pluginName + ": event type: '" + e.type + "'.");
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.BLUR, e.timeStamp, e.target, data)); 

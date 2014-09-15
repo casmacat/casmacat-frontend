@@ -221,11 +221,21 @@ function resetDocument($jobId, $fileId) {
                 break;
             case LogEvent::EPEN_CLOSED:
                 break;
-            case LogEvent::RECOG_EPEN:
+            case LogEvent::HTR_RESULT:
                 break;
-            case LogEvent::UPDATE_EPEN:
+            case LogEvent::HTR_UPDATE:
                 break;
-            case LogEvent::GESTURE:
+            case LogEvent::HTR_NBEST_CLICK:
+                break;
+            case LogEvent::HTR_TEXT_CHANGE:
+                break;
+            case LogEvent::HTR_START:
+                break;
+            case LogEvent::HTR_ADD_STROKE:
+                break;            
+            case LogEvent::HTR_END:
+                break;
+            case LogEvent::HTR_GESTURE:
                 break;
             // merc - blur/focus
             case LogEvent::BLUR:
@@ -480,15 +490,35 @@ log::doLog($endOffset);
                 break;
             case LogEvent::EPEN_CLOSED:
                 break;
-            case LogEvent::RECOG_EPEN:
+            case LogEvent::HTR_RESULT:
                 $eventRow = fetchEventRow($logEvent->id, "epen_event");
                 $logEvent->epenData($eventRow);
                 break;
-            case LogEvent::UPDATE_EPEN:
+            case LogEvent::HTR_UPDATE:
                 $eventRow = fetchEventRow($logEvent->id, "epen_event");
                 $logEvent->epenData($eventRow);
                 break;
-            case LogEvent::GESTURE:
+            case LogEvent::HTR_NBEST_CLICK:
+                $eventRow = fetchEventRow($logEvent->id, "epen_event");
+                $logEvent->epenData($eventRow);
+                break;
+            case LogEvent::HTR_TEXT_CHANGE:
+                $eventRow = fetchEventRow($logEvent->id, "epen_event");
+                $logEvent->epenData($eventRow);
+                break;
+            case LogEvent::HTR_START:
+                $eventRow = fetchEventRow($logEvent->id, "epen_event");
+                $logEvent->epenData($eventRow);
+                break;
+            case LogEvent::HTR_ADD_STROKE:
+                $eventRow = fetchEventRow($logEvent->id, "epen_event");
+                $logEvent->epenData($eventRow);
+                break;
+            case LogEvent::HTR_END:
+                $eventRow = fetchEventRow($logEvent->id, "epen_event");
+                $logEvent->epenData($eventRow);
+                break;
+            case LogEvent::HTR_GESTURE:
                 $eventRow = fetchEventRow($logEvent->id, "epen_event");
                 $logEvent->epenData($eventRow);
                 break;

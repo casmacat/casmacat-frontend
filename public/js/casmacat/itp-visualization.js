@@ -10,12 +10,20 @@
   /*           update the HTML display and attach events                         */
   /*******************************************************************************/
 
-  var ItpVisualization = function($target, namespace, nsClass) {
+  var ItpVisualization = function($target, namespace, nsClass, config) {
     var self = this;
 
     function cfg()     { return $target.data(namespace); }
     function userCfg() { return cfg().config; }
     function $source() { return $target.data(namespace).$source; }
+
+    if (config.hasOwnProperty('caretAlignBackground')) { 
+      $("<style type='text/css'> .caret-align { background: " + config.caretAlignBackground + " !important; } </style>").appendTo("head");
+    }
+    if (config.hasOwnProperty('mouseAlignBackground')) { 
+      $("<style type='text/css'> .mouse-align { background: " + config.mouseAlignBackground + " !important; } </style>").appendTo("head");
+    }
+
 
     self.updateValidated = function(caretPos) {
       if (caretPos) {

@@ -1,7 +1,19 @@
 (function(module, global) {
 
+  var throttle = (function(){
+    var timer = 0;
+    return function(callback, ms){
+      clearTimeout (timer);
+      timer = setTimeout(callback, ms);
+    };
+  })();
+ 
   var htr = module.exports = {
     init: function($canvas, $source, $target) {
+
+      function cfg()     { return $target.data('itp'); }
+      function userCfg() { return cfg().config; }
+
 
       // Ensure we receive a jQuery element
       if (!$canvas.is('canvas')) throw Error("Canvas element not defined");
@@ -126,13 +138,14 @@
           n = $(t[0].nextSibling);
           t.remove(); 
           t = n;
-        } while (t && !t.is('.editable-token') && t[0].nextSibling);
+        } while (t && !t.is('.editable-token') && t[0] && t[0].nextSibling);
         
         // XXX: comment out prediction after delete since behaviour has not been properly defined
         //var cursorPos = $target.editable('getTokenPos', t.next());
         ////console.log('update at', cursorPos, '"' + $target.text().slice(0, cursorPos)  + '"');
         //$target.editableItp('setPrefix', cursorPos)
         $target.trigger('editabletextchange', [null, null]);
+        $target.trigger('htrtextchange', [{action: 'delete'}, null]);
       };
 
       function doInsertGesture($token) {
@@ -283,6 +296,7 @@
             console.log("Gesture not implemented or out of context", gesture, centroid, tokenDistances);
             break;
         }
+
       };
 
 
@@ -308,27 +322,70 @@
 
                 gesture = gestureRecognizer.recognize(strokes);
                 console.log("GESTURE", gesture);
-                //merc - trigger epen logging
-                $target.trigger("gesture", [gesture]);
                 // first HTR stroke
                 if (!gesture || typeof(insert_after_token) !== 'undefined') {
                   var centroid = getAbsoluteXY(MathLib.centroid(strokes[0].slice(0, 20)));
                   var tokenDistance = getTokenDistanceAtPointer({clientX: centroid[0], clientY: centroid[1]});
                   var caretPos = $target.editable('getTokenPos', tokenDistance.token);
                   console.log('TOKDIST', tokenDistance, caretPos);
-                  casmacatHtr.startSession({
+                  var canvasRect = $canvas.get(0).getClientRects()[0];
+                  var canvasTop = canvasRect.top + parseInt($canvas.css("border-top-width"), 10);
+                  var canvasLeft = canvasRect.left + parseInt($canvas.css("border-left-width"), 10);
+                  var context = {
                     source: $source.editable('getText'),
                     target: $target.editable('getText'),
                     caretPos: caretPos,
-                  });
+                    extra: {
+                      canvasSize: { width: $canvas.width(), height: $canvas.height() },
+                      device: window.navigator.userAgent,
+                      location: location.href,
+                      sourceTokens: $('.editable-token', $source).map(function(){
+                        return {
+                          'text': $(this).text(),
+                          'font': $(this).css('font'),
+                          'area': Array.prototype.map.call(this.getClientRects(), function(rect) {
+                            return {
+                              'top': rect.top - canvasTop,
+                              'left': rect.left - canvasLeft,
+                              'right': rect.right - canvasLeft,
+                              'bottom': rect.bottom - canvasTop,
+                              'width': rect.width,
+                              'height': rect.height,
+                            };
+                          }),
+                        };
+                      }).toArray(),
+                      targetTokens: $('.editable-token', $target).map(function(){
+                        return {
+                          'text': $(this).text(),
+                          'font': $(this).css('font'),
+                          'area': Array.prototype.map.call(this.getClientRects(), function(rect) {
+                            return {
+                              'top': rect.top - canvasTop,
+                              'left': rect.left - canvasLeft,
+                              'right': rect.right - canvasLeft,
+                              'bottom': rect.bottom - canvasTop,
+                              'width': rect.width,
+                              'height': rect.height,
+                            };
+                          }),
+                        };
+                      }).toArray(), 
+                    }
+                  }
+                  casmacatHtr.startSession(context);
                   
                   skanvas.data('htr', { 
                     x: e.clientX, 
                     y: e.clientY, 
                     target: tokenDistance 
                   });
+
+                  skanvas.data('isHtr', true);
+                  $target.trigger('htrstart', [{context: context}, null]);
                   
                 } else {
+                  $target.trigger('htrgesture', [{gesture: gesture, stroke: strokes[0]}, null]);
                   processGesture(gesture, strokes[0]);
                   skanvas.sketchable('clear');
                 }
@@ -337,6 +394,7 @@
                 var $options = $canvas.next('.canvas-options');
                 $options.html("<strong>Decoding strokes ...</strong>");
                 casmacatHtr.addStroke({points: strokes[strokes.length-1], is_pen_down: true});      
+                $target.trigger('htraddstroke', [{points: strokes[strokes.length-1], is_pen_down: true}, null]);
                 decoderTimer = setTimeout(function () {
                   //$('#btn-decode').trigger('click');
                   skanvas.sketchable('clear');
@@ -368,21 +426,23 @@
 
             clear: function(elem, data) {
               // skanvas.removeData('htr');
-              casmacatHtr.endSession({
-                maxNBests: 30,
-              });
+              if (skanvas.data('isHtr')) {
+                $target.trigger('htrend', [{strokes: skanvas.sketchable('strokes')}, null]);
+                casmacatHtr.endSession({ maxNBests: 10, });
+                skanvas.removeData('isHtr');
+              }
               clearTimeout(decoderTimer);
             }
          },
          
       }).bind('mousemove', function (e) { 
         clearTimeout(canvasForwarderTimer);
-        if (canvasForwarderTimerMs > 0 && !skanvas.data('sketchable').canvas.isDrawing) {
+        if (canvasForwarderTimerMs > 0 && !skanvas.data('sketchable').canvas.isDrawing && !skanvas.sketchable('strokes').length) {
           function forwardCanvas() {
-            var tokens = $target.editable('getTokensAtXY', [e.clientX, e.clientY]);
+            var tokens = $target.editable('getTokensAtXY', [e.pageX, e.pageY]);
             var elem; 
             if (tokens.length > 0) {
-              $('.editable-token', $target).toggleClass('epen-closest', false);
+              $('.editable-token, .editable-space', $target).toggleClass('epen-closest', false);
               $(tokens[0].token).toggleClass('epen-closest', true);
             }
             
@@ -403,16 +463,19 @@
         }
       });
       
-      casmacatHtr.on('addStrokeResult', function(data, errors) {
-        console.log('updated', data, errors);
-        update_htr_suggestions(data, false);
-      });
+      var updateOnEachStroke = false;
+      if (updateOnEachStroke) {
+        casmacatHtr.on('addStrokeResult', function(data, errors) {
+          update_htr_suggestions(data, false);
+          $target.trigger('htrupdate', [data, errors]);
+          $target.trigger('htrtextchange', [{action: 'update'}, null]);
+        });
+      }
 
       casmacatHtr.on('endSessionResult', function(data, errors) {
         console.log('recognized', data);
         update_htr_suggestions(data, true);
-        //merc - saving nbest in logging
-        $target.trigger('recogEpen', [data, $target]);
+        $target.trigger('htrresult', [data, errors]);
         //$('#btn-clear').trigger('click');
         if (insertion_token && insertion_token.text().length === 0) {
           insertion_token.remove();
@@ -420,6 +483,8 @@
             insertion_token_space.remove();
           }
         }
+        var action = (typeof(insert_after_token) !== 'undefined')?'insert':'substitute'; 
+        $target.trigger('htrtextchange', [{action: action}, null]);
         insert_after_token = undefined;
         insertion_token = undefined;
         insertion_token_space = undefined;
@@ -444,10 +509,13 @@
         $selectedToken.text(result.text);
         //$replaced = $target.editable('replaceText', result.test, result.textSegmentation, $replaced, false && is_final);
  
-        var cursorPos = $target.editable('getTokenPos', $nextToken);
-        $target.editableItp('setPrefix', cursorPos);
-        // merc - adding updating to logging
-        $target.trigger('updateEpen', [result.text, $target]);
+        if (userCfg().mode != 'PE') {
+          var cursorPos = $target.editable('getTokenPos', $nextToken);
+          $target.editableItp('setPrefix', cursorPos);
+        }
+        else {
+          $target.editableItp('updateTokens');
+        }
         console.log('update at', cursorPos, $nextToken);
       }
 
@@ -465,12 +533,18 @@
           var $options = $canvas.next('.canvas-options');
           $options.html('<span id="fps">' + fpsText + '</span><ul/>'); 
 
-          var $list = $('ul', $options).on('click', function(e) { 
-            var result = $(e.target).data('result');
+          var $list = $('ul', $options).data('nbests', data.nbest).on('click', function(e) { 
+            var $this = $(e.target)
+              , result = $this.data('result')
+              , index = $this.data('index')
+              , nbests = $this.parent('ul').data('nbests');
+
             replace_suggestion(result);
+            $target.trigger('htrtextchange', [{action: 'nbestclick'}, null]);
+            $target.trigger('htrnbestclick', [{nbests: nbests, result: result, index: index}, null]);
           });
           for (var n = 0; n < data.nbest.length; n++) {
-            var $result = $('<li>' +  data.nbest[n].text + '</li>').data('result', data.nbest[n]);
+            var $result = $('<li>' +  data.nbest[n].text + '</li>').data('result', data.nbest[n]).data('index', n);
             $list.append($result);
           }
         }
@@ -559,7 +633,7 @@
              siz = { width: $target.outerWidth() + 20, height: $target.outerHeight() };
 
         $canvas = $('<canvas tabindex="-1" id="'+prefix+'-canvas" width="'+siz.width+'" height="'+siz.height+'"/>');
-        $canvas.prependTo($targetParent).hide().delay(10).css({
+        $canvas.prependTo($targetParent).hide().css({
             left: ($section.find('.wrap').width() - siz.width - $section.find('.status-container').width()/2) / 2,
             zIndex: geom.getNextHighestDepth(),
         }).bind('mousedown mouseup click touchstart touchend', function(e){
