@@ -266,8 +266,8 @@
   function getMousePos(e) {
     var elem = $(e.target), pos = elem.offset(), g = getCanvasGap(e);
     return {
-      x: e.pageX - pos.left - g.left,
-      y: e.pageY - pos.top - g.top,
+      x: Math.round(e.pageX - pos.left - g.left),
+      y: Math.round(e.pageY - pos.top - g.top),
     }
   };
       

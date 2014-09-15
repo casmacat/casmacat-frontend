@@ -462,11 +462,14 @@
         }
       });
       
-      casmacatHtr.on('addStrokeResult', function(data, errors) {
-        update_htr_suggestions(data, false);
-        $target.trigger('htrupdate', [data, errors]);
-        $target.trigger('htrtextchange', [{action: 'update'}, null]);
-      });
+      var updateOnEachStroke = false;
+      if (updateOnEachStroke) {
+        casmacatHtr.on('addStrokeResult', function(data, errors) {
+          update_htr_suggestions(data, false);
+          $target.trigger('htrupdate', [data, errors]);
+          $target.trigger('htrtextchange', [{action: 'update'}, null]);
+        });
+      }
 
       casmacatHtr.on('endSessionResult', function(data, errors) {
         console.log('recognized', data);
