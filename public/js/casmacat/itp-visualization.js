@@ -350,8 +350,8 @@
       // make sure new data still applies to current text
       if (!(alignments.length > 0 && alignments[0].length > 0)) return;
       if (source !== $source().editable('getText')) return;
-      if (!config.floatPredictions && target !== $target.editable('getText')) return;
-      if ( config.floatPredictions && target != self.FloatingPrediction.getPredictedText()) return;
+      if (!window.config.floatPredictions && target !== $target.editable('getText')) return;
+      if ( window.config.floatPredictions && target != self.FloatingPrediction.getPredictedText()) return;
       $target.data.alignments = alignments;
 
       // get span tokens 
@@ -684,8 +684,6 @@
         var sufText = oldText.substring (pos);
         if (sufText.indexOf(insText) === 0)
           sufText = sufText.substring(insText.length).trim();
-	console.log("oldText: '" + oldText.substring (0, pos) + "', insText: '" + insText + "'"); 
-	console.log("last current: '" +  oldText.substring(pos-1,pos) + "', first inserted: '" + insText.substring(0,1) + "'");
 	// no double space
 	if (pos>0 && oldText.substring(pos-1,pos) == ' ' && insText.substring(0,1) == ' ') {
 	  insText = insText.substring(1);
