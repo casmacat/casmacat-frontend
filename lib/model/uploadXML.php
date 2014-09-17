@@ -26,8 +26,30 @@ else {
     print "file: ". $file."\n";
 
     $db = Database::obtain(INIT::$DB_SERVER, INIT::$DB_USER, INIT::$DB_PASS, INIT::$DB_DATABASE);
-    $db->connect();	    
-    $xml = simplexml_load_file($file);
+    $db->connect();	
+    
+    $handle = fopen($file, "r");
+    $file2 = INIT::$UPLOAD_ROOT . "/com" . $fileName;
+    $handle2 = fopen($file2, "w");
+    
+    if ($handle) {
+        while (($line = fgets($handle)) !== false) {
+        // process the line read.
+            //print substr( $line, 0, 9 );
+            if (substr( $line, 0, 9 ) === "  <ILtext" || substr( $line, 0, 10 ) === "  <ILfocus"){
+                fwrite($handle2, "<!--".$line."-->\n");
+            }
+            else{
+                fwrite($handle2, $line);
+            }
+        }
+    } else {
+        print "error opening the file";
+        // error opening the file.
+    }    
+    fclose($handle);
+    
+    $xml = simplexml_load_file($file2);
     
     //print $fileName."\n";
     //print "documentName: ".$xml->documentName."\n";
@@ -428,9 +450,6 @@ else {
                         break;
                                         
                     default:
-
-                        $this->result["code"] = -1;
-                        $this->result["errors"][] = array("code" => -1, "message" => "Unknown log event type: '$logEvent->type' at index: '$key'");
                         log::doLog("CASMACAT: uploadXML: '$logEvent->type' at index: '$key'"); 
             }
         }	

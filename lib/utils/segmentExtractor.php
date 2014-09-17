@@ -109,9 +109,9 @@ function extractSegments($files_path, $file, $pid, $fid, $jid) {
 
                                         $last_id = mysql_insert_id($mysql_link);
                                         //log::doLog("Last_id: ".$last_id);
-                                        $query_segment_translations = "('$last_id', '$jid','TRANSLATED','$target',NULL,NULL,NULL,NULL, NULL, NULL, NULL,NULL,NULL,NULL)";
+                                        $query_segment_translations = "('$last_id', '$jid','TRANSLATED','$target',NULL,NULL,NULL,NULL, NULL, NULL, '$target',NULL,NULL,NULL)";
 
-
+                                        
                                         // Executing the Query
                                         $query_segment_translations = "INSERT INTO segment_translations (id_segment, id_job,status, translation, translation_date, time_to_edit, match_type, context_hash, eq_word_count, suggestions_array, suggestion, suggestion_match, suggestion_source, suggestion_position)
                                  values ".$query_segment_translations;
