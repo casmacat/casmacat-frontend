@@ -28,10 +28,10 @@ var Memento = require("module.memento");
     return false;
   };
 
-  var ItpEvents = function($target, namespace, nsClass) {
+  var ItpEvents = function($target, namespace, nsClass, config) {
     var self = this;
 
-    self.vis = new ItpVisulization($target, namespace, nsClass);
+    self.vis = new ItpVisulization($target, namespace, nsClass, config);
 
     var lockReject = false;
     function cfg()     { return $target.data(namespace); }
@@ -187,7 +187,7 @@ var Memento = require("module.memento");
  
         //console.log('contribution changed', data);
         var bestResult = data.nbest[0];
-        if (!config.floatPredictions || config.prefs.mode == 'PE') {
+        if (!window.config.floatPredictions || window.config.prefs.mode == 'PE') {
           // if we're using the floating box for displaying predictions, don't
           // paste the decoded text into the box
           self.vis.updateSuggestions(data);
@@ -211,7 +211,7 @@ var Memento = require("module.memento");
         // herve - this ensures that the prediction popup shows up before the
         // user starts translating
         $target.focus();
-        if (userCfg().mode == 'ITP' && config.floatPredictions) {
+        if (userCfg().mode == 'ITP' && window.config.floatPredictions) {
           self.vis.FloatingPrediction.setPredictedText(data);
         }
       });
@@ -324,7 +324,7 @@ var Memento = require("module.memento");
           return;
         }
 
-        if (userCfg().mode == 'ITP' && config.floatPredictions)
+        if (userCfg().mode == 'ITP' && window.config.floatPredictions)
           self.vis.FloatingPrediction.setPredictedText (data);
         else
           self.vis.updateSuggestions (data);
@@ -412,7 +412,7 @@ var Memento = require("module.memento");
           if (conf.displayCaretAlign || conf.displayMouseAlign || conf.displayShadeOffTranslatedSource) {
             var validated_words = $('.editable-token', $target).map(function() { return this.dataset.validated === "true"; }).get();
             var tgtText = $target.editable('getText');
-            if (conf.mode == 'ITP' && config.floatPredictions) {
+            if (conf.mode == 'ITP' && window.config.floatPredictions) {
               tgtText = self.vis.FloatingPrediction.getPredictedText();
               if (tgtText == null) { return; }
             }
@@ -527,7 +527,7 @@ var Memento = require("module.memento");
       function tabKeyHandler(e, mode) {
         var ui = userCfg(), $token, gotoEnd = false;
 
-        if (config.floatPredictions) {
+        if (window.config.floatPredictions) {
           // when we use floating predictions, the semantics of the tab key change
           if (mode === 'fwd')
             self.vis.FloatingPrediction.acceptNextWord();
@@ -611,7 +611,7 @@ var Memento = require("module.memento");
               source = $this.editable('getText');
   
        
-          if (userCfg().mode == 'ITP' && config.floatPredictions) {
+          if (userCfg().mode == 'ITP' && window.config.floatPredictions) {
             self.vis.FloatingPrediction.setPredictedText (null);
           }
           if (doesTriggerInteraction(e)) {
@@ -631,7 +631,7 @@ var Memento = require("module.memento");
         });
       }
 
-      if (userCfg().mode == 'ITP' && config.floatPredictions) {
+      if (userCfg().mode == 'ITP' && window.config.floatPredictions) {
         $(window).scroll (function () {
           self.vis.FloatingPrediction.adjustPosition();
         });
@@ -654,7 +654,7 @@ var Memento = require("module.memento");
         //$('#caret').html('<span class="prefix">' + text.substr(0, d.pos) + '</span>' + '<span class="suffix">' + text.substr(d.pos) + "</span>");
         forgetState(d.pos);
         self.currentCaretPos = d;
-        if (userCfg().mode == 'ITP' && config.floatPredictions) {
+        if (userCfg().mode == 'ITP' && window.config.floatPredictions) {
           self.vis.FloatingPrediction.adjustPosition();
         }
       })
@@ -716,7 +716,7 @@ var Memento = require("module.memento");
                   itp.getTokens(query);
                 }
               }
-            }, throttle_ms);
+            }(suffixHasUserCorrections.length === 0 && conf.mode != 'PE'), throttle_ms);
           }
         }
       });

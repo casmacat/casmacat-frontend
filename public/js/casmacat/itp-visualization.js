@@ -10,12 +10,20 @@
   /*           update the HTML display and attach events                         */
   /*******************************************************************************/
 
-  var ItpVisualization = function($target, namespace, nsClass) {
+  var ItpVisualization = function($target, namespace, nsClass, config) {
     var self = this;
 
     function cfg()     { return $target.data(namespace); }
     function userCfg() { return cfg().config; }
     function $source() { return $target.data(namespace).$source; }
+
+    if (config.hasOwnProperty('caretAlignBackground')) { 
+      $("<style type='text/css'> .caret-align { background: " + config.caretAlignBackground + " !important; } </style>").appendTo("head");
+    }
+    if (config.hasOwnProperty('mouseAlignBackground')) { 
+      $("<style type='text/css'> .mouse-align { background: " + config.mouseAlignBackground + " !important; } </style>").appendTo("head");
+    }
+
 
     self.updateValidated = function(caretPos) {
       if (caretPos) {
@@ -342,8 +350,8 @@
       // make sure new data still applies to current text
       if (!(alignments.length > 0 && alignments[0].length > 0)) return;
       if (source !== $source().editable('getText')) return;
-      if (!config.floatPredictions && target !== $target.editable('getText')) return;
-      if ( config.floatPredictions && target != self.FloatingPrediction.getPredictedText()) return;
+      if (!window.config.floatPredictions && target !== $target.editable('getText')) return;
+      if ( window.config.floatPredictions && target != self.FloatingPrediction.getPredictedText()) return;
       $target.data.alignments = alignments;
 
       // get span tokens 
@@ -676,6 +684,10 @@
         var sufText = oldText.substring (pos);
         if (sufText.indexOf(insText) === 0)
           sufText = sufText.substring(insText.length).trim();
+	// no double space
+	if (pos>0 && oldText.substring(pos-1,pos) == ' ' && insText.substring(0,1) == ' ') {
+	  insText = insText.substring(1);
+	}
         var newText = oldText.substring (0, pos) + insText + ' ' + sufText;
         $target.editable ('setText', newText, predictedSegmentation);
         // $target.editable ('setText', newText);

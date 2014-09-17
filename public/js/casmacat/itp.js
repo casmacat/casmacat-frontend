@@ -363,12 +363,17 @@ $(function(){
       .on('htrgesture.matecat', function (ev, data, err) {
         console.log('CAPTURE HTRGESTURE', ev, data, err);
         $target.trigger('htrGesture', [data, err]);
+      })
+      // ready
+      .on('ready.matecat', function (ev, data, err) {
+        addSearchReplaceEvents();
       });
+
+
 
       if ((!settings.itp.hasOwnProperty('allowChangeVisualizationOptions') || settings.itp.allowChangeVisualizationOptions)) {
         $('.text', UI.currentSegment).find('.vis-commands').show();
       }
-      addSearchReplaceEvents();
     }
     else {
       //console.log("***ALREADY OPENED SEGMENT***", $target[0], trace())

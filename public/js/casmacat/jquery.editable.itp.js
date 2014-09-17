@@ -112,7 +112,7 @@
         $this.editable();
         $source.editable({disabled: options.sourceDisabled});
         
-        data.events = new ItpEvents($this, namespace, nsClass);
+        data.events = new ItpEvents($this, namespace, nsClass, data.config);
         data.events.attachEvents();
 
         $this.one('ready', function() {
@@ -172,7 +172,9 @@
 
     validate: function() { 
       var data = $(this).data(namespace);
-      data.itpServer.validate({source: data.$source.editable('getOriginalText'), target: data.$target.editable('getText')});
+      if (data && data.itpServer) {
+        data.itpServer.validate({source: data.$source.editable('getOriginalText'), target: data.$target.editable('getText')});
+      }
       // if (data && data.itpServer)
       //   data.itpServer.validate({source: data.$source.editable('getText'), target: data.$target.editable('getText')});
     },
@@ -230,7 +232,9 @@
     },
 
     itpServer: function(str) { 
-      return $(this).data(namespace).itpServer;
+      var data = $(this).data(namespace);
+      if (data) return data.itpServer;
+      else return;
     },
 
     undo: function() {

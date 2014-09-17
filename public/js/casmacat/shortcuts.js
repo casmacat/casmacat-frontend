@@ -103,13 +103,13 @@
 		getEditArea().editableItp('toggle', 'limitSuffixLength', false);
 		if (getEditArea().text().length == 0)
 		UI.chooseSuggestion('1'); // if textarea is empty, insert best translation to Post-Edit
-		if (config.floatPredictions){
+		if (window.config.floatPredictions){
 			document.getElementById("el-float-pred").className = 'floating-prediction floating-prediction-hidden';  //setVisible();
 		}
     }
     else { // newMode == "ITP"
       getEditArea().editableItp('toggle', 'limitSuffixLength', true);
-	  if (config.floatPredictions){
+	  if (window.config.floatPredictions){
 		document.getElementById("el-float-pred").className = 'floating-prediction'; //setVisible();
 	  }
     }

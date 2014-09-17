@@ -138,7 +138,7 @@
           n = $(t[0].nextSibling);
           t.remove(); 
           t = n;
-        } while (t && !t.is('.editable-token') && t[0].nextSibling);
+        } while (t && !t.is('.editable-token') && t[0] && t[0].nextSibling);
         
         // XXX: comment out prediction after delete since behaviour has not been properly defined
         //var cursorPos = $target.editable('getTokenPos', t.next());
@@ -328,10 +328,50 @@
                   var tokenDistance = getTokenDistanceAtPointer({clientX: centroid[0], clientY: centroid[1]});
                   var caretPos = $target.editable('getTokenPos', tokenDistance.token);
                   console.log('TOKDIST', tokenDistance, caretPos);
+                  var canvasRect = $canvas.get(0).getClientRects()[0];
+                  var canvasTop = canvasRect.top + parseInt($canvas.css("border-top-width"), 10);
+                  var canvasLeft = canvasRect.left + parseInt($canvas.css("border-left-width"), 10);
                   var context = {
                     source: $source.editable('getText'),
                     target: $target.editable('getText'),
                     caretPos: caretPos,
+                    extra: {
+                      canvasSize: { width: $canvas.width(), height: $canvas.height() },
+                      device: window.navigator.userAgent,
+                      location: location.href,
+                      sourceTokens: $('.editable-token', $source).map(function(){
+                        return {
+                          'text': $(this).text(),
+                          'font': $(this).css('font'),
+                          'area': Array.prototype.map.call(this.getClientRects(), function(rect) {
+                            return {
+                              'top': rect.top - canvasTop,
+                              'left': rect.left - canvasLeft,
+                              'right': rect.right - canvasLeft,
+                              'bottom': rect.bottom - canvasTop,
+                              'width': rect.width,
+                              'height': rect.height,
+                            };
+                          }),
+                        };
+                      }).toArray(),
+                      targetTokens: $('.editable-token', $target).map(function(){
+                        return {
+                          'text': $(this).text(),
+                          'font': $(this).css('font'),
+                          'area': Array.prototype.map.call(this.getClientRects(), function(rect) {
+                            return {
+                              'top': rect.top - canvasTop,
+                              'left': rect.left - canvasLeft,
+                              'right': rect.right - canvasLeft,
+                              'bottom': rect.bottom - canvasTop,
+                              'width': rect.width,
+                              'height': rect.height,
+                            };
+                          }),
+                        };
+                      }).toArray(), 
+                    }
                   }
                   casmacatHtr.startSession(context);
                   
@@ -402,7 +442,7 @@
             var tokens = $target.editable('getTokensAtXY', [e.pageX, e.pageY]);
             var elem; 
             if (tokens.length > 0) {
-              $('.editable-token', $target).toggleClass('epen-closest', false);
+              $('.editable-token, .editable-space', $target).toggleClass('epen-closest', false);
               $(tokens[0].token).toggleClass('epen-closest', true);
             }
             
@@ -423,11 +463,14 @@
         }
       });
       
-      casmacatHtr.on('addStrokeResult', function(data, errors) {
-        update_htr_suggestions(data, false);
-        $target.trigger('htrupdate', [data, errors]);
-        $target.trigger('htrtextchange', [{action: 'update'}, null]);
-      });
+      var updateOnEachStroke = false;
+      if (updateOnEachStroke) {
+        casmacatHtr.on('addStrokeResult', function(data, errors) {
+          update_htr_suggestions(data, false);
+          $target.trigger('htrupdate', [data, errors]);
+          $target.trigger('htrtextchange', [{action: 'update'}, null]);
+        });
+      }
 
       casmacatHtr.on('endSessionResult', function(data, errors) {
         console.log('recognized', data);

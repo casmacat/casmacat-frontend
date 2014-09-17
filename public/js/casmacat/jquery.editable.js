@@ -71,7 +71,7 @@
     getTokensAtStroke: function(points, delta) {
       if (!delta) delta = 0; 
       var $this = $(this);
-      var spans = $.makeArray($('span', $this));
+      var spans = $.makeArray($('.editable-token', $this));
 
       var tokens = []
       for (var i = 0; i < spans.length; ++i) {
@@ -85,7 +85,7 @@
     getTokensAtXY: function(point, delta) {
       if (!delta) delta = 0; 
       var $this = $(this);
-      var spans = $.makeArray($('span', $this));
+      var spans = $.makeArray($('.editable-token', $this));
 
       var tokens = []
       for (var i = 0; i < spans.length; i++) {
@@ -99,7 +99,7 @@
     getTokensAtRect: function(rect, delta) {
       if (!delta) delta = 0; 
       var $this = $(this);
-      var spans = $.makeArray($('span', $this));
+      var spans = $.makeArray($('.editable-token', $this));
 
       var r = { 
         x1: rect.x - delta,
