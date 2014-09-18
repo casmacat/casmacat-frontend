@@ -210,7 +210,6 @@ else {
             return $errno * -1;
         }
         $last_row = $db->fetch($queryId);
-        
         for ($j = 0; $j < count($translations); $j++){
             
             if (strcmp($id,$translations[$j][0]) == 0){              
@@ -222,6 +221,19 @@ else {
                 $data['suggestion'] = $translations[$j][1];          
 
                 $db->insert('segment_translations', $data);
+            }
+            else{
+                for ($k = 0; $k < count($initials); $k++){
+                    if (strcmp($id,$initials[$k][0]) == 0){ 
+                        $data = array();
+                        $data['id_segment'] = $last_row["id"];
+                        $data['id_job'] = $jid;
+                        $data['status'] = "TRANSLATED";             
+                        $data['suggestion'] = $initials[$k][1]; 
+                        
+                        $db->insert('segment_translations', $data);
+                    }
+                }    
             }
         }      
                
