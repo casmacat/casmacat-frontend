@@ -268,7 +268,7 @@
         for (var i = 0; i < sourcespans.length; i++) {
           $(sourcespans[i]).toggleClass('shade-off-translated', false);
           $(sourcespans[i]).toggleClass('shade-off-next', false);
-          if (config.translationOptions && $(transopt_id_prefix + i)) { // also in translation option display
+          if (window.config.translationOptions && $(transopt_id_prefix + i)) { // also in translation option display
             $(transopt_id_prefix + i).toggleClass('shade-off-translated', false);
             $(transopt_id_prefix + i).toggleClass('shade-off-next', false);
           }
@@ -319,7 +319,7 @@
           }
 
           // shade and scroll translation option display
-          if (config.translationOptions && $(transopt_id_prefix + s)) {
+          if (window.config.translationOptions && $(transopt_id_prefix + s)) {
             if (covered_by_next) { // move display to show next in center
               var currentFocusWordPosition = $(transopt_id_prefix + s).offset().left;
               var move = currentFocusWordPosition - window.innerWidth * 0.4;
