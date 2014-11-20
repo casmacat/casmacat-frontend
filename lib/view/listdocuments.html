@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en-GB">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Documents</title>
+        <link rel="shortcut icon" href="${basepath}public/img/favicon.ico" />
+        <link href="${basepath}public/css/style.css" rel="stylesheet" type="text/css" />
+        <link rel='stylesheet' media='screen and (min-width: 1181px) and (max-width: 1680px)' href='${basepath}public/css/1300more.css' />
+        
+        <script type="text/javascript" src="${basepath}public/js/lib/jquery.js"></script>
+        <script type="text/javascript" src="${basepath}public/js/casmacat/jquery.dataTables.js" language="javascript"></script>
+        <script type="text/javascript">
+            var config = {
+                basepath: '${basepath | string:/}'
+        }
+        </script>
+        <script type="text/javascript" src="${basepath}public/js/casmacat/listdocuments.js"></script>   
+     </head>
+    <body>
+        <header>
+            <div class="wrapper">   
+                <a href="${basepath}" class="logo"></a>
+            </div> <!-- .wrapper -->
+        </header>
+        <article>
+            <h3>Select a document:</h3>
+        <table id="documentList" class="documentListTable"
+               style="border:1px solid black;">
+            <thead>
+                <tr>
+                    <th width="17%" style="border:1px solid black;">File ID</th>
+                    <th width="17%" style="border:1px solid black;">Filename</th>
+                    <th width="17%" style="border:1px solid black;">Source language</th>
+                    <th width="17%" style="border:1px solid black;">Project ID</th>
+                    <th width="17%" style="border:1px solid black;">Job ID</th>
+                    <th width="17%" style="border:1px solid black;">Password</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="2" class="dataTables_empty">Loading data from server</td>
+                </tr>
+            </tbody>
+
+        </table>
+        
+
+            <input id="startTranslation" type="button" value="Translate" disabled="disabled" onclick="javascript:startTranslation();"/>
+            <input id="replay" type="button" value="Replay" disabled="disabled" onclick="javascript:replay();"/>
+            <input id="download" type="button" value="Download" disabled="disabled" onclick="javascript:download();"/>
+            <input id="checkLogging" type="button" value="Check logging" disabled="disabled" onclick="javascript:checkLogging();"/>
+<!--            <br/>
+            <form enctype="multipart/form-data" action="javascript:uploadXML();">
+            <input id="input" type="file" name="file" />
+            <input type="submit" value="Upload XML file" />
+            </form>-->
+            
+            
+            <!--             <form enctype="multipart/form-data" action="javascript:uploadXML();" method="POST"> -->
+            
+          <!--  <form id="deleteDocForm" action="${basepath}" method="post">
+                <input type="hidden" name="action" value="deteleDoc"/>
+                <input type="hidden" name="jid" value="0"/>
+                <input type="hidden" name="fileid" value="0"/>
+                <input type="hidden" name="filename" value="0"/>
+                <input type="hidden" name="srclang" value="0"/>
+                <input id="deleteDoc" name="submit" type="submit" value="Delete" disabled="disabled"/>
+            </form>   -->
+            
+            
+            <!--<form id="downloadForm" action="${basepath}" method="post">
+                <input type="hidden" name="action" value="createLogDownload"/>
+                <input type="hidden" name="jobid" value="0"/>
+                <input type="hidden" name="fileid" value="0"/>
+                <input type="hidden" name="filename" value="0"/>
+                <input type="hidden" name="srclang" value="0"/>
+                <input id="download" name="submit" type="submit" value="Download" disabled="disabled"/>
+            </form>    -->
+        
+            
+        
+    </article>
+    </body>
+</html>
+

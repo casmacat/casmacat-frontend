@@ -1,0 +1,55 @@
+.editarea[data-opt-confidences=true] > .wordconf-ok { color: inherit; }
+.editarea[data-opt-confidences=true] > .wordconf-doubt { color: darkorange; }
+.editarea[data-opt-confidences=true] > .wordconf-bad { color: red; }
+.source[data-opt-validated=true]     > .editable-token[data-validated=true] { color: green; }
+.editarea[data-opt-validated=true]   > .editable-token[data-validated=true] { color: green; }
+.source[data-opt-prefix=true]        > .editable-token[data-prefix=true] { background-color: #CCFFFF; } 
+.editarea[data-opt-prefix=true]      > .editable-token[data-prefix=true] { background-color: #CCFFFF; } 
+.source[data-opt-mouse-align=true]   > .mouse-align { background-color: yellow; }
+.editarea[data-opt-mouse-align=true] > .mouse-align { background-color: yellow; }
+.source[data-opt-caret-align=true]   > .caret-align { background-color: aquamarine; }
+.editarea[data-opt-caret-align=true] > .caret-align { background-color: aquamarine; }
+.source[data-opt-shade-off-translated=true]   > .shade-off-translated { background-color: #dddddd !important; }
+.editarea[data-opt-shade-off-translated=true] > .shade-off-translated { background-color: #dddddd !important; }
+.source[data-opt-shade-off-translated=true]   > .shade-off-next { background-color: #FFF3B2 !important; }
+.editarea[data-opt-shade-off-translated=true] > .shade-off-next { background-color: #FFF3B2 !important; }
+.editarea[data-opt-limit-suffix-length=true] > .editable-token:not([data-prefix=true])[data-limited=true] { opacity: 0.3; }
+th.shade-off-next { background-color: #FFF3B2 !important; }
+th.shade-off-translated { background-color: #dddddd !important; }
+.editarea[data-opt-last-validated=true] > .editable-token[data-last-validated=true]       { /* XXX: hack to make chrome work with attribute selectors and :after (http://code.google.com/p/chromium/issues/detail?id=125719) */ }
+.editarea[data-opt-last-validated=true] > .editable-token[data-last-validated=true]:after { content: "‸"; position: absolute; color: brown; }
+
+
+
+.vis-commands { text-align:right; margin-right:45px; margin-bottom:0.5em; }
+  .vis-commands label { font-size:80%; }
+  /* .vis-commands * { vertical-align:middle; } */
+  .vis-button { cursor:pointer; font-size:80%; font-weight:bold; }
+  
+.itp-btn {
+  margin-left: 5px;
+  background: -webkit-gradient(linear, left top, left bottom, from(#f5f5f5), to(#d3d4d5));
+  background: -moz-linear-gradient(top, #f5f5f5, #d3d4d5);
+  background: linear-gradient(top, #f5f5f5, #d3d4d5);
+  border: 1px solid #848689;
+  font-weight: bold;
+  padding: 8px 18px;
+  border-radius: 2px;
+  font-size: 18px;
+  cursor: auto;
+}
+.btn { margin-left: 15px; }
+
+
+.floating-prediction {
+    position: fixed;
+    background-color: white;
+    z-index: 1000;
+    border: solid 1px #cdcdcd;
+    padding: 0.25em 0.5em;
+    cursor: default;
+}
+
+.floating-prediction-hidden {
+    display: none;
+}

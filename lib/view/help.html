@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>CasMaCat Help</title>
+        <link rel="icon" href="${basepath}public/img/favicon.ico" />
+        <style type="text/css">
+          body {
+            width: 768px;
+            margin: auto;
+          }
+          dd, dt {
+            margin: 0;
+          }
+          dt {
+            min-width: 10em;
+            display: inline-block;
+            font-weight: bold;
+            text-align: right;
+            margin-right: 2em;
+          }
+          dd {
+            clear: right;
+            display: inline;
+          }
+          dd:before {
+            content: ' '; /* space them */
+          }
+          dd:after{
+            content: "\A"; /* space them */
+            white-space:pre;
+          }
+          dt:first-child:before { /* disable line break before the first dt */
+            content: none;
+          }
+        </style>
+    </head>
+
+    <body>
+
+        <h1>CasMaCat Help</h1>
+
+        <div id="outer" tal:content="structure content">
+
+          <!-- This will be replaced by PHPTAL content -->
+          <p>You are about to test a new computer-aided translation tool. The tool implements Interactive Translation Prediction (ITP), a post-edition paradigm where each time the user makes a correction the computer software suggests a new rendering that includes all previous user corrections. This process continues until the suggested translation matches the user&rsquo;s expectations.</p>
+
+          <p></p>
+
+          <h2>Features</h2>
+
+          <ul>
+            <li>A new rendering is automatically suggested after each keypress</li>
+
+            <li>The system will highlight the part of the predicted rendering it considers to be correct, you can use the TAB key to quickly jump this part</li>
+          </ul>
+
+          <h2>Post-editing guidelines with ITP</h2>
+
+          <ul>
+            <li>You are assumed to post-edit the suggested translations from left to right, i.e. translation errors at the beginning of the translation are to be corrected first</li>
+
+            <li>However, you can go back and post-edit a previous error if necessary. In this case translation prediction is deactivated</li>
+
+            <li>Don&rsquo;t waste time deleting wrong translations. It is more productive to start editing the wrong text while the system makes news translation proposals to the right of you typing.</li>
+
+            <li>ITP can be disabled using the ESC key whenever the system becomes too annoying for you.</li>
+          </ul>
+
+          <h2>Useful shortcuts</h2>
+
+          <dl>
+            <dt>ESC</dt><dd>Toggles translation prediction</dd>
+            <dt>TAB</dt><dd>Moves the cursor to the beginning of the next translation prediction</dd>
+            <dt>CTRL+SHIFT+S</dt><dd>Toggles limitation of prediction length</dd>
+            <dt>CTRL+M</dt><dd>Toggles highlighting of source words aligned to target word under the caret</dd>
+            <dt>CTRL+SHIFT+1</dt><dd>Toggles highlighting of aligned words of the word under the mouse cursor</dd>
+            <dt>CTRL+SHIFT+4</dt><dd>Toggles highlighting of user validated words</dd>
+            <dt>ALT+UP/DOWN</dt><dd>Iterate over alternative translation predictions</dd>
+          </dl>
+
+       	</div>
+
+    </body>
+</html>

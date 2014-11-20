@@ -1,0 +1,51 @@
+; Casmacat config file
+; This file should not be pushed to the repository.
+
+; Note: booleans should be written as integers (then will be casted to bool)
+
+[ui]
+baseurl    = "/"
+uploads    = "uploads" ; directory relative to root path
+timetoedit = 0 ; enable UI loading time
+logenabled = 1 ; enable logging
+logmaxchunksize = 3000 ; event list upload is triggered when this threshold is exceeded
+
+[db]
+hostname = "10.30.1.241"
+username = "matecat"
+password = "matecat01"
+database = "matecat_sandbox"
+
+[debug]
+displayerrors  = 0
+errorreporting = "E_ALL"
+debug = 1
+
+[log]
+directory = "logs"    ; relative to root path
+filename  = "log.txt" ; file to write logs into
+
+[download_temp]
+directory = "downloads" ; relative to root path
+
+[mymemory]
+numresults     = 3
+matchthreshold = 50
+
+[casmacat]
+itpserver = "my.cat.server:8080"
+htrserver = "my.htr.server:8080"
+biconcorserver = "my.biconcor.server:8080"
+sourcelanguage = ""
+targetlanguage = ""
+itpenabled = 1 ; enable ITP
+penenabled = 0 ; enable e-pen interaction
+etenabled  = 1 ; enable eye tracking
+srenabled  = 1 ; enable search and replace
+biconcorenabled = 0 ; enable the biconcordancer
+ettype = 0 ; 0 = Mouse Emulator, 100 = EyeLink 1000, 200 = Tobii 120
+hidecontributions = 1 ; hide the TM suggestions, which in most Casmacat setups are bogus anyway
+floatpredictions = 1 ; whether the ITP predictions should be displayed in a floating box rather than inserted directly into the textarea
+translationoptions = 0 ; enable translation options
+allowchangevisualizationoptions = 0 ; allow user to pick word level vizualization options (alignment, confidence)
+itpdraftonly = 1 ; only use ITP in draft stage
