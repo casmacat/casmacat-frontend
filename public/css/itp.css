@@ -3,8 +3,10 @@
 .editarea[data-opt-confidences=true] > .wordconf-bad { color: red; }
 .source[data-opt-validated=true]     > .editable-token[data-validated=true] { color: green; }
 .editarea[data-opt-validated=true]   > .editable-token[data-validated=true] { color: green; }
-.source[data-opt-prefix=true]        > .editable-token[data-prefix=true] { background-color: #CCFFFF; } 
-.editarea[data-opt-prefix=true]      > .editable-token[data-prefix=true] { background-color: #CCFFFF; } 
+.source[data-opt-refix=true]        > .editable-token[data-prefix=true] { background-color: #CCFFCC; } 
+.editarea[data-opt-prefix=true]      > .editable-token[data-prefix=true] { background-color: #CCFFCC; } 
+.source[data-opt-suffix=true]        > .editable-token[data-suffix=true] { color: #aaa; } 
+.editarea[data-opt-suffix=true]      > .editable-token[data-suffix=true] { color: #aaa; } 
 .source[data-opt-mouse-align=true]   > .mouse-align { background-color: yellow; }
 .editarea[data-opt-mouse-align=true] > .mouse-align { background-color: yellow; }
 .source[data-opt-caret-align=true]   > .caret-align { background-color: aquamarine; }

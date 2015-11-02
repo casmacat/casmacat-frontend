@@ -517,6 +517,12 @@ var Memento = require("module.memento");
         toggleOpt($source, "opt-prefix", cfg.highlightPrefix);
         $target.trigger('togglechange', ['highlightPrefix', cfg.highlightPrefix, cfg]);
       })
+      .on('highlightSuffixToggle' + nsClass, function(e, value) {
+        var cfg = userCfg();
+        cfg.highlightSuffix = toggleOpt($target, "opt-suffix", value);
+        toggleOpt($source, "opt-suffix", cfg.highlightSuffix);
+        $target.trigger('togglechange', ['highlightSuffix', cfg.highlightSuffix, cfg]);
+      })
       .on('limitSuffixLengthToggle' + nsClass, function(e, value) {
         var cfg = userCfg();
         cfg.limitSuffixLength = toggleOpt($target, "opt-limit-suffix-length", value);

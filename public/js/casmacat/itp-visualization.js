@@ -77,9 +77,11 @@
             });
             $lastValidated.prevAll(".editable-token").andSelf().each(function(i, elem) {
               elem.dataset.prefix = true;
+              delete elem.dataset.suffix;
             });
             $lastValidated.nextAll(".editable-token").each(function(i, elem) {
               delete elem.dataset.prefix;
+              elem.dataset.suffix = true;
             });
           }
         }

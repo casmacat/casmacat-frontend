@@ -145,6 +145,7 @@
    'ctrl+shift+3': 'displayConfidences',
    'ctrl+shift+4': 'highlightValidated',
    'ctrl+shift+5': 'highlightPrefix',
+   'ctrl+shift+6': 'highlightSuffix',
    'ctrl+shift+m': 'highlightLastValidated',
    'ctrl+shift+s': 'limitSuffixLength',
   };

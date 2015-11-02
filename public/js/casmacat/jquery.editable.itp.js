@@ -98,6 +98,7 @@
                 highlightValidated: false,
                 highlightLastValidated: false,
                 highlightPrefix: false,
+                highlightSuffix: true,
                 limitSuffixLength: false,
                 floatPredictionDiff: false,
                 confidencePredictionThreshold: 0.5,
