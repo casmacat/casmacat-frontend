@@ -54,6 +54,7 @@ class INIT {
     public static $FLOAT_PREDICTIONS;
     public static $TRANSLATION_OPTIONS;
     public static $ALLOW_CHANGE_VISUALIZATION_OPTIONS;
+    public static $MODE;
     public static $ITP_DRAFT_ONLY;
     public static $ET_TYPE;
 
@@ -118,6 +119,7 @@ class INIT {
         self::$FLOAT_PREDICTIONS = self::getConfigBool('floatpredictions');
         self::$TRANSLATION_OPTIONS = self::getConfigBool('translationoptions');
         self::$ALLOW_CHANGE_VISUALIZATION_OPTIONS = self::getConfigBool('allowchangevisualizationoptions');
+        self::$MODE = self::getConfig('mode');
         self::$ITP_DRAFT_ONLY = self::getConfigBool('itpdraftonly');
         self::$ET_TYPE     = self::getConfig('ettype', "casmacat", 0);
         self::$DEBUG       = self::getConfigBool('debug', "debug");
