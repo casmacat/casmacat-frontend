@@ -49,3 +49,4 @@ floatpredictions = 1 ; whether the ITP predictions should be displayed in a floa
 translationoptions = 0 ; enable translation options
 allowchangevisualizationoptions = 0 ; allow user to pick word level vizualization options (alignment, confidence)
 itpdraftonly = 1 ; only use ITP in draft stage
+mode = "ITP"
