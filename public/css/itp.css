@@ -1,6 +1,7 @@
 .editarea[data-opt-confidences=true] > .wordconf-ok { color: inherit; }
-.editarea[data-opt-confidences=true] > .wordconf-doubt { color: darkorange; }
+.editarea[data-opt-confidences=true] > .wordconf-doubt { color: chocolate; }
 .editarea[data-opt-confidences=true] > .wordconf-bad { color: red; }
+.editarea[data-opt-confidences=true] > .wordconf-unknown { color: red; font-weight: bold; }
 .source[data-opt-validated=true]     > .editable-token[data-validated=true] { color: green; }
 .editarea[data-opt-validated=true]   > .editable-token[data-validated=true] { color: green; }
 .source[data-opt-refix=true]        > .editable-token[data-prefix=true] { background-color: #CCFFCC; } 

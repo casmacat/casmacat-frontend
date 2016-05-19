@@ -456,6 +456,9 @@
         else if (conf > confThreshold.bad) {
           cssClass = "wordconf-doubt";
         }
+        else if (conf == 0) {
+          cssClass = "wordconf-unknown";
+        }
         else {
           cssClass = "wordconf-bad";
         }
