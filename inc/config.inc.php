@@ -56,6 +56,15 @@ class INIT {
     public static $ALLOW_CHANGE_VISUALIZATION_OPTIONS;
     public static $MODE;
     public static $ITP_DRAFT_ONLY;
+    public static $DISPLAY_MOUSE_ALIGN;
+    public static $DISPLAY_CARET_ALIGN;
+    public static $DISPLAY_SHADE_OFF_TRANSLATED_SOURCE;
+    public static $DISPLAY_CONFIDENCES;
+    public static $HIGHLIGHT_VALIDATED;
+    public static $HIGHLIGHT_PREFIX;
+    public static $HIGHLIGHT_SUFFIX;
+    public static $HIGHLIGHT_LAST_VALIDATED;
+    public static $LIMIT_SUFFIX_LENGTH;
     public static $ET_TYPE;
 
     public static function obtain() {
@@ -121,6 +130,15 @@ class INIT {
         self::$ALLOW_CHANGE_VISUALIZATION_OPTIONS = self::getConfigBool('allowchangevisualizationoptions');
         self::$MODE = self::getConfig('mode');
         self::$ITP_DRAFT_ONLY = self::getConfigBool('itpdraftonly');
+        self::$DISPLAY_MOUSE_ALIGN = self::getConfigBool('displayMouseAlign');
+        self::$DISPLAY_CARET_ALIGN = self::getConfigBool('displayCaretAlign');
+        self::$DISPLAY_SHADE_OFF_TRANSLATED_SOURCE = self::getConfigBool('displayShadeOffTranslatedSource');
+        self::$DISPLAY_CONFIDENCES = self::getConfigBool('displayconfidences');
+        self::$HIGHLIGHT_VALIDATED = self::getConfigBool('highlightValidated');
+        self::$HIGHLIGHT_PREFIX = self::getConfigBool('highlightPrefix');
+        self::$HIGHLIGHT_SUFFIX = self::getConfigBool('highlightSuffix');
+        self::$HIGHLIGHT_LAST_VALIDATED = self::getConfigBool('highlightLastValidated');
+        self::$LIMIT_SUFFIX_LENGTH = self::getConfigBool('limitSuffixLength');
         self::$ET_TYPE     = self::getConfig('ettype', "casmacat", 0);
         self::$DEBUG       = self::getConfigBool('debug', "debug");
     }

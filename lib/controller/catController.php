@@ -343,6 +343,15 @@ class catController extends viewcontroller {
         $this->template->allowChangeVisualizationOptions = INIT::$ALLOW_CHANGE_VISUALIZATION_OPTIONS;
         $this->template->mode = INIT::$MODE;
         $this->template->itpDraftOnly = INIT::$ITP_DRAFT_ONLY;
+        $this->template->displayMouseAlign = INIT::$DISPLAY_MOUSE_ALIGN;
+        $this->template->displayCaretAlign = INIT::$DISPLAY_CARET_ALIGN;
+        $this->template->displayShadeOffTranslatedSource = INIT::$DISPLAY_SHADE_OFF_TRANSLATED_SOURCE;
+        $this->template->displayconfidences = INIT::$DISPLAY_CONFIDENCES;
+        $this->template->highlightValidated = INIT::$HIGHLIGHT_VALIDATED;
+        $this->template->highlightPrefix = INIT::$HIGHLIGHT_PREFIX;
+        $this->template->highlightSuffix = INIT::$HIGHLIGHT_SUFFIX;
+        $this->template->highlightLastValidated = INIT::$HIGHLIGHT_LAST_VALIDATED;
+        $this->template->limitSuffixLength = INIT::$LIMIT_SUFFIX_LENGTH;
         log::doLog("CASMACAT: itpEnabled: " . INIT::$ITP_ENABLED);
         log::doLog("CASMACAT: etEnabled: " . INIT::$ET_ENABLED);
         if (INIT::$LOG_ENABLED) {
