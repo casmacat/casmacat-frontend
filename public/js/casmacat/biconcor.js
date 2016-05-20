@@ -144,9 +144,13 @@
         setChildren (elDialog); // clear
 
         concorStruct.forEach (function (tgtPhraseStruct) {
+            var tgtPhrase = tgtPhraseStruct.tgt_phrase.replace('@-@', '-').replace('&apos;', "'");
+            var tgtPhraseCount = tgtPhraseStruct.tgt_phrase_count;
+
             elDialog.appendChild (buildNode ('h5', {
                 style: {margin: '0'}
-            }, tgtPhraseStruct.tgt_phrase.replace (/ @-@ /, '-')));
+            }, tgtPhrase + ' (' + tgtPhraseCount + ')'));
+
             var elTable = buildNode ('table', {
                 style: {
                     fontSize: 'x-small',
