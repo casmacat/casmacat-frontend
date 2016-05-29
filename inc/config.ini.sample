@@ -58,4 +58,5 @@ highlightPrefix = 0; visualization option
 highlightSuffix = 1; visualization option
 highlightLastValidated = 0; visualization option
 limitSuffixLength = 0; visualization option
+toucheditenabled = 0; allow touch editing mode
 mode = "ITP"

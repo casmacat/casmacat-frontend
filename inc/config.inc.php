@@ -50,6 +50,7 @@ class INIT {
     public static $ET_ENABLED;
     public static $SR_ENABLED;
     public static $BICONCOR_ENABLED;
+    public static $TOUCHEDIT_ENABLED;
     public static $HIDE_CONTRIBUTIONS;
     public static $FLOAT_PREDICTIONS;
     public static $TRANSLATION_OPTIONS;
@@ -124,6 +125,7 @@ class INIT {
         self::$ET_ENABLED  = self::getConfigBool('etenabled');
         self::$SR_ENABLED  = self::getConfigBool('srenabled');
         self::$BICONCOR_ENABLED = self::getConfigBool('biconcorenabled');
+        self::$TOUCHEDIT_ENABLED = self::getConfigBool('toucheditenabled');
         self::$HIDE_CONTRIBUTIONS = self::getConfigBool('hidecontributions');
         self::$FLOAT_PREDICTIONS = self::getConfigBool('floatpredictions');
         self::$TRANSLATION_OPTIONS = self::getConfigBool('translationoptions');

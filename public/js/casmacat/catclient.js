@@ -239,6 +239,14 @@
       self.server.emit('decode', {data: obj});
     };
     
+    /**
+    * Touch Editing: get new translation considering touch user actions
+    */
+    self.redecode = function(obj) {
+      self.checkConnection();
+      self.server.emit('redecode', {data: obj});
+    };
+
     /** 
     * Retrieves tokenization results for the current segment.
     * @param {Object}

@@ -84,34 +84,58 @@
     var $ea = getEditArea(),
         currentMode = $ea.editableItp('getConfig').mode;
      
-    if (!$ea.editableItp('getConfig').allowToggleMode) return
+    if (!$ea.editableItp('getConfig').allowToggleMode) return;
 
     if (currentMode == "manual") {
       return false;
     }
-    var newMode = currentMode == "ITP" ? "PE" : "ITP";
+    if (currentMode == "PE") {
+      newMode = "ITP";
+    }
+    else if (currentMode == "TOUCH") {
+      newMode = "EDIT";
+    }
+    else if (currentMode == "EDIT") {
+      newMode = "PE";
+    }
+    else if (currentMode == "ITP") {
+      newMode = window.config.toucheditEnabled ? "TOUCH" : "PE";
+    }
+
+    if (currentMode == "TOUCH") {
+      UI.switchTouchEditing();
+    }
+    if (currentMode == "EDIT") {
+      UI.exitTouchEditing();
+    }
+
     $ea.editableItp('updateConfig', {
       mode: newMode
     });
+
     // start session with new ITP mode
     $ea.editableItp('startSession');
     // Inform user via UI
     // FIXME: Selecting by ID doesn't work (!?) We must specify also the node type: a#id
     $('.itp-indicator').text(newMode);
-	console.log('new mode:', newMode);
-    if (newMode === "PE") {
+    console.log('new mode:', newMode);
+    if (newMode === "PE" || newMode === "TOUCH" || newMode === "EDIT") {
 		getEditArea().editableItp('toggle', 'limitSuffixLength', false);
 		if (getEditArea().text().length == 0)
-		UI.chooseSuggestion('1'); // if textarea is empty, insert best translation to Post-Edit
+		        UI.chooseSuggestion('1'); // if textarea is empty, insert best translation to Post-Edit
 		if (window.config.floatPredictions){
-			document.getElementById("el-float-pred").className = 'floating-prediction floating-prediction-hidden';  //setVisible();
+			document.getElementById("el-float-pred").className = 'floating-prediction floating-prediction-hidden';  // set invisible
+		}
+		if (newMode == "TOUCH") {
+			UI.initTouchEditing();
 		}
     }
-    else { // newMode == "ITP"
-      getEditArea().editableItp('toggle', 'limitSuffixLength', true);
-	  if (window.config.floatPredictions){
+    else if (newMode == "ITP") {
+	getEditArea().removeClass("touch-edit");
+	getEditArea().editableItp('toggle', 'limitSuffixLength', true);
+	if (window.config.floatPredictions){
 		document.getElementById("el-float-pred").className = 'floating-prediction'; //setVisible();
-	  }
+	}
     }
     $ea.trigger('itptogglechange', [newMode]);
   };
@@ -167,7 +191,6 @@
       UI.addKeyboardShortcut(t, toggleOpt(toggleKeyBindings[t]));
     }
   }
-
  
   module.exports = {
     toggles: toggleKeyBindings,

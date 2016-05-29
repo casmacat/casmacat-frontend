@@ -53,6 +53,9 @@ Loader = {
       this.components.push('casmacat/itp');
   	  this.libraries.push('../casmacat/require.node');
     }
+    if (config.toucheditEnabled) {
+      this.components.push('casmacat/touch-edit');
+    }
     if (config.biconcorEnabled) {
       this.components.push('casmacat/biconcor');
       this.includeStyle ('biconcor.css', '', config.basepath + 'public/css/');

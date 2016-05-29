@@ -131,7 +131,7 @@
         // sentence is not updated; since the following condition does not match:
         // The prefix in the sentence does not match the prefix in the prediction.
         var matchPrefix = match.target.substr(0, d.pos);
-        if (targetPrefix === matchPrefix && (!match.author || conf.mode === match.author)) {
+        if (conf.mode == "TOUCH" || (targetPrefix === matchPrefix && (!match.author || conf.mode === match.author))) {
           var doUpdate = true;
 
           if (conf.avoidLowConfidencePredictions) {
@@ -474,6 +474,7 @@
       }
     }
 
+    /////////////////////////////////////////////////////////////////////////
     // the "floating prediction" displays the predicted next word next to the
     // user's text caret
     self.FloatingPrediction = (function () {
@@ -716,7 +717,6 @@
         destroy: destroy
       };
     })();
-
   };
   
   module.exports = ItpVisualization; 

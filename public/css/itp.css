@@ -22,8 +22,6 @@ th.shade-off-translated { background-color: #dddddd !important; }
 .editarea[data-opt-last-validated=true] > .editable-token[data-last-validated=true]       { /* XXX: hack to make chrome work with attribute selectors and :after (http://code.google.com/p/chromium/issues/detail?id=125719) */ }
 .editarea[data-opt-last-validated=true] > .editable-token[data-last-validated=true]:after { content: "‸"; position: absolute; color: brown; }
 
-
-
 .vis-commands { text-align:right; margin-right:45px; margin-bottom:0.5em; }
   .vis-commands label { font-size:80%; }
   /* .vis-commands * { vertical-align:middle; } */
@@ -42,6 +40,7 @@ th.shade-off-translated { background-color: #dddddd !important; }
   cursor: auto;
 }
 .btn { margin-left: 15px; }
+.biconcor-btn { vertical-align: top; }
 
 
 .floating-prediction {
@@ -56,3 +55,9 @@ th.shade-off-translated { background-color: #dddddd !important; }
 .floating-prediction-hidden {
     display: none;
 }
+
+.touch-edit { background-color: #e0e0e0 !important; }
+.touch-edit-good { background-color: #d0ffd0; }
+.touch-edit-bad { background-color: #ffd0d0; }
+.touch-edit-neutral { background-color: #e0e0e0; }
+

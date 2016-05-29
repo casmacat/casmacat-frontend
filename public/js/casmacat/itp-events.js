@@ -187,7 +187,13 @@ var Memento = require("module.memento");
  
         //console.log('contribution changed', data);
         var bestResult = data.nbest[0];
-        if (!window.config.floatPredictions || window.config.prefs.mode == 'PE') {
+        var conf = userCfg();
+	// re-establish touch mode when new window is opened
+	if (conf.mode == 'EDIT') {
+	  conf.mode = 'TOUCH';
+	  $('.itp-indicator').text(newMode);
+	}
+        if (!window.config.floatPredictions || conf.mode == 'PE' || conf.mode == 'TOUCH') {
           // if we're using the floating box for displaying predictions, don't
           // paste the decoded text into the box
           self.vis.updateSuggestions(data);
@@ -211,11 +217,49 @@ var Memento = require("module.memento");
         // herve - this ensures that the prediction popup shows up before the
         // user starts translating
         $target.focus();
-        if (userCfg().mode == 'ITP' && window.config.floatPredictions) {
+        if (conf.mode == 'ITP' && window.config.floatPredictions) {
           self.vis.FloatingPrediction.setPredictedText(data);
         }
+
+	// start touch-editing (block from typing, setup click actions on tokens)
+	if (conf.mode == "TOUCH") {
+	  UI.initTouchEditing();
+	}
       });
     
+      // result from touch editing
+      itp.on('redecodeResult', function(data, err) {
+        if (err.length > 0) { return }
+
+        // make sure new data still applies to current source
+        var $target = $('.editarea', UI.currentSegment);
+        var sid = $target.data('sid');
+        var $source = $("#segment-" + sid + "-source");
+        if (data.source !== $source.editable('getOriginalText') && data.source !== $source().editable('getText')) {
+          console.warn("Current source and received source do not match");
+          return;
+        }
+
+        self.vis.updateSuggestions(data);
+        $target.trigger('editabletextchange', [data, err]);
+        var targetspans = $('.editable-token', $target);
+        for (var i = 0; i < data.annotation.length; i++) {
+          $(targetspans[i]).removeClass("touch-edit-neutral");
+          $(targetspans[i]).removeClass("touch-edit-good");
+          $(targetspans[i]).removeClass("touch-edit-bad");
+          if (data.annotation[i] == 0) {
+            $(targetspans[i]).addClass("touch-edit-neutral");
+          }
+          if (data.annotation[i] == -1) {
+            $(targetspans[i]).addClass("touch-edit-bad");
+          }
+          if (data.annotation[i] == 1) {
+            $(targetspans[i]).addClass("touch-edit-good");
+          }
+        }
+        $(targetspans[i]).click(function(e) { UI.touchEditingClick(e, $(this)) });
+      });
+
       itp.on('startSessionResult', function(data, err) {
         if (err.length > 0) {
           return

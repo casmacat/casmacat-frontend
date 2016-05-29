@@ -607,8 +607,8 @@ UI = {
         if (!$button || $button.length === 0) {
           var disabled = (this.currentSegment.hasClass('loaded'))? '' : ' disabled="disabled"';
           var buttons  = '<li><a id="segment-'+this.currentSegmentId+'-copysource" ';
-              buttons += 'href="#" class="btn copysource" data-segmentid="segment-'+this.currentSegmentId+'" ';
-              buttons += 'title="Copy source to target"></a><p>CTRL+INS</p></li>';
+              buttons += 'href="#" class="itp-btn copysource" data-segmentid="segment-'+this.currentSegmentId+'" ';
+              buttons += 'title="Copy source to target">SRC\u279e</a><p>CTRL+INS</p></li>';
               buttons += '<li><a id="segment-'+this.currentSegmentId+'-button-draft" data-segmentid="segment-'+this.currentSegmentId+'" ';
               buttons += 'href="#" class="draft"'+disabled+'>DRAFT</a><p>ENTER</p></li>';
               buttons += '<li><a id="segment-'+this.currentSegmentId+'-button-translated" data-segmentid="segment-'+this.currentSegmentId+'" ';
