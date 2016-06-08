@@ -82,7 +82,7 @@
           str = "/* Require (without padding) */var exports;" + this.responseText + "\n\ntrue;";
         }
         // acknowledge firebug and chrome what is the name of the file
-        str += "\n\n//@ sourceURL=" + url;
+        str += "\n\n//# sourceURL=" + url;
 
         try {
           var errmsg = 'Module ' + module + ' with url "' + url + '" could not be included.';

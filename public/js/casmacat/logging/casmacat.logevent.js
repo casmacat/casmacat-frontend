@@ -22,7 +22,7 @@ var LogEventFactory = function(elementIdMode) {
     this.SOURCE_COPIED = "sourceCopied";
     this.SEGMENT_OPENED = "segmentOpened";
     this.SEGMENT_CLOSED = "segmentClosed";
-	  this.LOADING_TRANSLATION_OPTIONS = "loadingTranslationOptions";
+    this.LOADING_TRANSLATION_OPTIONS = "loadingTranslationOptions";
     this.TRANSLATION_OPTIONS_LOADED = "translationOptionsLoaded";
     this.LOADING_SUGGESTIONS = "loadingSuggestions";
     this.SUGGESTIONS_LOADED = "suggestionsLoaded";
@@ -30,7 +30,6 @@ var LogEventFactory = function(elementIdMode) {
     this.DELETING_SUGGESTION = "deletingSuggestion";
     this.SUGGESTION_DELETED = "suggestionDeleted";
     this.STATS_UPDATED = "statsUpdated";
-
     this.DECODE = "decode";
     this.ALIGNMENTS = "alignments";
     this.SUFFIX_CHANGE = "suffixChange";
@@ -40,7 +39,7 @@ var LogEventFactory = function(elementIdMode) {
     this.HIDE_ALIGNMENT_BY_MOUSE = "hideAlignmentByMouse";
     this.SHOW_ALIGNMENT_BY_KEY = "showAlignmentByKey";
     this.HIDE_ALIGNMENT_BY_KEY = "hideAlignmentByKey";
-    
+
     this.KEY_DOWN = "keyDown";
     this.KEY_UP = "keyUp";
 
@@ -108,7 +107,8 @@ LogEventFactory.prototype.newLogEvent = function(type, timeStamp, element) {
                                             // start time of this logging session)
                                             // if timeStamp not present assign new timestamp
     var newTimeStamp = (new Date()).getTime();
-    logEvent.time = (typeof(timeStamp) != 'undefined')?timeStamp:newTimeStamp; 
+    logEvent.time = (typeof(timeStamp) != 'undefined' && timeStamp+100000000 > newTimeStamp)?timeStamp:newTimeStamp; 
+					    //           ^^^^^^^^^^^^^^^^^^^ weird bug with e.timeStamp using different time
     logEvent.elementId = null;              // id of the element in the UI
     logEvent.xPath = null;                  // XPath-like expression giving the path to the element. Absolute, when
                                             // running in 'elementIdDetection=xPath' mode, relative to the next parent
