@@ -1427,6 +1427,10 @@ debug(event);
             case logEventFactory.FOCUS:
                 break;
 
+             // TODO do we want to replay the floating prediction?
+            case logEventFactory.FLOAT_PREDICTION:
+                break;
+
             default:
                 alert("Unknown event type: '" + event.type + "'.");
                 debug(pluginName + ": Unknown event type: '" + event.type + "'.");
