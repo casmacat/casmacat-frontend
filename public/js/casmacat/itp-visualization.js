@@ -553,15 +553,12 @@
       function adjustPosition () {
         var coord = getCaretPixelCoords();
         visibility.havePixelCoord = true; // always true -> reuse old
-        //visibility.havePixelCoord = coord && coord[0] && coord[1];
         if (coord && coord[0] && coord[1]) {
-        //if (visibility.havePixelCoord) {
-          elFloatPred.style.top  = (coord[1]+20) + 'px';
-          elFloatPred.style.left = (coord[0]+10) + 'px';
-          showPredictedText();
-        } /*else {    // this will hide the floating prediction the first time the segment opens
-			setVisible();
-        } */
+          drawTextBox( elFloatPred.innerHTML, getVisible(), (coord[0]+10) + 'px', (coord[1]+20) + 'px');
+          //elFloatPred.style.top  = (coord[1]+20) + 'px';
+          //elFloatPred.style.left = (coord[0]+10) + 'px';
+          //showPredictedText();
+        } 
       }
 
       function skip (regex, pos, txt) {
@@ -580,7 +577,7 @@
         return pos;
       }
 
-      function setVisible () {
+      function getVisible () {
         var conf = userCfg();
         var visible = (conf.mode == 'ITP');
         for (var cond in visibility)
@@ -588,9 +585,7 @@
             //console.log("cond " + cond + " failed.");
             visible = false;
           }
-        elFloatPred.className =
-            'floating-prediction'
-            + (visible ? '' : ' floating-prediction-hidden');
+        return visible;
       }
 
       function setPredictedText (data) {
@@ -620,7 +615,7 @@
       function showPredictedText () {
         if (!$target.editable('hasFocus')) {
           visibility.preconditionsMet = false;
-          setVisible();
+          drawTextBox( "", false, elFloatPred.style.left, elFloatPred.style.top);
           return;
         }
         var txt = predictedText;
@@ -636,7 +631,7 @@
               )) {
             console.log("preconditionsMet = false");
             visibility.preconditionsMet = false;
-            setVisible();
+            drawTextBox( "", false, elFloatPred.style.left, elFloatPred.style.top);
             return;
           }
           var boldStart = skip(/^\s/, caretPos);
@@ -657,12 +652,22 @@
           // spinner if no prediction so far
           floatHtmlStr = "<img src=\"/public/img/loader.gif\" width=\"16\" height=\"16\">";
         }
-        if (floatHtmlStr) {
-          elFloatPred.innerHTML = floatHtmlStr;
-        }
+        //if (floatHtmlStr) {
+        //  elFloatPred.innerHTML = floatHtmlStr;
+        //}
         visibility.preconditionsMet = true;
         visibility.haveText = !!floatHtmlStr;
-        setVisible();
+        drawTextBox( floatHtmlStr, getVisible(), elFloatPred.style.left, elFloatPred.style.top);
+      }
+
+      function drawTextBox( text, visible, x, y) {
+        console.log("drawTextBox " + text + ", vis " + visible + ", x=" + x + ", y=" + y);
+        elFloatPred.innerHTML = text;
+        elFloatPred.className = 'floating-prediction'
+            + (visible ? '' : ' floating-prediction-hidden');
+        elFloatPred.style.left = x;
+        elFloatPred.style.top  = y;
+        $target.trigger('floatPredictionShow',[[text, visible, x, y]]);
       }
 
       function goToPos (pos) {
@@ -696,12 +701,12 @@
 	}
         var newText = oldText.substring (0, pos) + insText + ' ' + sufText;
         $target.editable ('setText', newText, predictedSegmentation);
+        $target.trigger('floatPredictionAccept',[insText]);        
         // $target.editable ('setText', newText);
         goToPos (pos + insText.length + 1);
         showPredictedText();
         self.updateShadeOffTranslatedSource();
         // merc - adding trigger to float predictions   
-        $target.trigger('floatPrediction', [insText]);        
       }
 
       function destroy () {
@@ -710,6 +715,7 @@
 
       // public methods for FloatingPrediction
       return {
+        drawTextBox: drawTextBox,
         adjustPosition: adjustPosition,
         setPredictedText: setPredictedText,
         getPredictedText: getPredictedText,

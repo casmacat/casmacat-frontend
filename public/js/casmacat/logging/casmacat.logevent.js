@@ -75,7 +75,8 @@ var LogEventFactory = function(elementIdMode) {
     this.SR_RULE_DELETED = "srRuleDeleted";
     
      // merc - adding floatPrediction, biconcordancer and translationOption
-    this.FLOAT_PREDICTION = "floatPrediction";
+    this.FLOAT_PREDICTION_ACCEPT = "floatPredictionAccept";
+    this.FLOAT_PREDICTION_SHOW = "floatPredictionShow";
     this.BICONCOR = "biconcor";
     this.BICONCOR_CLOSED = "biconcorClosed";
     this.TRANSLATION_OPTION = "translationOption";
@@ -314,7 +315,13 @@ LogEventFactory.prototype.newLogEvent = function(type, timeStamp, element) {
         case this.SR_RULE_DELETED:
             break;
         // merc - adding floatPrediction, biconcordancer and translationOption
-        case this.FLOAT_PREDICTION:
+        case this.FLOAT_PREDICTION_SHOW:
+            logEvent.text    = arguments[3][0];
+            logEvent.visible = arguments[3][1];
+            logEvent.x = arguments[3][2];
+            logEvent.y = arguments[3][3];
+            break;
+        case this.FLOAT_PREDICTION_ACCEPT:
             break;
         case this.BICONCOR:
             logEvent.word = arguments[3].srcPhrase; 

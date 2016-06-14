@@ -401,7 +401,11 @@ else {
                         insertLogEventHeader($logEvent);
                         break;
                     // merc - adding float prediction, biconcordancer and translation_option
-                    case LogEvent::FLOAT_PREDICTION:
+                    case LogEvent::FLOAT_PREDICTION_SHOW:
+                        $logEvent->floatPredictionShowData($value);
+                        insertFloatPredictionShowEvent($logEvent);
+                        break;
+                    case LogEvent::FLOAT_PREDICTION_ACCEPT:
                         insertLogEventHeader($logEvent);
                         break;
                     case LogEvent::BICONCOR:

@@ -875,7 +875,35 @@ else {
     }
     else $len_biconcors = 0;
         
+    //-------------------------------------------------------------------------------------------
     
+    //float_prediction_show_event 
+    $queryId = $db->query("SELECT h.id as id, h.job_id, h.file_id, h.element_id, h.x_path, h.time, h.type"
+            . ", b.text, b.visible, b.x, b.y"
+        . " FROM log_event_header h, float_prediction_show_event b WHERE h.job_id = '$jobId' AND h.file_id = '$fileId' AND h.id = b.header_id ORDER BY h.time, h.id ASC");
+    
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: fetchLogChunk(): " . print_r($err, true));
+        throw new Exception("CASMACAT: fetchLogChunk(): " . print_r($err, true));
+    }
+        
+    $floatPredictionShowRow = null;
+    $floatPredictionShowEvents = array();
+    while ( ($floatPredictionShowRow = $db->fetch($queryId)) != false ) {
+        $floatPredictionShowRowAsObject = snakeToCamel($floatPredictionShowRow);        
+        $floatPredictionShowEvent = new LogEvent($jobId, $fileId, $floatPredictionShowRowAsObject);
+        $floatPredictionShowEvent->floatPredictionShowData($floatPredictionShowRowAsObject);
+        array_push($floatPredictionShowEvents, $floatPredictionShowEvent); 
+    }
+    
+    if(!empty($floatPredictionShowEvents))
+    {
+        $count_float_prediction_show = 0;
+        $len_float_prediction_show = count($floatPredictionShowEvents);
+    }
+    else $len_float_prediction_show = 0;
         
     //-------------------------------------------------------------------------------------------
         
@@ -1156,6 +1184,17 @@ else {
             }
         }
         
+        elseif ($len_float_prediction_show != 0 && $headerRowAsObject->id == $floatPredictionShowEvents[$count_float_prediction_show]->id){
+            foreach($floatPredictionShowEvents[$count_float_prediction_show] as $attribute => $val){                
+                if ($attribute != 'jobId' && $attribute != 'fileId' && $attribute != 'type'){
+                    $writer->writeAttribute($attribute, $val);
+                }
+            }
+            if ($count_float_prediction_show < $len_float_prediction_show-1){
+                $count_float_prediction_show = $count_float_prediction_show + 1;
+            }
+        }
+
         elseif ($lenEpen != 0 && $headerRowAsObject->id == $epenEvents[$countEpen]->id){
             
             //log::doLog("CASMACAT: Row text: " . print_r($textEvents[$count_texts],true));   

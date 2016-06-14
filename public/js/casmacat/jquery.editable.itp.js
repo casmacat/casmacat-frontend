@@ -192,7 +192,12 @@
 
     trigger: function(name, evData) { 
       var data = $(this).data(namespace);
-      data.itpServer.trigger(name, evData);
+      if (data) { 
+        data.itpServer.trigger(name, evData);
+      }
+      else {
+        console.log("cannot call data.itpServer");
+      }
     },
 
     setTargetText: function(str) { 

@@ -593,7 +593,8 @@
             $(window).on("mementoInvalidate." + pluginName, mementoCommon);
             
             // merc - adding floatPrediction, biconcordander and translationOption
-            $(window).on("floatPrediction." + pluginName, floatPrediction);
+            $(window).on("floatPredictionAccept." + pluginName, floatPredictionAccept);
+            $(window).on("floatPredictionShow." + pluginName, floatPredictionShow);
             $(window).on("biconcor." + pluginName, biconcor);
             $(window).on("biconcorClosed." + pluginName, biconcorClosed);
             $(window).on("translationOption." + pluginName, translationOption);
@@ -1544,14 +1545,18 @@
     };
     
     // merc - adding float prediction, biconcordancer, decode result and translation option
-    var floatPrediction = function(e, data) {
-        debug(pluginName + ": FloatPrediction event: type: '" + e.type + "'.");
-        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FLOAT_PREDICTION, e.timeStamp, e.target, data));
+    var floatPredictionAccept = function(e, data) {
+        debug(pluginName + ": FloatPredictionAccept event: type: '" + e.type + "'.");
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FLOAT_PREDICTION_ACCEPT, e.timeStamp, e.target, data));
         
         textChanged({
             target: e.target,
-            data: {edition: "floatPrediction"},
-        });        
+            data: {edition: "floatPredictionAccept"},
+        }); 
+    }
+    var floatPredictionShow = function(e, data) {
+        debug(pluginName + ": FloatPredictionShow event: type: '" + e.type + "'.");
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FLOAT_PREDICTION_SHOW, e.timeStamp, e.target, data));
     }
     
     var biconcor = function(e, data) {

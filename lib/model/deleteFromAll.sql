@@ -3,6 +3,7 @@
 --INSERT INTO `engines` VALUES (1,'MyMemory (All Pairs)','TM','MyMemory: next generation Translation Memory technology','http://mymemory.translated.net/api','get','set','delete',NULL,'1',0),(2,'FBK-IT (EN->IT)','MT','FBK (EN->IT) Moses Information Technology engine','http://hlt-services2.fbk.eu:8480','translate',NULL,NULL,NULL,'2',14),(3,'LIUM-IT (EN->DE)','MT','Lium (EN->FR) Moses Information Technology engine','http://193.52.29.66:8001','translate',NULL,NULL,NULL,'2',14),(4,'FBK-LEGAL (EN>IT)','MT','FBK (EN->IT) Moses Legal engine','http://hlt-services2.fbk.eu:8490','translate',NULL,NULL,NULL,'2',14),(5,'LIUM-LEGAL (EN->DE)','MT','Lium (EN->FR) Moses Legal engine','http://193.52.29.66:8001','translate',NULL,NULL,NULL,NULL,14);
 DELETE FROM `log_event_header` WHERE 1;
 DELETE FROM `biconcor_event` WHERE 1;
+DELETE FROM `float_prediction_show_event` WHERE 1;
 DELETE FROM `config_event` WHERE 1;
 DELETE FROM `deleting_suggestion_event` WHERE 1;
 DELETE FROM `epen_event` WHERE 1;

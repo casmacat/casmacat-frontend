@@ -70,7 +70,8 @@ class LogEvent {
     const SR_RULE_DELETED = "srRuleDeleted";
     
     // merc - adding floatprediction, biconcor and translationOption
-    const FLOAT_PREDICTION = "floatPrediction";
+    const FLOAT_PREDICTION_ACCEPT = "floatPredictionAccept";
+    const FLOAT_PREDICTION_SHOW = "floatPredictionShow";
     const BICONCOR = "biconcor";
     const BICONCOR_CLOSED = "biconcorClosed";
     const TRANSLATION_OPTION = "TranslationOption";
@@ -267,6 +268,12 @@ class LogEvent {
         $this->rules = $object->rules;
     }
     
+    public function floatPredictionShowData($object) {
+        $this->text = $object->text;
+        $this->visible = $object->visible;
+        $this->x = $object->x;
+        $this->y = $object->y;
+    }
     // merc - adding biconcor
     public function biconcorData($object) {
         $this->word = $object->word;

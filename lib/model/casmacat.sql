@@ -177,6 +177,18 @@ CREATE TABLE IF NOT EXISTS `biconcor_event` (
   KEY `header_id` (`header_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=28 ;
 
+CREATE TABLE IF NOT EXISTS `float_prediction_show_event` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `header_id` int(11) NOT NULL,
+  `text` text COLLATE utf8_unicode_ci NOT NULL,
+  `visible` tinyint(1) COLLATE utf8_unicode_ci NOT NULL,
+  `x` varchar(8) COLLATE utf8_unicode_ci NOT NULL,
+  `y` varchar(8) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `id` (`id`),
+  KEY `header_id` (`header_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=28 ;
+
 CREATE TABLE IF NOT EXISTS `epen_event` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `header_id` int(11) NOT NULL,

@@ -208,7 +208,9 @@ function resetDocument($jobId, $fileId) {
             case LogEvent::SR_RULE_DELETED:
                 break;
             // merc - adding floatPrediction, biconcordancer and translationOption
-            case LogEvent::FLOAT_PREDICTION:
+            case LogEvent::FLOAT_PREDICTION_SHOW:
+                break;
+            case LogEvent::FLOAT_PREDICTION_ACCEPT:
                 break;
             case LogEvent::BICONCOR:
                 break;
@@ -475,7 +477,11 @@ log::doLog($endOffset);
             case LogEvent::SR_RULE_DELETED:
                 break;
             // merc - adding floatPrediction, biconcordancer and translationOption
-            case LogEvent::FLOAT_PREDICTION:
+            case LogEvent::FLOAT_PREDICTION_SHOW:
+                $eventRow = fetchEventRow($logEvent->id, "float_prediction_show_event");
+                $logEvent->floatPredictionShowData($eventRow);
+                break;
+            case LogEvent::FLOAT_PREDICTION_ACCEPT:
                 break;
             case LogEvent::BICONCOR:
                 $eventRow = fetchEventRow($logEvent->id, "biconcor_event");
@@ -1048,6 +1054,29 @@ function insertSrEvent($event) {
 //        return $errno * -1;
     }
 }
+
+  function insertFloatPredictionShowEvent($event) {
+    $headerId = insertLogEventHeader($event);
+
+    $data = array();
+    $data["id"] = "NULL";
+    $data["header_id"] = $headerId;
+    $data["text"] = $event->text;
+    $data["visible"] = $event->visible;
+    $data["x"] = $event->x;
+    $data["y"] = $event->y;
+
+    $db = Database::obtain();
+    $db->insert("float_prediction_show_event", $data);
+
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: insertFloatPredictionShow(): " . print_r($err, true));
+        throw new Exception("CASMACAT: insertFloatPredictionShow(): " . print_r($err, true));
+    }
+}
+      
 
 //  merc - adding biconcor insertion
   function insertBiconcorEvent($event) {

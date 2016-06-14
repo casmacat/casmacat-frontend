@@ -1427,8 +1427,14 @@ debug(event);
             case logEventFactory.FOCUS:
                 break;
 
-             // TODO do we want to replay the floating prediction?
-            case logEventFactory.FLOAT_PREDICTION:
+            case logEventFactory.FLOAT_PREDICTION_SHOW:
+                console.log("drawTextBox(" + event.text + ", " + event.visible + ", " + event.x + ", " + event.y + ")");
+                vsWindow.$("#" + event.elementId).editableItp(
+                  'trigger', 
+                  'floatingPredictionShow', 
+                    {errors: [], data: [event.text, event.visible, event.x, event.y]});
+                break;
+            case logEventFactory.FLOAT_PREDICTION_ACCEPT:
                 break;
 
             default:

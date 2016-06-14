@@ -227,6 +227,16 @@ var Memento = require("module.memento");
 	}
       });
     
+      // function to prompt display of floating prediction box, used by replay
+      itp.on('floatingPredictionShow', function(data, err) {
+        var conf = userCfg();
+        console.log("self.vis.FloatingPrediction.drawTextBox(" + data[0] + ", " + data[1] + ", ...)");
+        if (conf.mode == 'ITP' && window.config.floatPredictions) {
+          console.log("self.vis.FloatingPrediction.drawTextBox(" + data[0] + ", " + data[1] + ", ...)");
+          self.vis.FloatingPrediction.drawTextBox(data[0],data[1],data[2],data[3]);
+        }
+      });
+
       // result from touch editing
       itp.on('redecodeResult', function(data, err) {
         if (err.length > 0) { return }
