@@ -565,6 +565,9 @@
             $(window).on("deletingSuggestion." + pluginName, deletingSuggestion);
 //            debugAttachedTo("deletingSuggestion", window);
 
+            $(window).on("emit." + pluginName, emit);
+            $(window).on("result." + pluginName, result);
+
             $(window).on("suggestionDeleted." + pluginName, suggestionDeleted);
 //            debugAttachedTo("suggestionDeleted", window);
         }
@@ -595,6 +598,7 @@
             // merc - adding floatPrediction, biconcordander and translationOption
             $(window).on("floatPredictionAccept." + pluginName, floatPredictionAccept);
             $(window).on("floatPredictionShow." + pluginName, floatPredictionShow);
+            $(window).on("updateShadeOffTranslatedSource." + pluginName, updateShadeOffTranslatedSource);
             $(window).on("biconcor." + pluginName, biconcor);
             $(window).on("biconcorClosed." + pluginName, biconcorClosed);
             $(window).on("translationOption." + pluginName, translationOption);
@@ -682,23 +686,13 @@
         if (logList.length >= settings.maxChunkSize) {
             debug(pluginName + ": Forcing upload of 'logList'...");
             uploadLogChunk(true);
-//            uploadLogChunk(logList, true);
-//            logList.length = 0;   // clear the logList, this leads to '1x undefined' when debug(logList) is called
-                                    // (where the '1' is the value of maxChunkSize - 1)
             logList = []; // clear the logList
         }
-//        else if (logList.length === parseInt(settings.maxChunkSize * 0.25)) {
-//            debug(pluginName + ": 'logList' fill level 25%: '" + logList.length + "'.");
-//        }
         else if (logList.length === parseInt(settings.maxChunkSize * 0.50)) {
             debug(pluginName + ": 'logList' fill level 50%: '" + logList.length + "'.");
         }
-//        else if (logList.length === parseInt(settings.maxChunkSize * 0.75)) {
-//            debug(pluginName + ": 'logList' fill level 75%: '" + logList.length + "'.");
-//        }
 
         logList.push(logEvent);
-//        debug(pluginName + ": 'logList' now contains '" + logList.length + "' events.");
     };
 
     /**
@@ -706,24 +700,13 @@
      * to the server.
      */
     var uploadLogChunk = function(async) {
-//    var uploadLogChunk = function(logList, async) {
 
         var startTime = new Date().getTime();
-//        debug(pluginName + ": 'logList' refers to: jobId: '" + jobId + "', settings.fileId: '" + settings.jobId + "'.");
-
-//        var internalLogList = logList;
-//        debug(pluginName + ": 'internalLogList' content dump:");
-//        for (var key in internalLogList) {
-//            if (internalLogList.hasOwnProperty(key)) {
-//                debug(internalLogList[key]);
-//            }
-//        }
 
         var data = {
             action: "saveLogChunk",
             fileId: settings.fileId,
             jobId: settings.jobId,
-//            logList: JSON.stringify(internalLogList)
             logList: JSON.stringify(logList)
         };
 
@@ -1248,6 +1231,20 @@
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.DELETING_SUGGESTION, e.timeStamp, data.segment, data.which));
     };
 
+
+    var emit = function(e, data){
+        console.log("get emit event");
+        console.log(data);
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.EMIT, e.timeStamp, e.target, data));
+    };
+
+    var result = function(e, data){
+        console.log("get result event");
+        console.log(e);
+        console.log(data);
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.RESULT, e.timeStamp, e.target, data));
+    };
+
     var suggestionDeleted = function(e, data) {
         debug(pluginName + ": Suggestion deleted.");
 
@@ -1559,6 +1556,11 @@
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FLOAT_PREDICTION_SHOW, e.timeStamp, e.target, data));
     }
     
+    var updateShadeOffTranslatedSource = function(e, data) {
+        debug(pluginName + ": updateShadeOffTranslatedSource event: type: '" + e.type + "'.");
+        storeLogEvent(logEventFactory.newLogEvent(logEventFactory.UPDATE_SHADE_OFF_TRANSLATED_SOURCE, e.timeStamp, e.target, data));
+    }
+    
     var biconcor = function(e, data) {
         debug(pluginName + ": Biconcordancer event: type: '" + e.type + "'.");
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.BICONCOR, e.timeStamp, e.target, data));   
@@ -1645,6 +1647,7 @@
         debug(pluginName + ": event type: '" + e.type + "'.");
         storeLogEvent(logEventFactory.newLogEvent(logEventFactory.FOCUS, e.timeStamp, e.target, data));        
     });
+
         
     // Just to now that everything has been parsed...
     debug(pluginName + ": Plugin codebase loaded.");

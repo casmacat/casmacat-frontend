@@ -2,7 +2,7 @@
 
   include('socket.io');
 
-  var CatClient = function(debug, replay) {
+  var CatClient = function(debug, replay, element) {
     if (typeof debug === 'undefined') {
       debug = false;
     }
@@ -12,6 +12,8 @@
     self.debug  = debug;
     self.replay = replay;
     self.server = null;
+    self.$element = $("#" + element);
+    console.log("CatClient self.element",self.element);
     
     /**
     * Initialization method
@@ -45,6 +47,7 @@
           } else {
             console.log("emit", arguments);
           }
+          self.$element.trigger('emit', [arguments]); // logging
           emit.apply(this, arguments);
         }
       }
@@ -80,6 +83,8 @@
                   console.log(msg, [ev[e]], arguments);
                 }
               }
+              console.log("trigger result", [ev[e], obj.data, obj.errors]);
+              self.$element.trigger('result', [[ev[e], obj.data, obj.errors]]); // logging
               fn(obj.data, obj.errors);
             }
           } else {
@@ -93,7 +98,7 @@
     * Trigger event 
     */
     self.trigger = function() {
-      console.log("trigger", arguments);
+      console.log("trigger response", arguments);
       self.server.$emit.apply(self.server, arguments);
     };
 

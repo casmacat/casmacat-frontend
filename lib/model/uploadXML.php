@@ -408,6 +408,9 @@ else {
                     case LogEvent::FLOAT_PREDICTION_ACCEPT:
                         insertLogEventHeader($logEvent);
                         break;
+                    case LogEvent::UPDATE_SHADE_OFF_TRANSLATED_SOURCE:
+                        insertLogEventHeader($logEvent);
+                        break;
                     case LogEvent::BICONCOR:
                         $logEvent->biconcorData($value);
                         insertBiconcorEvent($logEvent);
@@ -463,6 +466,14 @@ else {
                         break;
                     case LogEvent::FOCUS:
                         insertLogEventHeader($logEvent);
+                        break;
+                    case LogEvent::EMIT:
+                        $logEvent->itpServerData($value);
+                        insertFloatPredictionShowEvent($logEvent);
+                        break;
+                    case LogEvent::RESULT:
+                        $logEvent->itpServerData($value);
+                        insertFloatPredictionShowEvent($logEvent);
                         break;
                                         
                     default:

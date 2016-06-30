@@ -189,6 +189,18 @@ CREATE TABLE IF NOT EXISTS `float_prediction_show_event` (
   KEY `header_id` (`header_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=28 ;
 
+CREATE TABLE IF NOT EXISTS `itp_server_event` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `header_id` int(11) NOT NULL,
+  `type` char(6) NOT NULL COMMENT 'Emit or Result ',
+  `request` varchar(45) NOT NULL COMMENT 'Name of the request',
+  `data` text COLLATE utf8_unicode_ci,
+  `error` text COLLATE utf8_unicode_ci,
+  PRIMARY KEY (`id`),
+  KEY `id` (`id`),
+  KEY `header_id` (`header_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=28 ;
+
 CREATE TABLE IF NOT EXISTS `epen_event` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `header_id` int(11) NOT NULL,

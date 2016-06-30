@@ -77,6 +77,7 @@ var LogEventFactory = function(elementIdMode) {
      // merc - adding floatPrediction, biconcordancer and translationOption
     this.FLOAT_PREDICTION_ACCEPT = "floatPredictionAccept";
     this.FLOAT_PREDICTION_SHOW = "floatPredictionShow";
+    this.UPDATE_SHADE_OFF_TRANSLATED_SOURCE = "updateShadeOffTranslatedSource";
     this.BICONCOR = "biconcor";
     this.BICONCOR_CLOSED = "biconcorClosed";
     this.TRANSLATION_OPTION = "translationOption";
@@ -95,6 +96,9 @@ var LogEventFactory = function(elementIdMode) {
     // merc - blur/focus
     this.BLUR = "blur";
     this.FOCUS = "focus";
+    // interaction with ITP server
+    this.EMIT = "emit";
+    this.RESULT = "result";
 };
 
 /**
@@ -323,6 +327,8 @@ LogEventFactory.prototype.newLogEvent = function(type, timeStamp, element) {
             break;
         case this.FLOAT_PREDICTION_ACCEPT:
             break;
+        case this.UPDATE_SHADE_OFF_TRANSLATED_SOURCE:
+            break;
         case this.BICONCOR:
             logEvent.word = arguments[3].srcPhrase; 
             logEvent.info = arguments[3].concorStruct;        
@@ -364,6 +370,17 @@ LogEventFactory.prototype.newLogEvent = function(type, timeStamp, element) {
         case this.BLUR:
             break;
         case this.FOCUS:
+            break;
+        // ITP server events
+        case this.EMIT:
+            logEvent.request = arguments[3][0];
+            logEvent.data = arguments[3][1];
+            break;
+        case this.RESULT:
+            logEvent.request = arguments[3][0];
+            logEvent.data = arguments[3][1];
+            logEvent.error = arguments[3][2];
+            console.log("built result log event", logEvent);
             break;
 
         default:

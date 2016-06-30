@@ -237,6 +237,11 @@ var Memento = require("module.memento");
         }
       });
 
+      itp.on('updateShadeOffTranslatedSource', function() {
+        var conf = userCfg();
+        self.vis.updateShadeOffTranslatedSource();
+      });
+
       // result from touch editing
       itp.on('redecodeResult', function(data, err) {
         if (err.length > 0) { return }
@@ -343,7 +348,6 @@ var Memento = require("module.memento");
         if (err.length > 0) {
           return
         }
-
         self.vis.updateAlignmentDisplay(data);
         $target.trigger('alignments', [data, err]);
         $target.trigger('editabledomchange', [data, err]);

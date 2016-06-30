@@ -710,7 +710,6 @@
         $("#blockInput").width($("#virtualScreen").width() + 20);
     };
 
-    var itpDecodeCall = false;
     var itpSuffixChangeCall = false; var suffixChangeTime = 0;
     var lw, lh; // TODO width and height from last resize, this must become an array
     var remappedAOIFixations = [];
@@ -731,39 +730,21 @@
                 break;
 
             case logEventFactory.TEXT:
-//                if (settings.etRemapAOI) {
-//                    debug(pluginName + ": Remapping AOI, skipping event: type: '" + event.type + "' ");
-//                    break;
-//                }
-//if (event.id == "13905162") break;
+		console.log("text event");
                 if (skipCurrentSegment) {
                     break;
                 }
-//if (event.deleted == "medio ") {
-//    debug("**** EVENT NOT LOST, WHAT IS THE PROBLEM!? text.time: " + event.time + " suffix.time: " + suffixChangeTime);
-//    alert("EVENT NOT LOST, WHAT IS THE PROBLEM!? text.time: " + event.time + " suffix.time: " + suffixChangeTime);
-//itpSuffixChangeCall = false;
-//}
                 var timespan = parseInt(event.time) - parseInt(suffixChangeTime);
                 debug(pluginName + ": Time span between suffixchange (" + suffixChangeTime + ") and text (" + event.time + "): " + timespan);
                 if (timespan >= 50 && itpSuffixChangeCall === true) {
                     itpSuffixChangeCall = false;
                 }
-//else if (timespan <= 50 && itpSuffixChangeCall === false) {
-//    itpSuffixChangeCall = true;
-//}
                 suffixChangeTime = 0;
-
 
                 debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
                 debug(event);
 
-                if (itpDecodeCall) {
-                    debug(pluginName + ": Skipping text changed event because of itpDecodeCall...");
-                    itpDecodeCall = false;
-                    break;
-                }
-                else if (itpSuffixChangeCall) {
+                if (itpSuffixChangeCall) {
 //if (event.id == "13905162") {
 //    itpSuffixChangeCall = false;
 //}
@@ -854,7 +835,6 @@
 //                    break;
 //                }
 
-//                itpDecodeCall = false;
 //                itpSuffixChangeCall = false;
 
                 if (skipCurrentSegment) {
@@ -1154,11 +1134,6 @@ debug(event);
                 break;
 
             case logEventFactory.DECODE:
-//                if (settings.etRemapAOI) {
-//                    debug(pluginName + ": Remapping AOI, skipping event: type: '" + event.type + "' ");
-//                    break;
-//                }
-
                 if (skipCurrentSegment) {
                     break;
                 }
@@ -1168,13 +1143,12 @@ debug(event);
                 }
 
                 itpData = JSON.parse(event.data);
-                vsWindow.$("#" + event.elementId).editableItp('trigger', "decodeResult", {errors: [], data: itpData});
-                itpDecodeCall = true;
+                //vsWindow.$("#" + event.elementId).editableItp('trigger', "decodeResult", {errors: [], data: itpData});
                 break;
             case logEventFactory.ALIGNMENTS:
                 itpData = JSON.parse(event.data);
                 try {   // TODO check and correct or handle this exception
-                    vsWindow.$("#" + event.elementId).editableItp('trigger', "getAlignmentsResult", {errors: [], data: itpData});
+                    //vsWindow.$("#" + event.elementId).editableItp('trigger', "getAlignmentsResult", {errors: [], data: itpData});
                 }
                 catch(e) {
                     alert(e);
@@ -1202,7 +1176,7 @@ debug(event);
                                             // this hack tries to correct it
                 itpData = JSON.parse(event.data);
 //debug(itpData);
-                vsWindow.$("#" + event.elementId).editableItp('trigger', "setPrefixResult", {errors: [], data: itpData});
+                //vsWindow.$("#" + event.elementId).editableItp('trigger', "setPrefixResult", {errors: [], data: itpData});
 
                 var tn = element.text();    // ITP not working correctly, see above
                 if (to !== tn) {
@@ -1217,12 +1191,12 @@ debug(event);
                 break;
             case logEventFactory.CONFIDENCES:
                 itpData = JSON.parse(event.data);
-                vsWindow.$("#" + event.elementId).editableItp('trigger', "getConfidencesResult", {errors: [], data: itpData});
+                //vsWindow.$("#" + event.elementId).editableItp('trigger', "getConfidencesResult", {errors: [], data: itpData});
                 break;
             case logEventFactory.TOKENS:
                 itpData = JSON.parse(event.data);
                 try {
-                    vsWindow.$("#" + event.elementId).editableItp('trigger', "getTokensResult", {errors: [], data: itpData});
+                    //vsWindow.$("#" + event.elementId).editableItp('trigger', "getTokensResult", {errors: [], data: itpData});
                 }
                 catch (e) {
                     alert(e);
@@ -1246,11 +1220,11 @@ debug(event);
 //debug(pluginName + ": Replaying event: type: '" + event.type + "', time: '" + event.time + "', elementId: '" + event.elementId + "'");
 //debug(event);
                 /*itpData = JSON.parse(event.data);
-                vsWindow.$("#" + event.elementId).trigger('caretenter', itpData);*/
+                //vsWindow.$("#" + event.elementId).trigger('caretenter', itpData);*/
                 break;
             case logEventFactory.HIDE_ALIGNMENT_BY_KEY:
                 /*itpData = JSON.parse(event.data);
-                vsWindow.$("#" + event.elementId).trigger('caretleave', itpData);*/
+                //vsWindow.$("#" + event.elementId).trigger('caretleave', itpData);*/
                 break;
 
             case logEventFactory.KEY_DOWN:
@@ -1426,6 +1400,16 @@ debug(event);
                 break;
             case logEventFactory.FOCUS:
                 break;
+            // interaction with ITP server
+            case logEventFactory.EMIT:
+                break;
+            case logEventFactory.RESULT:
+                itpData = JSON.parse(event.data);
+                var itpError = JSON.parse(event.error);
+                var itpRequest = event.request;
+		console.log("RESULT", event.elementId, itpRequest, itpData);
+		vsWindow.$("#" + event.elementId).editableItp('trigger', itpRequest, {errors: itpError, data: itpData});
+                break;
 
             case logEventFactory.FLOAT_PREDICTION_SHOW:
                 console.log("drawTextBox(" + event.text + ", " + event.visible + ", " + event.x + ", " + event.y + ")");
@@ -1435,6 +1419,11 @@ debug(event);
                     {errors: [], data: [event.text, event.visible, event.x, event.y]});
                 break;
             case logEventFactory.FLOAT_PREDICTION_ACCEPT:
+                break;
+            case logEventFactory.UPDATE_SHADE_OFF_TRANSLATED_SOURCE:
+                vsWindow.$("#" + event.elementId).editableItp(
+                  'trigger', 
+                  'updateShadeOffTranslatedSource',{}); 
                 break;
 
             default:

@@ -847,6 +847,7 @@ UI = {
 		console.log('getContributionSuccess');
         // CASMACAT extension start
         if (config.replay != 1) {
+            // carry out logging
             var event = $.Event("suggestionsLoaded");
             if (next == 0) {
                 event.segment = segment[0];

@@ -241,6 +241,9 @@ class saveLogChunkController extends ajaxcontroller {
                     case LogEvent::FLOAT_PREDICTION_ACCEPT:
                         insertLogEventHeader($logEvent);
                         break;
+                    case LogEvent::UPDATE_SHADE_OFF_TRANSLATED_SOURCE:
+                        insertLogEventHeader($logEvent);
+                        break;
                     case LogEvent::BICONCOR:
                         $logEvent->biconcorData($value);
                         insertBiconcorEvent($logEvent);
@@ -296,6 +299,15 @@ class saveLogChunkController extends ajaxcontroller {
                         break;
                     case LogEvent::FOCUS:
                         insertLogEventHeader($logEvent);
+                        break;
+                    // interaction with ITP server
+                    case LogEvent::EMIT:
+                        $logEvent->itpServerData($value);
+                        insertItpServerEvent($logEvent);
+                        break;
+                    case LogEvent::RESULT:
+                        $logEvent->itpServerData($value);
+                        insertItpServerEvent($logEvent);
                         break;
                                         
                     default:

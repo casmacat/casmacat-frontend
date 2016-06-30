@@ -212,6 +212,8 @@ function resetDocument($jobId, $fileId) {
                 break;
             case LogEvent::FLOAT_PREDICTION_ACCEPT:
                 break;
+            case LogEvent::UPDATE_SHADE_OFF_TRANSLATED_SOURCE:
+                break;
             case LogEvent::BICONCOR:
                 break;
             case LogEvent::BICONCOR_CLOSED:
@@ -243,6 +245,11 @@ function resetDocument($jobId, $fileId) {
             case LogEvent::BLUR:
                 break;
             case LogEvent::FOCUS:
+                break;
+            // interaction with ITP server
+            case LogEvent::EMIT:
+                break;
+            case LogEvent::RESULT:
                 break;
 
             default:
@@ -483,6 +490,8 @@ log::doLog($endOffset);
                 break;
             case LogEvent::FLOAT_PREDICTION_ACCEPT:
                 break;
+            case LogEvent::UPDATE_SHADE_OFF_TRANSLATED_SOURCE:
+                break;
             case LogEvent::BICONCOR:
                 $eventRow = fetchEventRow($logEvent->id, "biconcor_event");
                 $logEvent->biconcorData($eventRow);
@@ -532,6 +541,15 @@ log::doLog($endOffset);
             case LogEvent::BLUR:
                 break;
             case LogEvent::FOCUS:
+                break;
+            // interaction with ITP server
+            case LogEvent::EMIT:
+                $eventRow = fetchEventRow($logEvent->id, "itp_server_event");
+                $logEvent->itpServerData($eventRow);
+                break;
+            case LogEvent::RESULT:
+                $eventRow = fetchEventRow($logEvent->id, "itp_server_event");
+                $logEvent->itpServerData($eventRow);
                 break;
 
             default:
@@ -1075,8 +1093,28 @@ function insertSrEvent($event) {
         log::doLog("CASMACAT: insertFloatPredictionShow(): " . print_r($err, true));
         throw new Exception("CASMACAT: insertFloatPredictionShow(): " . print_r($err, true));
     }
-}
+  }
       
+  function insertItpServerEvent($event) {
+    $headerId = insertLogEventHeader($event);
+
+    $data = array();
+    $data["header_id"] = $headerId;
+    $data["type"] = $event->type;
+    $data["request"] = $event->request;
+    $data["data"] = json_encode($event->data);
+    $data["error"] = json_encode($event->error);
+    
+    $db = Database::obtain();
+    $db->insert("itp_server_event", $data);
+
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: insertItpServerEvent(): " . print_r($err, true));
+        throw new Exception("CASMACAT: insertItpServerEvent(): " . print_r($err, true));
+    }
+  }
 
 //  merc - adding biconcor insertion
   function insertBiconcorEvent($event) {

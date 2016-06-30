@@ -263,10 +263,15 @@
     }
 
     self.updateShadeOffTranslatedSource = function() {
+      $target.trigger('updateShadeOffTranslatedSource');
+      console.log("updateShadeOffTranslatedSource");
       var transopt_id_prefix = "#" + $(UI.currentSegment).attr("id") + "-translation-option-input-";
       var sourcespans = $('.editable-token', $source());
       var targetspans = $('.editable-token', $target);
+
+      // not used -> clear out annotation
       if (! (userCfg().useAlignments && userCfg().displayShadeOffTranslatedSource)) {
+        console.log("everything false");
         for (var i = 0; i < sourcespans.length; i++) {
           $(sourcespans[i]).toggleClass('shade-off-translated', false);
           $(sourcespans[i]).toggleClass('shade-off-next', false);
@@ -275,67 +280,73 @@
             $(transopt_id_prefix + i).toggleClass('shade-off-next', false);
           }
         }
+        return;
       }
-      else {
-        if (!$target.data.alignments) {
-          return;
-        }
-        // get span tokens 
-        var last_covered = -1;
-        for (var i = 0; i < targetspans.length; i++) {
-           if ($('#'+targetspans[i].id).text() != "") {
-             // console.log("i = " + i + ", " + targetspans[i].id + " has text " + $('#'+targetspans[i].id).text());
-             last_covered = i;
-           }
-        }
-        console.log("last covered: " + last_covered);
-        // loop over source words
-        var previous_covered_by_any = false;
-        var previous_covered_by_next = false;
-        for (var s=0; s<$target.data.alignments.length; s++) {
-          var covered_by_any = false;
-          var covered_by_next = false;
-          var log_aligned = "";
-          for (var t=0; t<$target.data.alignments[s].length && t<=last_covered+1; t++) {
-            if ($target.data.alignments[s][t]) {
-              if (t == last_covered+1) {
-                covered_by_next = true;
-              }
-              else {
-                covered_by_any = true;
-              }
-              log_aligned += " " + $('#'+targetspans[t].id).text()
-            }
-          }
-          if (covered_by_any || covered_by_next) { 
-            console.log($(sourcespans[s]).text() + " --- " + log_aligned);
-          }
-          if (covered_by_next) { covered_by_any = false; }
 
-          // got all the information, let's color some input tokens
-          $(sourcespans[s]).toggleClass('shade-off-translated', covered_by_any);
-          $(sourcespans[s]).toggleClass('shade-off-next', covered_by_next);
-          if (s>0) { // also the spaces between them
-            $('#'+sourcespans[s-1].id+"-space").toggleClass('shade-off-translated', previous_covered_by_any && covered_by_any);
-            $('#'+sourcespans[s-1].id+"-space").toggleClass('shade-off-next', (previous_covered_by_next || previous_covered_by_any) && covered_by_next);
-          }
-
-          // shade and scroll translation option display
-          if (window.config.translationOptions && $(transopt_id_prefix + s)) {
-            if (covered_by_next) { // move display to show next in center
-              var currentFocusWordPosition = $(transopt_id_prefix + s).offset().left;
-              var move = currentFocusWordPosition - window.innerWidth * 0.4;
-              var currentScrollPosition = $("#" + $(UI.currentSegment).attr("id") + "-options").scrollLeft();
-              var scrollToPosition = currentScrollPosition + move;
-              if (scrollToPosition < 0) { scrollToPosition = 0; }
-              $("#" + $(UI.currentSegment).attr("id") + "-options").scrollLeft( scrollToPosition )
+      if (! $target.data.alignments) {
+        console.log("there are no alignments");
+        return;
+      } 
+      elsif (sourcespans.length != $target.data.alignments.length || 
+             targetspans.length != $target.data.alignments[0].length) {
+        return;
+      }
+      // get span tokens 
+      var last_covered = -1;
+      for (var i = 0; i < targetspans.length; i++) {
+         if ($('#'+targetspans[i].id).text() != "") {
+           last_covered = i;
+         }
+      }
+      console.log("last covered: " + last_covered);
+      // loop over source words
+      var previous_covered_by_any = false;
+      var previous_covered_by_next = false;
+      for (var s=0; s<$target.data.alignments.length; s++) {
+        var covered_by_any = false;
+        var covered_by_next = false;
+        var log_aligned = "";
+        for (var t=0; t<$target.data.alignments[s].length && t<=last_covered+1; t++) {
+          if ($target.data.alignments[s][t]) {
+            if (t == last_covered+1) {
+              covered_by_next = true;
             }
-            $(transopt_id_prefix + s).toggleClass('shade-off-translated', covered_by_any);
-            $(transopt_id_prefix + s).toggleClass('shade-off-next', covered_by_next);
+            else {
+              covered_by_any = true;
+            }
+            log_aligned += " " + $('#'+targetspans[t].id).text()
           }
-          previous_covered_by_next = covered_by_next;
-          previous_covered_by_any = covered_by_any;
         }
+        if (covered_by_any || covered_by_next) { 
+          console.log($(sourcespans[s]).text() + " --- " + log_aligned);
+        }
+        if (covered_by_next) { covered_by_any = false; }
+
+        // got all the information, let's color some input tokens
+        $(sourcespans[s]).toggleClass('shade-off-translated', covered_by_any);
+        $(sourcespans[s]).toggleClass('shade-off-next', covered_by_next);
+        if (s>0) { // also the spaces between them
+          $('#'+sourcespans[s-1].id+"-space").toggleClass('shade-off-translated', previous_covered_by_any && covered_by_any);
+          $('#'+sourcespans[s-1].id+"-space").toggleClass('shade-off-next', (previous_covered_by_next || previous_covered_by_any) && covered_by_next);
+        }
+
+        // shade and scroll translation option display
+        if (window.config.translationOptions 
+            && $(transopt_id_prefix + s) 
+            && $(transopt_id_prefix + s).offset()) {
+          if (covered_by_next) { // move display to show next in center
+            var currentFocusWordPosition = $(transopt_id_prefix + s).offset().left;
+            var move = currentFocusWordPosition - window.innerWidth * 0.4;
+            var currentScrollPosition = $("#" + $(UI.currentSegment).attr("id") + "-options").scrollLeft();
+            var scrollToPosition = currentScrollPosition + move;
+            if (scrollToPosition < 0) { scrollToPosition = 0; }
+            $("#" + $(UI.currentSegment).attr("id") + "-options").scrollLeft( scrollToPosition )
+          }
+          $(transopt_id_prefix + s).toggleClass('shade-off-translated', covered_by_any);
+          $(transopt_id_prefix + s).toggleClass('shade-off-next', covered_by_next);
+        }
+        previous_covered_by_next = covered_by_next;
+        previous_covered_by_any = covered_by_any;
       }
     }
 
@@ -346,8 +357,7 @@
         , source = data.source
         , sourceSegmentation = data.sourceSegmentation
         , target = data.target
-        , targetSegmentation = data.targetSegmentation
-        ;
+        , targetSegmentation = data.targetSegmentation;
 
       // make sure new data still applies to current text
       if (!(alignments.length > 0 && alignments[0].length > 0)) return;
@@ -359,16 +369,16 @@
       // get span tokens 
       var sourcespans = $('.editable-token', $source());
       var targetspans = $('.editable-token', $target);
-    
+  
       var aligids = self.getAlignmentIds(alignments, sourcespans, targetspans);  
       if (aligids) {
         // sourceal stores ids of target spans aligned to it
         var sourceal = aligids.sourceal;
         var targetal = aligids.targetal;
-  
+
         // add mouseenter mouseleave events to source spans
         self.addAlignmentEvents($source(), sourcespans, sourceal);
-  
+
         // add mouseenter mouseleave events to target spans
         self.addAlignmentEvents($target, targetspans, targetal);
 

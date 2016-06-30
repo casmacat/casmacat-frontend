@@ -4,6 +4,7 @@
 DELETE FROM `log_event_header` WHERE 1;
 DELETE FROM `biconcor_event` WHERE 1;
 DELETE FROM `float_prediction_show_event` WHERE 1;
+DELETE FROM `itp_server_event` WHERE 1;
 DELETE FROM `config_event` WHERE 1;
 DELETE FROM `deleting_suggestion_event` WHERE 1;
 DELETE FROM `epen_event` WHERE 1;

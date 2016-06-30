@@ -906,6 +906,36 @@ else {
     else $len_float_prediction_show = 0;
         
     //-------------------------------------------------------------------------------------------
+    
+    //itp_server_event 
+    $queryId = $db->query("SELECT h.id as id, h.job_id, h.file_id, h.element_id, h.x_path, h.time, h.type"
+            . ", b.type, b.request, b.data, b.error"
+        . " FROM log_event_header h, itp_server_event b WHERE h.job_id = '$jobId' AND h.file_id = '$fileId' AND h.id = b.header_id ORDER BY h.time, h.id ASC");
+    
+    $err = $db->get_error();
+    $errno = $err["error_code"];
+    if ($errno != 0) {
+        log::doLog("CASMACAT: fetchLogChunk(): " . print_r($err, true));
+        throw new Exception("CASMACAT: fetchLogChunk(): " . print_r($err, true));
+    }
+        
+    $itpServerRow = null;
+    $itpServerEvents = array();
+    while ( ($itpServerRow = $db->fetch($queryId)) != false ) {
+        $itpServerRowAsObject = snakeToCamel($itpServerRow);        
+        $itpServerEvent = new LogEvent($jobId, $fileId, $itpServerRowAsObject);
+        $itpServerEvent->itpServerData($itpServerRowAsObject);
+        array_push($itpServerEvents, $itpServerEvent); 
+    }
+    
+    if(!empty($itpServerEvents))
+    {
+        $count_itp_server = 0;
+        $len_itp_server = count($itpServerEvents);
+    }
+    else $len_itp_server = 0;
+        
+    //-------------------------------------------------------------------------------------------
         
     //log_event_header
     $queryId = $db->query("SELECT * FROM log_event_header h WHERE h.job_id = '$jobId' AND h.file_id = '$fileId'"
@@ -1192,6 +1222,17 @@ else {
             }
             if ($count_float_prediction_show < $len_float_prediction_show-1){
                 $count_float_prediction_show = $count_float_prediction_show + 1;
+            }
+        }
+
+        elseif ($len_itp_server != 0 && $headerRowAsObject->id == $itpServerEvents[$count_itp_server]->id){
+            foreach($itpServerEvents[$count_itp_server] as $attribute => $val){                
+                if ($attribute != 'jobId' && $attribute != 'fileId' && $attribute != 'type'){
+                    $writer->writeAttribute($attribute, $val);
+                }
+            }
+            if ($count_itp_server < $len_itp_server-1){
+                $count_itp_server = $count_itp_server + 1;
             }
         }
 

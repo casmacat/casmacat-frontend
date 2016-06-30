@@ -72,6 +72,7 @@ class LogEvent {
     // merc - adding floatprediction, biconcor and translationOption
     const FLOAT_PREDICTION_ACCEPT = "floatPredictionAccept";
     const FLOAT_PREDICTION_SHOW = "floatPredictionShow";
+    const UPDATE_SHADE_OFF_TRANSLATED_SOURCE  = "updateShadeOffTranslatedSource";
     const BICONCOR = "biconcor";
     const BICONCOR_CLOSED = "biconcorClosed";
     const TRANSLATION_OPTION = "TranslationOption";
@@ -90,6 +91,9 @@ class LogEvent {
     // merc - blur/focus
     const BLUR = "blur";
     const FOCUS = "focus";
+    // interaction with ITP server
+    const EMIT = "emit";
+    const RESULT = "result";
 
     public $id;
     public $jobId;
@@ -274,6 +278,14 @@ class LogEvent {
         $this->x = $object->x;
         $this->y = $object->y;
     }
+
+    public function itpServerData($object) {
+        $this->type = $object->type;
+        $this->request = $object->request;
+        $this->data = $object->data;
+        $this->error = $object->error;
+    }
+
     // merc - adding biconcor
     public function biconcorData($object) {
         $this->word = $object->word;
