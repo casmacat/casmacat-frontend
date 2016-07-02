@@ -77,7 +77,7 @@
       return this.each(function() {
         var $this = $(this)
           , $source = $(options.sourceSelector)
-          , itpRes = getItpServer(options, $(this).context.id)
+          , itpRes = getItpServer(options, $(this))
           , itpServer = itpRes.itpServer
           , data = {
               $source: $source,

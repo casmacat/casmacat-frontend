@@ -287,7 +287,7 @@
         console.log("there are no alignments");
         return;
       } 
-      elsif (sourcespans.length != $target.data.alignments.length || 
+      else if (sourcespans.length != $target.data.alignments.length || 
              targetspans.length != $target.data.alignments[0].length) {
         return;
       }
